@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Bell } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -21,10 +22,11 @@ function NotificationDropdown() {
   const markAllAsRead = () => {
     setUnreadCount(0);
   };
+
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button className="relative" size="icon" variant="ghost">
           <Bell />
           {unreadCount > 0 && (
             <span className="absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
@@ -36,7 +38,7 @@ function NotificationDropdown() {
       <PopoverContent className="w-80">
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-lg font-semibold">Notifications</h2>
-          <Button variant="ghost" size="sm" onClick={markAllAsRead}>
+          <Button size="sm" variant="ghost" onClick={markAllAsRead}>
             Mark all as read
           </Button>
         </div>

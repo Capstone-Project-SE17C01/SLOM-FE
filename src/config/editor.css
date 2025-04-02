@@ -1,0 +1,14 @@
+.ql-container {
+  border-radius: 0 0 calc(var(--radius) - 2px) calc(var(--radius) - 2px);
+}
+.ql-editor {
+  min-height: 300px;
+}
+.ql-toolbar {
+  border-radius: calc(var(--radius) - 2px) calc(var(--radius) - 2px) 0 0;
+  background: var(--card);
+}
+.ql-toolbar button:hover {
+  /* background: var(--); */
+  color: #fff !important;
+}

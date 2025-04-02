@@ -1,6 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { signInWithPopup } from "firebase/auth";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
+import { useLoginWithGoogleMutation } from "../api";
+import { setAccessToken, setUserInfo } from "../slice";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,23 +18,37 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "@/services/firebase/config";
-import { useLoginWithGoogleMutation } from "../api";
-import { useRouter } from "next/navigation";
+import { setClientCookie } from "@/lib/jsCookies";
+import { useAppDispatch } from "@/hooks/redux-toolkit";
+import constants from "@/settings/constants";
 
 export function LoginForm() {
   const router = useRouter();
+
+  const dispatch = useAppDispatch();
 
   const [signInWithGoogle] = useLoginWithGoogleMutation();
 
   const handleGoogleLogin = async () => {
     try {
-      const resFirebase = await signInWithPopup(auth, provider.providerGoogle);
-      await signInWithGoogle(resFirebase.user).unwrap();
+      const resFirebase: any = await signInWithPopup(
+        auth,
+        provider.providerGoogle
+      );
+
+      const res = await signInWithGoogle({
+        token: resFirebase.user.accessToken,
+      }).unwrap();
+
+      setClientCookie(constants.USER_INFO, JSON.stringify(resFirebase.user));
+      dispatch(setUserInfo(resFirebase.user));
+      dispatch(setAccessToken(res?.accessToken));
       router.push("/");
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      if (error?.status === 404) {
+        toast.error("Tài khoản của bạn chưa có trong hệ thống quản trị");
+      }
     }
   };
 
@@ -46,27 +66,27 @@ export function LoginForm() {
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
             <Input
-              id="email"
-              type="email"
-              placeholder="m@example.com"
               required
+              id="email"
+              placeholder="m@example.com"
+              type="email"
             />
           </div>
           <div className="grid gap-2">
             <div className="flex items-center">
               <Label htmlFor="password">Mật khẩu</Label>
-              <Link href="#" className="ml-auto inline-block text-sm underline">
+              <Link className="ml-auto inline-block text-sm underline" href="#">
                 Quên mật khẩu?
               </Link>
             </div>
-            <Input id="password" type="password" required />
+            <Input required id="password" type="password" />
           </div>
-          <Button type="submit" className="w-full cursor-pointer" disabled>
+          <Button disabled className="w-full cursor-pointer" type="submit">
             Đăng nhập
           </Button>
           <Button
-            variant="outline"
             className="w-full"
+            variant="outline"
             onClick={handleGoogleLogin}
           >
             Đăng nhập với Google

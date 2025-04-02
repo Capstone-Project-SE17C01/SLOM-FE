@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 
 import "./globals.css";
 
-import { geistMono, geistSans } from "@/config/fonts";
 import { Providers } from "./providers";
+
+import { geistMono, geistSans } from "@/config/fonts";
 
 export const metadata: Metadata = {
   title: {
@@ -18,9 +19,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html suppressHydrationWarning lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased shadow-md`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased shadow-md overflow-y-scroll`}
       >
         <Providers>{children}</Providers>
       </body>

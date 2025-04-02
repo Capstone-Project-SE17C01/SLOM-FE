@@ -1,14 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-import { authAPI } from "./api";
 import { getClientCookie, setClientCookie } from "@/lib/jsCookies";
 import constants from "@/settings/constants";
 
 interface AuthSliceInterface {
   userInfo: {
-    avatarUrl: string;
-    firstname: string;
-    lastname: string;
+    displayName: string;
+    photoURL: string;
+    email: string;
   } | null;
   access_token: string | null;
 }
@@ -17,6 +16,7 @@ const initialState: AuthSliceInterface = {
   userInfo: (() => {
     try {
       const userInfo = getClientCookie(constants.USER_INFO);
+
       return userInfo ? JSON.parse(userInfo) : null;
     } catch {
       return null;
@@ -26,25 +26,20 @@ const initialState: AuthSliceInterface = {
 };
 
 export const authSlice = createSlice({
-  name: "auth",
+  name: "layout",
   initialState,
-  reducers: {},
-  extraReducers: (builder) => {
-    builder.addMatcher(
-      authAPI.endpoints.loginWithGoogle.matchFulfilled,
-      (state, action) => {
-        state.userInfo = action.payload.user;
-        state.access_token = action.payload.token;
-        setClientCookie(constants.ACCESS_TOKEN, action.payload.token);
-        setClientCookie(
-          constants.USER_INFO,
-          JSON.stringify(action.payload.user)
-        );
-      }
-    );
+  reducers: {
+    setUserInfo: (state, action) => {
+      state.userInfo = action.payload;
+    },
+    setAccessToken: (state, action) => {
+      state.access_token = action.payload;
+      setClientCookie(constants.ACCESS_TOKEN, action.payload);
+    },
   },
+  extraReducers: (builder) => {},
 });
 
-export const {} = authSlice.actions;
+export const { setUserInfo, setAccessToken } = authSlice.actions;
 
 export default authSlice.reducer;

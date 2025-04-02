@@ -1,15 +1,24 @@
 import { configureStore } from "@reduxjs/toolkit";
 
 import { rtkQueryErrorLogger } from "./midleware";
-import auth from "@/features/auth/slice";
 import { baseApi } from "./baseApi";
+
+import auth from "@/features/auth/slice";
 import { authAPI } from "@/features/auth/api";
+import { UploadApi } from "@/services/common/upload/api.upload";
+import layout from "@/components/layouts/dashboard/slice";
 
 export const store = configureStore({
-  reducer: { [authAPI.reducerPath]: authAPI.reducer, auth },
+  reducer: {
+    [UploadApi.reducerPath]: UploadApi.reducer,
+    [authAPI.reducerPath]: authAPI.reducer,
+    auth,
+    layout,
+  },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
       .concat(baseApi.middleware)
+      .concat(UploadApi.middleware)
       .concat(rtkQueryErrorLogger),
 });
 
