@@ -89,7 +89,7 @@ export function AppSidebar({
             className="w-9 h-auto"
             alt="logo"
           />
-          {open && <h3 className="text-xl font-bold">SafeEdu</h3>}
+          {open && <h3 className="text-xl font-bold">SLOM</h3>}
         </div>
       </SidebarHeader>
       <SidebarContent>

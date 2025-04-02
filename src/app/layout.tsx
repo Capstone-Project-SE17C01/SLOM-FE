@@ -7,8 +7,8 @@ import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | SafeEdu",
-    default: "SafeEdu",
+    template: "%s | SLOM",
+    default: "SLOM",
   },
 };
 

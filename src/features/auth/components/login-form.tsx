@@ -38,7 +38,7 @@ export function LoginForm() {
         <CardTitle className="text-2xl">Đăng nhập</CardTitle>
         <CardDescription>
           Nhập email của bạn bên dưới để đăng nhập vào trang quản trị của
-          SafeEdu
+          SLOM
         </CardDescription>
       </CardHeader>
       <CardContent>
