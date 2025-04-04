@@ -1,9 +1,9 @@
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Trang chủ",
-};
+"use client";
 
 export default function Page() {
-  return <div>Trang chu</div>;
+  return (
+    <div className="p-4">
+      <h1 className="text-2xl font-bold">Trang chủ</h1>
+    </div>
+  );
 }

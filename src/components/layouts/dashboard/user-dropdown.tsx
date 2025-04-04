@@ -15,6 +15,7 @@ import { User } from "lucide-react";
 import Link from "next/link";
 import { useAppSelector } from "@/hooks/redux-toolkit";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 const user = {
   fullName: "Jane Doe",
@@ -30,7 +31,13 @@ function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleSignOut = () => {
-    router.push("/dang-nhap");
+    // Remove all auth cookies
+    Cookies.remove("accessToken");
+    Cookies.remove("refreshToken");
+    Cookies.remove("idToken");
+    Cookies.remove("userEmail");
+    
+    router.push("/login");
   };
 
   return (

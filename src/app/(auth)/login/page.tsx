@@ -8,8 +8,11 @@ export const metadata: Metadata = {
 
 function Page() {
   return (
-    <div className="flex h-screen w-full items-center justify-center px-4">
-      <LoginForm />
+    
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+          <LoginForm />
+      </div>
     </div>
   );
 }
