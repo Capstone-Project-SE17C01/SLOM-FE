@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../slice";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +26,7 @@ import { toast } from "sonner";
 
 export function LoginForm() {
   const router = useRouter();
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -36,14 +39,22 @@ export function LoginForm() {
     e.preventDefault();
     try {
       const response = await login({ email, password }).unwrap();
-      const { accessToken, refreshToken, idToken ,userEmail} =
+      const { accessToken, userEmail} =
         response as LoginResponseDTO;
       if (response.accessToken) {
-          const cookieOptions = rememberMe ? { expires: 7 } : undefined;
-          Cookies.set("accessToken", accessToken, cookieOptions);
-          Cookies.set("refreshToken", refreshToken, cookieOptions);
-          Cookies.set("idToken", idToken, cookieOptions);
-          Cookies.set("userEmail", userEmail || "", cookieOptions);
+          
+          const userInfo = {
+            email: userEmail || "",
+            firstname: "", 
+            lastname: "",  
+            avatarUrl: ""  
+          };
+          
+          dispatch(setCredentials({
+            userInfo,
+            accessToken
+          }));
+          
         router.push("/");
       }
     } catch (error) {

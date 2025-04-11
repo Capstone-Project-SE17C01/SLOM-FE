@@ -9,6 +9,7 @@ import type {
   ResendConfirmationCodeDTO,
   ForgotPasswordRequestDTO,
 } from "./types";
+import { authSlice } from "./slice";
 
 export const authAPI = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -27,6 +28,38 @@ export const authAPI = baseApi.injectEndpoints({
         body: data,
         flashError: true,
       }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data: loginData } = await queryFulfilled;
+          console.log("Login data:", loginData);
+          if (loginData?.userEmail) {
+            const profileResult = await dispatch(
+              authAPI.endpoints.getUserProfile.initiate(loginData.userEmail)
+            ).unwrap();
+
+            console.log("Profile result:", profileResult);
+            
+            if (profileResult?.result) {
+              const user = profileResult.result;
+              dispatch(
+                authSlice.actions.setCredentials({
+                  userInfo: {
+                    id: user.id,
+                    email: user.email,
+                    username: user.username,
+                    avatarUrl: user.avatarUrl || "",
+                    role: user.roleId,
+                    preferredLanguageId: user.preferredLanguageId
+                  },
+                  accessToken: loginData.accessToken
+                })
+              );
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching user profile:', error);
+        }
+      }
     }),
     register: build.mutation({
       query: (data: RegisterationRequestDTO) => ({
@@ -67,6 +100,12 @@ export const authAPI = baseApi.injectEndpoints({
         flashError: true,
       }),
     }),
+    getUserProfile: build.query({
+      query: (email) => ({
+        url: `/api/Profile?email=${encodeURIComponent(email)}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -77,4 +116,5 @@ export const {
   useConfirmRegistrationMutation,
   useResendConfirmationCodeMutation,
   useForgotPasswordMutation,
+  useGetUserProfileQuery,
 } = authAPI;
