@@ -6,9 +6,14 @@ import constants from "@/settings/constants";
 
 interface AuthSliceInterface {
   userInfo: {
+    id?: string;
+    username?: string;
+    email: string;
     avatarUrl: string;
-    firstname: string;
-    lastname: string;
+    role?: string;
+    preferredLanguageId?: string;
+    firstname?: string;
+    lastname?: string;
   } | null;
   access_token: string | null;
 }
@@ -28,23 +33,50 @@ const initialState: AuthSliceInterface = {
 export const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    setCredentials: (state, action) => {
+      const { userInfo, accessToken } = action.payload;
+      state.userInfo = userInfo;
+      state.access_token = accessToken;
+    },
+    logout: (state) => {
+      state.userInfo = null;
+      state.access_token = null;
+      document.cookie = `${constants.USER_INFO}=; path=/; max-age=0`;
+      document.cookie = `${constants.ACCESS_TOKEN}=; path=/; max-age=0`;
+      document.cookie = `idToken=; path=/; max-age=0`;
+      document.cookie = `refreshToken=; path=/; max-age=0`;
+      document.cookie = `userEmail=; path=/; max-age=0`;
+    },
+  },
   extraReducers: (builder) => {
-    builder.addMatcher(
-      authAPI.endpoints.loginWithGoogle.matchFulfilled,
-      (state, action) => {
-        state.userInfo = action.payload.user;
-        state.access_token = action.payload.token;
-        setClientCookie(constants.ACCESS_TOKEN, action.payload.token);
-        setClientCookie(
-          constants.USER_INFO,
-          JSON.stringify(action.payload.user)
-        );
-      }
-    );
+    builder
+      .addMatcher(
+        authAPI.endpoints.login.matchFulfilled,
+        (state, action) => {
+          const { accessToken } = action.payload;
+          
+          if (action.payload.userInfo) {
+            state.userInfo = action.payload.userInfo;
+          }
+          state.access_token = accessToken;
+        }
+      )
+      .addMatcher(
+        authAPI.endpoints.loginWithGoogle.matchFulfilled,
+        (state, action) => {
+          state.userInfo = action.payload.user;
+          state.access_token = action.payload.token;
+          setClientCookie(constants.ACCESS_TOKEN, action.payload.token);
+          setClientCookie(
+            constants.USER_INFO,
+            JSON.stringify(action.payload.user)
+          );
+        }
+      );
   },
 });
 
-export const {} = authSlice.actions;
+export const { setCredentials, logout } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -1,19 +1,27 @@
-import { Button } from "@/components/ui/button";
-import { Moon, Sun } from "lucide-react";
-import React from "react";
+"use client";
 
-function ThemeSwitcher() {
-  return (
-    <Button
-      variant="ghost"
-      size="icon"
-      // onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-    >
-      <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-      <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-      <span className="sr-only">Toggle theme</span>
-    </Button>
-  );
+import { Moon, Sun } from "lucide-react";
+import { cn } from "@/utils/cn";
+import { useEffect } from "react";
+
+interface ThemeSwitcherProps {
+  isDarkMode: boolean;
+  toggleDarkMode?: () => void;
 }
 
-export default ThemeSwitcher;
+export default function ThemeSwitcher({ isDarkMode, toggleDarkMode }: ThemeSwitcherProps) {
+  useEffect(() => {
+
+  }, []);
+  return (
+    <button 
+      onClick={toggleDarkMode} 
+      className={cn(
+        "p-2 rounded-full mr-2",
+        isDarkMode ? "hover:bg-white/10" : "hover:bg-black/5"
+      )}
+    >
+      {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+    </button>
+  );
+}
