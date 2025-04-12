@@ -247,16 +247,15 @@ export function LoginForm() {
             </div>
           </CardContent>
         </Card>
-      </div>
-
-      {isLoading && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+        {isLoading && (
+        <div className="bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 w-screen h-screen fixed inset-0">
           <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg">
             <Loader2 className="h-5 w-5 animate-spin text-primary" />
             <span>Logging in...</span>
           </div>
         </div>
       )}
+      </div>
     </>
   );
 }

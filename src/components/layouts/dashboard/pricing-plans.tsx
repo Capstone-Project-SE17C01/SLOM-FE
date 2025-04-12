@@ -108,7 +108,7 @@ export default function PricingPlans() {
               <Card
                 key={plan.id}
                 className={cn(
-                  "relative overflow-hidden",
+                  "relative overflow-hidden flex flex-col",
                   plan.name === "Professional Educator"
                     ? "border-2 border-primary shadow-lg"
                     : "",
@@ -140,7 +140,7 @@ export default function PricingPlans() {
                     )}
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex-grow">
                   <ul className="space-y-3">
                     {parsedFeatures.map((feature, i) => (
                       <li key={i} className="flex items-center gap-2">
@@ -150,7 +150,7 @@ export default function PricingPlans() {
                     ))}
                   </ul>
                 </CardContent>
-                <CardFooter>
+                <CardFooter className="mt-auto">
                   <Button
                     className={
                       plan.name === "Professional Educator"
