@@ -51,3 +51,66 @@ export interface MessageResponse {
   message: string;
 }
 
+export interface CreatePaymentLinkResponseDTO {
+  checkoutUrl?: string | null;
+  message?: string | null;
+}
+
+export interface CreatePaymentRequestDTO {
+  subscriptionId: string; 
+  userId: string; 
+  paymentMethod: string;
+  status: "PAID" | "PENDING" | "PROCESSING" | "CANCELLED";
+  durationMonth: number;
+  productName?: string | null;
+  description: string;
+  returnUrl: string;
+  cancelUrl: string;
+  price: number;
+}
+
+export interface ReturnUrlQueryDTO {
+  period: number;
+  userId: string;
+  code: string;
+  id: string;
+  cancel: boolean;
+  status: "PAID" | "PENDING" | "PROCESSING" | "CANCELLED";
+  orderCode: number;
+}
+
+export interface CreatePaymentLinkResponseDTO {
+  checkoutUrl?: string | null;
+  message?: string | null;
+}
+
+export interface CreatePaymentRequestDTO {
+  subscriptionId: string; 
+  userId: string; 
+  paymentMethod: string;
+  status: "PAID" | "PENDING" | "PROCESSING" | "CANCELLED";
+  durationMonth: number;
+  productName?: string | null;
+  description: string;
+  returnUrl: string;
+  cancelUrl: string;
+  price: number;
+}
+
+export interface ReturnUrlQueryDTO {
+  code: string;
+  id: string;
+  cancel: boolean;
+  status: "PAID" | "PENDING" | "PROCESSING" | "CANCELLED";
+  orderCode: number;
+}
+
+export interface SubscriptionPlanDTO {
+  id: string; 
+  name: string;
+  price: number;
+  durationDays: number;
+  description: string;
+  features?: string | null;
+  isActive: boolean;
+}

@@ -1,4 +1,4 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
 import { Menu, X, Search, Bell, LogOut, Settings, UserCircle } from "lucide-react";
 import { cn } from "@/utils/cn";
@@ -15,10 +15,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { RootState } from "@/redux/store";
 import { useTheme } from "@/contexts/ThemeContext";
-import { deleteClientCookie } from "@/lib/jsCookies";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-
+import { logout } from "@/features/auth/slice";
 interface HeaderProps {
   toggleMenu: () => void;
   toggleDarkMode: () => void;
@@ -30,9 +29,9 @@ export default function Header({ toggleMenu, toggleDarkMode, menuOpen, navItems 
   const { isDarkMode } = useTheme();
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const router = useRouter();
+  const dispatch = useDispatch();
   const handleLogout = () => {
-    deleteClientCookie("token");
-    deleteClientCookie("user");
+    dispatch(logout());
     router.push("/login");
     toast.success("Logged out successfully");
   };
