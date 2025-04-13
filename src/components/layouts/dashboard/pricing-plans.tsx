@@ -27,7 +27,7 @@ export default function PricingPlans() {
 
   useEffect(() => {
     const userInfoCookie = Cookies.get(constants.USER_INFO);
-    if (userInfoCookie) {
+    if (userInfoCookie != null && userInfoCookie != "undefined") {
       setUserInfo(JSON.parse(userInfoCookie));
     }
   }, []);
@@ -51,7 +51,7 @@ export default function PricingPlans() {
     try {
       console.log("userInfo====>", userInfo);
       if (!userInfo?.id) return toast.error("Not authenticated");
-      
+
       const response = await createPaymentLinkMutation({
         subscriptionId: planId,
         userId: userInfo.id,
@@ -76,28 +76,36 @@ export default function PricingPlans() {
     }
   };
 
-
-  const apiPlans: SubscriptionPlanDTO[] = Array.isArray(data?.result) ? data.result : [];
+  const apiPlans: SubscriptionPlanDTO[] = Array.isArray(data?.result)
+    ? data.result
+    : [];
 
   return (
-    <div className={cn(
-      "py-20 px-4 sm:px-6 lg:px-8 mx-auto",
-      isDarkMode ? "bg-gray-900" : "bg-gray-50"
-    )}>
+    <div
+      className={cn(
+        "py-20 px-4 sm:px-6 lg:px-8 mx-auto",
+        isDarkMode ? "bg-gray-900" : "bg-gray-50"
+      )}
+    >
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-4">Pricing Plans</h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            Choose the plan that best fits your sign language learning or teaching needs
+            Choose the plan that best fits your sign language learning or
+            teaching needs
           </p>
-          
+
           <div className="flex items-center justify-center gap-2 mb-8">
-            <span className={annual ? "text-muted-foreground" : "font-medium"}>Monthly</span>
+            <span className={annual ? "text-muted-foreground" : "font-medium"}>
+              Monthly
+            </span>
             <Switch checked={annual} onCheckedChange={setAnnual} />
-            <span className={!annual ? "text-muted-foreground" : "font-medium"}>Annual (Save 20%)</span>
+            <span className={!annual ? "text-muted-foreground" : "font-medium"}>
+              Annual (Save 20%)
+            </span>
           </div>
         </div>
-        
+
         <div className="grid md:grid-cols-3 gap-8">
           {apiPlans.map((plan) => {
             const parsedFeatures: string[] = plan.features
@@ -171,13 +179,17 @@ export default function PricingPlans() {
             );
           })}
         </div>
-        
+
         <div className="text-center mt-12">
           <p className="text-muted-foreground">
-            All plans include a 14-day free trial. No credit card required to start.
+            All plans include a 14-day free trial. No credit card required to
+            start.
           </p>
           <p className="mt-2">
-            Need a custom solution for your organization? <a href="#" className="underline text-primary">Contact us</a>
+            Need a custom solution for your organization?{" "}
+            <a href="#" className="underline text-primary">
+              Contact us
+            </a>
           </p>
         </div>
       </div>

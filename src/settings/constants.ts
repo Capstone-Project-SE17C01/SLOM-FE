@@ -10,6 +10,12 @@ const ACCESS_TOKEN = "_access_token";
 const REFRESH_TOKEN = "_refresh_token";
 const IS_AUTH = "_is_auth";
 const IS_EXPAND = "_is_expand";
+const CLIENT_ID_GOOGLE = "63qb94i666qrkkojg95u54hoki";
+const IDENTITY_PROVIDER_GOOGLE = "Google";
+const REDIRECT_URL_GOOGLE = "http://localhost:3000/login";
+const DOMAIN_GOOGLE =
+  "ap-southeast-2kpv4t81dl.auth.ap-southeast-2.amazoncognito.com";
+const ENPOINT_URL_GOOGLE = `https://${DOMAIN_GOOGLE}/oauth2/authorize?response_type=code&identity_provider=${IDENTITY_PROVIDER_GOOGLE}&client_id=${CLIENT_ID_GOOGLE}&redirect_uri=${REDIRECT_URL_GOOGLE}`;
 
 const FIREBASE_API_KEY =
   process.env.NEXT_PUBLIC_FIREBASE_API_KEY ||
@@ -46,6 +52,8 @@ const constants = {
   FIREBASE_KEY_PAIR,
   RETURN_URL,
   CANCEL_URL,
+  REDIRECT_URL_GOOGLE,
+  ENPOINT_URL_GOOGLE,
 };
 
 export default constants;

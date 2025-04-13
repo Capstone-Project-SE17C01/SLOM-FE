@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
 import { useDispatch } from "react-redux";
@@ -10,12 +10,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signInWithPopup } from "firebase/auth";
-import { auth, provider } from "@/services/firebase/config";
+
 import { useLoginMutation, useLoginWithGoogleMutation } from "../api";
 import { LoginResponseDTO } from "../types";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
+import constants from "@/settings/constants";
 
 export function LoginForm() {
   const router = useRouter();
@@ -38,7 +38,7 @@ export function LoginForm() {
       .unwrap()
       .then((payload) => {
         if (payload.result) {
-          const { accessToken, userEmail } = payload.result as LoginResponseDTO;
+          const { accessToken } = payload.result as LoginResponseDTO;
           if (accessToken) {
             router.push("/");
           }
@@ -56,27 +56,48 @@ export function LoginForm() {
         setIsLoading(false);
       });
   };
+  useEffect(() => {
+    handleGoogleLogin();
+  }, []);
 
   const handleGoogleLogin = async () => {
-    setIsLoading(true);
-    await signInWithPopup(auth, provider.providerGoogle)
-      .then(async (payload) => {
-        const { refreshToken, email } = payload.user;
-        const idToken = await payload.user.getIdToken();
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
 
-        Cookies.set("accessToken", idToken);
-        Cookies.set("refreshToken", refreshToken);
-        Cookies.set("idToken", idToken);
-        Cookies.set("userEmail", email || "");
+    if (code) {
+      setIsLoading(true);
+      await signInWithGoogle({
+        code,
+        redirectUri: constants.REDIRECT_URL_GOOGLE,
+        role: "USER",
+        languageCode: "en",
+      })
+        .unwrap()
+        .then((payload) => {
+          console.log("payload", payload);
+          if (payload.result) {
+            const { accessToken } = payload.result as LoginResponseDTO;
+            if (accessToken) {
+              router.push("/");
+            }
+          }
+        })
+        .catch((error) => {
+          console.log("Error Login Email\n", error);
+          const errorMessage = Array.isArray(error.data.errorMessages)
+            ? error.data.errorMessages[0]
+            : error.data.errorMessages;
+          setError(errorMessage);
+          toast.error(errorMessage);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  };
 
-        router.push("/");
-      })
-      .catch((error) => {
-        console.log("Error Google Login\n", error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+  const redirectToGoogleLogin = () => {
+    window.location.href = constants.ENPOINT_URL_GOOGLE;
   };
 
   return (
@@ -200,7 +221,7 @@ export function LoginForm() {
               type="button"
               variant="outline"
               className="w-full h-9 sm:h-10 bg-white hover:bg-gray-50 flex items-center justify-center gap-2 text-sm sm:text-base border-0"
-              onClick={handleGoogleLogin}
+              onClick={redirectToGoogleLogin}
               disabled={isLoading}
             >
               {isLoading ? (
