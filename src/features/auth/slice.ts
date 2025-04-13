@@ -1,7 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 import { authAPI } from "./api";
-import { deleteClientCookie, getClientCookie, setClientCookie } from "@/lib/jsCookies";
+import {
+  deleteClientCookie,
+  getClientCookie,
+  setClientCookie,
+} from "@/lib/jsCookies";
 import constants from "@/settings/constants";
 
 interface AuthSliceInterface {
@@ -55,27 +59,22 @@ export const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addMatcher(
-        authAPI.endpoints.login.matchFulfilled,
-        (state, action) => {
-          const { accessToken } = action.payload;
-          
-          if (action.payload.userInfo) {
-            state.userInfo = action.payload.userInfo;
-          }
-          state.access_token = accessToken;
+      .addMatcher(authAPI.endpoints.login.matchFulfilled, (state, action) => {
+        const { accessToken } = action.payload;
+
+        if (action.payload.userInfo) {
+          state.userInfo = action.payload.userInfo;
         }
-      )
+        state.access_token = accessToken;
+      })
       .addMatcher(
         authAPI.endpoints.loginWithGoogle.matchFulfilled,
         (state, action) => {
-          state.userInfo = action.payload.user;
-          state.access_token = action.payload.token;
-          setClientCookie(constants.ACCESS_TOKEN, action.payload.token);
-          setClientCookie(
-            constants.USER_INFO,
-            JSON.stringify(action.payload.user)
-          );
+          console.log("action.payload", action.payload);
+          if (action.payload.userInfo) {
+            state.userInfo = action.payload.userInfo;
+          }
+          state.access_token = action.payload.accessToken;
         }
       );
   },

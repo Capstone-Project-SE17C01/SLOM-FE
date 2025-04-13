@@ -12,18 +12,53 @@ import type {
   CreatePaymentRequestDTO,
   APIResponse,
   SubscriptionPlanDTO,
+  LoginWithGoogleRequestDTO,
 } from "./types";
 import { authSlice } from "./slice";
 
 export const authAPI = baseApi.injectEndpoints({
   endpoints: (build) => ({
     loginWithGoogle: build.mutation({
-      query: (data: User) => ({
+      query: (data: LoginWithGoogleRequestDTO) => ({
         url: "/api/auth/loginWithGoogle",
         method: "POST",
         body: data,
         flashError: true,
       }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data: loginData } = await queryFulfilled;
+          console.log("Login google data:", loginData);
+          if (loginData?.result?.userEmail) {
+            const profileResult = await dispatch(
+              authAPI.endpoints.getUserProfile.initiate(
+                loginData.result.userEmail
+              )
+            ).unwrap();
+
+            console.log("Profile google result:", profileResult);
+
+            if (profileResult?.result) {
+              const user = profileResult.result;
+              dispatch(
+                authSlice.actions.setCredentials({
+                  userInfo: {
+                    id: user.id,
+                    email: user.email,
+                    username: user.username,
+                    avatarUrl: user.avatarUrl || "",
+                    role: user.roleId,
+                    preferredLanguageId: user.preferredLanguageId,
+                  },
+                  accessToken: loginData.result.accessToken,
+                })
+              );
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+        }
+      },
     }),
     login: build.mutation({
       query: (data: LoginRequestDTO) => ({
@@ -38,7 +73,9 @@ export const authAPI = baseApi.injectEndpoints({
           console.log("Login data:", loginData);
           if (loginData?.result?.userEmail) {
             const profileResult = await dispatch(
-              authAPI.endpoints.getUserProfile.initiate(loginData.result.userEmail)
+              authAPI.endpoints.getUserProfile.initiate(
+                loginData.result.userEmail
+              )
             ).unwrap();
 
             console.log("Profile result:", profileResult);
@@ -53,17 +90,17 @@ export const authAPI = baseApi.injectEndpoints({
                     username: user.username,
                     avatarUrl: user.avatarUrl || "",
                     role: user.roleId,
-                    preferredLanguageId: user.preferredLanguageId
+                    preferredLanguageId: user.preferredLanguageId,
                   },
-                  accessToken: loginData.result.accessToken
+                  accessToken: loginData.result.accessToken,
                 })
               );
             }
           }
         } catch (error) {
-          console.error('Error fetching user profile:', error);
+          console.error("Error fetching user profile:", error);
         }
-      }
+      },
     }),
     register: build.mutation({
       query: (data: RegisterationRequestDTO) => ({
@@ -91,7 +128,7 @@ export const authAPI = baseApi.injectEndpoints({
         body: data,
         responseHandler: async (response) => ({
           data: await response.text(),
-          status: response.status
+          status: response.status,
         }),
         flashError: true,
       }),

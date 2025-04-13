@@ -3,6 +3,13 @@ export interface LoginRequestDTO {
   password: string;
 }
 
+export interface LoginWithGoogleRequestDTO {
+  code: string;
+  redirectUri: string;
+  role: string;
+  languageCode?: string | "en" | "vi";
+}
+
 export interface ConfirmRegisterationRequestDTO {
   username?: string | null;
   email: string;
@@ -57,8 +64,8 @@ export interface CreatePaymentLinkResponseDTO {
 }
 
 export interface CreatePaymentRequestDTO {
-  subscriptionId: string; 
-  userId: string; 
+  subscriptionId: string;
+  userId: string;
   paymentMethod: string;
   status: "PAID" | "PENDING" | "PROCESSING" | "CANCELLED";
   durationMonth: number;
@@ -85,8 +92,8 @@ export interface CreatePaymentLinkResponseDTO {
 }
 
 export interface CreatePaymentRequestDTO {
-  subscriptionId: string; 
-  userId: string; 
+  subscriptionId: string;
+  userId: string;
   paymentMethod: string;
   status: "PAID" | "PENDING" | "PROCESSING" | "CANCELLED";
   durationMonth: number;
@@ -106,7 +113,7 @@ export interface ReturnUrlQueryDTO {
 }
 
 export interface SubscriptionPlanDTO {
-  id: string; 
+  id: string;
   name: string;
   price: number;
   durationDays: number;
