@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
+import constants from "@/settings/constants";
 
 interface DecodedToken {
   email: string;
@@ -10,7 +11,6 @@ interface DecodedToken {
   iat: number;
   role: string;
   sub: string;
-  // add other fields as needed
 }
 
 export default function Page() {
@@ -24,19 +24,18 @@ export default function Page() {
   }>({});
 
   useEffect(() => {
-    // Get all cookies
-    const accessToken = Cookies.get("accessToken");
-    const refreshToken = Cookies.get("refreshToken");
+    const accessToken = Cookies.get(constants.ACCESS_TOKEN);
+    const refreshToken = Cookies.get(constants.REFRESH_TOKEN);
     const idToken = Cookies.get("idToken");
     const userEmail = Cookies.get("userEmail");
 
-    // Decode access token
     let tokenInfo: DecodedToken | undefined;
     let idTokenInfo: DecodedToken | undefined;
 
     if (accessToken) {
       try {
         tokenInfo = jwtDecode<DecodedToken>(accessToken);
+        console.log(tokenInfo);
       } catch (error) {
         console.error("Error decoding access token:", error);
       }
@@ -63,25 +62,41 @@ export default function Page() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Thông tin người dùng</h1>
-      
+
       <div className="space-y-6">
         <div>
           <h2 className="text-xl font-semibold mb-2">Thông tin từ Cookie</h2>
           <div className="bg-gray-100 p-4 rounded">
-            <p><strong>Email:</strong> {userInfo.email}</p>
+            <p>
+              <strong>Email:</strong> {userInfo.email}
+            </p>
           </div>
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold mb-2">Thông tin từ Access Token</h2>
+          <h2 className="text-xl font-semibold mb-2">
+            Thông tin từ Access Token
+          </h2>
           <div className="bg-gray-100 p-4 rounded space-y-2">
             {userInfo.tokenInfo ? (
               <>
-                <p><strong>Email:</strong> {userInfo.tokenInfo.email}</p>
-                <p><strong>Role:</strong> {userInfo.tokenInfo.role}</p>
-                <p><strong>Subject:</strong> {userInfo.tokenInfo.sub}</p>
-                <p><strong>Issued At:</strong> {new Date(userInfo.tokenInfo.iat * 1000).toLocaleString()}</p>
-                <p><strong>Expires At:</strong> {new Date(userInfo.tokenInfo.exp * 1000).toLocaleString()}</p>
+                <p>
+                  <strong>Email:</strong> {userInfo.tokenInfo.email}
+                </p>
+                <p>
+                  <strong>Role:</strong> {userInfo.tokenInfo.role}
+                </p>
+                <p>
+                  <strong>Subject:</strong> {userInfo.tokenInfo.sub}
+                </p>
+                <p>
+                  <strong>Issued At:</strong>{" "}
+                  {new Date(userInfo.tokenInfo.iat * 1000).toLocaleString()}
+                </p>
+                <p>
+                  <strong>Expires At:</strong>{" "}
+                  {new Date(userInfo.tokenInfo.exp * 1000).toLocaleString()}
+                </p>
               </>
             ) : (
               <p>Không thể giải mã access token hoặc token không tồn tại</p>
@@ -94,18 +109,29 @@ export default function Page() {
           <div className="bg-gray-100 p-4 rounded space-y-2">
             {userInfo.idTokenInfo ? (
               <>
-                <p><strong>Email:</strong> {userInfo.idTokenInfo.email}</p>
-                <p><strong>Role:</strong> {userInfo.idTokenInfo.role}</p>
-                <p><strong>Subject:</strong> {userInfo.idTokenInfo.sub}</p>
-                <p><strong>Issued At:</strong> {new Date(userInfo.idTokenInfo.iat * 1000).toLocaleString()}</p>
-                <p><strong>Expires At:</strong> {new Date(userInfo.idTokenInfo.exp * 1000).toLocaleString()}</p>
+                <p>
+                  <strong>Email:</strong> {userInfo.idTokenInfo.email}
+                </p>
+                <p>
+                  <strong>Role:</strong> {userInfo.idTokenInfo.role}
+                </p>
+                <p>
+                  <strong>Subject:</strong> {userInfo.idTokenInfo.sub}
+                </p>
+                <p>
+                  <strong>Issued At:</strong>{" "}
+                  {new Date(userInfo.idTokenInfo.iat * 1000).toLocaleString()}
+                </p>
+                <p>
+                  <strong>Expires At:</strong>{" "}
+                  {new Date(userInfo.idTokenInfo.exp * 1000).toLocaleString()}
+                </p>
               </>
             ) : (
               <p>Không thể giải mã ID token hoặc token không tồn tại</p>
             )}
           </div>
         </div>
-
       </div>
     </div>
   );

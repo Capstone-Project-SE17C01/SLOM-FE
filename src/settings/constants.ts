@@ -1,4 +1,6 @@
 const API_SERVER = process.env.NEXT_PUBLIC_API_SERVER || "https://localhost:7150";
+const RETURN_URL = process.env.NEXT_PUBLIC_RETURN_URL || "http://localhost:3000/success";
+const CANCEL_URL = process.env.NEXT_PUBLIC_CANCEL_URL || "http://localhost:3000/cancel";
 const API_SERVER_SOCKET = process?.env?.NEXT_PUBLIC_SERVER_SOCKET_URL;
 const ASSETS_URL = process.env.NEXT_PUBLIC_ASSETS_URL;
 const SITE_URL = "/";
@@ -42,6 +44,8 @@ const constants = {
   FIREBASE_MEASUREMENT_ID,
   FIREBASE_STORAGE_BUCKET,
   FIREBASE_KEY_PAIR,
+  RETURN_URL,
+  CANCEL_URL,
 };
 
 export default constants;

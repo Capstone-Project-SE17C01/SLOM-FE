@@ -8,6 +8,10 @@ import type {
   RegisterationRequestDTO,
   ResendConfirmationCodeDTO,
   ForgotPasswordRequestDTO,
+  ReturnUrlQueryDTO,
+  CreatePaymentRequestDTO,
+  APIResponse,
+  SubscriptionPlanDTO,
 } from "./types";
 import { authSlice } from "./slice";
 
@@ -32,13 +36,13 @@ export const authAPI = baseApi.injectEndpoints({
         try {
           const { data: loginData } = await queryFulfilled;
           console.log("Login data:", loginData);
-          if (loginData?.userEmail) {
+          if (loginData?.result?.userEmail) {
             const profileResult = await dispatch(
-              authAPI.endpoints.getUserProfile.initiate(loginData.userEmail)
+              authAPI.endpoints.getUserProfile.initiate(loginData.result.userEmail)
             ).unwrap();
 
             console.log("Profile result:", profileResult);
-            
+
             if (profileResult?.result) {
               const user = profileResult.result;
               dispatch(
@@ -51,7 +55,7 @@ export const authAPI = baseApi.injectEndpoints({
                     role: user.roleId,
                     preferredLanguageId: user.preferredLanguageId
                   },
-                  accessToken: loginData.accessToken
+                  accessToken: loginData.result.accessToken
                 })
               );
             }
@@ -106,6 +110,29 @@ export const authAPI = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    getAllPlan: build.query<APIResponse<SubscriptionPlanDTO>, void>({
+      query: () => ({
+        url: "/api/Payment/GetAllPlan",
+        method: "GET",
+        flashError: false,
+      }),
+    }),
+    createPaymentLink: build.mutation({
+      query: (data: CreatePaymentRequestDTO) => ({
+        url: "/api/Payment/CreatePaymentLink",
+        method: "POST",
+        body: data,
+        flashError: false,
+      }),
+    }),
+    updatePlan: build.mutation({
+      query: (data: ReturnUrlQueryDTO) => ({
+        url: "/api/Payment/UpdatePlan",
+        method: "POST",
+        body: data,
+        flashError: false,
+      }),
+    }),
   }),
 });
 
@@ -117,4 +144,7 @@ export const {
   useResendConfirmationCodeMutation,
   useForgotPasswordMutation,
   useGetUserProfileQuery,
+  useCreatePaymentLinkMutation,
+  useUpdatePlanMutation,
+  useGetAllPlanQuery,
 } = authAPI;

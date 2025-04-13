@@ -1,63 +1,83 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/utils/cn";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Check } from "lucide-react";
+import { useGetAllPlanQuery } from "@/features/auth/api";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useCreatePaymentLinkMutation } from "@/features/auth/api";
+import constants from "@/settings/constants";
+import { APIResponse, CreatePaymentLinkResponseDTO, SubscriptionPlanDTO } from "@/features/auth/types";
+import Cookies from "js-cookie";
 
 export default function PricingPlans() {
   const { isDarkMode } = useTheme();
+  const router = useRouter();
   const [annual, setAnnual] = useState(false);
+  const [durationPlan, setDurationPlan] = useState<number>(1);
+  const [discount, setDiscount] = useState<number>(0);
+  const [userInfo, setUserInfo] = useState<any>(null);
+  const { data, error, isLoading } = useGetAllPlanQuery();
+  const [createPaymentLinkMutation] = useCreatePaymentLinkMutation();
 
-  const plans = [
-    {
-      name: "Individual Learner",
-      description: "Perfect for independent sign language learners",
-      monthlyPrice: "200,000",
-      annualPrice: "1,920,000",
-      features: [
-        "Access to all sign language lessons",
-        "Join up to 5 group sessions per month",
-        "HD video quality",
-        "Basic learning materials"
-      ],
-      popular: false
-    },
-    {
-      name: "Professional Educator",
-      description: "For sign language teachers and tutors",
-      monthlyPrice: "500,000",
-      annualPrice: "4,800,000",
-      features: [
-        "Create and host unlimited classes",
-        "Advanced teaching tools",
-        "Student progress tracking",
-        "Comprehensive resource library",
-        "Premium video quality",
-        "Recording and playback"
-      ],
-      popular: true
-    },
-    {
-      name: "Institution",
-      description: "For schools and organizations",
-      monthlyPrice: "2,000,000",
-      annualPrice: "19,200,000",
-      features: [
-        "Multiple educator accounts",
-        "Administrative dashboard",
-        "Custom branding options",
-        "API access for integration",
-        "Priority support",
-        "Advanced analytics",
-        "Enterprise-grade security"
-      ],
-      popular: false
+  useEffect(() => {
+    const userInfoCookie = Cookies.get(constants.USER_INFO);
+    if (userInfoCookie) {
+      setUserInfo(JSON.parse(userInfoCookie));
     }
-  ];
+  }, []);
+
+  useEffect(() => {
+    if (isLoading) console.log("Loading plans...");
+    if (error) console.log(error);
+  }, [isLoading, error]);
+
+  useEffect(() => {
+    setDurationPlan(annual ? 12 : 1);
+    setDiscount(annual ? 20 : 0);
+  }, [annual]);
+
+  const handlePayment = async (
+    e: React.FormEvent,
+    planId: string,
+    price: number
+  ) => {
+    e.preventDefault();
+    try {
+      console.log("userInfo====>", userInfo);
+      if (!userInfo?.id) return toast.error("Not authenticated");
+      
+      const response = await createPaymentLinkMutation({
+        subscriptionId: planId,
+        userId: userInfo.id,
+        paymentMethod: "PAYOS",
+        status: "PENDING",
+        durationMonth: durationPlan,
+        returnUrl: constants.RETURN_URL + "?period=" + durationPlan,
+        cancelUrl: constants.CANCEL_URL + "?period=" + durationPlan,
+        price,
+        description: `Payment ${durationPlan > 1 ? "annual" : "monthly"} plan`,
+      }).unwrap();
+
+      const { result, errorMessages } =
+        response as APIResponse<CreatePaymentLinkResponseDTO>;
+      if (result?.checkoutUrl) {
+        router.push(result.checkoutUrl);
+      } else {
+        console.log(errorMessages[0]);
+      }
+    } catch {
+      console.log("Error creating payment link");
+    }
+  };
+
+
+  const apiPlans: SubscriptionPlanDTO[] = Array.isArray(data?.result) ? data.result : [];
 
   return (
     <div className={cn(
@@ -79,45 +99,77 @@ export default function PricingPlans() {
         </div>
         
         <div className="grid md:grid-cols-3 gap-8">
-          {plans.map((plan, index) => (
-            <Card key={index} className={cn(
-              "relative overflow-hidden",
-              plan.popular ? "border-2 border-primary shadow-lg" : "",
-              isDarkMode ? "bg-gray-800" : "bg-white"
-            )}>
-              {plan.popular && (
-                <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 text-xs font-medium">
-                  Most Popular
-                </div>
-              )}
-              <CardHeader>
-                <CardTitle>{plan.name}</CardTitle>
-                <CardDescription>{plan.description}</CardDescription>
-                <div className="mt-4">
-                  <span className="text-3xl font-bold">₫{annual ? plan.annualPrice : plan.monthlyPrice}</span>
-                  <span className="text-muted-foreground ml-2">{annual ? "/year" : "/month"}</span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-primary" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-              <CardFooter>
-                <Button 
-                  className={plan.popular ? "w-full bg-primary hover:bg-primary/90" : "w-full"} 
-                  variant={plan.popular ? "default" : "outline"}
-                >
-                  {plan.popular ? "Start Free Trial" : "Get Started"}
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
+          {apiPlans.map((plan) => {
+            const parsedFeatures: string[] = plan.features
+              ? JSON.parse(plan.features)?.features
+              : [];
+
+            return (
+              <Card
+                key={plan.id}
+                className={cn(
+                  "relative overflow-hidden flex flex-col",
+                  plan.name === "Professional Educator"
+                    ? "border-2 border-primary shadow-lg"
+                    : "",
+                  isDarkMode ? "bg-gray-800" : "bg-white"
+                )}
+              >
+                {plan.name === "Professional Educator" && (
+                  <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 text-xs font-medium">
+                    Most Popular
+                  </div>
+                )}
+                <CardHeader>
+                  <CardTitle>{plan.name}</CardTitle>
+                  <CardDescription>{plan.description}</CardDescription>
+                  <div className="mt-4">
+                    <span className="text-3xl font-bold">
+                      ₫
+                      {Math.round(
+                        plan.price * durationPlan * (1 - discount / 100)
+                      )}
+                    </span>
+                    <span className="text-muted-foreground ml-2">
+                      {annual ? "/year" : "/month"}
+                    </span>
+                    {discount > 0 && (
+                      <span className="text-sm text-green-500 ml-2">
+                        (-{discount}%)
+                      </span>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                  <ul className="space-y-3">
+                    {parsedFeatures.map((feature, i) => (
+                      <li key={i} className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-primary" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+                <CardFooter className="mt-auto">
+                  <Button
+                    className={
+                      plan.name === "Professional Educator"
+                        ? "w-full bg-primary hover:bg-primary/90"
+                        : "w-full"
+                    }
+                    variant={
+                      plan.name === "Professional Educator"
+                        ? "default"
+                        : "outline"
+                    }
+                    onClick={(e) => handlePayment(e, plan.id, plan.price)}
+                  >
+                    Get Started
+                  </Button>
+                </CardFooter>
+              </Card>
+            );
+          })}
         </div>
         
         <div className="text-center mt-12">
