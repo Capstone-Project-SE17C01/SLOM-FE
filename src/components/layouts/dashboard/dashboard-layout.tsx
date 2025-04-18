@@ -7,6 +7,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import Header from "./header-breadcrumb"; 
 import MobileMenu from "./mobile-menu";
 import Footer from "./footer";
+import { hrtime } from "process";
 
 export default function DashboardLayout({
   children,
@@ -23,6 +24,7 @@ export default function DashboardLayout({
     { name: "Features", href: "/features" },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
+    { name: "Message", href: "/chat" }
   ];
 
   return (
