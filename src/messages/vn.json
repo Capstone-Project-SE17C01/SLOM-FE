@@ -1,0 +1,81 @@
+{
+  "header": {
+    "search": "Tìm kiếm",
+    "notifications": "Thông báo",
+    "profile": "Hồ sơ",
+    "settings": "Cài đặt",
+    "logout": "Đăng xuất",
+    "signIn": "Đăng nhập"
+  },
+  "language": {
+    "en": "Tiếng Anh",
+    "vn": "Tiếng Việt"
+  },
+  "pricing": {
+    "title": "Gói Dịch Vụ",
+    "description": "Chọn gói phù hợp nhất với nhu cầu học hoặc dạy ngôn ngữ ký hiệu của bạn",
+    "monthly": "Hàng tháng",
+    "annual": "Hàng năm (Tiết kiệm 20%)",
+    "getStarted": "Bắt đầu",
+    "mostPopular": "Phổ biến nhất",
+    "freeTrial": "Tất cả các gói đều bao gồm dùng thử miễn phí 14 ngày. Không cần thẻ tín dụng để bắt đầu.",
+    "contactUs": "Cần giải pháp tùy chỉnh cho tổ chức của bạn? Liên hệ chúng tôi"
+  },
+  "home": {
+    "hero": {
+      "title": "Phá vỡ rào cản giao tiếp với",
+      "subtitle": "Nền tảng họp trực tuyến đầu tiên được tối ưu hóa cho việc giao tiếp và học ngôn ngữ ký hiệu",
+      "cta": "Dùng thử miễn phí",
+      "demo": "Xem demo"
+    },
+    "how": {
+      "title": "SLOM hoạt động như thế nào",
+      "demo": "Demo nền tảng",
+      "step1": {
+        "title": "Tạo hoặc tham gia cuộc họp",
+        "description": "Lên lịch học hoặc tham gia phiên học hiện có với một liên kết đơn giản."
+      },
+      "step2": {
+        "title": "Giao tiếp trực quan",
+        "description": "Sử dụng nền tảng video được tối ưu hóa đặc biệt cho ngôn ngữ ký hiệu."
+      },
+      "step3": {
+        "title": "Học và thực hành",
+        "description": "Truy cập tài nguyên, ghi lại các buổi học và theo dõi tiến trình của bạn."
+      }
+    },
+    "features": {
+      "title": "Tính năng chính",
+      "video": {
+        "title": "Video HD tối ưu cho ngôn ngữ ký hiệu",
+        "description": "Nền tảng của chúng tôi được thiết kế đặc biệt để ghi lại các sắc thái của ngôn ngữ ký hiệu với video HD mượt mà."
+      },
+      "classroom": {
+        "title": "Lớp học ảo tương tác",
+        "description": "Học và dạy ngôn ngữ ký hiệu theo thời gian thực với các công cụ chuyên biệt cho giao tiếp trực quan."
+      },
+      "materials": {
+        "title": "Tài liệu học tập toàn diện",
+        "description": "Truy cập thư viện tài nguyên ngôn ngữ ký hiệu, bài tập thực hành và bài học đã ghi lại."
+      },
+      "community": {
+        "title": "Kết nối với cộng đồng ký hiệu",
+        "description": "Tham gia cộng đồng đang phát triển gồm những người điếc, khiếm thính và người nghe đang học giao tiếp."
+      }
+    },
+    "testimonials": {
+      "title": "Người dùng nói gì về chúng tôi",
+      "quote1": "SLOM đã thay đổi cách tôi dạy Ngôn ngữ ký hiệu Việt Nam. Chất lượng video và các công cụ lớp học được thiết kế đặc biệt cho nhu cầu của chúng tôi.",
+      "author1": "Nguyễn Thị Mai",
+      "position1": "Giáo viên Ngôn ngữ ký hiệu",
+      "quote2": "Là một học sinh khiếm thính, SLOM cho tôi quyền tiếp cận giáo dục bình đẳng. Nền tảng này trực quan và được thiết kế với sự quan tâm đến cộng đồng của chúng tôi.",
+      "author2": "Trần Văn Hoàng",
+      "position2": "Sinh viên Đại học"
+    },
+    "cta": {
+      "title": "Sẵn sàng bắt đầu hành trình ngôn ngữ ký hiệu của bạn?",
+      "description": "Chọn gói phù hợp với bạn và bắt đầu kết nối thông qua ngôn ngữ ký hiệu ngay hôm nay.",
+      "button": "Xem các gói dịch vụ"
+    }
+  }
+}

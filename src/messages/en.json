@@ -1,0 +1,71 @@
+{
+  "header": {
+    "search": "Search",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout",
+    "signIn": "Sign In"
+  },
+  "language": {
+    "en": "English",
+    "vn": "Vietnamese"
+  },
+  "home": {
+    "hero": {
+      "title": "Breaking Communication Barriers with",
+      "subtitle": "The first online meeting platform optimized for sign language communication and learning",
+      "cta": "Start Free Trial",
+      "demo": "Watch Demo"
+    },
+    "how": {
+      "title": "How SLOM Works",
+      "demo": "Platform Demo",
+      "step1": {
+        "title": "Create or Join a Meeting",
+        "description": "Schedule a class or join an existing session with a simple link."
+      },
+      "step2": {
+        "title": "Communicate Visually",
+        "description": "Use our optimized video platform designed specifically for sign language."
+      },
+      "step3": {
+        "title": "Learn and Practice",
+        "description": "Access resources, record sessions, and track your progress."
+      }
+    },
+    "features": {
+      "title": "Key Features",
+      "video": {
+        "title": "HD Video Optimized for Sign Language",
+        "description": "Our platform is specifically designed to capture the nuances of sign language with smooth, high-definition video."
+      },
+      "classroom": {
+        "title": "Interactive Virtual Classrooms",
+        "description": "Learn and teach sign language in real-time with specialized tools for visual communication."
+      },
+      "materials": {
+        "title": "Comprehensive Learning Materials",
+        "description": "Access our library of sign language resources, practice exercises, and recorded lessons."
+      },
+      "community": {
+        "title": "Connect With the Signing Community",
+        "description": "Join a growing community of deaf, hard of hearing, and hearing individuals learning to communicate."
+      }
+    },
+    "testimonials": {
+      "title": "What Our Users Say",
+      "quote1": "SLOM has transformed how I teach Vietnamese Sign Language. The video quality and classroom tools are specifically designed for our needs.",
+      "author1": "Nguyen Thi Mai",
+      "position1": "Sign Language Instructor",
+      "quote2": "As a deaf student, SLOM gives me equal access to education. The platform is intuitive and designed with our community in mind.",
+      "author2": "Tran Van Hoang",
+      "position2": "University Student"
+    },
+    "cta": {
+      "title": "Ready to start your sign language journey?",
+      "description": "Choose the plan that's right for you and start connecting through sign language today.",
+      "button": "View Pricing Plans"
+    }
+  }
+}
