@@ -37,7 +37,6 @@ export function RegisterForm() {
     await register(registerData)
       .unwrap()
       .then((payload) => {
-        console.log("payload=====>", payload);
         if (payload.result) {
           const { email } = payload.result;
           if (email) {

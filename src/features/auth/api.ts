@@ -28,15 +28,12 @@ export const authAPI = baseApi.injectEndpoints({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data: loginData } = await queryFulfilled;
-          console.log("Login google data:", loginData);
           if (loginData?.result?.userEmail) {
             const profileResult = await dispatch(
               authAPI.endpoints.getUserProfile.initiate(
                 loginData.result.userEmail
               )
             ).unwrap();
-
-            console.log("Profile google result:", profileResult);
 
             if (profileResult?.result) {
               const user = profileResult.result;
@@ -70,15 +67,12 @@ export const authAPI = baseApi.injectEndpoints({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data: loginData } = await queryFulfilled;
-          console.log("Login data:", loginData);
           if (loginData?.result?.userEmail) {
             const profileResult = await dispatch(
               authAPI.endpoints.getUserProfile.initiate(
                 loginData.result.userEmail
               )
             ).unwrap();
-
-            console.log("Profile result:", profileResult);
 
             if (profileResult?.result) {
               const user = profileResult.result;

@@ -74,7 +74,6 @@ export function LoginForm() {
       })
         .unwrap()
         .then((payload) => {
-          console.log("payload", payload);
           if (payload.result) {
             const { accessToken } = payload.result as LoginResponseDTO;
             if (accessToken) {
@@ -97,7 +96,7 @@ export function LoginForm() {
   };
 
   const redirectToGoogleLogin = () => {
-    window.location.href = constants.ENPOINT_URL_GOOGLE;
+    router.push(constants.ENPOINT_URL_GOOGLE);
   };
 
   return (
@@ -269,13 +268,13 @@ export function LoginForm() {
           </CardContent>
         </Card>
         {isLoading && (
-        <div className="bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 w-screen h-screen fixed inset-0">
-          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg">
-            <Loader2 className="h-5 w-5 animate-spin text-primary" />
-            <span>Logging in...</span>
+          <div className="bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 w-screen h-screen fixed inset-0">
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              <span>Logging in...</span>
+            </div>
           </div>
-        </div>
-      )}
+        )}
       </div>
     </>
   );

@@ -7,7 +7,7 @@ export interface LoginWithGoogleRequestDTO {
   code: string;
   redirectUri: string;
   role: string;
-  languageCode?: string | "en" | "vi";
+  languageCode?: string;
 }
 
 export interface ConfirmRegisterationRequestDTO {
