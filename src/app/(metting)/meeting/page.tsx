@@ -1,184 +1,215 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useRef } from 'react';
-import Video, { Room, LocalVideoTrack, RemoteVideoTrack } from 'twilio-video';
+// Import các hook và thư viện cần thiết từ React và Twilio Video
+import { useEffect, useState } from "react";
+import Video, { Room, LocalVideoTrack, RemoteVideoTrack } from "twilio-video";
+import MeetingLayout from "@/components/layouts/meeting/meeting-layout";
+import UserCard from "@/components/ui/user-card";
 
 export default function Meeting() {
+  // State lưu thông tin phòng họp
   const [room, setRoom] = useState<Room | null>(null);
-  const [status, setStatus] = useState('Chưa kết nối');
+  const [status, setStatus] = useState("Chưa kết nối");
   const [hasMediaPermission, setHasMediaPermission] = useState(false);
-  const [userName, setUserName] = useState('');
+  const [userName, setUserName] = useState("");
   const [isJoining, setIsJoining] = useState(false);
-  const localMediaRef = useRef<HTMLDivElement>(null);
-  const remoteMediaRef = useRef<HTMLDivElement>(null);
+  const [localVideoTrack, setLocalVideoTrack] =
+    useState<LocalVideoTrack | null>(null);
+  const [remoteParticipants, setRemoteParticipants] = useState<
+    {
+      id: string;
+      username: string;
+      track: RemoteVideoTrack;
+      isMicOn: boolean;
+    }[]
+  >([]);
 
+  // Kiểm tra quyền media
   const checkMediaPermissions = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: true, 
-        audio: true 
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
       });
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach((t) => t.stop());
       setHasMediaPermission(true);
       return true;
-    } catch (error) {
-      setStatus('Không thể truy cập camera/microphone. Vui lòng kiểm tra quyền truy cập.');
+    } catch {
+      setStatus(
+        "Không thể truy cập camera/microphone. Vui lòng kiểm tra quyền."
+      );
       setHasMediaPermission(false);
       return false;
     }
   };
 
+  // Kết nối phòng họp
   const joinRoom = async () => {
-    if (!userName.trim()) {
-      setStatus('Vui lòng nhập tên người dùng');
-      return;
-    }
-
-    if (!hasMediaPermission) {
-      const hasPermission = await checkMediaPermissions();
-      if (!hasPermission) return;
-    }
+    if (!userName.trim()) return setStatus("Vui lòng nhập tên người dùng");
+    if (!hasMediaPermission && !(await checkMediaPermissions())) return;
 
     setIsJoining(true);
-    setStatus('Đang kết nối...');
+    setStatus("Đang kết nối...");
 
     try {
-      const response = await fetch(`/api/meeting?identity=${encodeURIComponent(userName)}`);
-      if (!response.ok) {
-        throw new Error('Failed to get token');
-      }
-      const { token } = await response.json();
-
-      // Connect to the Room with the token and local media
-      const room = await Video.connect(token, {
-        name: 'MyMeetingRoom',
+      const res = await fetch(
+        `/api/meeting?identity=${encodeURIComponent(userName)}`
+      );
+      const { token } = await res.json();
+      const connectedRoom = await Video.connect(token, {
+        name: "MyMeetingRoom",
         audio: true,
-        video: { width: 640 }
+        video: { width: 640 },
       });
 
-      setRoom(room);
-      setStatus(`Đã kết nối đến phòng: ${room.name} với tên ${userName}`);
+      setRoom(connectedRoom);
+      setStatus(`Đã kết nối đến phòng: ${connectedRoom.name}`);
 
-      // Handle the LocalParticipant's media
-      room.localParticipant.tracks.forEach(publication => {
-        if (publication.track && localMediaRef.current && publication.track.kind === 'video') {
-          const element = (publication.track as LocalVideoTrack).attach();
-          localMediaRef.current.appendChild(element);
+      // Lấy local video track và lưu lại
+      connectedRoom.localParticipant.videoTracks.forEach((publication) => {
+        if (publication.track.kind === "video") {
+          setLocalVideoTrack(publication.track as LocalVideoTrack);
         }
       });
 
-      // Handle already connected Participants
-      room.participants.forEach(participant => {
-        console.log(`Participant "${participant.identity}" is already in the Room`);
-        participant.tracks.forEach(publication => {
-          if (publication.isSubscribed && publication.track && remoteMediaRef.current && publication.track.kind === 'video') {
-            const element = (publication.track as RemoteVideoTrack).attach();
-            remoteMediaRef.current.appendChild(element);
+      // Hiển thị các participant đã ở sẵn trong phòng
+      connectedRoom.participants.forEach((participant) => {
+        participant.tracks.forEach((publication) => {
+          if (publication.isSubscribed && publication.track?.kind === "video") {
+            setRemoteParticipants((prev) => [
+              ...prev,
+              {
+                id: participant.sid,
+                username: participant.identity,
+                track: publication.track as RemoteVideoTrack,
+                isMicOn: Array.from(participant.audioTracks.values()).some(
+                  (pub) => pub.track?.isEnabled
+                ),
+              },
+            ]);
           }
         });
 
-        participant.on('trackSubscribed', track => {
-          if (remoteMediaRef.current && track.kind === 'video') {
-            const element = (track as RemoteVideoTrack).attach();
-            remoteMediaRef.current.appendChild(element);
-          }
-        });
-      });
-
-      // Handle newly connected Participants
-      room.on('participantConnected', participant => {
-        console.log(`Participant "${participant.identity}" connected`);
-        setStatus(`Người dùng ${participant.identity} đã tham gia phòng`);
-
-        participant.tracks.forEach(publication => {
-          if (publication.isSubscribed && publication.track && remoteMediaRef.current && publication.track.kind === 'video') {
-            const element = (publication.track as RemoteVideoTrack).attach();
-            remoteMediaRef.current.appendChild(element);
-          }
-        });
-
-        participant.on('trackSubscribed', track => {
-          if (remoteMediaRef.current && track.kind === 'video') {
-            const element = (track as RemoteVideoTrack).attach();
-            remoteMediaRef.current.appendChild(element);
+        participant.on("trackSubscribed", (track) => {
+          if (track.kind === "video") {
+            setRemoteParticipants((prev) => [
+              ...prev,
+              {
+                id: participant.sid,
+                username: participant.identity,
+                track: track as RemoteVideoTrack,
+                isMicOn: Array.from(participant.audioTracks.values()).some(
+                  (pub) => pub.track?.isEnabled
+                ),
+              },
+            ]);
           }
         });
       });
 
-      // Handle participant disconnection
-      room.on('participantDisconnected', participant => {
-        console.log(`Participant "${participant.identity}" disconnected`);
-        setStatus(`Người dùng ${participant.identity} đã rời phòng`);
+      // Khi participant mới kết nối
+      connectedRoom.on("participantConnected", (participant) => {
+        participant.on("trackSubscribed", (track) => {
+          if (track.kind === "video") {
+            setRemoteParticipants((prev) => [
+              ...prev,
+              {
+                id: participant.sid,
+                username: participant.identity,
+                track: track as RemoteVideoTrack,
+                isMicOn: Array.from(participant.audioTracks.values()).some(
+                  (pub) => pub.track?.isEnabled
+                ),
+              },
+            ]);
+          }
+        });
       });
 
-      // Handle disconnection
-      room.on('disconnected', () => {
+      // Khi participant rời đi
+      connectedRoom.on("participantDisconnected", (participant) => {
+        setRemoteParticipants((prev) =>
+          prev.filter((p) => p.id !== participant.sid)
+        );
+      });
+
+      // Khi ngắt kết nối khỏi phòng
+      connectedRoom.on("disconnected", () => {
         setRoom(null);
-        setStatus('Đã ngắt kết nối');
-        if (localMediaRef.current) {
-          localMediaRef.current.innerHTML = '';
-        }
-        if (remoteMediaRef.current) {
-          remoteMediaRef.current.innerHTML = '';
-        }
+        setStatus("Đã ngắt kết nối");
+        setLocalVideoTrack(null);
+        setRemoteParticipants([]);
       });
-
-    } catch (error) {
-      console.error('Lỗi khi kết nối phòng:', error);
-      setStatus('Lỗi kết nối: ' + (error as Error).message);
+    } catch (err) {
+      setStatus("Lỗi kết nối: " + (err as Error).message);
     } finally {
       setIsJoining(false);
     }
   };
 
+  // Thoát phòng
   const leaveRoom = () => {
-    if (room) {
-      room.disconnect();
-    }
+    if (room) room.disconnect();
   };
 
   useEffect(() => {
     checkMediaPermissions();
     return () => {
-      if (room) {
-        room.disconnect();
-      }
+      room?.disconnect();
     };
   }, [room]);
 
+  // Giao diện
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>Meeting Room</h1>
+    <div className="p-4 space-y-4 h-screen bg-gray-800">
+      <h1 className="text-2xl font-bold">Meeting Room</h1>
       <p>{status}</p>
-      
+
       {!room ? (
-        <div>
+        <div className="flex items-center space-x-2">
           <input
             type="text"
             value={userName}
             onChange={(e) => setUserName(e.target.value)}
             placeholder="Nhập tên của bạn"
-            style={{ padding: '8px', marginRight: '10px' }}
+            className="p-2 border border-gray-300 rounded-md"
           />
-          <button 
-            onClick={joinRoom} 
+          <button
+            onClick={joinRoom}
             disabled={!hasMediaPermission || isJoining}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
           >
-            {isJoining ? 'Đang kết nối...' : 'Tham gia phòng họp'}
+            {isJoining ? "Đang kết nối..." : "Tham gia phòng họp"}
           </button>
         </div>
       ) : (
-        <button onClick={leaveRoom}>Rời phòng</button>
+        <button
+          onClick={leaveRoom}
+          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md"
+        >
+          Rời phòng
+        </button>
       )}
 
-      <div style={{ marginTop: '20px' }}>
-        <h3>Video của bạn</h3>
-        <div ref={localMediaRef} style={{ border: '1px solid #ccc', padding: '10px' }} />
-      </div>
-
-      <div style={{ marginTop: '20px' }}>
-        <h3>Video người khác</h3>
-        <div ref={remoteMediaRef} style={{ border: '1px solid #ccc', padding: '10px' }} />
+      <div className="mt-6">
+        <h3 className="text-lg font-semibold mb-2">Thành viên</h3>
+        <MeetingLayout numberOfParticipants={remoteParticipants.length + 1}>
+          {localVideoTrack && (
+            <UserCard
+              track={localVideoTrack}
+              username={userName || "Bạn"}
+              isMicOn={true}
+            />
+          )}
+          {remoteParticipants.map((p) => (
+            <UserCard
+              key={p.id}
+              track={p.track}
+              username={p.username}
+              isMicOn={p.isMicOn}
+            />
+          ))}
+        </MeetingLayout>
       </div>
     </div>
   );
