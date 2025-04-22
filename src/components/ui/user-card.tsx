@@ -1,45 +1,55 @@
-// 🧱 components/ui/UserCard.tsx
 "use client";
 
-import { useEffect, useRef } from "react";
-import { LocalVideoTrack, RemoteVideoTrack } from "twilio-video";
-import { Mic, MicOff } from "lucide-react";
+import { useEffect, useRef } from 'react';
+import { LocalVideoTrack, RemoteVideoTrack } from 'twilio-video';
+import { MicOff } from 'lucide-react';
+import { cn } from '@/utils/cn';
 
 interface UserCardProps {
   track: LocalVideoTrack | RemoteVideoTrack;
   username: string;
   isMicOn: boolean;
+  isDarkMode?: boolean;
 }
 
-export default function UserCard({ track, username, isMicOn }: UserCardProps) {
-  const videoRef = useRef<HTMLDivElement>(null);
+export default function UserCard({ track, username, isMicOn, isDarkMode = false }: UserCardProps) {
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    if (track && videoRef.current) {
-      const element = track.attach();
-      element.className = "w-full h-full object-cover rounded-md";
-      videoRef.current.innerHTML = ""; // Clear trước khi attach mới
-      videoRef.current.appendChild(element);
+    if (videoRef.current && track) {
+      track.attach(videoRef.current);
+      return () => {
+        track.detach();
+      };
     }
-
-    return () => {
-      track.detach().forEach((el) => el.remove());
-    };
   }, [track]);
 
   return (
-    <div className="rounded-xl overflow-hidden shadow-md bg-gray-500 text-white p-2 flex flex-col items-center">
-      <div
+    <div className={cn(
+      "relative rounded-lg overflow-hidden border h-full shadow-lg group",
+      isDarkMode ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-gray-100"
+    )}>
+      <video
         ref={videoRef}
-        className="w-full h-full bg-black rounded-md mb-2 flex items-center justify-center"
+        autoPlay
+        playsInline
+        className="w-full h-full object-cover"
       />
-      <div className="flex justify-between items-center w-full px-2">
-        <span className="text-sm font-medium truncate">{username}</span>
-        {isMicOn ? (
-          <Mic size={16} />
-        ) : (
-          <MicOff size={16} className="text-red-500" />
-        )}
+      
+      <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent">
+        <div className="flex justify-between items-center">
+          <span className="font-medium text-white">{username}</span>
+          {!isMicOn && (
+            <div className="bg-red-600 rounded-full p-1">
+              <MicOff size={16} className="text-white" />
+            </div>
+          )}
+        </div>
+      </div>
+      
+      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+        <div className="bg-black/60 rounded-lg p-2 hidden group-hover:block">
+        </div>
       </div>
     </div>
   );
