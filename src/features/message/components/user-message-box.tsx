@@ -15,7 +15,7 @@ export function MessageBox({ messages, setMessages, userId, selectedUser }: Read
     const [isLoadFull, setIsLoadFull] = useState(false);
     const scrollPositionRef = useRef<number | null>(null);
 
-    const getMessage = async (otherUserName : any, pageNumber: number) => {
+    const getMessage = useCallback(async (otherUserName: string | undefined, pageNumber: number) => {
       let getMessages : MessageResponse = { isLoadFullPage: false, data: []};
       try {
         if(otherUserName != "" && otherUserName != null && otherUserName != undefined) {
@@ -27,9 +27,9 @@ export function MessageBox({ messages, setMessages, userId, selectedUser }: Read
         console.log(error);
       }
       return getMessages;
-    }
+    }, [getMessageById, userId]);
 
-    const handleScroll = useCallback(async (theMessage : Message[], theCurrentPage : number, isLoadFull : boolean) => {
+    const handleScroll = useCallback(async (theMessage: Message[], theCurrentPage: number, isLoadFull: boolean) => {
       if (chatContainerRef.current && !isLoadFull) {
         if (chatContainerRef.current.scrollTop === 0) {
           const prevScrollHeight = chatContainerRef.current.scrollHeight;
@@ -46,7 +46,7 @@ export function MessageBox({ messages, setMessages, userId, selectedUser }: Read
           setMessages(data);
         }
       }
-    }, []);
+    }, [getMessage, selectedUser?.email, setMessages]);
 
     useEffect(() => {
       const getTheMessage = async () => {
@@ -57,12 +57,14 @@ export function MessageBox({ messages, setMessages, userId, selectedUser }: Read
       }
       getTheMessage();
     
+      // Store the current chatContainer in a variable for the cleanup function
+      const chatContainer = chatContainerRef.current;
       return () => {
-        if (chatContainerRef.current) {
-          chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        if (chatContainer) {
+          chatContainer.scrollTop = chatContainer.scrollHeight;
         }
       };
-    }, [selectedUser])
+    }, [selectedUser, getMessage, setMessages])
 
     useLayoutEffect(() => {
       if(chatContainerRef.current) {
@@ -74,12 +76,12 @@ export function MessageBox({ messages, setMessages, userId, selectedUser }: Read
           scrollPositionRef.current = null; // reset after use
         }
       }
-    }, [messages]);
+    }, [messages, currentPage]);
 
     useEffect(() => {
       const div = chatContainerRef.current;
       if (div) {
-        const onScroll = async (ev : any) => {
+        const onScroll = async () => {
           await handleScroll(messages, currentPage, isLoadFull);
         };
 
@@ -89,11 +91,11 @@ export function MessageBox({ messages, setMessages, userId, selectedUser }: Read
           div.removeEventListener('scroll', onScroll);
         };
       }
-    }, [messages, currentPage, isLoadFull]);
+    }, [messages, currentPage, isLoadFull, handleScroll]);
 
     return (
         <div className="flex-1 overflow-y-scroll p-2.5 bg-white" ref={chatContainerRef}>
-            {messages.map((message, index) => (
+            {messages.map((message) => (
               <div key={message.id} className={"flex w-full" + (message.isSender ? " justify-end" : " justify-start")}>
                 <div className={"p-2 px-4 rounded-3xl max-w-[30%] break-all mb-0.5" + (message.isSender ? " bg-[#9c2cfc] text-white" : " bg-[#f0f0f0]")}>
                   <p>{message.content}</p>

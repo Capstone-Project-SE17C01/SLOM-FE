@@ -24,13 +24,13 @@ export interface User {
 }
 
 export interface SearchUserMessageProps {
-  readonly userId : any;
-  readonly handleUserSelect: (user: any) => void;
+  readonly userId: string;
+  readonly handleUserSelect: (user: User) => void;
 }
 
 export interface MessageBoxProps {
-  readonly messages : Message[];
-  readonly setMessages : Dispatch<SetStateAction<Message[]>>;
+  readonly messages: Message[];
+  readonly setMessages: Dispatch<SetStateAction<Message[]>>;
   readonly userId: string;
   readonly selectedUser: User | undefined;
 }

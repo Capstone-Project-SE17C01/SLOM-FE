@@ -11,6 +11,7 @@ import { MessageBox } from "@/features/message/components/user-message-box";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { initSignalRConnection } from "@/features/message/signalR";
+import Image from "next/image";
 
 function Page() {
     const [selectedUser, setSelectedUser] = useState<User>();
@@ -23,7 +24,7 @@ function Page() {
 
     useEffect(() => {
       initSignalRConnection({userInfo, selectedUser, setMessages, onConnectionCreated: setConnection})
-    }, [selectedUser]);
+    }, [selectedUser, userInfo]);
 
     if (!userInfo) {
       return (
@@ -34,7 +35,7 @@ function Page() {
     }
 
     // send message
-    const sendMessage = async (message: any) => {
+    const sendMessage = async (message: string) => {
       if (connection && message.trim()) {
         await connection.send("PostMessage", message, userInfo.email, selectedUser?.email);
       }
@@ -61,7 +62,7 @@ function Page() {
               </div>
             </div>
 
-            {!isSearch && <SearchUserMessage userId={userInfo.id} handleUserSelect={handleUserSelect}/>}
+            {!isSearch && <SearchUserMessage userId={userInfo.id ?? ""} handleUserSelect={handleUserSelect}/>}
 
             {isSearch &&
               <div className="flex-1 overflow-y-scroll">
@@ -73,7 +74,7 @@ function Page() {
                   >
                     <div className="w-full h-full flex items-center space-x-4">
                       {/* User Profile Image */}
-                      <img src={user.image} alt="User Profile" className="h-[90%] rounded-full" />
+                      <Image src={user.image} alt="User Profile" className="h-[90%] rounded-full" width={40} height={40} />
 
                       {/* User Name and Last Message */}
                       <div className="">
@@ -98,7 +99,7 @@ function Page() {
           <div className="bg-white rounded-xl flex flex-col shadow-md flex-1 border border-1">
             <div className="h-[50px] rounded-t-xl border-b px-2 flex items-center">
               <Button className="h-[90%] hover:bg-[#f5f5f5] bg-white shadow-none text-black w-auto p-0 px-2">
-                <img src={selectedUser?.image} className="h-[80%] rounded-full" alt="https://www.tech101.in/wp-content/uploads/2018/07/blank-profile-picture.png"></img>
+                <Image src={selectedUser?.image} className="h-[80%] rounded-full" alt="Profile" width={32} height={32} />
                 <div className=" font-bold text-lg">{selectedUser?.name}</div>
               </Button>
             </div>

@@ -15,10 +15,10 @@ export function SearchUser({ isSearch, setIsSearch, setListSearchUser }: Readonl
     const findUser = async (userInput: string) => {
       try {
         const response = await getProfileByName({ currentUserEmail: userInfo?.email, input: userInput }).unwrap();
-        let userList : User[] = []
+        const userList: User[] = []
         let count = 1;
         setListSearchUser([]);
-        response.forEach((element: any) => {
+        response.forEach((element: { userName: string, userAvatar: string, userEmail: string }) => {
           userList.push({name: element.userName, image: element.userAvatar, isSeen: true, id: count, lastMessage: "", isSender: true, lastSent: "", email: element.userEmail})
           count++;
         });

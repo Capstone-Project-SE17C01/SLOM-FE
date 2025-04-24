@@ -3,12 +3,6 @@ import { HubConnectionBuilder, LogLevel } from "@microsoft/signalr";
 import { InitSignalROptions } from "./types";
 // import 
 
-type Message = {
-  id: string;
-  content: string;
-  isSender: boolean;
-};
-
 export function initSignalRConnection({
   userInfo,
   selectedUser,
@@ -33,7 +27,7 @@ export function initSignalRConnection({
       console.error("Error while connecting to SignalR Hub:", err);
     });
 
-  connection.on(connectionName, (id, name, content, dateTime) => {
+  connection.on(connectionName, (id, name, content) => {
     if (!listId.includes(id) && name === selectedUser?.email) {
       setMessages((prev) => [
         ...prev,

@@ -5,24 +5,38 @@ import type {
   User,
   SearchUserMessageProps
 } from "../types";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import Image from "next/image";
 
 export function SearchUserMessage(searchUserMessageProps: Readonly<SearchUserMessageProps>) {
     const [getUserById] = useGetUserByIdMutation();
     const [users, setUsers] = useState<User[]>([])
 
-    const getUserMessage = async (userId: string) => {
+    const getUserMessage = useCallback(async (userId: string) => {
         const userList : User[] = []
         try {
             const response = await getUserById(userId).unwrap();
-            response.forEach((element: any) => {
-                userList.push({name: element.userName, image: element.avatar, isSeen: element.isSeen, id: element.userName, lastMessage: element.lastMessage, isSender: element.isSender, lastSent: element.lastSent, email: element.userEmail})
+            response.forEach((element: { userName: string, avatar: string, isSeen: boolean, lastMessage: string, isSender: boolean, lastSent: string, userEmail: string }) => {
+                userList.push({
+                  name: element.userName, 
+                  image: element.avatar, 
+                  isSeen: element.isSeen, 
+                  id: 0, // Use a numeric ID first and then update it
+                  lastMessage: element.lastMessage, 
+                  isSender: element.isSender, 
+                  lastSent: element.lastSent, 
+                  email: element.userEmail
+                })
+            });
+            // Assign numeric IDs to the users
+            userList.forEach((user, index) => {
+              user.id = index + 1;
             });
         } catch (error) {
             console.error(error)
         }
         return userList
-    };
+    }, [getUserById]);
 
     useEffect(() => {
         const fetchData = async() => {
@@ -30,7 +44,7 @@ export function SearchUserMessage(searchUserMessageProps: Readonly<SearchUserMes
             setUsers(data);
         }
         fetchData();
-    }, [])
+    }, [searchUserMessageProps.userId, getUserMessage])
 
     return (
         <div style={{ overflowY: 'scroll' }} className="flex-1 ">
@@ -41,7 +55,7 @@ export function SearchUserMessage(searchUserMessageProps: Readonly<SearchUserMes
                 className="hover:bg-[#f5f5f5] bg-white text-black w-full h-[8vh] shadow-none"
                 >
                 <div className="w-full h-full flex items-center space-x-4">
-                    <img src={user.image} alt="User Profile" className="h-[90%] rounded-full" />
+                    <Image src={user.image} alt="User Profile" width={40} height={40} className="h-[90%] rounded-full" />
 
                     <div className="flex-1">
                         <div className="text-lg  text-gray-900 text-left font-bold">{user.name}</div>
