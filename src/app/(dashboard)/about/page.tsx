@@ -50,7 +50,7 @@ export default function AboutPage() {
         )}>
           <p className="mb-4">
             When our founder, Nguyen Van Minh, witnessed firsthand the challenges his deaf cousin faced in online 
-            education during the pandemic, he recognized that existing platforms weren't designed with sign language 
+            education during the pandemic, he recognized that existing platforms weren&apos;t designed with sign language 
             communication in mind.
           </p>
           <p className="mb-4">

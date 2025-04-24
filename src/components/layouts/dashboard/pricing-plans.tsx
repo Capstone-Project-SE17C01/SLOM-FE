@@ -32,7 +32,7 @@ export default function PricingPlans() {
   const [annual, setAnnual] = useState(false);
   const [durationPlan, setDurationPlan] = useState<number>(1);
   const [discount, setDiscount] = useState<number>(0);
-  const [userInfo, setUserInfo] = useState<any>(null);
+  const [userInfo, setUserInfo] = useState<{id: string; email?: string; username?: string} | null>(null);
   const { data, error, isLoading } = useGetAllPlanQuery();
   const [createPaymentLinkMutation] = useCreatePaymentLinkMutation();
 
