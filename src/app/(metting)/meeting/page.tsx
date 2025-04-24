@@ -10,7 +10,6 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/utils/cn";
 import { VideoIcon, VideoOffIcon, PhoneIcon, Mic as MicrophoneIcon, MicOff as MicrophoneOffIcon } from "lucide-react";
 
-// WebSocket URL - you may want to move this to an environment variable
 const WEBSOCKET_URL = "wss://asl-sign-language-336987311239.us-central1.run.app/ws";
 
 export default function Meeting() {
