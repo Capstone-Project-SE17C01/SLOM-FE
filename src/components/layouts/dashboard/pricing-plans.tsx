@@ -4,7 +4,14 @@ import { useState, useEffect } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/utils/cn";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Check } from "lucide-react";
 import { useGetAllPlanQuery } from "@/features/auth/api";
@@ -12,7 +19,11 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useCreatePaymentLinkMutation } from "@/features/auth/api";
 import constants from "@/settings/constants";
-import { APIResponse, CreatePaymentLinkResponseDTO, SubscriptionPlanDTO } from "@/features/auth/types";
+import {
+  APIResponse,
+  CreatePaymentLinkResponseDTO,
+  SubscriptionPlanDTO,
+} from "@/features/auth/types";
 import Cookies from "js-cookie";
 
 export default function PricingPlans() {
@@ -33,7 +44,6 @@ export default function PricingPlans() {
   }, []);
 
   useEffect(() => {
-    if (isLoading) console.log("Loading plans...");
     if (error) console.log(error);
   }, [isLoading, error]);
 
@@ -49,7 +59,6 @@ export default function PricingPlans() {
   ) => {
     e.preventDefault();
     try {
-      console.log("userInfo====>", userInfo);
       if (!userInfo?.id) return toast.error("Not authenticated");
 
       const response = await createPaymentLinkMutation({
@@ -59,7 +68,7 @@ export default function PricingPlans() {
         status: "PENDING",
         durationMonth: durationPlan,
         returnUrl: constants.RETURN_URL + "?period=" + durationPlan,
-        cancelUrl: constants.CANCEL_URL + "?period=" + durationPlan,
+        cancelUrl: constants.RETURN_URL + "?period=" + durationPlan,
         price,
         description: `Payment ${durationPlan > 1 ? "annual" : "monthly"} plan`,
       }).unwrap();

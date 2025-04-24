@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import { ConfirmRegisterationForm } from "@/features/auth/components/confirm-registeration-form";
 
 export const metadata: Metadata = {
-  title: "Xác thực đăng ký",
+  title: "Confirm Registeration",
 };
 
 function Page() {

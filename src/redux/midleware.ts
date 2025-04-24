@@ -11,7 +11,7 @@ export const rtkQueryErrorLogger: Middleware = () => (next) => (action) => {
     if (statusCode === 401) {
       toast.info("Vui lòng đăng nhập!");
     } else {
-      console.log("Error\n", action);
+      // console.log("Error\n", action);
     }
   }
 
