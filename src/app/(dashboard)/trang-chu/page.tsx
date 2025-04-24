@@ -162,7 +162,7 @@ export default function TrangChuPage() {
                 "p-6 rounded-lg",
                 isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200 shadow-sm"
               )}>
-                <p className="italic mb-4">"SLOM has transformed how I teach Vietnamese Sign Language. The video quality and classroom tools are specifically designed for our needs."</p>
+                <p className="italic mb-4">&quot;SLOM has transformed how I teach Vietnamese Sign Language. The video quality and classroom tools are specifically designed for our needs.&quot;</p>
                 <div className="flex items-center">
                   <div className="h-10 w-10 rounded-full bg-gray-300 mr-3"></div>
                   <div>
@@ -176,7 +176,7 @@ export default function TrangChuPage() {
                 "p-6 rounded-lg",
                 isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200 shadow-sm"
               )}>
-                <p className="italic mb-4">"As a deaf student, SLOM gives me equal access to education. The platform is intuitive and designed with our community in mind."</p>
+                <p className="italic mb-4">&quot;As a deaf student, SLOM gives me equal access to education. The platform is intuitive and designed with our community in mind.&quot;</p>
                 <div className="flex items-center">
                   <div className="h-10 w-10 rounded-full bg-gray-300 mr-3"></div>
                   <div>
@@ -197,7 +197,7 @@ export default function TrangChuPage() {
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl font-bold mb-4">Ready to start your sign language journey?</h2>
             <p className="text-xl text-muted-foreground mb-8">
-              Choose the plan that's right for you and start connecting through sign language today.
+              Choose the plan that&apos;s right for you and start connecting through sign language today.
             </p>
             <Button size="lg" className="bg-black hover:bg-gray-800 text-white">
               View Pricing Plans
