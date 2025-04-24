@@ -67,7 +67,7 @@ export default function Page() {
             toast.success(response.result);
             setStatus("success");
           }
-        } catch (error) {
+        } catch {
           toast.error("Failed to update payment status");
           setStatus("error");
         }

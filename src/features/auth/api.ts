@@ -1,7 +1,6 @@
 "use client";
 
 import { baseApi } from "@/redux/baseApi";
-import { User } from "firebase/auth";
 import type {
   LoginRequestDTO,
   ConfirmRegisterationRequestDTO,

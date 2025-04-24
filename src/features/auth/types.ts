@@ -41,7 +41,7 @@ interface Pagination {
   totalCount: number;
 }
 
-export interface APIResponse<T = any> {
+export interface APIResponse<T = unknown> {
   errorMessages: string[];
   result: T | null;
   pagination?: Pagination | null;
