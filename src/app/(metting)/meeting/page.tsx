@@ -71,6 +71,7 @@ export default function Meeting() {
   // Prediction queue with timestamps
   const [predictionQueue, setPredictionQueue] = useState<PredictionItem[]>([]);
   const [processedSubtitles, setProcessedSubtitles] = useState<string>("");
+  const [combinedSubtitles, setCombinedSubtitles] = useState<string>("");
   const processingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const isProcessingRef = useRef<boolean>(false);
 
@@ -198,15 +199,29 @@ export default function Meeting() {
           
           // Only add meaningful predictions to the queue
           if (prediction !== "No sign detected" && confidence > 0) {
-            setPredictionQueue(prevQueue => [
-              ...prevQueue,
-              {
-                prediction,
-                confidence,
-                timestamp: Date.now(),
-                processed: false
-              }
-            ]);
+            setPredictionQueue(prevQueue => {
+              const newQueue = [
+                ...prevQueue,
+                {
+                  prediction,
+                  confidence,
+                  timestamp: Date.now(),
+                  processed: false
+                }
+              ];
+              
+              // Update combined subtitles - show last 20 predictions in chronological order
+              const last20Predictions = newQueue
+                .slice(-20)
+                .sort((a, b) => a.timestamp - b.timestamp)
+                .map(item => item.prediction);
+              
+              // Join predictions into a sentence
+              const combinedText = last20Predictions.join(' ');
+              setCombinedSubtitles(combinedText);
+              
+              return newQueue;
+            });
           }
         } catch (error) {
           console.error("Error parsing WebSocket message:", error);
@@ -351,6 +366,10 @@ Return ONLY the cleaned-up sentence, nothing else.
       setSignPrediction("No sign detected");
       setSignConfidence(0);
       setProcessedSubtitles("");
+      setCombinedSubtitles("");
+      
+      // Clear prediction queue
+      setPredictionQueue([]);
       
       // For server that expects direct data, we can't send a clear command
       // If needed, we could send a special predefined message
@@ -777,23 +796,34 @@ Return ONLY the cleaned-up sentence, nothing else.
                 
                 {/* Enhanced subtitles display showing both processed and raw detection */}
                 <div className="space-y-2">
-                  {/* Processed subtitles (LLM enhanced) */}
+                  {/* Combined subtitles from all predictions */}
+                  <div className={cn(
+                    "py-3 px-4 rounded-lg text-xl font-medium min-h-[60px] flex items-center justify-center",
+                    isDarkMode ? "bg-gray-700" : "bg-white"
+                  )}>
+                    {combinedSubtitles || "Waiting for sign language detection..."}
+                  </div>
+                  
+                  {/* Processed LLM subtitles */}
                   {processedSubtitles && (
                     <div className={cn(
-                      "py-3 px-4 rounded-lg text-xl font-medium min-h-[60px] flex items-center justify-center",
-                      isDarkMode ? "bg-gray-700" : "bg-white"
+                      "py-3 px-4 rounded-lg text-lg font-medium min-h-[40px] flex items-center justify-center",
+                      isDarkMode ? "bg-gray-700/70" : "bg-white/80",
+                      "text-sm opacity-80"
                     )}>
+                      <span className="mr-2 text-xs uppercase tracking-wider font-bold opacity-60">AI Processed:</span>
                       {processedSubtitles}
                     </div>
                   )}
                   
-                  {/* Raw detection */}
+                  {/* Current detection */}
                   <div className={cn(
-                    "py-3 px-4 rounded-lg text-lg font-medium min-h-[40px] flex items-center justify-center",
+                    "py-2 px-4 rounded-lg text-sm min-h-[30px] flex items-center justify-center",
                     isDarkMode ? "bg-gray-700/50" : "bg-white/70",
                     signPrediction === "No sign detected" ? "text-gray-500 italic" : "",
-                    processedSubtitles ? "text-sm opacity-80" : "text-xl"
+                    "opacity-60"
                   )}>
+                    <span className="mr-2 text-xs uppercase tracking-wider font-bold">Current:</span>
                     {signPrediction}
                     {signConfidence > 0 && signPrediction !== "No sign detected" && (
                       <span className={cn(
