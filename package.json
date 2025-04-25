@@ -26,6 +26,7 @@
     "@twilio/conversations": "^2.6.2",
     "axios": "^1.8.4",
     "babel-plugin-react-compiler": "^19.0.0-beta-df7b47d-20241124",
+    "bufferutil": "^4.0.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
@@ -47,6 +48,7 @@
     "tailwindcss-animate": "^1.0.7",
     "twilio": "^5.5.2",
     "twilio-video": "^2.30.0",
+    "utf-8-validate": "^5.0.10",
     "yarn": "^1.22.22",
     "zod": "^3.23.8"
   },
