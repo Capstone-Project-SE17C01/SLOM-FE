@@ -183,9 +183,9 @@ export default function Meeting() {
           if (data.prediction) {
             prediction = data.prediction;
             confidence = Math.round(data.confidence * 100);
-          } else if (data.word) {
+          } else if (data.current_word) {
             // Alternative format where the server might send a 'word' property
-            prediction = data.word;
+            prediction = data.current_word;
             confidence = data.confidence ? Math.round(data.confidence * 100) : 0;
           } else {
             prediction = "No sign detected";
