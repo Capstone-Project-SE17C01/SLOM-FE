@@ -8,8 +8,35 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/utils/cn";
-import { VideoIcon, VideoOffIcon, PhoneIcon, Mic as MicrophoneIcon, MicOff as MicrophoneOffIcon } from "lucide-react";
+import { VideoIcon, VideoOffIcon, PhoneIcon, Mic as MicrophoneIcon, MicOff as MicrophoneOffIcon, MessageSquare, Send, ArrowRight } from "lucide-react";
 import OpenAI from "openai";
+
+// Định nghĩa types cho Web Speech API
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+  resultIndex: number;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+  onerror: (event: Event) => void;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onstart: (event: Event) => void;
+  onend: (event: Event) => void;
+}
+
+// Đảm bảo SpeechRecognition có sẵn trên window
+declare global {
+  interface Window {
+    SpeechRecognition: new () => SpeechRecognition;
+    webkitSpeechRecognition: new () => SpeechRecognition;
+  }
+}
 
 const WEBSOCKET_URL = "wss://asl-sign-language-336987311239.us-central1.run.app/ws";
 
@@ -27,6 +54,14 @@ interface PredictionItem {
   confidence: number;
   timestamp: number;
   processed: boolean;
+}
+
+// Interface for chat messages
+interface ChatMessage {
+  sender: string;
+  content: string;
+  timestamp: number;
+  isLocal: boolean;
 }
 
 export default function Meeting() {
@@ -62,6 +97,17 @@ export default function Meeting() {
   // For debugging - keep a ref copy of prediction queue that doesn't rely on React state
   const currentPredictionsRef = useRef<PredictionItem[]>([]);
   
+  // Chat functionality
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [newMessage, setNewMessage] = useState<string>("");
+  const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  
+  // Speech-to-text functionality
+  const [isListening, setIsListening] = useState<boolean>(false);
+  const [speechText, setSpeechText] = useState<string>("");
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  
   // Sign language recognition WebSocket states
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [socketConnected, setSocketConnected] = useState(false);
@@ -77,6 +123,28 @@ export default function Meeting() {
   const [combinedSubtitles, setCombinedSubtitles] = useState<string>("");
   const processingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const isProcessingRef = useRef<boolean>(false);
+
+  // Define captureAndSendFrame function before it's used in other functions
+  const captureAndSendFrame = useCallback(() => {
+    const videoElement = videoElementRef.current;
+    if (!videoElement || !socket || socket.readyState !== WebSocket.OPEN) return;
+    
+    // Create canvas to capture frame
+    const canvas = document.createElement("canvas");
+    canvas.width = videoElement.videoWidth;
+    canvas.height = videoElement.videoHeight;
+    
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+      
+      // Convert to base64 JPEG with reduced quality for performance
+      const imageData = canvas.toDataURL("image/jpeg", 0.7);
+      
+      // Send data to WebSocket
+      socket.send(imageData);
+    }
+  }, [socket]);
 
   // Optimize preview camera by creating track once
   const startVideoPreview = async () => {
@@ -229,28 +297,38 @@ export default function Meeting() {
   }, [socket]);
 
   // Capture and send video frame to WebSocket
-  const captureAndSendFrame = useCallback(() => {
+  useEffect(() => {
+    // Skip if not connected or video element not available
     if (!socketConnected || !socket || socket.readyState !== WebSocket.OPEN || !videoElementRef.current) {
       return;
     }
 
-    const videoElement = videoElementRef.current;
-    
-    // Create canvas to capture frame
-    const canvas = document.createElement("canvas");
-    canvas.width = videoElement.videoWidth;
-    canvas.height = videoElement.videoHeight;
-    
-    const ctx = canvas.getContext("2d");
-    if (ctx) {
-      ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+    // Set up interval for frame capture
+    const intervalId = setInterval(() => {
+      const videoElement = videoElementRef.current;
+      if (!videoElement) return;
       
-      // Convert to base64 JPEG with reduced quality for performance
-      const imageData = canvas.toDataURL("image/jpeg", 0.7);
+      // Create canvas to capture frame
+      const canvas = document.createElement("canvas");
+      canvas.width = videoElement.videoWidth;
+      canvas.height = videoElement.videoHeight;
       
-      // Send data directly without JSON wrapping
-      socket.send(imageData);
-    }
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        
+        // Convert to base64 JPEG with reduced quality for performance
+        const imageData = canvas.toDataURL("image/jpeg", 0.7);
+        
+        // Send data directly without JSON wrapping
+        socket.send(imageData);
+      }
+    }, 100); // Capture at 10fps
+
+    // Clean up interval on component unmount or when dependencies change
+    return () => {
+      clearInterval(intervalId);
+    };
   }, [socket, socketConnected]);
 
   // Process queue items using OpenAI
@@ -468,10 +546,19 @@ Return ONLY the cleaned-up subtitle text, nothing else.
         `/api/meeting?identity=${encodeURIComponent(userName)}`
       );
       const { token } = await res.json();
+      
+      // Cấu hình kết nối với nhiều tùy chọn hơn
       const connectedRoom = await Video.connect(token, {
         name: "MyMeetingRoom",
         audio: true,
         video: { width: 640 },
+        // Thêm các tùy chọn để tự động kết nối với mic và camera
+        tracks: await Promise.all([
+          Video.createLocalAudioTrack(),
+          Video.createLocalVideoTrack({width: 640})
+        ]),
+        // Log cấp độ để gỡ lỗi
+        logLevel: 'debug'
       });
 
       setRoom(connectedRoom);
@@ -483,6 +570,20 @@ Return ONLY the cleaned-up subtitle text, nothing else.
           setLocalVideoTrack(publication.track as LocalVideoTrack);
         }
       });
+      
+      // Kích hoạt local audio tracks
+      connectedRoom.localParticipant.audioTracks.forEach((publication) => {
+        if (publication.track) {
+          console.log("Enabling local audio track");
+          publication.track.enable();
+        }
+      });
+      
+      if (connectedRoom.localParticipant.audioTracks.size === 0) {
+        console.warn("No local audio tracks found. Audio might not work.");
+      } else {
+        console.log(`Found ${connectedRoom.localParticipant.audioTracks.size} local audio tracks`);
+      }
 
       // Hiển thị các participant đã ở sẵn trong phòng
       connectedRoom.participants.forEach((participant) => {
@@ -749,6 +850,126 @@ Return ONLY the cleaned-up subtitle text, nothing else.
       });
     }
   }, []);
+
+  // Check and setup audio
+  useEffect(() => {
+    if (room) {
+      console.log("Checking audio setup in room");
+      // Log các audio tracks hiện tại
+      const audioTracks = Array.from(room.localParticipant.audioTracks.values());
+      console.log(`Local audio tracks: ${audioTracks.length}`);
+      
+      // Kích hoạt tất cả các audio tracks
+      audioTracks.forEach(publication => {
+        if (publication.track) {
+          console.log(`Enabling audio track: ${publication.trackName}`);
+          publication.track.enable();
+        }
+      });
+      
+      // Nếu không có audio tracks, có thể cần thêm mới
+      if (audioTracks.length === 0) {
+        console.log("No audio tracks found, attempting to create one");
+        navigator.mediaDevices.getUserMedia({ audio: true })
+          .then(stream => {
+            console.log("Got audio stream, creating track");
+            const audioTrack = stream.getAudioTracks()[0];
+            if (audioTrack) {
+              console.log("Audio track created successfully");
+              // Có thể thêm track vào room ở đây nếu cần
+            }
+          })
+          .catch(err => console.error("Error getting audio stream:", err));
+      }
+    }
+  }, [room]);
+
+  // Add the speech recognition implementation after the captureAndSendFrame function
+  const startSpeechRecognition = useCallback(() => {
+    if (!isListening) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      
+      if (!SpeechRecognition) {
+        console.error("Speech recognition not supported in this browser");
+        return;
+      }
+      
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+      
+      recognition.onstart = () => {
+        console.log("Speech recognition started");
+        setIsListening(true);
+      };
+      
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
+        const transcript = Array.from(event.results)
+          .map(result => result[0].transcript)
+          .join('');
+        
+        setSpeechText(transcript);
+      };
+      
+      recognition.onend = () => {
+        console.log("Speech recognition ended");
+        setIsListening(false);
+      };
+      
+      recognition.onerror = (event) => {
+        console.error("Speech recognition error", event);
+        setIsListening(false);
+      };
+      
+      recognitionRef.current = recognition;
+      recognition.start();
+    } else {
+      stopSpeechRecognition();
+    }
+  }, [isListening]);
+  
+  const stopSpeechRecognition = useCallback(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+      setIsListening(false);
+    }
+  }, []);
+
+  // Add the chat functionality after the speech recognition functions
+  const sendChatMessage = useCallback(() => {
+    if (!newMessage.trim() || !room) return;
+    
+    // Create the message object
+    const messageObj: ChatMessage = {
+      sender: userName,
+      content: newMessage,
+      timestamp: Date.now(),
+      isLocal: true
+    };
+    
+    // Add to local state
+    setChatMessages(prev => [...prev, messageObj]);
+    
+    // Clear input field
+    setNewMessage("");
+    
+    // Scroll to bottom of chat
+    setTimeout(() => {
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+    
+    // Here you would typically send the message to other participants
+    // This would be done using Twilio DataTrack or another messaging channel
+    // For now, we'll just log it to console
+    console.log("Sending message:", messageObj);
+    
+    // Example of sending via DataTrack if implemented:
+    // if (dataTrack) {
+    //   dataTrack.send(JSON.stringify(messageObj));
+    // }
+  }, [newMessage, room, userName]);
 
   // Giao diện
   return (
@@ -1017,6 +1238,128 @@ Return ONLY the cleaned-up subtitle text, nothing else.
               </li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {/* Chat sidebar */}
+      {room && (
+        <div className={cn(
+          "fixed right-0 top-16 bottom-0 z-10 transition-all duration-300 flex flex-col",
+          isChatOpen 
+            ? "w-80 opacity-100 translate-x-0" 
+            : "w-0 opacity-0 translate-x-full",
+          isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900",
+          "shadow-lg border-l"
+        )}>
+          <div className="p-4 border-b flex justify-between items-center">
+            <h3 className="font-semibold">Chat</h3>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 w-8 p-0 rounded-full"
+              onClick={() => setIsChatOpen(false)}
+            >
+              <ArrowRight size={16} />
+            </Button>
+          </div>
+          
+          {/* Messages area */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {chatMessages.map((msg, idx) => (
+              <div 
+                key={idx} 
+                className={cn(
+                  "max-w-[80%] p-3 rounded-lg",
+                  msg.isLocal 
+                    ? "ml-auto bg-blue-600 text-white rounded-br-none" 
+                    : "mr-auto bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-white rounded-bl-none"
+                )}
+              >
+                <div className="text-xs opacity-70 mb-1">{msg.sender}</div>
+                <div>{msg.content}</div>
+              </div>
+            ))}
+            <div ref={chatEndRef} />
+          </div>
+          
+          {/* Input area */}
+          <div className="p-4 border-t flex gap-2">
+            <Input
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Type a message..."
+              className={isDarkMode ? "bg-gray-700 border-gray-600" : ""}
+              onKeyDown={(e) => e.key === 'Enter' && sendChatMessage()}
+            />
+            <Button 
+              onClick={sendChatMessage}
+              size="icon"
+              className="h-10 w-10 rounded-full"
+            >
+              <Send size={18} />
+            </Button>
+          </div>
+        </div>
+      )}
+      
+      {/* Chat toggle button */}
+      {room && (
+        <Button
+          onClick={() => setIsChatOpen(true)}
+          className={cn(
+            "fixed right-4 bottom-20 rounded-full p-3 h-12 w-12 z-10",
+            isChatOpen ? "hidden" : "flex",
+            isDarkMode ? "bg-gray-700" : "bg-white",
+            isDarkMode ? "hover:bg-gray-600" : "hover:bg-gray-100"
+          )}
+          variant="outline"
+        >
+          <MessageSquare size={20} />
+        </Button>
+      )}
+      
+      {/* Speech-to-text toggle button */}
+      {room && (
+        <Button
+          onClick={startSpeechRecognition}
+          className={cn(
+            "fixed right-4 bottom-36 rounded-full p-3 h-12 w-12 z-10",
+            isDarkMode ? "bg-gray-700" : "bg-white",
+            isListening ? "bg-green-500 hover:bg-green-600 text-white" : "",
+            isDarkMode && !isListening ? "hover:bg-gray-600" : !isListening ? "hover:bg-gray-100" : ""
+          )}
+          variant="outline"
+        >
+          <MicrophoneIcon size={20} />
+        </Button>
+      )}
+      
+      {/* Speech-to-text result display */}
+      {isListening && speechText && (
+        <div className={cn(
+          "fixed left-4 right-4 bottom-20 p-4 rounded-lg shadow-lg z-10",
+          isDarkMode ? "bg-gray-800" : "bg-white"
+        )}>
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center">
+              <div className="h-2 w-2 rounded-full bg-green-500 mr-2 animate-pulse"></div>
+              <span className="text-sm font-medium">Listening...</span>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-6 w-6 p-0 rounded-full"
+              onClick={stopSpeechRecognition}
+            >
+              <MicrophoneOffIcon size={14} />
+            </Button>
+          </div>
+          <p className={cn(
+            "text-sm",
+            isDarkMode ? "text-gray-300" : "text-gray-700"
+          )}>
+            {speechText}
+          </p>
         </div>
       )}
     </div>

@@ -17,7 +17,19 @@ export default function UserCard({ track, username, isMicOn, isDarkMode = false 
 
   useEffect(() => {
     if (videoRef.current && track) {
+      // Clean up any existing attachments first to prevent duplicate
+      const existingElements = track.detach();
+      existingElements.forEach(element => element.remove());
+      
+      // Attach to our ref
       track.attach(videoRef.current);
+      
+      // Make sure video is not muted
+      if (videoRef.current.muted) {
+        console.log("Unmuting video element");
+        videoRef.current.muted = false;
+      }
+      
       return () => {
         track.detach();
       };
