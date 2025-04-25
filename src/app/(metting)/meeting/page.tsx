@@ -175,7 +175,8 @@ export default function Meeting() {
       newSocket.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          console.log("Received sign recognition data:", data);
+          // Remove verbose logging
+          // console.log("Received sign recognition data:", data);
           
           let prediction = "";
           let confidence = 0;
@@ -352,6 +353,7 @@ Return ONLY the cleaned-up sentence, nothing else.
   // Toggle sign language recognition
   const toggleSignRecognition = useCallback(() => {
     if (isRecognitionActive) {
+      console.log("Stopping sign recognition and processing");
       // Stop recognition
       if (captureIntervalRef.current) {
         clearInterval(captureIntervalRef.current);
@@ -378,6 +380,7 @@ Return ONLY the cleaned-up sentence, nothing else.
       // For server that expects direct data, we can't send a clear command
       // If needed, we could send a special predefined message
     } else {
+      console.log("Starting sign recognition and processing");
       // Start recognition if connected
       if (socketConnected && videoElementRef.current) {
         setIsRecognitionActive(true);
@@ -386,7 +389,17 @@ Return ONLY the cleaned-up sentence, nothing else.
         captureIntervalRef.current = setInterval(captureAndSendFrame, 100);
         
         // Process queue every 5 minutes for more natural updates
-        processingIntervalRef.current = setInterval(processQueue, 5 * 60 * 1000);
+        console.log("Setting up processing interval every 5 minutes");
+        processingIntervalRef.current = setInterval(() => {
+          console.log("Processing interval triggered");
+          processQueue();
+        }, 30000); // Changed to 30 seconds for testing
+        
+        // Force an immediate processing after 5 seconds to test
+        setTimeout(() => {
+          console.log("Forcing initial processing");
+          processQueue();
+        }, 5000);
       } else if (!socketConnected) {
         // Try to connect first
         connectWebSocket();
@@ -636,22 +649,23 @@ Return ONLY the cleaned-up sentence, nothing else.
   // Debug interval for logging prediction queue state
   useEffect(() => {
     const debugInterval = setInterval(() => {
-      if (predictionQueue.length > 0) {
-        console.log(`[${new Date().toISOString()}] Current prediction queue:`, {
+      if (predictionQueue.length > 0 && isRecognitionActive) {
+        console.log(`[${new Date().toISOString()}] Queue stats:`, {
           count: predictionQueue.length,
-          lastPredictions: predictionQueue.slice(-5).map(p => p.prediction),
-          lastTimestamp: new Date(predictionQueue[predictionQueue.length - 1].timestamp).toISOString(),
           processedCount: predictionQueue.filter(p => p.processed).length,
           unprocessedCount: predictionQueue.filter(p => !p.processed).length
         });
-        console.log(`[${new Date().toISOString()}] Current combined subtitles:`, combinedSubtitles);
+        // Only log last prediction instead of the last 5
+        if (predictionQueue.length > 0) {
+          console.log(`Last prediction: "${predictionQueue[predictionQueue.length - 1].prediction}"`);
+        }
       }
-    }, 10000); // Log every 10 seconds
+    }, 30000); // Log every 30 seconds instead of 10
     
     return () => {
       clearInterval(debugInterval);
     };
-  }, [predictionQueue, combinedSubtitles]);
+  }, [predictionQueue, isRecognitionActive]);
 
   // Add an effect to handle layout changes when participants list changes
   useEffect(() => {
