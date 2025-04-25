@@ -59,6 +59,9 @@ export default function Meeting() {
   const previewRef = useRef<HTMLVideoElement>(null);
   const previewStarted = useRef(false);
   
+  // For debugging - keep a ref copy of prediction queue that doesn't rely on React state
+  const currentPredictionsRef = useRef<PredictionItem[]>([]);
+  
   // Sign language recognition WebSocket states
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [socketConnected, setSocketConnected] = useState(false);
@@ -198,33 +201,8 @@ export default function Meeting() {
           setSignPrediction(prediction);
           setSignConfidence(confidence);
           
-          // Only add meaningful predictions to the queue
-          if (prediction !== "No sign detected" && confidence > 0) {
-            console.log(`Adding new prediction to queue: "${prediction}" (${confidence}%)`);
-            setPredictionQueue(prevQueue => {
-              const newQueue = [
-                ...prevQueue,
-                {
-                  prediction,
-                  confidence,
-                  timestamp: Date.now(),
-                  processed: false
-                }
-              ];
-              
-              // Update combined subtitles - show last 20 predictions in chronological order
-              const last20Predictions = newQueue
-                .slice(-20)
-                .sort((a, b) => a.timestamp - b.timestamp)
-                .map(item => item.prediction);
-              
-              // Join predictions into a sentence
-              const combinedText = last20Predictions.join(' ');
-              setCombinedSubtitles(combinedText);
-              
-              return newQueue;
-            });
-          }
+          // Add to prediction queue
+          handleNewPrediction(prediction, confidence);
         } catch (error) {
           console.error("Error parsing WebSocket message:", error);
         }
@@ -300,8 +278,18 @@ export default function Meeting() {
         processed: item.processed
       })));
       
+      // Debug ref data too
+      console.log("Items in ref:", currentPredictionsRef.current.length);
+      
+      // If state is empty but ref has data, use ref data
+      let queueToUse = predictionQueue;
+      if (predictionQueue.length === 0 && currentPredictionsRef.current.length > 0) {
+        console.log("State queue is empty but ref has data, using ref data");
+        queueToUse = currentPredictionsRef.current;
+      }
+      
       // Option 1: Filter items from the last 30 seconds that haven't been processed
-      const recentItemsToProcess = predictionQueue.filter(
+      const recentItemsToProcess = queueToUse.filter(
         item => item.timestamp >= thirtySecondsAgo && !item.processed
       );
       
@@ -424,9 +412,8 @@ Return ONLY the cleaned-up subtitle text, nothing else.
       
       // Clear prediction queue
       setPredictionQueue([]);
-      
-      // For server that expects direct data, we can't send a clear command
-      // If needed, we could send a special predefined message
+      currentPredictionsRef.current = [];
+      console.log("Cleared prediction queue and ref");
     } else {
       console.log("Starting sign recognition and processing");
       // Start recognition if connected
@@ -434,6 +421,7 @@ Return ONLY the cleaned-up subtitle text, nothing else.
         // Reset states
         setIsRecognitionActive(true);
         setPredictionQueue([]);
+        currentPredictionsRef.current = [];
         setProcessedSubtitles("");
         setCombinedSubtitles("");
         console.log("Reset prediction queue and subtitles");
@@ -726,6 +714,41 @@ Return ONLY the cleaned-up subtitle text, nothing else.
       console.log(`Layout should update: ${remoteParticipants.length + 1} participants total`);
     }
   }, [remoteParticipants, room]);
+
+  const handleNewPrediction = useCallback((prediction: string, confidence: number) => {
+    // Only add meaningful predictions to the queue
+    if (prediction !== "No sign detected" && confidence > 0) {
+      console.log(`Adding new prediction to queue: "${prediction}" (${confidence}%)`);
+      
+      const newPrediction = {
+        prediction,
+        confidence,
+        timestamp: Date.now(),
+        processed: false
+      };
+      
+      // Update ref directly for debugging
+      currentPredictionsRef.current = [...currentPredictionsRef.current, newPrediction];
+      console.log("Current predictions in ref:", currentPredictionsRef.current.length);
+      
+      setPredictionQueue(prevQueue => {
+        const newQueue = [...prevQueue, newPrediction];
+        
+        // Update combined subtitles
+        const last20Predictions = newQueue
+          .slice(-20)
+          .sort((a, b) => a.timestamp - b.timestamp)
+          .map(item => item.prediction);
+        
+        // Join predictions into a sentence
+        const combinedText = last20Predictions.join(' ');
+        setCombinedSubtitles(combinedText);
+        
+        console.log("Queue updated, new length:", newQueue.length);
+        return newQueue;
+      });
+    }
+  }, []);
 
   // Giao diện
   return (
