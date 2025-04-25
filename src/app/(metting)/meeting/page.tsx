@@ -282,11 +282,11 @@ export default function Meeting() {
     try {
       // Get all unprocessed items from the last 5 minutes
       const currentTime = Date.now();
-      const fiveMinutesAgo = currentTime - 5 * 60 * 1000; // 5 minutes
+      const oneMinuteAgo = currentTime - 60 * 1000; // 1 minute
       
       // Filter items from the last 5 minutes that haven't been processed
       const itemsToProcess = predictionQueue.filter(
-        item => item.timestamp >= fiveMinutesAgo && !item.processed
+        item => item.timestamp >= oneMinuteAgo && !item.processed
       );
       
       if (itemsToProcess.length === 0) {
