@@ -281,41 +281,52 @@ export default function Meeting() {
     isProcessingRef.current = true;
     
     try {
-      // Get all unprocessed items from the last 5 minutes
-      const currentTime = Date.now();
-      const oneMinuteAgo = currentTime - 60 * 1000; // 1 minute
+      console.log("Starting to process predictions with OpenAI");
       
-      // Filter items from the last 5 minutes that haven't been processed
+      // Get all unprocessed items from the last 30 seconds
+      const currentTime = Date.now();
+      const thirtySecondsAgo = currentTime - 30 * 1000; // 30 seconds
+      
+      // Filter items from the last 30 seconds that haven't been processed
       const itemsToProcess = predictionQueue.filter(
-        item => item.timestamp >= oneMinuteAgo && !item.processed
+        item => item.timestamp >= thirtySecondsAgo && !item.processed
       );
       
       if (itemsToProcess.length === 0) {
+        console.log("No items to process, skipping OpenAI call");
         isProcessingRef.current = false;
         return;
       }
       
-      console.log("Processing items:", itemsToProcess);
+      console.log(`Processing ${itemsToProcess.length} items from the last 30 seconds`);
       
       // Extract raw predictions
       const rawPredictions = itemsToProcess.map(item => item.prediction).join(", ");
       
+      // Skip processing if there's nothing meaningful to process
+      if (!rawPredictions || rawPredictions.trim() === "") {
+        console.log("Empty raw predictions, skipping OpenAI call");
+        isProcessingRef.current = false;
+        return;
+      }
+      
       // Create a prompt for the LLM
       const prompt = `
-You are a sign language interpreter assistant. Below is a series of detected signs that may contain:
+You are a sign language interpreter assistant. Below is a series of detected signs from the past 30 seconds that may contain:
 1. Repeated words (e.g., "hello, hello, hello")
 2. Noise or irrelevant detections
 3. Missing words that would make the sentence more coherent
 
-Raw detected signs: "${rawPredictions}"
+Raw detected signs from the last 30 seconds: "${rawPredictions}"
 
 Your task:
 1. Remove unnecessary repetitions
 2. Fill in any missing words to make the sentence grammatically correct and meaningful
-3. Format it as a proper, coherent sentence
+3. Format it as a proper, coherent subtitle
 4. Keep it concise and natural
+5. If there are multiple unrelated phrases, format them as a coherent paragraph
 
-Return ONLY the cleaned-up sentence, nothing else.
+Return ONLY the cleaned-up subtitle text, nothing else.
 `;
       
       // Call OpenAI API
@@ -388,12 +399,12 @@ Return ONLY the cleaned-up sentence, nothing else.
         // Capture frames at 10 FPS (100ms interval) - matching reference code
         captureIntervalRef.current = setInterval(captureAndSendFrame, 100);
         
-        // Process queue every 5 minutes for more natural updates
-        console.log("Setting up processing interval every 5 minutes");
+        // Process queue every 30 seconds for more frequent updates
+        console.log("Setting up processing interval every 30 seconds");
         processingIntervalRef.current = setInterval(() => {
           console.log("Processing interval triggered");
           processQueue();
-        }, 30000); // Changed to 30 seconds for testing
+        }, 30000); // Changed to 30 seconds
         
         // Force an immediate processing after 5 seconds to test
         setTimeout(() => {
