@@ -200,6 +200,7 @@ export default function Meeting() {
           
           // Only add meaningful predictions to the queue
           if (prediction !== "No sign detected" && confidence > 0) {
+            console.log(`Adding new prediction to queue: "${prediction}" (${confidence}%)`);
             setPredictionQueue(prevQueue => {
               const newQueue = [
                 ...prevQueue,
@@ -287,10 +288,32 @@ export default function Meeting() {
       const currentTime = Date.now();
       const thirtySecondsAgo = currentTime - 30 * 1000; // 30 seconds
       
-      // Filter items from the last 30 seconds that haven't been processed
-      const itemsToProcess = predictionQueue.filter(
+      // Debug current time and cutoff time
+      console.log("Current time:", new Date(currentTime).toISOString());
+      console.log("Cutoff time (30s ago):", new Date(thirtySecondsAgo).toISOString());
+      
+      // Debug current queue state
+      console.log("Total queue items:", predictionQueue.length);
+      console.log("Items with timestamps:", predictionQueue.map(item => ({
+        prediction: item.prediction,
+        timestamp: new Date(item.timestamp).toISOString(),
+        processed: item.processed
+      })));
+      
+      // Option 1: Filter items from the last 30 seconds that haven't been processed
+      const recentItemsToProcess = predictionQueue.filter(
         item => item.timestamp >= thirtySecondsAgo && !item.processed
       );
+      
+      // Option 2: Get all unprocessed items if recent filtering yields nothing
+      let itemsToProcess = recentItemsToProcess;
+      if (recentItemsToProcess.length === 0 && predictionQueue.some(item => !item.processed)) {
+        console.log("No recent items, using all unprocessed items instead");
+        itemsToProcess = predictionQueue.filter(item => !item.processed);
+      }
+      
+      // Debug filtered items
+      console.log("Items to process after filtering:", itemsToProcess.length);
       
       if (itemsToProcess.length === 0) {
         console.log("No items to process, skipping OpenAI call");
@@ -349,11 +372,25 @@ Return ONLY the cleaned-up subtitle text, nothing else.
       setProcessedSubtitles(processedText);
       
       // Mark items as processed
-      setPredictionQueue(prevQueue => 
-        prevQueue.map(item => 
-          itemsToProcess.includes(item) ? { ...item, processed: true } : item
-        )
-      );
+      if (itemsToProcess.length > 0) {
+        console.log("Marking items as processed");
+        setPredictionQueue(prevQueue => 
+          prevQueue.map(item => {
+            // Find if this item is in the items to process list
+            const shouldBeProcessed = itemsToProcess.some(
+              processItem => processItem.timestamp === item.timestamp && 
+                             processItem.prediction === item.prediction
+            );
+            
+            // Only mark as processed if it was in our processing list
+            if (shouldBeProcessed) {
+              console.log(`Marking item as processed: ${item.prediction}`);
+              return { ...item, processed: true };
+            }
+            return item;
+          })
+        );
+      }
     } catch (error) {
       console.error("Error processing predictions:", error);
     } finally {
@@ -394,7 +431,12 @@ Return ONLY the cleaned-up subtitle text, nothing else.
       console.log("Starting sign recognition and processing");
       // Start recognition if connected
       if (socketConnected && videoElementRef.current) {
+        // Reset states
         setIsRecognitionActive(true);
+        setPredictionQueue([]);
+        setProcessedSubtitles("");
+        setCombinedSubtitles("");
+        console.log("Reset prediction queue and subtitles");
         
         // Capture frames at 10 FPS (100ms interval) - matching reference code
         captureIntervalRef.current = setInterval(captureAndSendFrame, 100);
