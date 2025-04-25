@@ -12,12 +12,15 @@ import { VideoIcon, VideoOffIcon, PhoneIcon, Mic as MicrophoneIcon, MicOff as Mi
 import OpenAI from "openai";
 
 const WEBSOCKET_URL = "wss://asl-sign-language-336987311239.us-central1.run.app/ws";
-const OPENAI_API_KEY = "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";
+const OPENAI_API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY || "";
 
 // Initialize OpenAI client
 const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
 });
+
+// Log API key status for debugging (without revealing the key)
+console.log("OpenAI API Key Status:", OPENAI_API_KEY ? "Available" : "Missing");
 
 // Interface for prediction queue items
 interface PredictionItem {
