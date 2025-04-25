@@ -153,9 +153,17 @@ export default function Meeting() {
           const data = JSON.parse(event.data);
           console.log("Received sign recognition data:", data);
           
+          // Update prediction and confidence
           if (data.prediction) {
             setSignPrediction(data.prediction);
             setSignConfidence(Math.round(data.confidence * 100));
+          } else if (data.word) {
+            // Alternative format where the server might send a 'word' property
+            setSignPrediction(data.word);
+            setSignConfidence(data.confidence ? Math.round(data.confidence * 100) : 0);
+          } else {
+            setSignPrediction("No sign detected");
+            setSignConfidence(0);
           }
         } catch (error) {
           console.error("Error parsing WebSocket message:", error);
@@ -202,11 +210,8 @@ export default function Meeting() {
       // Convert to base64 JPEG with reduced quality for performance
       const imageData = canvas.toDataURL("image/jpeg", 0.7);
       
-      // Send to server
-      socket.send(JSON.stringify({
-        action: "predict",
-        image: imageData
-      }));
+      // Send data directly without JSON wrapping
+      socket.send(imageData);
     }
   }, [socket, socketConnected]);
 
@@ -224,17 +229,15 @@ export default function Meeting() {
       setSignPrediction("No sign detected");
       setSignConfidence(0);
       
-      // Send clear buffer command to server
-      if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({ action: "clear_buffer" }));
-      }
+      // For server that expects direct data, we can't send a clear command
+      // If needed, we could send a special predefined message
     } else {
       // Start recognition if connected
       if (socketConnected && videoElementRef.current) {
         setIsRecognitionActive(true);
         
-        // Capture frames at 5 FPS (200ms interval) - adjust as needed for performance
-        captureIntervalRef.current = setInterval(captureAndSendFrame, 200);
+        // Capture frames at 10 FPS (100ms interval) - matching reference code
+        captureIntervalRef.current = setInterval(captureAndSendFrame, 100);
       } else if (!socketConnected) {
         // Try to connect first
         connectWebSocket();
