@@ -513,7 +513,7 @@ export default function Meeting() {
                   autoPlay
                   playsInline
                   muted
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
                 
                 {!hasMediaPermission && (

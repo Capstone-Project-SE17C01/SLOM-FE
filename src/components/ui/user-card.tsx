@@ -33,7 +33,7 @@ export default function UserCard({ track, username, isMicOn, isDarkMode = false 
         ref={videoRef}
         autoPlay
         playsInline
-        className="w-full h-full object-cover"
+        className="w-full h-full object-contain"
       />
       
       <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent">
