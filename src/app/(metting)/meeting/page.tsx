@@ -318,6 +318,8 @@ Return ONLY the cleaned-up sentence, nothing else.
 `;
       
       // Call OpenAI API
+      console.log(`[${new Date().toISOString()}] Calling OpenAI with prompt:`, prompt);
+      
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
@@ -326,8 +328,10 @@ Return ONLY the cleaned-up sentence, nothing else.
         ],
       });
       
+      console.log(`[${new Date().toISOString()}] OpenAI Response:`, JSON.stringify(response, null, 2));
+      
       const processedText = response.choices[0].message.content || "";
-      console.log("Processed text:", processedText);
+      console.log(`[${new Date().toISOString()}] Processed text:`, processedText);
       
       // Update processed subtitles
       setProcessedSubtitles(processedText);
@@ -628,6 +632,26 @@ Return ONLY the cleaned-up sentence, nothing else.
       clearInterval(cleanupInterval);
     };
   }, []);
+
+  // Debug interval for logging prediction queue state
+  useEffect(() => {
+    const debugInterval = setInterval(() => {
+      if (predictionQueue.length > 0) {
+        console.log(`[${new Date().toISOString()}] Current prediction queue:`, {
+          count: predictionQueue.length,
+          lastPredictions: predictionQueue.slice(-5).map(p => p.prediction),
+          lastTimestamp: new Date(predictionQueue[predictionQueue.length - 1].timestamp).toISOString(),
+          processedCount: predictionQueue.filter(p => p.processed).length,
+          unprocessedCount: predictionQueue.filter(p => !p.processed).length
+        });
+        console.log(`[${new Date().toISOString()}] Current combined subtitles:`, combinedSubtitles);
+      }
+    }, 10000); // Log every 10 seconds
+    
+    return () => {
+      clearInterval(debugInterval);
+    };
+  }, [predictionQueue, combinedSubtitles]);
 
   // Add an effect to handle layout changes when participants list changes
   useEffect(() => {
