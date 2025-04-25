@@ -9,8 +9,23 @@ import { Input } from "@/components/ui/input";
 import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/utils/cn";
 import { VideoIcon, VideoOffIcon, PhoneIcon, Mic as MicrophoneIcon, MicOff as MicrophoneOffIcon } from "lucide-react";
+import OpenAI from "openai";
 
 const WEBSOCKET_URL = "wss://asl-sign-language-336987311239.us-central1.run.app/ws";
+const OPENAI_API_KEY = "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";
+
+// Initialize OpenAI client
+const openai = new OpenAI({
+  apiKey: OPENAI_API_KEY,
+});
+
+// Interface for prediction queue items
+interface PredictionItem {
+  prediction: string;
+  confidence: number;
+  timestamp: number;
+  processed: boolean;
+}
 
 export default function Meeting() {
   const theme = useTheme();
@@ -50,6 +65,12 @@ export default function Meeting() {
   const [isRecognitionActive, setIsRecognitionActive] = useState(false);
   const captureIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const videoElementRef = useRef<HTMLVideoElement | null>(null);
+  
+  // Prediction queue with timestamps
+  const [predictionQueue, setPredictionQueue] = useState<PredictionItem[]>([]);
+  const [processedSubtitles, setProcessedSubtitles] = useState<string>("");
+  const processingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isProcessingRef = useRef<boolean>(false);
 
   // Optimize preview camera by creating track once
   const startVideoPreview = async () => {
@@ -153,17 +174,37 @@ export default function Meeting() {
           const data = JSON.parse(event.data);
           console.log("Received sign recognition data:", data);
           
+          let prediction = "";
+          let confidence = 0;
+          
           // Update prediction and confidence
           if (data.prediction) {
-            setSignPrediction(data.prediction);
-            setSignConfidence(Math.round(data.confidence * 100));
+            prediction = data.prediction;
+            confidence = Math.round(data.confidence * 100);
           } else if (data.word) {
             // Alternative format where the server might send a 'word' property
-            setSignPrediction(data.word);
-            setSignConfidence(data.confidence ? Math.round(data.confidence * 100) : 0);
+            prediction = data.word;
+            confidence = data.confidence ? Math.round(data.confidence * 100) : 0;
           } else {
-            setSignPrediction("No sign detected");
-            setSignConfidence(0);
+            prediction = "No sign detected";
+            confidence = 0;
+          }
+          
+          // Update UI for immediate feedback
+          setSignPrediction(prediction);
+          setSignConfidence(confidence);
+          
+          // Only add meaningful predictions to the queue
+          if (prediction !== "No sign detected" && confidence > 0) {
+            setPredictionQueue(prevQueue => [
+              ...prevQueue,
+              {
+                prediction,
+                confidence,
+                timestamp: Date.now(),
+                processed: false
+              }
+            ]);
           }
         } catch (error) {
           console.error("Error parsing WebSocket message:", error);
@@ -215,6 +256,78 @@ export default function Meeting() {
     }
   }, [socket, socketConnected]);
 
+  // Process queue items using OpenAI
+  const processQueue = useCallback(async () => {
+    // Prevent concurrent processing
+    if (isProcessingRef.current) return;
+    isProcessingRef.current = true;
+    
+    try {
+      // Get all unprocessed items from the last 5 minutes
+      const currentTime = Date.now();
+      const fiveMinutesAgo = currentTime - 5 * 60 * 1000; // 5 minutes
+      
+      // Filter items from the last 5 minutes that haven't been processed
+      const itemsToProcess = predictionQueue.filter(
+        item => item.timestamp >= fiveMinutesAgo && !item.processed
+      );
+      
+      if (itemsToProcess.length === 0) {
+        isProcessingRef.current = false;
+        return;
+      }
+      
+      console.log("Processing items:", itemsToProcess);
+      
+      // Extract raw predictions
+      const rawPredictions = itemsToProcess.map(item => item.prediction).join(", ");
+      
+      // Create a prompt for the LLM
+      const prompt = `
+You are a sign language interpreter assistant. Below is a series of detected signs that may contain:
+1. Repeated words (e.g., "hello, hello, hello")
+2. Noise or irrelevant detections
+3. Missing words that would make the sentence more coherent
+
+Raw detected signs: "${rawPredictions}"
+
+Your task:
+1. Remove unnecessary repetitions
+2. Fill in any missing words to make the sentence grammatically correct and meaningful
+3. Format it as a proper, coherent sentence
+4. Keep it concise and natural
+
+Return ONLY the cleaned-up sentence, nothing else.
+`;
+      
+      // Call OpenAI API
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: "You are a sign language interpreter assistant." },
+          { role: "user", content: prompt }
+        ],
+      });
+      
+      const processedText = response.choices[0].message.content || "";
+      console.log("Processed text:", processedText);
+      
+      // Update processed subtitles
+      setProcessedSubtitles(processedText);
+      
+      // Mark items as processed
+      setPredictionQueue(prevQueue => 
+        prevQueue.map(item => 
+          itemsToProcess.includes(item) ? { ...item, processed: true } : item
+        )
+      );
+    } catch (error) {
+      console.error("Error processing predictions:", error);
+    } finally {
+      isProcessingRef.current = false;
+    }
+  }, [predictionQueue]);
+
   // Toggle sign language recognition
   const toggleSignRecognition = useCallback(() => {
     if (isRecognitionActive) {
@@ -223,11 +336,19 @@ export default function Meeting() {
         clearInterval(captureIntervalRef.current);
         captureIntervalRef.current = null;
       }
+      
+      // Stop processing interval
+      if (processingIntervalRef.current) {
+        clearInterval(processingIntervalRef.current);
+        processingIntervalRef.current = null;
+      }
+      
       setIsRecognitionActive(false);
       
       // Clear current prediction
       setSignPrediction("No sign detected");
       setSignConfidence(0);
+      setProcessedSubtitles("");
       
       // For server that expects direct data, we can't send a clear command
       // If needed, we could send a special predefined message
@@ -238,12 +359,15 @@ export default function Meeting() {
         
         // Capture frames at 10 FPS (100ms interval) - matching reference code
         captureIntervalRef.current = setInterval(captureAndSendFrame, 100);
+        
+        // Process queue every 5 minutes for more natural updates
+        processingIntervalRef.current = setInterval(processQueue, 5 * 60 * 1000);
       } else if (!socketConnected) {
         // Try to connect first
         connectWebSocket();
       }
     }
-  }, [isRecognitionActive, socketConnected, socket, captureAndSendFrame, connectWebSocket]);
+  }, [isRecognitionActive, socketConnected, socket, captureAndSendFrame, connectWebSocket, processQueue]);
 
   // Kết nối phòng họp
   const joinRoom = async () => {
@@ -458,9 +582,31 @@ export default function Meeting() {
       // Clear any intervals
       if (captureIntervalRef.current) {
         clearInterval(captureIntervalRef.current);
+        captureIntervalRef.current = null;
+      }
+      
+      // Clear processing interval
+      if (processingIntervalRef.current) {
+        clearInterval(processingIntervalRef.current);
+        processingIntervalRef.current = null;
       }
     };
   }, [previewTrack, room, checkMediaPermissions, socket]);
+
+  // Clean up old predictions to prevent memory issues
+  useEffect(() => {
+    const cleanupInterval = setInterval(() => {
+      // Keep only the last 10 minutes of predictions to prevent memory issues
+      const tenMinutesAgo = Date.now() - 10 * 60 * 1000;
+      setPredictionQueue(prevQueue => 
+        prevQueue.filter(item => item.timestamp >= tenMinutesAgo)
+      );
+    }, 60000); // Run cleanup every minute
+    
+    return () => {
+      clearInterval(cleanupInterval);
+    };
+  }, []);
 
   // Add an effect to handle layout changes when participants list changes
   useEffect(() => {
@@ -627,20 +773,35 @@ export default function Meeting() {
                   </Button>
                 </div>
                 
-                <div className={cn(
-                  "py-3 px-4 rounded-lg text-xl font-medium min-h-[60px] flex items-center justify-center",
-                  isDarkMode ? "bg-gray-700" : "bg-white",
-                  signPrediction === "No sign detected" ? "text-gray-500 italic" : ""
-                )}>
-                  {signPrediction}
-                  {signConfidence > 0 && signPrediction !== "No sign detected" && (
-                    <span className={cn(
-                      "ml-2 text-xs py-0.5 px-1.5 rounded",
-                      isDarkMode ? "bg-gray-600 text-gray-300" : "bg-gray-200 text-gray-700"
+                {/* Enhanced subtitles display showing both processed and raw detection */}
+                <div className="space-y-2">
+                  {/* Processed subtitles (LLM enhanced) */}
+                  {processedSubtitles && (
+                    <div className={cn(
+                      "py-3 px-4 rounded-lg text-xl font-medium min-h-[60px] flex items-center justify-center",
+                      isDarkMode ? "bg-gray-700" : "bg-white"
                     )}>
-                      {signConfidence}%
-                    </span>
+                      {processedSubtitles}
+                    </div>
                   )}
+                  
+                  {/* Raw detection */}
+                  <div className={cn(
+                    "py-3 px-4 rounded-lg text-lg font-medium min-h-[40px] flex items-center justify-center",
+                    isDarkMode ? "bg-gray-700/50" : "bg-white/70",
+                    signPrediction === "No sign detected" ? "text-gray-500 italic" : "",
+                    processedSubtitles ? "text-sm opacity-80" : "text-xl"
+                  )}>
+                    {signPrediction}
+                    {signConfidence > 0 && signPrediction !== "No sign detected" && (
+                      <span className={cn(
+                        "ml-2 text-xs py-0.5 px-1.5 rounded",
+                        isDarkMode ? "bg-gray-600 text-gray-300" : "bg-gray-200 text-gray-700"
+                      )}>
+                        {signConfidence}%
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
