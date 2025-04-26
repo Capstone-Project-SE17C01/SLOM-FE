@@ -350,13 +350,18 @@ Return ONLY the cleaned-up text, nothing else.
           
           // Cập nhật phụ đề
           setCombinedSubtitles(combinedText);
+          
+          // Xử lý phụ đề bằng AI
+          setTimeout(() => {
+            processQueue();
+          }, 1000);
         }
         
         console.log("Queue updated, new length:", newQueue.length);
         return newQueue;
       });
     }
-  }, [stringAIKey]); // Thêm stringAIKey dependency
+  }, [stringAIKey, processQueue]);
 
   // 3. Define connectWebSocket (using handleNewPrediction)
   const connectWebSocket = useCallback(() => {
@@ -613,7 +618,7 @@ Return ONLY the cleaned-up text, nothing else.
         processingIntervalRef.current = setInterval(() => {
           console.log("Processing interval triggered");
           processQueue();
-        }, 30000); // Changed to 30 seconds
+        }, 15000); // Changed to 15 seconds
         
         // Force an immediate processing after 5 seconds to test
         setTimeout(() => {
@@ -1296,16 +1301,14 @@ Return ONLY the cleaned-up text, nothing else.
                   </div>
                   
                   {/* Processed LLM subtitles */}
-                  {processedSubtitles && (
-                    <div className={cn(
-                      "py-3 px-4 rounded-lg text-lg font-medium min-h-[40px] flex items-center justify-center",
-                      isDarkMode ? "bg-gray-700/70" : "bg-white/80",
-                      "text-sm opacity-80"
-                    )}>
-                      <span className="mr-2 text-xs uppercase tracking-wider font-bold opacity-60">AI Processed:</span>
-                      {processedSubtitles}
-                    </div>
-                  )}
+                  <div className={cn(
+                    "py-3 px-4 rounded-lg text-lg font-medium min-h-[40px] flex items-center justify-center",
+                    isDarkMode ? "bg-gray-700/70" : "bg-white/80",
+                    "text-sm opacity-80"
+                  )}>
+                    <span className="mr-2 text-xs uppercase tracking-wider font-bold opacity-60">AI Processed:</span>
+                    {processedSubtitles || "AI processing will appear here..."}
+                  </div>
                   
                   {/* Speech to Text Display */}
                   <div className={cn(
