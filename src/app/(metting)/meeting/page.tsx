@@ -174,6 +174,7 @@ export default function Meeting() {
   // Speech-to-text functionality
   const [isListening, setIsListening] = useState<boolean>(false);
   const [speechText, setSpeechText] = useState<string>("");
+  const [displaySpeechText, setDisplaySpeechText] = useState<string>("");
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const speechIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastSentSpeechRef = useRef<string>("");
@@ -597,6 +598,7 @@ Return ONLY the cleaned-up subtitle text, nothing else.
           .join('');
         
         setSpeechText(transcript);
+        setDisplaySpeechText(transcript);
       };
       
       recognition.onend = () => {
@@ -1380,6 +1382,16 @@ Return ONLY the cleaned-up subtitle text, nothing else.
                     </div>
                   )}
                   
+                  {/* Speech to Text Display */}
+                  <div className={cn(
+                    "py-3 px-4 rounded-lg text-lg font-medium min-h-[40px] flex items-center justify-center",
+                    isDarkMode ? "bg-gray-700/70" : "bg-white/80",
+                    "text-sm opacity-80"
+                  )}>
+                    <span className="mr-2 text-xs uppercase tracking-wider font-bold opacity-60">Speech:</span>
+                    {displaySpeechText || "Start speaking to see text here..."}
+                  </div>
+                  
                   {/* Current detection */}
                   <div className={cn(
                     "py-2 px-4 rounded-lg text-sm min-h-[30px] flex items-center justify-center",
@@ -1587,7 +1599,7 @@ Return ONLY the cleaned-up subtitle text, nothing else.
             "text-sm",
             isDarkMode ? "text-gray-300" : "text-gray-700"
           )}>
-            {speechText}
+            {displaySpeechText}
           </p>
         </div>
       )}
