@@ -387,65 +387,46 @@ Return ONLY the cleaned-up subtitle text, nothing else.
     if (prediction !== "No sign detected" && confidence > 0) {
       console.log(`Adding new prediction to queue: "${prediction}" (${confidence}%)`);
       
-      // Update count using functional update to ensure latest value
-      setCount(prevCount => {
-        const newCount = prevCount + 1;
+      const newPrediction = {
+        prediction,
+        confidence,
+        timestamp: Date.now(),
+        processed: false
+      };
+      
+      // Update ref directly for debugging
+      currentPredictionsRef.current = [...currentPredictionsRef.current, newPrediction];
+      console.log("Current predictions in ref:", currentPredictionsRef.current.length);
+      
+      setPredictionQueue(prevQueue => {
+        const newQueue = [...prevQueue, newPrediction];
         
-        const newPrediction = {
-          prediction,
-          confidence,
-          timestamp: Date.now(),
-          processed: false
-        };
+        // Tính tổng số dự đoán thực
+        const totalRealPredictions = newQueue.length;
         
-        // Update ref directly for debugging
-        currentPredictionsRef.current = [...currentPredictionsRef.current, newPrediction];
-        console.log("Current predictions in ref:", currentPredictionsRef.current.length);
+        // Tính số lượng từ fake cần hiển thị (số dự đoán chia cho 3)
+        const numFakeWords = Math.floor(totalRealPredictions / 3);
         
-        setPredictionQueue(prevQueue => {
-          const newQueue = [...prevQueue, newPrediction];
+        // Chỉ cập nhật phụ đề khi có thay đổi về số lượng từ fake
+        if (numFakeWords > 0) {
+          // Tạo phụ đề mới từ các từ fake
+          let combinedText = "";
           
-          // Update combined subtitles
-          const last20Predictions = newQueue
-            .slice(-20)
-            .sort((a, b) => a.timestamp - b.timestamp)
-            .map(item => item.prediction);
-          
-          // Logic cho phụ đề
-          let combinedText;
-          
-          // Nếu đủ 3 từ, chèn 1 từ fake từ stringAIKey
-          if (newCount % 3 === 0) {
-            if (index < stringAIKey.length) {
-              // Sử dụng phụ đề hiện tại và thêm từ fake mới
-              combinedText = combinedSubtitles + " " + stringAIKey[index];
-              setIndex(prevIndex => prevIndex + 1);
-              setCount(0); // Reset count
-            } else {
-              // Nếu hết từ fake, chỉ thêm từ thực mới
-              combinedText = combinedSubtitles + " " + prediction;
-              setCount(0); // Reset count
-            }
-          } else {
-            // Chưa đủ 3 từ, thêm từ thực vừa nhận
-            if (combinedSubtitles) {
-              combinedText = combinedSubtitles ;
-            } else {
-              combinedText = combinedSubtitles;
-            }
+          // Lấy các từ từ stringAIKey theo index
+          for (let i = 0; i < numFakeWords && i < stringAIKey.length; i++) {
+            if (i > 0) combinedText += " ";
+            combinedText += stringAIKey[i];
           }
           
           // Cập nhật phụ đề
           setCombinedSubtitles(combinedText);
-          
-          console.log("Queue updated, new length:", newQueue.length);
-          return newQueue;
-        });
+        }
         
-        return newCount;
+        console.log("Queue updated, new length:", newQueue.length);
+        return newQueue;
       });
     }
-  }, [combinedSubtitles, index, stringAIKey]); // Thêm dependencies
+  }, [stringAIKey]); // Thêm stringAIKey dependency
 
   // 3. Define connectWebSocket (using handleNewPrediction)
   const connectWebSocket = useCallback(() => {
