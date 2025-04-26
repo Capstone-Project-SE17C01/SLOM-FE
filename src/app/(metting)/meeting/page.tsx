@@ -33,16 +33,20 @@ const stringAIKey= [
    'student',
     'I am',
     '22',
-    'I',
+    'I am',
     'like',
     'cats',
     'cats',
     'and',
     'books',
-    'I',
-    'I',
+    'I am',
+    'I am',
     'love',
-    'Vietnam'
+    'Vietnam',
+    'Vietnam',
+    'I am',
+    'I am',
+    'Happy'
   ]
 interface SpeechRecognition extends EventTarget {
   continuous: boolean;
