@@ -411,24 +411,31 @@ Return ONLY the cleaned-up subtitle text, nothing else.
             .sort((a, b) => a.timestamp - b.timestamp)
             .map(item => item.prediction);
           
-          // Join predictions into a sentence
-          let combinedText = last20Predictions.join(' ');
-        
-          // Check if we should add a fake word (every 3 real words)
+          // Logic cho phụ đề
+          let combinedText;
+          
+          // Nếu đủ 3 từ, chèn 1 từ fake từ stringAIKey
           if (newCount % 3 === 0) {
-            // Use current index value and update it
-            setIndex(prevIndex => {
-              // Check if we have available fake words
-              if (prevIndex < stringAIKey.length) {
-                // Add the fake word to combined text
-                combinedText += " " + stringAIKey[prevIndex];
-                return prevIndex + 1; // Increment index for next time
-              }
-              return prevIndex; // Keep current index if out of bounds
-            });
+            if (index < stringAIKey.length) {
+              // Sử dụng phụ đề hiện tại và thêm từ fake mới
+              combinedText = combinedSubtitles + " " + stringAIKey[index];
+              setIndex(prevIndex => prevIndex + 1);
+              setCount(0); // Reset count
+            } else {
+              // Nếu hết từ fake, chỉ thêm từ thực mới
+              combinedText = combinedSubtitles + " " + prediction;
+              setCount(0); // Reset count
+            }
+          } else {
+            // Chưa đủ 3 từ, thêm từ thực vừa nhận
+            if (combinedSubtitles) {
+              combinedText = combinedSubtitles ;
+            } else {
+              combinedText = combinedSubtitles;
+            }
           }
           
-          // Always update the subtitles with the new text
+          // Cập nhật phụ đề
           setCombinedSubtitles(combinedText);
           
           console.log("Queue updated, new length:", newQueue.length);
@@ -438,7 +445,7 @@ Return ONLY the cleaned-up subtitle text, nothing else.
         return newCount;
       });
     }
-  }, [stringAIKey]); // Add stringAIKey as dependency
+  }, [combinedSubtitles, index, stringAIKey]); // Thêm dependencies
 
   // 3. Define connectWebSocket (using handleNewPrediction)
   const connectWebSocket = useCallback(() => {
