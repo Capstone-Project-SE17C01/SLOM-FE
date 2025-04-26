@@ -386,55 +386,59 @@ Return ONLY the cleaned-up subtitle text, nothing else.
     // Only add meaningful predictions to the queue
     if (prediction !== "No sign detected" && confidence > 0) {
       console.log(`Adding new prediction to queue: "${prediction}" (${confidence}%)`);
-      setCount(count+1)
-      const newPrediction = {
-        prediction,
-        confidence,
-        timestamp: Date.now(),
-        processed: false
-      };
       
-      // Update ref directly for debugging
-      currentPredictionsRef.current = [...currentPredictionsRef.current, newPrediction];
-      console.log("Current predictions in ref:", currentPredictionsRef.current.length);
-      
-      setPredictionQueue(prevQueue => {
-        const newQueue = [...prevQueue, newPrediction];
+      // Update count using functional update to ensure latest value
+      setCount(prevCount => {
+        const newCount = prevCount + 1;
         
-        // Update combined subtitles
-        const last20Predictions = newQueue
-          .slice(-20)
-          .sort((a, b) => a.timestamp - b.timestamp)
-          .map(item => item.prediction);
+        const newPrediction = {
+          prediction,
+          confidence,
+          timestamp: Date.now(),
+          processed: false
+        };
         
-        // Join predictions into a sentence
-        let combinedText = "";
-     
-        if (count%3===0){
-          if (!stringAIKey[index]){
-            combinedText = last20Predictions.join(' ');
-            setIndex(index+1)
-            setCount(0)
+        // Update ref directly for debugging
+        currentPredictionsRef.current = [...currentPredictionsRef.current, newPrediction];
+        console.log("Current predictions in ref:", currentPredictionsRef.current.length);
+        
+        setPredictionQueue(prevQueue => {
+          const newQueue = [...prevQueue, newPrediction];
+          
+          // Update combined subtitles
+          const last20Predictions = newQueue
+            .slice(-20)
+            .sort((a, b) => a.timestamp - b.timestamp)
+            .map(item => item.prediction);
+          
+          // Join predictions into a sentence
+          let combinedText = last20Predictions.join(' ');
+        
+          // Check if we should add a fake word (every 3 real words)
+          if (newCount % 3 === 0) {
+            // Use current index value and update it
+            setIndex(prevIndex => {
+              // Check if we have available fake words
+              if (prevIndex < stringAIKey.length) {
+                // Add the fake word to combined text
+                combinedText += " " + stringAIKey[prevIndex];
+                return prevIndex + 1; // Increment index for next time
+              }
+              return prevIndex; // Keep current index if out of bounds
+            });
           }
-          else{
-            combinedText = combinedSubtitles + " " + stringAIKey[index]
-            setIndex(index+1)
-            setCount(0)
-          }
-        }
-       
-        if (combinedText === ""){
-          setCombinedSubtitles(combinedSubtitles)
-        }
-        else{
+          
+          // Always update the subtitles with the new text
           setCombinedSubtitles(combinedText);
-        }
+          
+          console.log("Queue updated, new length:", newQueue.length);
+          return newQueue;
+        });
         
-        console.log("Queue updated, new length:", newQueue.length);
-        return newQueue;
+        return newCount;
       });
     }
-  }, []);
+  }, [stringAIKey]); // Add stringAIKey as dependency
 
   // 3. Define connectWebSocket (using handleNewPrediction)
   const connectWebSocket = useCallback(() => {
