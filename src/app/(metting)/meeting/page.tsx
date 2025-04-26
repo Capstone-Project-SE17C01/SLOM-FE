@@ -22,13 +22,6 @@ interface SpeechRecognitionEvent extends Event {
   resultIndex: number;
 }
 const stringAIKey= [
-  'hello',
-   'nice',
-   'nice',
-   'meet',
-   'meet',
-   'meet',
-   'you',
    'I am',
    'student',
     'I am',
@@ -46,7 +39,14 @@ const stringAIKey= [
     'Vietnam',
     'I am',
     'I am',
-    'Happy'
+    'Happy',
+    'hello',
+    'nice',
+    'nice',
+    'meet',
+    'meet',
+    'meet',
+    'you'
   ]
 interface SpeechRecognition extends EventTarget {
   continuous: boolean;
