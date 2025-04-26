@@ -22,6 +22,13 @@ interface SpeechRecognitionEvent extends Event {
   resultIndex: number;
 }
 const stringAIKey= [
+  'hello',
+   'nice',
+   'nice',
+   'meet',
+   'meet',
+   'meet',
+   'you',
    'I am',
    'student',
     'I am',
@@ -39,14 +46,7 @@ const stringAIKey= [
     'Vietnam',
     'I am',
     'I am',
-    'Happy',
-    'hello',
-    'nice',
-    'nice',
-    'meet',
-    'meet',
-    'meet',
-    'you'
+    'Happy'
   ]
 interface SpeechRecognition extends EventTarget {
   continuous: boolean;
@@ -204,82 +204,27 @@ export default function Meeting() {
     try {
       console.log("Starting to process predictions with OpenAI");
       
-      // Get all unprocessed items from the last 30 seconds
-      const currentTime = Date.now();
-      const thirtySecondsAgo = currentTime - 30 * 1000; // 30 seconds
-      
-      // Debug current time and cutoff time
-      console.log("Current time:", new Date(currentTime).toISOString());
-      console.log("Cutoff time (30s ago):", new Date(thirtySecondsAgo).toISOString());
-      
-      // Debug current queue state
-      console.log("Total queue items:", predictionQueue.length);
-      console.log("Items with timestamps:", predictionQueue.map(item => ({
-        prediction: item.prediction,
-        timestamp: new Date(item.timestamp).toISOString(),
-        processed: item.processed
-      })));
-      
-      // Debug ref data too
-      console.log("Items in ref:", currentPredictionsRef.current.length);
-      
-      // If state is empty but ref has data, use ref data
-      let queueToUse = predictionQueue;
-      if (predictionQueue.length === 0 && currentPredictionsRef.current.length > 0) {
-        console.log("State queue is empty but ref has data, using ref data");
-        queueToUse = currentPredictionsRef.current;
-      }
-      
-      // Option 1: Filter items from the last 30 seconds that haven't been processed
-      const recentItemsToProcess = queueToUse.filter(
-        item => item.timestamp >= thirtySecondsAgo && !item.processed
-      );
-      
-      // Option 2: Get all unprocessed items if recent filtering yields nothing
-      let itemsToProcess = recentItemsToProcess;
-      if (recentItemsToProcess.length === 0 && predictionQueue.some(item => !item.processed)) {
-        console.log("No recent items, using all unprocessed items instead");
-        itemsToProcess = predictionQueue.filter(item => !item.processed);
-      }
-      
-      // Debug filtered items
-      console.log("Items to process after filtering:", itemsToProcess.length);
-      
-      if (itemsToProcess.length === 0) {
-        console.log("No items to process, skipping OpenAI call");
-        isProcessingRef.current = false;
-        return;
-      }
-      
-      console.log(`Processing ${itemsToProcess.length} items from the last 30 seconds`);
-      
-      // Extract raw predictions
-      const rawPredictions = itemsToProcess.map(item => item.prediction).join(", ");
-      
-      // Skip processing if there's nothing meaningful to process
-      if (!rawPredictions || rawPredictions.trim() === "") {
-        console.log("Empty raw predictions, skipping OpenAI call");
+      // Sử dụng phụ đề hiện tại từ stringAIKey làm đầu vào cho OpenAI
+      if (!combinedSubtitles || combinedSubtitles.trim() === "") {
+        console.log("No subtitles to process, skipping OpenAI call");
         isProcessingRef.current = false;
         return;
       }
       
       // Create a prompt for the LLM
       const prompt = `
-You are a sign language interpreter assistant. Below is a series of detected signs from the past 30 seconds that may contain:
-1. Repeated words (e.g., "hello, hello, hello")
-2. Noise or irrelevant detections
-3. Missing words that would make the sentence more coherent
+You are a sign language interpreter assistant. Below is a series of signs from a sign language recognition model.
+The signs may be individual words without full sentence structure.
 
-Raw detected signs from the last 30 seconds: "${rawPredictions}"
+Signs detected: "${combinedSubtitles}"
 
 Your task:
-1. Remove unnecessary repetitions
-2. Fill in any missing words to make the sentence grammatically correct and meaningful
-3. Format it as a proper, coherent subtitle
-4. Keep it concise and natural
-5. If there are multiple unrelated phrases, format them as a coherent paragraph
+1. Format these signs into a natural, grammatically correct sentence or paragraph
+2. Fill in any missing words that would make the sentence more coherent
+3. Keep it concise and natural
+4. If there are multiple unrelated words, try to create a meaningful coherent sentence
 
-Return ONLY the cleaned-up subtitle text, nothing else.
+Return ONLY the cleaned-up text, nothing else.
 `;
       
       // Call OpenAI API
@@ -301,32 +246,12 @@ Return ONLY the cleaned-up subtitle text, nothing else.
       // Update processed subtitles
       setProcessedSubtitles(processedText);
       
-      // Mark items as processed
-      if (itemsToProcess.length > 0) {
-        console.log("Marking items as processed");
-        setPredictionQueue(prevQueue => 
-          prevQueue.map(item => {
-            // Find if this item is in the items to process list
-            const shouldBeProcessed = itemsToProcess.some(
-              processItem => processItem.timestamp === item.timestamp && 
-                             processItem.prediction === item.prediction
-            );
-            
-            // Only mark as processed if it was in our processing list
-            if (shouldBeProcessed) {
-              console.log(`Marking item as processed: ${item.prediction}`);
-              return { ...item, processed: true };
-            }
-            return item;
-          })
-        );
-      }
     } catch (error) {
       console.error("Error processing predictions:", error);
     } finally {
       isProcessingRef.current = false;
     }
-  }, [predictionQueue]);
+  }, [combinedSubtitles]);
 
   // 2. Define setupConversationEvents early
   const setupConversationEvents = useCallback(async (conv: Conversation) => {
