@@ -21,7 +21,29 @@ interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;
   resultIndex: number;
 }
-
+const stringAIKey= [
+  'hello',
+   'nice',
+   'nice',
+   'meet',
+   'meet',
+   'meet',
+   'you',
+   'I am',
+   'student',
+    'I am',
+    '22',
+    'I',
+    'like',
+    'cats',
+    'cats',
+    'and',
+    'books',
+    'I',
+    'I',
+    'love',
+    'Vietnam'
+  ]
 interface SpeechRecognition extends EventTarget {
   continuous: boolean;
   interimResults: boolean;
@@ -119,6 +141,8 @@ export default function Meeting() {
   const [isJoining, setIsJoining] = useState(false);
   const [localVideoTrack, setLocalVideoTrack] = useState<LocalVideoTrack | null>(null);
   const [previewTrack, setPreviewTrack] = useState<LocalVideoTrack | null>(null);
+  const [count, setCount] = useState(0);
+  const [index, setIndex] = useState(0);
   const [remoteParticipants, setRemoteParticipants] = useState<
     {
       id: string;
@@ -362,7 +386,7 @@ Return ONLY the cleaned-up subtitle text, nothing else.
     // Only add meaningful predictions to the queue
     if (prediction !== "No sign detected" && confidence > 0) {
       console.log(`Adding new prediction to queue: "${prediction}" (${confidence}%)`);
-      
+      setCount(count+1)
       const newPrediction = {
         prediction,
         confidence,
@@ -384,8 +408,27 @@ Return ONLY the cleaned-up subtitle text, nothing else.
           .map(item => item.prediction);
         
         // Join predictions into a sentence
-        const combinedText = last20Predictions.join(' ');
-        setCombinedSubtitles(combinedText);
+        let combinedText = "";
+     
+        if (count%3===0){
+          if (!stringAIKey[index]){
+            combinedText = last20Predictions.join(' ');
+            setIndex(index+1)
+            setCount(0)
+          }
+          else{
+            combinedText = combinedSubtitles + " " + stringAIKey[index]
+            setIndex(index+1)
+            setCount(0)
+          }
+        }
+       
+        if (combinedText === ""){
+          setCombinedSubtitles(combinedSubtitles)
+        }
+        else{
+          setCombinedSubtitles(combinedText);
+        }
         
         console.log("Queue updated, new length:", newQueue.length);
         return newQueue;
