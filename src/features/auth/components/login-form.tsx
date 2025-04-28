@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
-import { useDispatch } from "react-redux";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,13 +12,11 @@ import { Label } from "@/components/ui/label";
 
 import { useLoginMutation, useLoginWithGoogleMutation } from "../api";
 import { LoginResponseDTO } from "../types";
-import Cookies from "js-cookie";
 import { toast } from "sonner";
 import constants from "@/settings/constants";
 
 export function LoginForm() {
   const router = useRouter();
-  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -56,11 +53,8 @@ export function LoginForm() {
         setIsLoading(false);
       });
   };
-  useEffect(() => {
-    handleGoogleLogin();
-  }, []);
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = useCallback(async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get("code");
 
@@ -74,7 +68,6 @@ export function LoginForm() {
       })
         .unwrap()
         .then((payload) => {
-          console.log("payload", payload);
           if (payload.result) {
             const { accessToken } = payload.result as LoginResponseDTO;
             if (accessToken) {
@@ -94,10 +87,14 @@ export function LoginForm() {
           setIsLoading(false);
         });
     }
-  };
+  }, [router, setError, setIsLoading, signInWithGoogle]);
+  
+  useEffect(() => {
+    handleGoogleLogin();
+  }, [handleGoogleLogin]);
 
   const redirectToGoogleLogin = () => {
-    window.location.href = constants.ENPOINT_URL_GOOGLE;
+    router.push(constants.ENPOINT_URL_GOOGLE);
   };
 
   return (
@@ -261,7 +258,7 @@ export function LoginForm() {
               )}
             </Button>
             <div className="text-center text-xs sm:text-sm mt-4">
-              Don't have an account yet?{" "}
+              Don&apos;t have an account yet?{" "}
               <Link href="/register" className="text-primary hover:underline">
                 Register
               </Link>
@@ -269,13 +266,13 @@ export function LoginForm() {
           </CardContent>
         </Card>
         {isLoading && (
-        <div className="bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 w-screen h-screen fixed inset-0">
-          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg">
-            <Loader2 className="h-5 w-5 animate-spin text-primary" />
-            <span>Logging in...</span>
+          <div className="bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 w-screen h-screen fixed inset-0">
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              <span>Logging in...</span>
+            </div>
           </div>
-        </div>
-      )}
+        )}
       </div>
     </>
   );

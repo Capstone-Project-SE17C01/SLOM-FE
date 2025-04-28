@@ -7,7 +7,7 @@ export interface LoginWithGoogleRequestDTO {
   code: string;
   redirectUri: string;
   role: string;
-  languageCode?: string | "en" | "vi";
+  languageCode?: string;
 }
 
 export interface ConfirmRegisterationRequestDTO {
@@ -41,7 +41,7 @@ interface Pagination {
   totalCount: number;
 }
 
-export interface APIResponse<T = any> {
+export interface APIResponse<T = unknown> {
   errorMessages: string[];
   result: T | null;
   pagination?: Pagination | null;

@@ -109,7 +109,7 @@ export default function ContactPage() {
         <CardHeader>
           <CardTitle>Send us a message</CardTitle>
           <CardDescription>
-            Fill out the form below, and we'll respond within 24 hours. For immediate assistance, please schedule a video call.
+            Fill out the form below, and we&apos;ll respond within 24 hours. For immediate assistance, please schedule a video call.
           </CardDescription>
         </CardHeader>
         <CardContent>

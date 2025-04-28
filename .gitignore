@@ -29,8 +29,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# env files (can opt-in for committing if needed)
-.env*
 
 # vercel
 .vercel
@@ -38,3 +36,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+# ignore lock file
+package-lock.json
+yarn.lock
+
+.cursor/rules/nextjs-rules.mdc

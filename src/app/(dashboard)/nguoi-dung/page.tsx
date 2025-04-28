@@ -35,7 +35,6 @@ export default function Page() {
     if (accessToken) {
       try {
         tokenInfo = jwtDecode<DecodedToken>(accessToken);
-        console.log(tokenInfo);
       } catch (error) {
         console.error("Error decoding access token:", error);
       }

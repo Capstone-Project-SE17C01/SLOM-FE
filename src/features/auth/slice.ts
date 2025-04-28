@@ -70,7 +70,6 @@ export const authSlice = createSlice({
       .addMatcher(
         authAPI.endpoints.loginWithGoogle.matchFulfilled,
         (state, action) => {
-          console.log("action.payload", action.payload);
           if (action.payload.userInfo) {
             state.userInfo = action.payload.userInfo;
           }

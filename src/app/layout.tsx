@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     default: "SLOM",
   },
 };
-
+// test comment
 export default function RootLayout({
   children,
 }: Readonly<{

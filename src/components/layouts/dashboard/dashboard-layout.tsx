@@ -23,6 +23,7 @@ export default function DashboardLayout({
     { name: "Features", href: "/features" },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
+    { name: "Message", href: "/chat" }
   ];
 
   return (

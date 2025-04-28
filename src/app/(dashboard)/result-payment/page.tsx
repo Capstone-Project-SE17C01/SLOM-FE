@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Loader2, AlertCircle } from "lucide-react";
+import { CheckCircle, Loader2, AlertCircle, XCircle } from "lucide-react";
 import { useUpdatePlanMutation } from "@/features/auth/api";
 import { toast } from "sonner";
 import type { ReturnUrlQueryDTO } from "@/features/auth/types";
@@ -11,7 +11,7 @@ import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import constants from "@/settings/constants";
 
-type Status = "loading" | "success" | "error";
+type Status = "loading" | "success" | "error" | "cancelled";
 
 export default function Page() {
   const router = useRouter();
@@ -37,44 +37,48 @@ export default function Page() {
 
   // Gọi API cập nhật kế hoạch thanh toán
   useEffect(() => {
-    if (params.code && params.id && params.status && params.orderCode) {
-      (async () => {
-        try {
-          if (!accessToken) {
-            toast.error("Not authenticated");
+    if (params.cancel === "false") {
+      if (params.code && params.id && params.status && params.orderCode) {
+        (async () => {
+          try {
+            if (!accessToken) {
+              toast.error("Not authenticated");
+              setStatus("error");
+              return;
+            }
+
+            const tokenInfo = jwtDecode<{ sub: string }>(accessToken);
+            const userId = tokenInfo.sub;
+
+            const response = await updatePlan({
+              userId,
+              period: Number(params.period),
+              code: params.code as string,
+              id: params.id as string,
+              cancel: params.cancel === "false",
+              status: params.status,
+              orderCode: params.orderCode,
+            }).unwrap();
+
+            if (response.errorMessages?.length) {
+              toast.error("Something wrong with payment status");
+              setStatus("error");
+            }
+            if (response.result) {
+              toast.success(response.result);
+              setStatus("success");
+            }
+          } catch {
+            toast.error("Failed to update payment status");
             setStatus("error");
-            return;
           }
-
-          const tokenInfo = jwtDecode<{ sub: string }>(accessToken);
-          const userId = tokenInfo.sub;
-
-          const response = await updatePlan({
-            userId,
-            period: Number(params.period),
-            code: params.code as string,
-            id: params.id as string,
-            cancel: params.cancel === "false",
-            status: params.status,
-            orderCode: params.orderCode,
-          }).unwrap();
-
-          if (response.errorMessages?.length) {
-            toast.error("Something wrong with payment status");
-            setStatus("error");
-          }
-          if (response.result) {
-            toast.success(response.result);
-            setStatus("success");
-          }
-        } catch (error) {
-          toast.error("Failed to update payment status");
-          setStatus("error");
-        }
-      })();
+        })();
+      } else {
+        toast.error("Something wrong with payment status");
+        setStatus("error");
+      }
     } else {
-      toast.error("Something wrong with payment status");
-      setStatus("error");
+      setStatus("cancelled");
     }
   }, [params, updatePlan, accessToken]);
 
@@ -116,6 +120,8 @@ export default function Page() {
         return <AlertCircle className="h-16 w-16 text-red-500" />;
       case "success":
         return <CheckCircle className="h-16 w-16 text-green-500" />;
+      case "cancelled":
+        return <XCircle className="h-16 w-16 text-red-500" />;
       default:
         return <Loader2 className="h-16 w-16 animate-spin text-blue-500" />;
     }
@@ -138,8 +144,15 @@ export default function Page() {
       case "success":
         return (
           <>
-            Thank you for your payment. You will be redirected to the home page in{" "}
-            <span className="font-semibold">{countdown}</span> seconds.
+            Thank you for your payment. You will be redirected to the home page
+            in <span className="font-semibold">{countdown}</span> seconds.
+          </>
+        );
+      case "cancelled":
+        return (
+          <>
+            Payment has been cancelled. You will be redirected to the home page
+            in <span className="font-semibold">{countdown}</span> seconds.
           </>
         );
       default:
@@ -153,13 +166,20 @@ export default function Page() {
         <div className="flex flex-col items-center space-y-4">
           {renderIcon()}
           <h1 className="text-2xl font-bold">
-            {status === "error" ? "Payment Failed" : "Payment Successful!"}
+            {
+              {
+                success: "Payment Successful!",
+                error: "Payment Failed",
+                cancelled: "Payment Cancelled",
+                loading: "Processing Payment...",
+              }[status]
+            }
           </h1>
           <p className="text-center text-gray-600">{renderMessage()}</p>
           <Button
             onClick={handleNavigate}
             className="mt-4"
-            disabled={status !== "success"}
+            disabled={status !== "success" && status !== "cancelled"}
           >
             Go to Home Page
           </Button>
