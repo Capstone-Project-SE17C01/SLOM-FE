@@ -194,7 +194,7 @@ export function LoginForm() {
                 </Link>
               </div>
               {error && (
-                <div className="text-sm text-red-500 mt-2">{t(error)}</div>
+                <div className="text-sm text-red-500 mt-2">{error}</div>
               )}
               <Button
                 type="submit"
