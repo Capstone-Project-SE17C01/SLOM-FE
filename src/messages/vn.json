@@ -5,7 +5,12 @@
     "profile": "Hồ sơ",
     "settings": "Cài đặt",
     "logout": "Đăng xuất",
-    "signIn": "Đăng nhập"
+    "signIn": "Đăng nhập",
+    "home": "Trang chủ",
+    "features": "Tính năng",
+    "about": "Giới thiệu",
+    "contact": "Liên hệ",
+    "message": "Tin nhắn"
   },
   "language": {
     "en": "Tiếng Anh",
@@ -14,12 +19,51 @@
   "pricing": {
     "title": "Gói Dịch Vụ",
     "description": "Chọn gói phù hợp nhất với nhu cầu học hoặc dạy ngôn ngữ ký hiệu của bạn",
-    "monthly": "Hàng tháng",
-    "annual": "Hàng năm (Tiết kiệm 20%)",
-    "getStarted": "Bắt đầu",
+    "note": "Tất cả các gói đều bao gồm dùng thử miễn phí 14 ngày. Không cần thẻ tín dụng để bắt đầu.",
+    "contact": "Cần giải pháp tùy chỉnh cho tổ chức của bạn?",
+    "contactLink": "Liên hệ chúng tôi",
     "mostPopular": "Phổ biến nhất",
-    "freeTrial": "Tất cả các gói đều bao gồm dùng thử miễn phí 14 ngày. Không cần thẻ tín dụng để bắt đầu.",
-    "contactUs": "Cần giải pháp tùy chỉnh cho tổ chức của bạn? Liên hệ chúng tôi"
+    "annual": "Hàng năm",
+    "month": "/tháng",
+    "year": "/năm",
+    "monthly": "Hàng tháng",
+    "buttonText": "Bắt Đầu",
+    "save": "Tiết kiệm",
+    "individualLearner": {
+      "title": "Học viên cá nhân",
+      "descriptionPlan": "Phù hợp cho người tự học ngôn ngữ ký hiệu",
+      "features": {
+        "feature1": "Truy cập tất cả bài học ngôn ngữ ký hiệu",
+        "feature2": "Tham gia tối đa 5 buổi nhóm mỗi tháng",
+        "feature3": "Chất lượng video HD",
+        "feature4": "Tài liệu học cơ bản"
+      }
+    },
+    "professionalEducator": {
+      "title": "Giáo viên chuyên nghiệp",
+      "descriptionPlan": "Dành cho giáo viên và gia sư ngôn ngữ ký hiệu",
+      "features": {
+        "feature1": "Tạo và tổ chức lớp học không giới hạn",
+        "feature2": "Công cụ giảng dạy nâng cao",
+        "feature3": "Theo dõi tiến độ học viên",
+        "feature4": "Thư viện tài nguyên toàn diện",
+        "feature5": "Chất lượng video cao cấp",
+        "feature6": "Ghi hình và phát lại"
+      }
+    },
+    "institution": {
+      "title": "Tổ chức/Trường học",
+      "descriptionPlan": "Dành cho trường học và tổ chức",
+      "features": {
+        "feature1": "Nhiều tài khoản giáo viên",
+        "feature2": "Bảng điều khiển quản trị",
+        "feature3": "Tùy chỉnh thương hiệu",
+        "feature4": "API tích hợp",
+        "feature5": "Hỗ trợ ưu tiên",
+        "feature6": "Phân tích nâng cao",
+        "feature7": "Bảo mật cấp doanh nghiệp"
+      }
+    }
   },
   "home": {
     "hero": {
@@ -76,6 +120,272 @@
       "title": "Sẵn sàng bắt đầu hành trình ngôn ngữ ký hiệu của bạn?",
       "description": "Chọn gói phù hợp với bạn và bắt đầu kết nối thông qua ngôn ngữ ký hiệu ngay hôm nay.",
       "button": "Xem các gói dịch vụ"
+    }
+  },
+  "featuresPage": {
+    "hero": {
+      "title": "Tính năng dành riêng cho giao tiếp ngôn ngữ ký hiệu",
+      "subtitle": "SLOM cung cấp các công cụ chuyên biệt giúp việc học và giao tiếp ngôn ngữ ký hiệu trực tuyến trở nên dễ dàng, hiệu quả cho mọi người.",
+      "cta": "Dùng thử miễn phí",
+      "ready": "Sẵn sàng nâng tầm giao tiếp ngôn ngữ ký hiệu?",
+      "readySub": "Tham gia cùng hàng ngàn người dùng đang phá vỡ rào cản giao tiếp với SLOM."
+    },
+    "videoFeature": {
+      "title": "Tối ưu hóa video chất lượng cao",
+      "description": "Video sắc nét, rõ ràng, tối ưu riêng cho chuyển động ngôn ngữ ký hiệu với độ trễ thấp và tốc độ khung hình điều chỉnh được."
+    },
+    "subtitlesFeature": {
+      "title": "Phụ đề thời gian thực",
+      "description": "Tự động tạo phụ đề và phiên âm bằng AI, tăng cường giao tiếp giữa người nghe và người khiếm thính."
+    },
+    "usersFeature": {
+      "title": "Lớp học tương tác",
+      "description": "Lớp học ảo thiết kế riêng cho giảng dạy ngôn ngữ ký hiệu với công cụ giáo viên chuyên biệt và phòng nhóm nhỏ."
+    },
+    "messageFeature": {
+      "title": "Công cụ giao tiếp trực quan",
+      "description": "Tích hợp chat, hỗ trợ emoji, nút phản ứng trực quan và công cụ vẽ giúp giao tiếp hiệu quả."
+    },
+    "bookFeature": {
+      "title": "Tài nguyên học tập",
+      "description": "Từ điển ngôn ngữ ký hiệu, giáo án và tài liệu thực hành tích hợp cho học viên và giáo viên."
+    },
+    "calendarFeature": {
+      "title": "Lên lịch & ghi hình",
+      "description": "Dễ dàng lên lịch học, dạy kèm riêng và tự động ghi hình kèm bản ghi tìm kiếm được."
+    }
+  },
+  "aboutPage": {
+    "ourStory": "Câu chuyện của chúng tôi",
+    "ourStoryDesc": "Thành lập năm 2022, SLOM ra đời nhằm thu hẹp khoảng cách giao tiếp cho cộng đồng người điếc và khiếm thính.",
+    "story1": "Khi người sáng lập của chúng tôi, Nguyễn Văn Minh, chứng kiến những khó khăn mà người em họ khiếm thính gặp phải trong học online mùa dịch, anh nhận ra các nền tảng hiện tại chưa thực sự phù hợp cho giao tiếp bằng ngôn ngữ ký hiệu.",
+    "story2": "Kết hợp cùng các giáo viên, phiên dịch viên ngôn ngữ ký hiệu và lập trình viên, chúng tôi đã tạo ra SLOM - nền tảng tối ưu cho giao tiếp trực quan, đặt nhu cầu của cộng đồng người điếc và khiếm thính lên hàng đầu.",
+    "story3": "Hiện nay, SLOM phục vụ hàng ngàn người dùng trên khắp Việt Nam và Đông Nam Á, mang lại giáo dục và giao tiếp dễ tiếp cận cho cả người điếc lẫn người nghe học ngôn ngữ ký hiệu.",
+    "mission": "Sứ mệnh của chúng tôi",
+    "missionDesc": "Mang lại giao tiếp số dễ tiếp cận, hòa nhập cho cộng đồng người điếc và khiếm thính thông qua công nghệ thiết kế riêng cho tương tác và học ngôn ngữ ký hiệu.",
+    "vision": "Tầm nhìn của chúng tôi",
+    "visionDesc": "Một thế giới không còn rào cản giao tiếp nhờ công nghệ, nơi ngôn ngữ ký hiệu được công nhận và trân trọng như một hình thức biểu đạt và kết nối quan trọng.",
+    "meetTeam": "Đội ngũ của chúng tôi",
+    "teamDesc": "Đội ngũ đa dạng của chúng tôi kết hợp chuyên môn về ngôn ngữ ký hiệu, giáo dục, công nghệ và khả năng tiếp cận để xây dựng nền tảng hòa nhập cho mọi người.",
+    "ceo": "Giám đốc & Nhà sáng lập",
+    "expert": "Chuyên gia ngôn ngữ ký hiệu",
+    "leadDev": "Lập trình viên trưởng",
+    "accessibility": "Chuyên gia tiếp cận"
+  },
+  "contactPage": {
+    "title": "Liên hệ với chúng tôi",
+    "subtitle": "Bạn có câu hỏi về lớp học ngôn ngữ ký hiệu hoặc cần hỗ trợ kỹ thuật? Đội ngũ hỗ trợ của chúng tôi luôn sẵn sàng giúp bạn.",
+    "location": "Địa chỉ",
+    "locationDetails": "285 Đội Cấn, Ba Đình, Hà Nội, Việt Nam",
+    "email": "Gửi email",
+    "emailDetails": "support@slom-vietnam.com",
+    "phone": "Gọi hoặc nhắn tin",
+    "phoneDetails": "(+84) 123-456-7890",
+    "videoSupport": "Giờ hỗ trợ video",
+    "videoSupportDetails": "Thứ 2 - Thứ 6, 8h - 20h GMT+7",
+    "formTitle": "Gửi tin nhắn cho chúng tôi",
+    "formDesc": "Điền vào form bên dưới, chúng tôi sẽ phản hồi trong vòng 24 giờ. Nếu cần hỗ trợ ngay, hãy đặt lịch gọi video.",
+    "yourName": "Tên của bạn",
+    "emailAddress": "Địa chỉ email",
+    "subject": "Chủ đề",
+    "message": "Nội dung",
+    "send": "Gửi tin nhắn",
+    "sending": "Đang gửi...",
+    "schedule": "Đặt lịch gọi video",
+    "success": "Tin nhắn của bạn đã được gửi thành công!"
+  },
+  "unAuthenMessage": {
+    "loginPrompt": "Vui lòng đăng nhập để bắt đầu nhắn tin"
+  },
+  "footer": {
+    "aboutTitle": "Về SLOM",
+    "aboutDesc": "Nền tảng hiện đại để quản lý tài nguyên và dịch vụ số.",
+    "productsTitle": "Sản phẩm",
+    "contentManagement": "Quản lý nội dung",
+    "digitalResources": "Tài nguyên số",
+    "analytics": "Phân tích",
+    "resourcesTitle": "Tài liệu",
+    "documentation": "Tài liệu hướng dẫn",
+    "helpCenter": "Trung tâm trợ giúp",
+    "api": "API",
+    "contactTitle": "Liên hệ",
+    "email": "Email: contact@slom.com",
+    "phone": "Điện thoại: +1 (123) 456-7890",
+    "copyright": "Đã đăng ký bản quyền."
+  },
+  "resultPaymentPage": {
+    "paymentSuccess": "Thanh toán thành công!",
+    "paymentFailed": "Thanh toán thất bại",
+    "paymentCancelled": "Đã hủy thanh toán",
+    "processingTitle": "Đang xử lý thanh toán...",
+    "processing": "Đang xử lý thanh toán...",
+    "paymentSuccessMsg": "Cảm ơn bạn đã thanh toán. ",
+    "paymentFailedMsg": "Xử lý thanh toán thất bại. Vui lòng thử lại hoặc liên hệ hỗ trợ.",
+    "paymentCancelledMsg": "Thanh toán đã bị hủy.",
+    "redirectIn": "Bạn sẽ được chuyển về trang chủ sau {seconds} giây.",
+    "goHome": "Về trang chủ"
+  },
+  "errorMessages": {
+    "errorDashboard": {
+      "notAuthenticated": "Chưa xác thực, vui lòng đăng nhập",
+      "paymentStatusWrong": "Có lỗi với trạng thái thanh toán",
+      "paymentUpdateFailed": "Cập nhật trạng thái thanh toán thất bại"
+    },
+    "authError": {
+      "emptyEmail": "Vui lòng nhập email",
+      "passwordsNotMatch": "Mật khẩu không khớp",
+      "emptyFields": "Vui lòng điền đầy đủ các trường",
+      "errorRegisterConfirmation": "Xác nhận đăng ký gặp lỗi",
+      "unknownError": "Lỗi không xác định từ máy chủ",
+      "codeMismatchException": "Mã xác nhận không đúng",
+      "errorResendConfirmationCode": "Gửi lại mã xác nhận thất bại",
+      "emptyUsername": "Tên người dùng là bắt buộc khi xác nhận đăng ký",
+      "emptynewPassword": "Mật khẩu mới là bắt buộc",
+      "userNotFound": "Không tìm thấy người dùng",
+      "errorResetPassword": "Đặt lại mật khẩu mới thất bại",
+      "invalidPasswordException": "Mật khẩu không hợp lệ",
+      "limitExceededException": "Thao tác quá nhiều lần, vui lòng thử lại sau",
+      "notAuthorizedException": "Bạn không có quyền thực hiện thao tác này",
+      "incorrectUserNamePassword": "Tên đăng nhập hoặc mật khẩu không đúng",
+      "emailUsed": "Email đã được sử dụng",
+      "emailRegisteredWithGoogle": "Email đã được đăng ký bằng Google",
+      "errorProfileCreate": "Lỗi khi tạo hồ sơ",
+      "usernameExisted": "Tên người dùng đã tồn tại",
+      "invalidJson": "Json không hợp lệ",
+      "invalidGrantCode": "Mã xác thực không đúng",
+      "invalidCodeProvided": "Mã xác nhận không hợp lệ, vui lòng yêu cầu lại mã",
+      "invalidCodepattern": "Mã sai định dạng",
+      "failGetplan": "Lỗi máy chủ tải gói dịch vụ",
+      "errorCreatePaymentLink": "Tạo link thanh toán thất bại"
+    },
+    "paymentError": {
+      "errorCreatePaymentLink": "Tạo link thanh toán thất bại",
+      "invalidRequest": "Yêu cầu không hợp lệ",
+      "errorRetrievingLinkInformation": "Lỗi lấy thông tin link thanh toán",
+      "failGetplan": "Lỗi máy chủ tải gói dịch vụ"
+    }
+  },
+  "loginPage": {
+    "emailLabel": "Email",
+    "passwordLabel": "Mật khẩu",
+    "loginButton": "Đăng nhập",
+    "loggingIn": "Đang đăng nhập...",
+    "rememberMe": "Ghi nhớ đăng nhập",
+    "forgetPassword": "Quên mật khẩu",
+    "registerPrompt": "Chưa có tài khoản?",
+    "register": "Đăng ký",
+    "or": "Hoặc",
+    "emailPlaceholder": "Nhập email của bạn",
+    "passwordPlaceholder": "Nhập mật khẩu của bạn",
+    "loginWithGoogle": "Đăng nhập với Google"
+  },
+  "registerPage": {
+    "title": "Đăng ký SLOM!",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Nhập email của bạn",
+    "passwordLabel": "Mật khẩu",
+    "passwordPlaceholder": "Nhập mật khẩu của bạn",
+    "confirmPasswordLabel": "Xác nhận mật khẩu",
+    "confirmPasswordPlaceholder": "Nhập lại mật khẩu",
+    "registerButton": "Đăng ký",
+    "registering": "Đang đăng ký...",
+    "alreadyHaveAccount": "Đã có tài khoản?",
+    "login": "Đăng nhập"
+  },
+  "forgotPasswordPage": {
+    "title": "Đặt lại mật khẩu",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Nhập email của bạn",
+    "sendCode": "Gửi mã",
+    "sending": "Đang gửi...",
+    "resend": "Gửi lại",
+    "confirmationCodeLabel": "Mã xác nhận",
+    "confirmationCodePlaceholder": "Nhập mã xác nhận",
+    "newPasswordLabel": "Mật khẩu mới",
+    "newPasswordPlaceholder": "Nhập mật khẩu mới",
+    "confirmNewPasswordLabel": "Xác nhận mật khẩu mới",
+    "confirmNewPasswordPlaceholder": "Nhập lại mật khẩu mới",
+    "resetting": "Đang đặt lại...",
+    "resetPassword": "Đặt lại mật khẩu",
+    "rememberPassword": "Nhớ mật khẩu?",
+    "backToLogin": "Quay lại đăng nhập"
+  },
+  "confirmRegisterPage": {
+    "title": "Xác nhận đăng ký",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Nhập email của bạn",
+    "confirmationCodeLabel": "Mã xác nhận",
+    "confirmationCodePlaceholder": "Nhập mã xác nhận",
+    "resendCode": "Gửi lại mã",
+    "sending": "Đang gửi...",
+    "resend": "Gửi lại",
+    "confirming": "Đang xác nhận...",
+    "confirmButton": "Xác nhận đăng ký",
+    "backToLogin": "Quay lại đăng nhập"
+  },
+  "successMessages": {
+    "authMessage": {
+      "successResendConfirmationCode": "Confirmation code has been resent",
+      "successSentConfirmationCode": "Confirmation code has been sent to your email",
+      "successResetPassword": "Password reset successful",
+      "successRegisterationConfirm": "Registration confirmed successfully!",
+      "successLogout": "Logged out successfully"
+    }
+  },
+  "profile": {
+    "title": "Hồ sơ của tôi",
+    "loginRequired": "Vui lòng đăng nhập để xem hồ sơ của bạn",
+    "updateProfilePicture": "Cập nhật ảnh đại diện",
+    "accountDetails": "Thông tin tài khoản",
+    "memberSince": "Thành viên từ",
+    "lastLogin": "Đăng nhập lần cuối",
+    "today": "Hôm nay",
+    "tabs": {
+      "personal": "Thông tin cá nhân",
+      "security": "Bảo mật",
+      "preferences": "Tùy chọn"
+    },
+    "personalInfo": {
+      "title": "Thông tin cá nhân",
+      "description": "Cập nhật thông tin cá nhân của bạn tại đây",
+      "firstName": "Tên",
+      "lastName": "Họ",
+      "email": "Email",
+      "bio": "Tiểu sử",
+      "bioPlaceholder": "Hãy chia sẻ đôi điều về bạn",
+      "location": "Địa điểm",
+      "locationPlaceholder": "Thành phố, Quốc gia",
+      "saveChanges": "Lưu thay đổi"
+    },
+    "security": {
+      "title": "Bảo mật",
+      "description": "Quản lý mật khẩu và bảo mật tài khoản của bạn",
+      "currentPassword": "Mật khẩu hiện tại",
+      "newPassword": "Mật khẩu mới",
+      "confirmPassword": "Xác nhận mật khẩu mới",
+      "updatePassword": "Cập nhật mật khẩu",
+      "errors": {
+        "userNotFound": "Không tìm thấy thông tin người dùng",
+        "passwordsNotMatch": "Mật khẩu mới và xác nhận mật khẩu không khớp",
+        "updateFailed": "Cập nhật mật khẩu thất bại",
+        "invalidParameterException": "Mật khẩu mới không đúng định dạng",
+        "invalidPasswordException": "Mật khẩu mới không hợp lệ",
+        "passwordHistoryPolicyViolationException": "Mật khẩu mới trùng với mật khẩu cũ",
+        "tooManyRequestsException": "Bạn đã thực hiện quá nhiều yêu cầu",
+        "notAuthorizedException": "Mật khẩu hiện tại không đúng",
+        "limitExceededException": "Thao tác quá nhiều lần, vui lòng thử lại sau"
+      },
+      "success": {
+        "passwordUpdated": "Cập nhật mật khẩu thành công"
+      },
+      "updating": "Đang cập nhật..."
+    },
+    "preferences": {
+      "title": "Tùy chọn",
+      "description": "Quản lý tùy chọn và cài đặt tài khoản của bạn",
+      "notifications": "Thông báo",
+      "display": "Hiển thị",
+      "savePreferences": "Lưu tùy chọn"
     }
   }
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getLocale, getMessages } from "next-intl/server";
 
 import "./globals.css";
 
@@ -11,18 +12,22 @@ export const metadata: Metadata = {
     default: "SLOM",
   },
 };
-// test comment
-export default function RootLayout({
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased shadow-md`}
       >
-        <Providers>{children}</Providers>
+        <Providers locale={locale} messages={messages}>
+          {children}
+        </Providers>
       </body>
     </html>
   );

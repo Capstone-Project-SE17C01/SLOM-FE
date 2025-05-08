@@ -10,6 +10,7 @@ import type { ReturnUrlQueryDTO } from "@/features/auth/types";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import constants from "@/settings/constants";
+import { useTranslations } from "next-intl";
 
 type Status = "loading" | "success" | "error" | "cancelled";
 
@@ -21,6 +22,9 @@ export default function Page() {
   const [status, setStatus] = useState<Status>("loading");
   const [shouldNavigate, setShouldNavigate] = useState(false);
   const accessToken = Cookies.get(constants.ACCESS_TOKEN);
+  const t = useTranslations("errorMessages.errorDashboard");
+  const t3 = useTranslations("successMessages.authMessage");
+  const t2 = useTranslations("resultPaymentPage");
 
   // Tách riêng các tham số từ searchParams
   const params = useMemo(
@@ -42,7 +46,7 @@ export default function Page() {
         (async () => {
           try {
             if (!accessToken) {
-              toast.error("Not authenticated");
+              toast.error(t("notAuthenticated"));
               setStatus("error");
               return;
             }
@@ -61,26 +65,26 @@ export default function Page() {
             }).unwrap();
 
             if (response.errorMessages?.length) {
-              toast.error("Something wrong with payment status");
+              toast.error(t("paymentStatusWrong"));
               setStatus("error");
             }
             if (response.result) {
-              toast.success(response.result);
+              toast.success(t3(response.result));
               setStatus("success");
             }
           } catch {
-            toast.error("Failed to update payment status");
+            toast.error(t("paymentUpdateFailed"));
             setStatus("error");
           }
         })();
       } else {
-        toast.error("Something wrong with payment status");
+        toast.error(t("paymentStatusWrong"));
         setStatus("error");
       }
     } else {
       setStatus("cancelled");
     }
-  }, [params, updatePlan, accessToken]);
+  }, [params, updatePlan, accessToken, t, t3]);
 
   // Đếm ngược và chuyển hướng khi trạng thái không còn là 'loading'
   useEffect(() => {
@@ -131,32 +135,31 @@ export default function Page() {
   const renderMessage = () => {
     switch (status) {
       case "loading":
-        return "Processing your payment...";
+        return t2("processing");
       case "error":
         return (
           <>
-            Payment processing failed. Please try again or contact support.
+            {t2("paymentFailedMsg")}
             <br />
-            You will be redirected to the home page in{" "}
-            <span className="font-semibold">{countdown}</span> seconds.
+            {t2("redirectIn", { seconds: countdown })}
           </>
         );
       case "success":
         return (
           <>
-            Thank you for your payment. You will be redirected to the home page
-            in <span className="font-semibold">{countdown}</span> seconds.
+            {t2("paymentSuccessMsg")}
+            {t2("redirectIn", { seconds: countdown })}
           </>
         );
       case "cancelled":
         return (
           <>
-            Payment has been cancelled. You will be redirected to the home page
-            in <span className="font-semibold">{countdown}</span> seconds.
+            {t2("paymentCancelledMsg")}
+            {t2("redirectIn", { seconds: countdown })}
           </>
         );
       default:
-        return "Processing your payment...";
+        return t2("processing");
     }
   };
 
@@ -168,10 +171,10 @@ export default function Page() {
           <h1 className="text-2xl font-bold">
             {
               {
-                success: "Payment Successful!",
-                error: "Payment Failed",
-                cancelled: "Payment Cancelled",
-                loading: "Processing Payment...",
+                success: t2("paymentSuccess"),
+                error: t2("paymentFailed"),
+                cancelled: t2("paymentCancelled"),
+                loading: t2("processingTitle"),
               }[status]
             }
           </h1>
@@ -181,7 +184,7 @@ export default function Page() {
             className="mt-4"
             disabled={status !== "success" && status !== "cancelled"}
           >
-            Go to Home Page
+            {t2("goHome")}
           </Button>
         </div>
       </div>

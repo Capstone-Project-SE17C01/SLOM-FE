@@ -11,6 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRegisterMutation } from "../api";
 import type { RegisterationRequestDTO } from "../types";
+import { useTranslations } from "next-intl";
+
 export function RegisterForm() {
   const router = useRouter();
   const [registerData, setRegisterData] = useState<RegisterationRequestDTO>({
@@ -23,6 +25,8 @@ export function RegisterForm() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
+  const t = useTranslations("registerPage");
+  const tError = useTranslations("errorMessages.authError");
 
   const [register] = useRegisterMutation();
 
@@ -30,7 +34,7 @@ export function RegisterForm() {
     e.preventDefault();
     setError("");
     if (registerData.password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError(tError("passwordsNotMatch"));
       return;
     }
     setIsLoading(true);
@@ -51,7 +55,7 @@ export function RegisterForm() {
         const errorMessage = Array.isArray(error.data.errorMessages)
           ? error.data.errorMessages[0]
           : error.data.errorMessages;
-        setError(errorMessage);
+        setError(tError(errorMessage));
       })
       .finally(() => {
         setIsLoading(false);
@@ -85,17 +89,18 @@ export function RegisterForm() {
         <Card className="w-full max-w-[400px] sm:min-w-[400px] bg-white/90 backdrop-blur-sm max-h-screen overflow-auto">
           <CardContent className="pt-6 px-4 sm:px-6">
             <h1 className="text-center text-xl sm:text-2xl font-normal mb-6">
-              Register to <span className="text-primary">SLOM!</span>
+              {t("title")}
             </h1>
             <form onSubmit={handleRegister} className="flex flex-col gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="email" className="text-sm sm:text-base">
-                  Email
+                  {t("emailLabel")}
                 </Label>
                 <div className="relative">
                   <Input
                     id="email"
                     type="email"
+                    autoComplete="new-password"
                     value={registerData.email}
                     onChange={(e) =>
                       setRegisterData({
@@ -103,7 +108,7 @@ export function RegisterForm() {
                         email: e.target.value,
                       })
                     }
-                    placeholder="Enter your email"
+                    placeholder={t("emailPlaceholder")}
                     required
                     className="h-9 sm:h-10 text-sm sm:text-base pl-9"
                   />
@@ -112,11 +117,12 @@ export function RegisterForm() {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="password" className="text-sm sm:text-base">
-                  Password
+                  {t("passwordLabel")}
                 </Label>
                 <div className="relative">
                   <Input
                     id="password"
+                    autoComplete="new-password"
                     type={showPassword ? "text" : "password"}
                     value={registerData.password}
                     onChange={(e) =>
@@ -125,7 +131,7 @@ export function RegisterForm() {
                         password: e.target.value,
                       })
                     }
-                    placeholder="Enter your password"
+                    placeholder={t("passwordPlaceholder")}
                     required
                     className="h-9 sm:h-10 pr-10 pl-9 text-sm sm:text-base w-full"
                   />
@@ -151,7 +157,7 @@ export function RegisterForm() {
                   htmlFor="confirmPassword"
                   className="text-sm sm:text-base"
                 >
-                  Confirm Password
+                  {t("confirmPasswordLabel")}
                 </Label>
                 <div className="relative">
                   <Input
@@ -159,7 +165,8 @@ export function RegisterForm() {
                     type={showConfirmPassword ? "text" : "password"}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm your password"
+                    placeholder={t("confirmPasswordPlaceholder")}
+                    autoComplete="new-password"
                     required
                     className="h-9 sm:h-10 pr-10 pl-9 text-sm sm:text-base w-full"
                   />
@@ -195,16 +202,16 @@ export function RegisterForm() {
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Registering...
+                    {t("registering")}
                   </div>
                 ) : (
-                  "Register"
+                  t("registerButton")
                 )}
               </Button>
               <div className="text-center text-xs sm:text-sm">
-                Already have an account?{" "}
+                {t("alreadyHaveAccount")}{" "}
                 <Link href="/login" className="text-primary hover:underline">
-                  Login
+                  {t("login")}
                 </Link>
               </div>
             </form>
@@ -217,7 +224,7 @@ export function RegisterForm() {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg">
             <Loader2 className="h-5 w-5 animate-spin text-primary" />
-            <span>Registering...</span>
+            <span>{t("registering")}</span>
           </div>
         </div>
       )}

@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
 import { useState } from "react";
 import { cn } from "@/utils/cn";
 import { useTheme } from "@/contexts/ThemeContext";
 
-import Header from "./header-breadcrumb"; 
+import Header from "./header-breadcrumb";
 import MobileMenu from "./mobile-menu";
 import Footer from "./footer";
 
@@ -19,18 +19,20 @@ export default function DashboardLayout({
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
   const navItems = [
-    { name: "Home", href: "/trang-chu" },
-    { name: "Features", href: "/features" },
-    { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
-    { name: "Message", href: "/chat" }
+    { name: "home", href: "/trang-chu" },
+    { name: "features", href: "/features" },
+    { name: "about", href: "/about" },
+    { name: "contact", href: "/contact" },
+    { name: "message", href: "/chat" },
   ];
 
   return (
-    <div className={cn(
-      "min-h-screen antialiased",
-      isDarkMode ? "bg-black text-white" : "bg-white text-black"
-    )}>
+    <div
+      className={cn(
+        "min-h-screen antialiased",
+        isDarkMode ? "bg-black text-white" : "bg-white text-black"
+      )}
+    >
       <Header
         toggleMenu={toggleMenu}
         toggleDarkMode={toggleDarkMode}
@@ -45,19 +47,21 @@ export default function DashboardLayout({
       />
 
       <main className="pt-16">
-        
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className={cn(
-            "rounded-xl p-8 shadow-sm border",
-            isDarkMode ? "bg-gray-800 border-gray-700 text-white" : "bg-white border-gray-100 text-black"
-          )}>
+          <div
+            className={cn(
+              "rounded-xl p-8 shadow-sm border",
+              isDarkMode
+                ? "bg-gray-800 border-gray-700 text-white"
+                : "bg-white border-gray-100 text-black"
+            )}
+          >
             {children}
           </div>
         </div>
-
       </main>
 
-      <Footer/>
+      <Footer />
     </div>
   );
 }

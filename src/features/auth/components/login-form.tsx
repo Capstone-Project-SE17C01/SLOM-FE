@@ -14,6 +14,7 @@ import { useLoginMutation, useLoginWithGoogleMutation } from "../api";
 import { LoginResponseDTO } from "../types";
 import { toast } from "sonner";
 import constants from "@/settings/constants";
+import { useTranslations } from "next-intl";
 
 export function LoginForm() {
   const router = useRouter();
@@ -23,6 +24,8 @@ export function LoginForm() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
+  const t = useTranslations("errorMessages.authError");
+  const t2 = useTranslations("loginPage");
 
   const [login] = useLoginMutation();
   const [signInWithGoogle] = useLoginWithGoogleMutation();
@@ -46,8 +49,7 @@ export function LoginForm() {
         const errorMessage = Array.isArray(error.data.errorMessages)
           ? error.data.errorMessages[0]
           : error.data.errorMessages;
-        setError(errorMessage);
-        toast.error(errorMessage);
+        setError(t(errorMessage));
       })
       .finally(() => {
         setIsLoading(false);
@@ -80,15 +82,15 @@ export function LoginForm() {
           const errorMessage = Array.isArray(error.data.errorMessages)
             ? error.data.errorMessages[0]
             : error.data.errorMessages;
-          setError(errorMessage);
-          toast.error(errorMessage);
+          setError(t(errorMessage));
+          toast.error(t(errorMessage));
         })
         .finally(() => {
           setIsLoading(false);
         });
     }
-  }, [router, setError, setIsLoading, signInWithGoogle]);
-  
+  }, [router, setError, setIsLoading, signInWithGoogle, t]);
+
   useEffect(() => {
     handleGoogleLogin();
   }, [handleGoogleLogin]);
@@ -120,7 +122,7 @@ export function LoginForm() {
             <form onSubmit={handleEmailLogin} className="flex flex-col gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="email" className="text-sm sm:text-base">
-                  Email
+                  {t2("emailLabel")}
                 </Label>
                 <div className="relative">
                   <Input
@@ -129,7 +131,7 @@ export function LoginForm() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    placeholder="Enter your email"
+                    placeholder={t2("emailPlaceholder")}
                     className="h-9 sm:h-10 text-sm sm:text-base pl-9"
                     autoComplete="username"
                   />
@@ -138,7 +140,7 @@ export function LoginForm() {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="password" className="text-sm sm:text-base">
-                  Password
+                  {t2("passwordLabel")}
                 </Label>
                 <div className="relative">
                   <Input
@@ -147,7 +149,7 @@ export function LoginForm() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    placeholder="Enter your password"
+                    placeholder={t2("passwordPlaceholder")}
                     className="h-9 sm:h-10 pr-10 pl-9 text-sm sm:text-base w-full"
                     autoComplete="current-password"
                   />
@@ -181,18 +183,18 @@ export function LoginForm() {
                     htmlFor="remember"
                     className="text-xs sm:text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    Remember me
+                    {t2("rememberMe")}
                   </label>
                 </div>
                 <Link
                   href="/forgot-password"
                   className="text-xs sm:text-sm text-primary hover:underline"
                 >
-                  Forget password
+                  {t2("forgetPassword")}
                 </Link>
               </div>
               {error && (
-                <div className="text-sm text-red-500 mt-2">{error}</div>
+                <div className="text-sm text-red-500 mt-2">{t(error)}</div>
               )}
               <Button
                 type="submit"
@@ -202,16 +204,18 @@ export function LoginForm() {
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Logging in...
+                    {t2("loggingIn")}
                   </div>
                 ) : (
-                  "Login"
+                  t2("loginButton")
                 )}
               </Button>
             </form>
             <div className="flex items-center gap-4 my-4">
               <div className="h-[1px] flex-1 bg-gray-300"></div>
-              <span className="text-gray-500 text-sm sm:text-base">Or</span>
+              <span className="text-gray-500 text-sm sm:text-base">
+                {t2("or")}
+              </span>
               <div className="h-[1px] flex-1 bg-gray-300"></div>
             </div>
             <Button
@@ -224,7 +228,7 @@ export function LoginForm() {
               {isLoading ? (
                 <div className="flex items-center justify-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Logging in...
+                  {t2("loggingIn")}
                 </div>
               ) : (
                 <>
@@ -253,14 +257,14 @@ export function LoginForm() {
                       fill="#4285F4"
                     />
                   </svg>
-                  Login with Google
+                  {t2("loginWithGoogle")}
                 </>
               )}
             </Button>
             <div className="text-center text-xs sm:text-sm mt-4">
-              Don&apos;t have an account yet?{" "}
+              {t2("registerPrompt")}{" "}
               <Link href="/register" className="text-primary hover:underline">
-                Register
+                {t2("register")}
               </Link>
             </div>
           </CardContent>
@@ -269,7 +273,7 @@ export function LoginForm() {
           <div className="bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 w-screen h-screen fixed inset-0">
             <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg">
               <Loader2 className="h-5 w-5 animate-spin text-primary" />
-              <span>Logging in...</span>
+              <span>{t2("loggingIn")}</span>
             </div>
           </div>
         )}

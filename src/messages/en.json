@@ -5,7 +5,12 @@
     "profile": "Profile",
     "settings": "Settings",
     "logout": "Logout",
-    "signIn": "Sign In"
+    "signIn": "Sign In",
+    "home": "Home",
+    "features": "Features",
+    "about": "About",
+    "contact": "Contact",
+    "message": "Message"
   },
   "language": {
     "en": "English",
@@ -66,6 +71,320 @@
       "title": "Ready to start your sign language journey?",
       "description": "Choose the plan that's right for you and start connecting through sign language today.",
       "button": "View Pricing Plans"
+    }
+  },
+  "pricing": {
+    "title": "Pricing Plans",
+    "description": "Choose the plan that best fits your sign language learning or teaching needs",
+    "note": "All plans include a 14-day free trial. No credit card required to start.",
+    "contact": "Need a custom solution for your organization?",
+    "contactLink": "Contact Us",
+    "mostPopular": "Most Popular",
+    "annual": "Annual",
+    "month": "/month",
+    "year": "/year",
+    "monthly": "Monthly",
+    "buttonText": "Get Started",
+    "save": "Save",
+    "individualLearner": {
+      "title": "Individual Learner",
+      "descriptionPlan": "Perfect for independent sign language learners",
+      "features": {
+        "feature1": "Access to all sign language lessons",
+        "feature2": "Join up to 5 group sessions per month",
+        "feature3": "HD video quality",
+        "feature4": "Basic learning materials"
+      }
+    },
+    "professionalEducator": {
+      "title": "Professional Educator",
+      "descriptionPlan": "For sign language teachers and tutors",
+      "features": {
+        "feature1": "Create and host unlimited classes",
+        "feature2": "Advanced teaching tools",
+        "feature3": "Student progress tracking",
+        "feature4": "Comprehensive resource library",
+        "feature5": "Premium video quality",
+        "feature6": "Recording and playback"
+      }
+    },
+    "institution": {
+      "title": "Institution",
+      "descriptionPlan": "For schools and organizations",
+      "features": {
+        "feature1": "Multiple educator accounts",
+        "feature2": "Administrative dashboard",
+        "feature3": "Custom branding options",
+        "feature4": "API access for integration",
+        "feature5": "Priority support",
+        "feature6": "Advanced analytics",
+        "feature7": "Enterprise-grade security"
+      }
+    }
+  },
+  "featuresPage": {
+    "hero": {
+      "title": "Features Designed for Sign Language Communication",
+      "subtitle": "SLOM provides specialized tools to make online sign language learning and communication accessible and effective for everyone.",
+      "cta": "Start Free Trial",
+      "ready": "Ready to enhance sign language communication?",
+      "readySub": "Join thousands of users who are already breaking communication barriers with SLOM."
+    },
+    "videoFeature": {
+      "title": "High-Quality Video Optimization",
+      "description": "Crisp, clear video optimized specifically for sign language movements with reduced latency and adjustable frame rates."
+    },
+    "subtitlesFeature": {
+      "title": "Real-time Captioning",
+      "description": "AI-powered live captioning and transcription to enhance communication between hearing and deaf participants."
+    },
+    "usersFeature": {
+      "title": "Interactive Classrooms",
+      "description": "Virtual classrooms designed for sign language instruction with specialized teacher tools and breakout rooms."
+    },
+    "messageFeature": {
+      "title": "Visual Communication Tools",
+      "description": "Integrated chat with emoji support, visual reaction buttons, and drawing tools for effective communication."
+    },
+    "bookFeature": {
+      "title": "Learning Resources",
+      "description": "Built-in sign language dictionary, lesson plans, and practice materials for students and educators."
+    },
+    "calendarFeature": {
+      "title": "Scheduling & Recordings",
+      "description": "Easy scheduling for classes, private tutoring, and automatic recording with searchable transcripts for later review."
+    }
+  },
+  "aboutPage": {
+    "ourStory": "Our Story",
+    "ourStoryDesc": "Founded in 2022, SLOM was created to bridge the communication gap for the deaf and hard of hearing community.",
+    "story1": "When our founder, Nguyen Van Minh, witnessed firsthand the challenges his deaf cousin faced in online education during the pandemic, he recognized that existing platforms weren't designed with sign language communication in mind.",
+    "story2": "Working alongside educators, sign language interpreters, and software developers, we created SLOM - a platform specifically optimized for visual communication that puts the needs of the deaf and hard of hearing community first.",
+    "story3": "Today, SLOM serves thousands of users across Vietnam and Southeast Asia, enabling accessible education and communication for both deaf and hearing individuals learning sign language.",
+    "mission": "Our Mission",
+    "missionDesc": "To make digital communication accessible and inclusive for the deaf and hard of hearing community by creating technology specifically designed for sign language interaction and learning.",
+    "vision": "Our Vision",
+    "visionDesc": "A world where communication barriers are eliminated through technology, and sign language is recognized and valued as a vital form of human expression and connection.",
+    "meetTeam": "Meet Our Team",
+    "teamDesc": "Our diverse team combines expertise in sign language, education, technology, and accessibility to create an inclusive platform for all users.",
+    "ceo": "CEO & Founder",
+    "expert": "Sign Language Expert",
+    "leadDev": "Lead Developer",
+    "accessibility": "Accessibility Specialist"
+  },
+  "contactPage": {
+    "title": "Get In Touch",
+    "subtitle": "Have questions about sign language classes or need technical assistance? Our support team is here to help.",
+    "location": "Our Location",
+    "locationDetails": "285 Đội Cấn, Ba Đình, Hanoi, Vietnam",
+    "email": "Email Us",
+    "emailDetails": "support@slom-vietnam.com",
+    "phone": "Call or Text Us",
+    "phoneDetails": "(+84) 123-456-7890",
+    "videoSupport": "Video Support Hours",
+    "videoSupportDetails": "Monday - Friday, 8AM - 8PM GMT+7",
+    "formTitle": "Send us a message",
+    "formDesc": "Fill out the form below, and we'll respond within 24 hours. For immediate assistance, please schedule a video call.",
+    "yourName": "Your Name",
+    "emailAddress": "Email Address",
+    "subject": "Subject",
+    "message": "Message",
+    "send": "Send Message",
+    "sending": "Sending...",
+    "schedule": "Schedule Video Call",
+    "success": "Your message has been sent successfully!"
+  },
+  "unAuthenMessage": {
+    "loginPrompt": "Please log in to start message"
+  },
+  "footer": {
+    "aboutTitle": "About SLOM",
+    "aboutDesc": "A modern platform for managing digital resources and services.",
+    "productsTitle": "Products",
+    "contentManagement": "Content Management",
+    "digitalResources": "Digital Resources",
+    "analytics": "Analytics",
+    "resourcesTitle": "Resources",
+    "documentation": "Documentation",
+    "helpCenter": "Help Center",
+    "api": "API",
+    "contactTitle": "Contact",
+    "email": "Email: contact@slom.com",
+    "phone": "Phone: +1 (123) 456-7890",
+    "copyright": "All rights reserved."
+  },
+  "resultPaymentPage": {
+    "paymentSuccess": "Payment Successful!",
+    "paymentFailed": "Payment Failed",
+    "paymentCancelled": "Payment Cancelled",
+    "processingTitle": "Processing Payment...",
+    "processing": "Processing your payment...",
+    "paymentSuccessMsg": "Thank you for your payment. ",
+    "paymentFailedMsg": "Payment processing failed. Please try again or contact support.",
+    "paymentCancelledMsg": "Payment has been cancelled.",
+    "redirectIn": "You will be redirected to the home page in {seconds} seconds.",
+    "goHome": "Go to Home Page"
+  },
+  "successMessages": {
+    "authMessage": {
+      "successResendConfirmationCode": "Confirmation code has been resent",
+      "successSentConfirmationCode": "Confirmation code has been sent to your email",
+      "successResetPassword": "Password reset successful",
+      "successRegisterationConfirm": "Registration confirmed successfully!",
+      "successLogout": "Logged out successfully"
+    }
+  },
+  "errorMessages": {
+    "errorDashboard": {
+      "notAuthenticated": "Not authenticated, please Login",
+      "paymentStatusWrong": "Something wrong with payment status",
+      "paymentUpdateFailed": "Failed to update payment status"
+    },
+    "authError": {
+      "emptyEmail": "Please enter your email",
+      "passwordsNotMatch": "Passwords do not match",
+      "emptyFields": "Please fill in all fields",
+      "errorRegisterConfirmation": "Confirm Registeration has error",
+      "unknownError": "Unknown error on server",
+      "codeMismatchException": "Code not correct",
+      "errorResendConfirmationCode": "Failed to resend confirmation code",
+      "emptyUsername": "Username is required for registration confirmation",
+      "emptynewPassword": "New Password is required",
+      "userNotFound": "User not found",
+      "errorResetPassword": "Reset new password failed",
+      "invalidPasswordException": "Invalid Password",
+      "limitExceededException": "Too many attemps, try later sometimes",
+      "notAuthorizedException": "Your role are not authorized",
+      "incorrectUserNamePassword": "Incorrect username or password",
+      "emailUsed": "Email has been used",
+      "emailRegisteredWithGoogle": "Email has been registered with google",
+      "errorProfileCreate": "Error Profile creating",
+      "usernameExisted": "Username already existed",
+      "invalidJson": "Invalid Json",
+      "invalidGrantCode": "Incorrect grant code",
+      "invalidCodeProvided": "Invalid code provided, please request a code again",
+      "invalidCodepattern": "Invalid code pattern",
+      "failGetplan": "Error server pricing plans"
+    },
+    "paymentError": {
+      "errorCreatePaymentLink": "Create payment link failed",
+      "invalidRequest": "Invalid request",
+      "errorRetrievingLinkInformation": "Error retrieving payment link information",
+      "failGetplan": "Error server pricing plans"
+    }
+  },
+  "loginPage": {
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "loginButton": "Login",
+    "loggingIn": "Logging in...",
+    "rememberMe": "Remember me",
+    "forgetPassword": "Forget password",
+    "registerPrompt": "Don't have an account yet?",
+    "register": "Register",
+    "or": "Or",
+    "emailPlaceholder": "Enter your email",
+    "passwordPlaceholder": "Enter your password",
+    "loginWithGoogle": "Login with Google"
+  },
+  "registerPage": {
+    "title": "Register to SLOM!",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter your email",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "confirmPasswordLabel": "Confirm Password",
+    "confirmPasswordPlaceholder": "Confirm your password",
+    "registerButton": "Register",
+    "registering": "Registering...",
+    "alreadyHaveAccount": "Already have an account?",
+    "login": "Login"
+  },
+  "forgotPasswordPage": {
+    "title": "Reset Password",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter your email",
+    "sendCode": "Send Code",
+    "sending": "Sending...",
+    "resend": "Resend",
+    "confirmationCodeLabel": "Confirmation Code",
+    "confirmationCodePlaceholder": "Enter confirmation code",
+    "newPasswordLabel": "New Password",
+    "newPasswordPlaceholder": "Enter new password",
+    "confirmNewPasswordLabel": "Confirm New Password",
+    "confirmNewPasswordPlaceholder": "Confirm new password",
+    "resetting": "Resetting...",
+    "resetPassword": "Reset Password",
+    "rememberPassword": "Remember your password?",
+    "backToLogin": "Back to Login"
+  },
+  "confirmRegisterPage": {
+    "title": "Confirm Registration",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter your email",
+    "confirmationCodeLabel": "Confirmation Code",
+    "confirmationCodePlaceholder": "Enter confirmation code",
+    "resendCode": "Resend Code",
+    "sending": "Sending...",
+    "resend": "Resend",
+    "confirming": "Confirming...",
+    "confirmButton": "Confirm Registration",
+    "backToLogin": "Back to Login"
+  },
+  "profile": {
+    "title": "My Profile",
+    "loginRequired": "Please log in to view your profile",
+    "updateProfilePicture": "Update Profile Picture",
+    "accountDetails": "Account Details",
+    "memberSince": "Member Since",
+    "lastLogin": "Last Login",
+    "today": "Today",
+    "tabs": {
+      "personal": "Personal Info",
+      "security": "Security",
+      "preferences": "Preferences"
+    },
+    "personalInfo": {
+      "title": "Personal Information",
+      "description": "Update your personal details here",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "bio": "Bio",
+      "bioPlaceholder": "Tell us about yourself",
+      "location": "Location",
+      "locationPlaceholder": "City, Country",
+      "saveChanges": "Save Changes"
+    },
+    "security": {
+      "title": "Security",
+      "description": "Manage your password and account security",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "updatePassword": "Update Password",
+      "errors": {
+        "userNotFound": "User information not found",
+        "passwordsNotMatch": "New passwords do not match",
+        "updateFailed": "Failed to update password",
+        "invalidParameterException": "New password not match pattern",
+        "invalidPasswordException": "Invalid New Password",
+        "passwordHistoryPolicyViolationException": "new password matches a previous password",
+        "tooManyRequestsException": "User has made too many requests",
+        "notAuthorizedException": "Incorrect Current Password",
+        "limitExceededException": "Too many attemps, try later sometimes"
+      },
+      "success": {
+        "passwordUpdated": "Password updated successfully"
+      },
+      "updating": "Updating..."
+    },
+    "preferences": {
+      "title": "Preferences",
+      "description": "Manage your account preferences and settings",
+      "notifications": "Notifications",
+      "display": "Display",
+      "savePreferences": "Save Preferences"
     }
   }
 }
