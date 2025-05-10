@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { Button } from "@/components/ui/button";
@@ -6,108 +6,249 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { useTranslations } from "next-intl";
+import { useUpdatePasswordMutation } from "@/features/auth/api";
+import { useState } from "react";
+import { toast } from "sonner";
+import Cookies from "js-cookie";
+import constants from "@/settings/constants";
+import { Eye, EyeOff, Lock } from "lucide-react";
 
 export default function ProfilePage() {
   const { userInfo } = useSelector((state: RootState) => state.auth);
-  
+  const t = useTranslations();
+  const [updatePassword] = useUpdatePasswordMutation();
+  const [isLoading, setIsLoading] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState<string>("");
+
+  const [passwordForm, setPasswordForm] = useState({
+    accessToken: "",
+    newPassword: "",
+    oldPassword: "",
+  });
+
+  const [showPasswords, setShowPasswords] = useState({
+    oldPassword: false,
+    newPassword: false,
+    confirmPassword: false,
+  });
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPasswordForm({
+      ...passwordForm,
+      [e.target.id]: e.target.value,
+    });
+  };
+
+  const togglePasswordVisibility = (
+    field: "oldPassword" | "newPassword" | "confirmPassword"
+  ) => {
+    setShowPasswords((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
+  };
+
+  const handleUpdatePassword = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const accessToken = Cookies.get(constants.ACCESS_TOKEN);
+
+    if (!accessToken) {
+      toast.error(t("profile.security.errors.notAuthorizedException"));
+      return;
+    }
+
+    if (passwordForm.newPassword !== confirmPassword) {
+      setError(t("profile.security.errors.passwordsNotMatch"));
+      return;
+    }
+
+    setIsLoading(true);
+
+    updatePassword({
+      ...passwordForm,
+      accessToken,
+    })
+      .unwrap()
+      .then((payload) => {
+        if (payload.data?.result) {
+          toast.success(t(`profile.security.success.${payload.data?.result}`));
+          setError("");
+          setPasswordForm({
+            accessToken: "",
+            newPassword: "",
+            oldPassword: "",
+          });
+          setConfirmPassword("");
+        }
+      })
+      .catch((error) => {
+        const errorMessage = Array.isArray(error.data?.errorMessages)
+          ? error.data.errorMessages[0]
+          : "updateFailed";
+        setError(t("profile.security.errors." + errorMessage));
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
   if (!userInfo) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <p>Please log in to view your profile.</p>
+        <p>{t("profile.loginRequired")}</p>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto px-4">
-      <h1 className="text-3xl font-bold mb-8">My Profile</h1>
+      <h1 className="text-3xl font-bold mb-8">{t("profile.title")}</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div>
           <Card>
             <CardHeader className="text-center">
               <div className="flex justify-center mb-4">
                 <Avatar className="h-32 w-32">
-                  <AvatarImage src={userInfo.avatarUrl} alt={`${userInfo.firstname} ${userInfo.lastname}`} />
+                  <AvatarImage
+                    src={userInfo.avatarUrl}
+                    alt={`${userInfo.firstname} ${userInfo.lastname}`}
+                  />
                   <AvatarFallback className="text-4xl">
-                    {userInfo.firstname?.[0]}{userInfo.lastname?.[0]}
+                    {userInfo.firstname?.[0]}
+                    {userInfo.lastname?.[0]}
                   </AvatarFallback>
                 </Avatar>
               </div>
-              <CardTitle className="text-2xl">{userInfo.firstname} {userInfo.lastname}</CardTitle>
+              <CardTitle className="text-2xl">
+                {userInfo.firstname} {userInfo.lastname}
+              </CardTitle>
               <CardDescription>{userInfo.email}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col space-y-4">
-                <Button variant="outline" className="w-full">Update Profile Picture</Button>
+                <Button variant="outline" className="w-full">
+                  {t("profile.updateProfilePicture")}
+                </Button>
               </div>
             </CardContent>
           </Card>
 
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle className="text-lg">Account Details</CardTitle>
+              <CardTitle className="text-lg">
+                {t("profile.accountDetails")}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
                 <div>
-                  <span className="text-sm font-medium text-muted-foreground">Member Since</span>
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {t("profile.memberSince")}
+                  </span>
                   <p>April 2023</p>
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-muted-foreground">Last Login</span>
-                  <p>Today</p>
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {t("profile.lastLogin")}
+                  </span>
+                  <p>{t("profile.today")}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Right content area */}
         <div className="md:col-span-2">
           <Tabs defaultValue="personal">
             <TabsList className="mb-6">
-              <TabsTrigger value="personal">Personal Info</TabsTrigger>
-              <TabsTrigger value="security">Security</TabsTrigger>
-              <TabsTrigger value="preferences">Preferences</TabsTrigger>
+              <TabsTrigger value="personal">
+                {t("profile.tabs.personal")}
+              </TabsTrigger>
+              <TabsTrigger value="security">
+                {t("profile.tabs.security")}
+              </TabsTrigger>
+              <TabsTrigger value="preferences">
+                {t("profile.tabs.preferences")}
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="personal">
               <Card>
                 <CardHeader>
-                  <CardTitle>Personal Information</CardTitle>
-                  <CardDescription>Update your personal details here.</CardDescription>
+                  <CardTitle>{t("profile.personalInfo.title")}</CardTitle>
+                  <CardDescription>
+                    {t("profile.personalInfo.description")}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label htmlFor="firstName">First Name</Label>
-                        <Input id="firstName" defaultValue={userInfo.firstname} />
+                        <Label htmlFor="firstName">
+                          {t("profile.personalInfo.firstName")}
+                        </Label>
+                        <Input
+                          id="firstName"
+                          defaultValue={userInfo.firstname}
+                        />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="lastName">Last Name</Label>
+                        <Label htmlFor="lastName">
+                          {t("profile.personalInfo.lastName")}
+                        </Label>
                         <Input id="lastName" defaultValue={userInfo.lastname} />
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input id="email" type="email" defaultValue={userInfo.email} disabled />
+                      <Label htmlFor="email">
+                        {t("profile.personalInfo.email")}
+                      </Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        defaultValue={userInfo.email}
+                        disabled
+                      />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="bio">Bio</Label>
-                      <Textarea id="bio" placeholder="Tell us about yourself" rows={4} />
+                      <Label htmlFor="bio">
+                        {t("profile.personalInfo.bio")}
+                      </Label>
+                      <Textarea
+                        id="bio"
+                        placeholder={t("profile.personalInfo.bioPlaceholder")}
+                        rows={4}
+                      />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="location">Location</Label>
-                      <Input id="location" placeholder="City, Country" />
+                      <Label htmlFor="location">
+                        {t("profile.personalInfo.location")}
+                      </Label>
+                      <Input
+                        id="location"
+                        placeholder={t(
+                          "profile.personalInfo.locationPlaceholder"
+                        )}
+                      />
                     </div>
 
-                    <Button type="submit">Save Changes</Button>
+                    <Button type="submit">
+                      {t("profile.personalInfo.saveChanges")}
+                    </Button>
                   </form>
                 </CardContent>
               </Card>
@@ -116,27 +257,132 @@ export default function ProfilePage() {
             <TabsContent value="security">
               <Card>
                 <CardHeader>
-                  <CardTitle>Security</CardTitle>
-                  <CardDescription>Manage your password and account security.</CardDescription>
+                  <CardTitle>{t("profile.security.title")}</CardTitle>
+                  <CardDescription>
+                    {t("profile.security.description")}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form className="space-y-6">
+                  <form className="space-y-6" onSubmit={handleUpdatePassword}>
                     <div className="space-y-2">
-                      <Label htmlFor="currentPassword">Current Password</Label>
-                      <Input id="currentPassword" type="password" />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="newPassword">New Password</Label>
-                      <Input id="newPassword" type="password" />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                      <Input id="confirmPassword" type="password" />
+                      <Label htmlFor="oldPassword">
+                        {t("profile.security.currentPassword")}
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="oldPassword"
+                          type={showPasswords.oldPassword ? "text" : "password"}
+                          value={passwordForm.oldPassword}
+                          onChange={handlePasswordChange}
+                          disabled={isLoading}
+                          required
+                          className="pr-10 pl-9"
+                        />
+                        <Lock className="h-4 w-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            togglePasswordVisibility("oldPassword")
+                          }
+                          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full"
+                          aria-label={
+                            showPasswords.oldPassword
+                              ? "Hide password"
+                              : "Show password"
+                          }
+                        >
+                          {showPasswords.oldPassword ? (
+                            <EyeOff className="h-4 w-4 text-gray-500" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-gray-500" />
+                          )}
+                        </button>
+                      </div>
                     </div>
 
-                    <Button type="submit">Update Password</Button>
+                    <div className="space-y-2">
+                      <Label htmlFor="newPassword">
+                        {t("profile.security.newPassword")}
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="newPassword"
+                          type={showPasswords.newPassword ? "text" : "password"}
+                          value={passwordForm.newPassword}
+                          onChange={handlePasswordChange}
+                          disabled={isLoading}
+                          required
+                          className="pr-10 pl-9"
+                        />
+                        <Lock className="h-4 w-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            togglePasswordVisibility("newPassword")
+                          }
+                          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full"
+                          aria-label={
+                            showPasswords.newPassword
+                              ? "Hide password"
+                              : "Show password"
+                          }
+                        >
+                          {showPasswords.newPassword ? (
+                            <EyeOff className="h-4 w-4 text-gray-500" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-gray-500" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmNewPassword">
+                        {t("profile.security.confirmPassword")}
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="confirmNewPassword"
+                          type={
+                            showPasswords.confirmPassword ? "text" : "password"
+                          }
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          disabled={isLoading}
+                          required
+                          className="pr-10 pl-9"
+                        />
+                        <Lock className="h-4 w-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            togglePasswordVisibility("confirmPassword")
+                          }
+                          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full"
+                          aria-label={
+                            showPasswords.confirmPassword
+                              ? "Hide password"
+                              : "Show password"
+                          }
+                        >
+                          {showPasswords.confirmPassword ? (
+                            <EyeOff className="h-4 w-4 text-gray-500" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-gray-500" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {error && (
+                      <div className="text-sm text-red-500 mt-2">{error}</div>
+                    )}
+
+                    <Button type="submit" disabled={isLoading}>
+                      {isLoading
+                        ? t("profile.security.updating")
+                        : t("profile.security.updatePassword")}
+                    </Button>
                   </form>
                 </CardContent>
               </Card>
@@ -145,25 +391,31 @@ export default function ProfilePage() {
             <TabsContent value="preferences">
               <Card>
                 <CardHeader>
-                  <CardTitle>Preferences</CardTitle>
-                  <CardDescription>Manage your account preferences and settings.</CardDescription>
+                  <CardTitle>{t("profile.preferences.title")}</CardTitle>
+                  <CardDescription>
+                    {t("profile.preferences.description")}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Notifications</h3>
+                    <h3 className="text-lg font-medium">
+                      {t("profile.preferences.notifications")}
+                    </h3>
                     <div className="space-y-4">
                       {/* Add notification preferences here */}
                     </div>
                   </div>
-                  
+
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Display</h3>
+                    <h3 className="text-lg font-medium">
+                      {t("profile.preferences.display")}
+                    </h3>
                     <div className="space-y-4">
                       {/* Add display preferences here */}
                     </div>
                   </div>
-                  
-                  <Button>Save Preferences</Button>
+
+                  <Button>{t("profile.preferences.savePreferences")}</Button>
                 </CardContent>
               </Card>
             </TabsContent>

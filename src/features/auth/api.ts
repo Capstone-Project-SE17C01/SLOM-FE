@@ -12,6 +12,7 @@ import type {
   APIResponse,
   SubscriptionPlanDTO,
   LoginWithGoogleRequestDTO,
+  UpdatePasswordRequestDTO,
 } from "./types";
 import { authSlice } from "./slice";
 
@@ -163,6 +164,14 @@ export const authAPI = baseApi.injectEndpoints({
         flashError: false,
       }),
     }),
+    updatePassword: build.mutation({
+      query: (data: UpdatePasswordRequestDTO) => ({
+        url: "/api/auth/updatePassword",
+        method: "POST",
+        body: data,
+        flashError: false,
+      }),
+    }),
   }),
 });
 
@@ -177,4 +186,5 @@ export const {
   useCreatePaymentLinkMutation,
   useUpdatePlanMutation,
   useGetAllPlanQuery,
+  useUpdatePasswordMutation,
 } = authAPI;

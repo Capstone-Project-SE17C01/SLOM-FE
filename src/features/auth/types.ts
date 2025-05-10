@@ -121,3 +121,9 @@ export interface SubscriptionPlanDTO {
   features?: string | null;
   isActive: boolean;
 }
+
+export interface UpdatePasswordRequestDTO {
+  accessToken: string;
+  newPassword: string;
+  oldPassword: string;
+}

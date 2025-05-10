@@ -5,12 +5,15 @@ import { Provider } from "react-redux";
 import { AppProgressBar } from "next-nprogress-bar";
 import { Toaster } from "sonner";
 import { store } from "@/redux/store";
-
+import { NextIntlClientProvider } from "next-intl";
+import { Messages } from "next-intl";
 export interface ProvidersProps {
   children: React.ReactNode;
+  locale: string;
+  messages: Messages;
 }
 
-export function Providers({ children }: ProvidersProps) {
+export function Providers({ children, locale, messages }: ProvidersProps) {
   return (
     <React.Suspense>
       <AppProgressBar
@@ -21,7 +24,9 @@ export function Providers({ children }: ProvidersProps) {
       />
       <Provider store={store}>
         <Toaster closeButton richColors position="top-right" />
-        {children}
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          {children}
+        </NextIntlClientProvider>
       </Provider>
     </React.Suspense>
   );

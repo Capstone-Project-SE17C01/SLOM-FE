@@ -7,7 +7,7 @@ const SITE_URL = "/";
 const USER_INFO = "_user_info";
 const ACCESS_TOKEN = "_access_token";
 const REFRESH_TOKEN = "_refresh_token";
-const IS_AUTH = "_is_auth";
+const IS_AUTH = "isAuth";
 const IS_EXPAND = "_is_expand";
 const IDENTITY_PROVIDER_GOOGLE = "Google";
 const CLIENT_ID_GOOGLE = process.env.NEXT_PUBLIC_CLIENT_ID_GOOGLE || "";
@@ -26,6 +26,8 @@ const FIREBASE_MEASUREMENT_ID =
 const FIREBASE_STORAGE_BUCKET =
   process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "";
 const FIREBASE_KEY_PAIR = process.env.NEXT_PUBLIC_FIREBASE_KEY_PAIR || "";
+
+const LOCALE = "_locale";
 
 const constants = {
   IS_EXPAND,
@@ -48,6 +50,7 @@ const constants = {
   RETURN_URL,
   REDIRECT_URL_GOOGLE,
   ENPOINT_URL_GOOGLE,
+  LOCALE,
 };
 
 export default constants;

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Eye, EyeOff, Mail, Lock, KeyRound, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -38,10 +39,14 @@ export function ForgotPasswordForm() {
   const [forgotPassword] = useForgotPasswordMutation();
   const [confirmRegistration] = useConfirmRegistrationMutation();
 
+  const t = useTranslations("errorMessages.authError");
+  const t2 = useTranslations("forgotPasswordPage");
+  const t3 = useTranslations("successMessages.authMessage");
+
   const handleSendCode = async () => {
     if (!formData.email) {
-      setError(["Please enter your email"]);
-      toast.error("Please enter your email");
+      setError([t("emptyEmail")]);
+      toast.error(t("emptyEmail"));
       return;
     }
     setIsSendingCode(true);
@@ -60,13 +65,13 @@ export function ForgotPasswordForm() {
       .unwrap()
       .then((response) => {
         if (response.httpStatusCode === HttpStatusCode.Ok) {
-          toast.success("Confirmation code has been sent to your email");
+          toast.success(t3("successSentConfirmationCode"));
         }
       })
       .catch((error) => {
         error.data.errorMessages.forEach((message: string) => {
-          setError((prev) => [...prev, message]);
-          console.log("Error send code\n", message);
+          setError((prev) => [...prev, t(message)]);
+          console.log("Error send code\n", t(message));
         });
       })
       .finally(() => {
@@ -78,7 +83,8 @@ export function ForgotPasswordForm() {
     e.preventDefault();
     setError([]);
     if (formData.newPassword !== formData.confirmNewPassword) {
-      setError(["Passwords do not match"]);
+      setError([t("passwordsNotMatch")]);
+      toast.error(error);
       return;
     }
     if (
@@ -87,7 +93,8 @@ export function ForgotPasswordForm() {
       !formData.newPassword ||
       !formData.confirmNewPassword
     ) {
-      setError(["Please fill in all fields"]);
+      setError([t("emptyFields")]);
+      toast.error(error);
       return;
     }
     setIsLoading(true);
@@ -95,14 +102,16 @@ export function ForgotPasswordForm() {
       .unwrap()
       .then((response) => {
         if (response.httpStatusCode === HttpStatusCode.Ok) {
-          toast.success("Password reset successful");
+          toast.success(t3("successResetPassword"));
           router.push("/login");
         }
       })
       .catch((error) => {
+        console.log(error);
+
         error.data.errorMessages.forEach((message: string) => {
-          setError((prev) => [...prev, message]);
-          toast.error(message);
+          setError((prev) => [...prev, t(message)]);
+          toast.error(t(message));
         });
       })
       .finally(() => {
@@ -137,21 +146,22 @@ export function ForgotPasswordForm() {
         <Card className="w-full max-w-[400px] sm:min-w-[400px] bg-white/90 backdrop-blur-sm max-h-screen overflow-auto">
           <CardContent className="pt-6 px-4 sm:px-6">
             <h1 className="text-center text-xl sm:text-2xl font-normal mb-6">
-              Reset Password <span className="text-primary">SLOM!</span>
+              {t2("title")} <span className="text-primary">SLOM!</span>
             </h1>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="email" className="text-sm sm:text-base">
-                  Email
+                  {t2("emailLabel")}
                 </Label>
                 <div className="flex gap-2">
                   <div className="relative flex-1">
                     <Input
                       id="email"
                       type="email"
+                      autoComplete="new-email"
                       value={formData.email}
                       onChange={handleChange("email")}
-                      placeholder="Enter your email"
+                      placeholder={t2("emailPlaceholder")}
                       required
                       className="h-9 sm:h-10 text-sm sm:text-base pl-9 w-full"
                     />
@@ -167,12 +177,12 @@ export function ForgotPasswordForm() {
                     {isSendingCode ? (
                       <div className="flex items-center justify-center gap-2">
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        Sending...
+                        {t2("sending")}
                       </div>
                     ) : countdown > 0 ? (
-                      `Resend (${countdown}s)`
+                      `${t2("resend")} (${countdown}s)`
                     ) : (
-                      "Send Code"
+                      t2("sendCode")
                     )}
                   </Button>
                 </div>
@@ -180,14 +190,15 @@ export function ForgotPasswordForm() {
 
               <div className="grid gap-2">
                 <Label htmlFor="code" className="text-sm sm:text-base">
-                  Confirmation Code
+                  {t2("confirmationCodeLabel")}
                 </Label>
                 <div className="relative">
                   <Input
                     id="code"
+                    autoComplete="new-code"
                     value={formData.confirmationCode}
                     onChange={handleChange("confirmationCode")}
-                    placeholder="Enter confirmation code"
+                    placeholder={t2("confirmationCodePlaceholder")}
                     required
                     className="h-9 sm:h-10 text-sm sm:text-base pl-9"
                   />
@@ -197,15 +208,16 @@ export function ForgotPasswordForm() {
 
               <div className="grid gap-2">
                 <Label htmlFor="newPassword" className="text-sm sm:text-base">
-                  New Password
+                  {t2("newPasswordLabel")}
                 </Label>
                 <div className="relative">
                   <Input
                     id="newPassword"
+                    autoComplete="new-password"
                     type={showNewPassword ? "text" : "password"}
                     value={formData.newPassword || ""}
                     onChange={handleChange("newPassword")}
-                    placeholder="Enter new password"
+                    placeholder={t2("newPasswordPlaceholder")}
                     required
                     className="h-9 sm:h-10 pr-10 pl-9 text-sm sm:text-base w-full"
                   />
@@ -232,15 +244,16 @@ export function ForgotPasswordForm() {
                   htmlFor="confirmNewPassword"
                   className="text-sm sm:text-base"
                 >
-                  Confirm New Password
+                  {t2("confirmNewPasswordLabel")}
                 </Label>
                 <div className="relative">
                   <Input
                     id="confirmNewPassword"
+                    autoComplete="new-password"
                     type={showConfirmPassword ? "text" : "password"}
                     value={formData.confirmNewPassword}
                     onChange={handleChange("confirmNewPassword")}
-                    placeholder="Confirm new password"
+                    placeholder={t2("confirmNewPasswordPlaceholder")}
                     required
                     className="h-9 sm:h-10 pr-10 pl-9 text-sm sm:text-base w-full"
                   />
@@ -274,16 +287,16 @@ export function ForgotPasswordForm() {
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Resetting...
+                    {t2("resetting")}
                   </div>
                 ) : (
-                  "Reset Password"
+                  t2("resetPassword")
                 )}
               </Button>
               <div className="text-center text-xs sm:text-sm">
-                Remember your password?{" "}
+                {t2("rememberPassword")}{" "}
                 <Link href="/login" className="text-primary hover:underline">
-                  Back to Login
+                  {t2("backToLogin")}
                 </Link>
               </div>
             </form>

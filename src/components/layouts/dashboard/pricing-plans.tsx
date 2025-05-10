@@ -25,6 +25,7 @@ import {
   SubscriptionPlanDTO,
 } from "@/features/auth/types";
 import Cookies from "js-cookie";
+import { useTranslations } from "next-intl";
 
 export default function PricingPlans() {
   const { isDarkMode } = useTheme();
@@ -32,9 +33,16 @@ export default function PricingPlans() {
   const [annual, setAnnual] = useState(false);
   const [durationPlan, setDurationPlan] = useState<number>(1);
   const [discount, setDiscount] = useState<number>(0);
-  const [userInfo, setUserInfo] = useState<{id: string; email?: string; username?: string} | null>(null);
+  const [userInfo, setUserInfo] = useState<{
+    id: string;
+    email?: string;
+    username?: string;
+  } | null>(null);
   const { data, error, isLoading } = useGetAllPlanQuery();
   const [createPaymentLinkMutation] = useCreatePaymentLinkMutation();
+  const t = useTranslations("pricing");
+  const t2 = useTranslations("errorMessages.errorDashboard");
+  const t3 = useTranslations("errorMessages.paymentError");
 
   useEffect(() => {
     const userInfoCookie = Cookies.get(constants.USER_INFO);
@@ -44,8 +52,8 @@ export default function PricingPlans() {
   }, []);
 
   useEffect(() => {
-    if (error) console.log(error);
-  }, [isLoading, error]);
+    if (error) console.log(t3("failGetplan"));
+  }, [isLoading, error, t3]);
 
   useEffect(() => {
     setDurationPlan(annual ? 12 : 1);
@@ -59,7 +67,7 @@ export default function PricingPlans() {
   ) => {
     e.preventDefault();
     try {
-      if (!userInfo?.id) return toast.error("Not authenticated");
+      if (!userInfo?.id) return toast.error(t2("notAuthenticated"));
 
       const response = await createPaymentLinkMutation({
         subscriptionId: planId,
@@ -78,10 +86,10 @@ export default function PricingPlans() {
       if (result?.checkoutUrl) {
         router.push(result.checkoutUrl);
       } else {
-        console.log(errorMessages[0]);
+        console.log(t3(errorMessages[0]));
       }
     } catch {
-      console.log("Error creating payment link");
+      console.log(t3("errorCreatePaymentLink"));
     }
   };
 
@@ -98,19 +106,18 @@ export default function PricingPlans() {
     >
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-4">Pricing Plans</h2>
+          <h2 className="text-4xl font-bold mb-4">{t("title")}</h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            Choose the plan that best fits your sign language learning or
-            teaching needs
+            {t("description")}
           </p>
 
           <div className="flex items-center justify-center gap-2 mb-8">
             <span className={annual ? "text-muted-foreground" : "font-medium"}>
-              Monthly
+              {t("monthly")}
             </span>
             <Switch checked={annual} onCheckedChange={setAnnual} />
             <span className={!annual ? "text-muted-foreground" : "font-medium"}>
-              Annual (Save 20%)
+              {t("annual")}
             </span>
           </div>
         </div>
@@ -134,12 +141,14 @@ export default function PricingPlans() {
               >
                 {plan.name === "Professional Educator" && (
                   <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 text-xs font-medium">
-                    Most Popular
+                    {t("mostPopular")}
                   </div>
                 )}
                 <CardHeader>
-                  <CardTitle>{plan.name}</CardTitle>
-                  <CardDescription>{plan.description}</CardDescription>
+                  <CardTitle> {t(`${plan.name}.title`)}</CardTitle>
+                  <CardDescription>
+                    {t(`${plan.name}.descriptionPlan`)}
+                  </CardDescription>
                   <div className="mt-4">
                     <span className="text-3xl font-bold">
                       ₫
@@ -148,11 +157,11 @@ export default function PricingPlans() {
                       )}
                     </span>
                     <span className="text-muted-foreground ml-2">
-                      {annual ? "/year" : "/month"}
+                      {annual ? t("year") : t("month")}
                     </span>
                     {discount > 0 && (
                       <span className="text-sm text-green-500 ml-2">
-                        (-{discount}%)
+                        ({t("save")} {discount}&#37;)
                       </span>
                     )}
                   </div>
@@ -162,7 +171,7 @@ export default function PricingPlans() {
                     {parsedFeatures.map((feature, i) => (
                       <li key={i} className="flex items-center gap-2">
                         <Check className="h-4 w-4 text-primary" />
-                        <span>{feature}</span>
+                        <span>{t(`${plan.name}.features.${feature}`)}</span>
                       </li>
                     ))}
                   </ul>
@@ -181,7 +190,7 @@ export default function PricingPlans() {
                     }
                     onClick={(e) => handlePayment(e, plan.id, plan.price)}
                   >
-                    Get Started
+                    {t("buttonText")}
                   </Button>
                 </CardFooter>
               </Card>
@@ -190,14 +199,11 @@ export default function PricingPlans() {
         </div>
 
         <div className="text-center mt-12">
-          <p className="text-muted-foreground">
-            All plans include a 14-day free trial. No credit card required to
-            start.
-          </p>
+          <p className="text-muted-foreground">{t("note")}</p>
           <p className="mt-2">
-            Need a custom solution for your organization?{" "}
+            {t("contact")}{" "}
             <a href="#" className="underline text-primary">
-              Contact us
+              {t("contactLink")}
             </a>
           </p>
         </div>
