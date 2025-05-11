@@ -3,8 +3,6 @@ import Link from "next/link";
 import {
   Menu,
   X,
-  Search,
-  Bell,
   LogOut,
   Settings,
   UserCircle,
@@ -24,10 +22,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { RootState } from "@/redux/store";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
 import { logout } from "@/features/auth/slice";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 interface HeaderProps {
   toggleMenu: () => void;
@@ -45,9 +44,10 @@ export default function Header({
   const { isDarkMode } = useTheme();
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const router = useRouter();
+  const pathname = usePathname();
   const dispatch = useDispatch();
 
-  const t = useTranslations("header"); // thêm dòng này
+  const t = useTranslations("header");
   const t3 = useTranslations("successMessages.authMessage");
   const handleLogout = () => {
     dispatch(logout());
@@ -68,40 +68,36 @@ export default function Header({
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center mr-3">
-                <span className="text-white font-bold text-xl">S</span>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center mr-3">
+                <Image src="/images/logo.png" alt="SLOM Logo" width={32} height={32} />
               </div>
-              <span className="font-bold text-xl">SLOM</span>
+              <span className="font-bold text-xl text-[#6947A8]">SLOM</span>
             </Link>
           </div>
 
           <nav className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <Link
-                key={t(`${item.name}`)}
-                href={item.href}
-                className={cn(
-                  "text-sm font-medium transition-colors px-3 py-2 rounded-md",
-                  isDarkMode
-                    ? "hover:bg-white/10 hover:text-white"
-                    : "hover:bg-black/5 hover:text-black"
-                )}
-              >
-                {t(`${item.name}`)}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const isActive = pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href));
+              return (
+                <Link
+                  key={t(`${item.name}`)}
+                  href={item.href}
+                  className={cn(
+                    "text-sm font-medium transition-colors px-3 py-2 rounded-md relative",
+                    isActive 
+                      ? "text-[#6947A8] after:content-[''] after:absolute after:left-3 after:right-3 after:bottom-0 after:h-0.5 after:bg-[#6947A8]" 
+                      : isDarkMode
+                        ? "hover:bg-white/10 hover:text-white"
+                        : "hover:bg-black/5 hover:text-black"
+                  )}
+                >
+                  {t(`${item.name}`)}
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="flex items-center">
-            <button
-              className={cn(
-                "p-2 rounded-full mr-2",
-                isDarkMode ? "hover:bg-white/10" : "hover:bg-black/5"
-              )}
-            >
-              <Search className="h-5 w-5" />
-            </button>
-
             <div className="flex items-center gap-2">
               <ThemeSwitcher
                 isDarkMode={isDarkMode}
@@ -109,15 +105,6 @@ export default function Header({
               />
               <LanguageSwitcher />
             </div>
-
-            <button
-              className={cn(
-                "p-2 rounded-full mr-2",
-                isDarkMode ? "hover:bg-white/10" : "hover:bg-black/5"
-              )}
-            >
-              <Bell className="h-5 w-5" />
-            </button>
 
             {userInfo ? (
               <DropdownMenu>
@@ -168,7 +155,12 @@ export default function Header({
               </DropdownMenu>
             ) : (
               <Link href="/login">
-                <Button variant="secondary" size="sm" className="ml-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="ml-2 bg-[#6947A8] text-white hover:bg-[#5a3d8c] hover:text-white flex items-center gap-2"
+                >
+                  <UserCircle className="h-4 w-4" />
                   {t("signIn")}
                 </Button>
               </Link>
