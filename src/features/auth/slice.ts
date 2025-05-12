@@ -18,6 +18,7 @@ interface AuthSliceInterface {
     preferredLanguageId?: string;
     firstname?: string;
     lastname?: string;
+    courseId?: string;
   } | null;
   access_token: string | null;
 }

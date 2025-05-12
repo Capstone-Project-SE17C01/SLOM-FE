@@ -58,7 +58,7 @@ export default function Header({
   return (
     <header
       className={cn(
-        "fixed top-0 w-full z-30 transition-all duration-300 ease-in-out",
+        "transition-all duration-300 ease-in-out",
         isDarkMode
           ? "bg-black/90 backdrop-blur-md border-b border-gray-800"
           : "bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm"
