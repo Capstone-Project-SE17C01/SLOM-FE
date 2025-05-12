@@ -10,7 +10,12 @@
     "features": "Tính năng",
     "about": "Giới thiệu",
     "contact": "Liên hệ",
-    "message": "Tin nhắn"
+    "message": "Tin nhắn",
+    "course": "Khóa học",
+    "listCourse": "Danh sách bài học",
+    "scenario": "Tình huống",
+    "video": "Video",
+    "conversation": "Cuộc đối thoại"
   },
   "language": {
     "en": "Tiếng Anh",
@@ -386,5 +391,112 @@
       "display": "Hiển thị",
       "savePreferences": "Lưu tùy chọn"
     }
+  },
+  "practicePage": {
+    "tabLearn": "Học",
+    "tabPractice": "Ôn tập",
+    "reviewed": "Đã ôn tập",
+    "ready": "Sẵn sàng để ôn tập",
+    "difficult": "Từ khó",
+    "difficultTooltip": "Các mẫu câu bạn gặp trở ngại khi học sẽ được đánh dấu là 'Khó'. Hãy luyện tập những mẫu câu này để tăng cường trí nhớ của bạn và gạch chúng khỏi danh sách Các từ khó. Bạn cũng có thể tự đánh dấu/bỏ đánh dấu các từ khó bằng cách sử dụng biểu tượng tia chớp trong các bài học.",
+    "readyTooltip": "Sau khi bạn học một từ mới, hệ thống lặp từ có khoảng cách thông minh của chúng tôi sẽ tính toán khi nào bạn nên ôn lại từ đó và nhắc bạn vào đúng thời điểm. Nếu bạn trả lời đúng các bài kiểm tra sau, khoảng cách sẽ tăng lên trước khi bạn gặp lại từ đó.",
+    "practiceBtnTooltip": "Ôn tập các từ đã học với nhiều dạng bài kiểm tra, bao gồm cả nhập từ.",
+    "speedBtnTooltip": "Ôn tập nhanh các từ đã học bằng câu hỏi trắc nghiệm có giới hạn thời gian.",
+    "statLabel": "từ và mẫu câu",
+    "statLabelLearned": "Bài học đã học",
+    "statLabelReviewed": "Bài học đã ôn tập",
+    "practice": "Ôn tập",
+    "speedReview": "Ôn Siêu Tốc",
+    "learnedSituations": "Bài học bạn đã học",
+    "reviewedSituations": "Bài học bạn đã ôn tập",
+    "countSituations": "{count} bài học",
+    "searchPlaceholder": "Tìm kiếm",
+    "empty": "Sau khi bạn hoàn thành các tình huống, chúng sẽ xuất hiện trong phần này.",
+    "yourLearnedLessons": "Bài học bạn đã học",
+    "yourLearnedLessonsDesc": "Các bài học bạn đã hoàn thành"
+  },
+  "immersePage": {
+    "headerTitle": "Tìm kiếm các video về những chủ đề bạn yêu thích (#amnhac), hoặc những tình huống bạn muốn chuẩn bị cho (#dulich)",
+    "headerDesc": "Dùng 'Đã sẵn sàng để xem' cho các video sử dụng các từ bạn đã biết",
+    "tabAll": "Tất cả",
+    "tabReady": "Đã sẵn sàng để xem (3)",
+    "tabWatched": "Đã xem",
+    "tabPractice": "Cần luyện tập",
+    "popular": "Phổ biến",
+    "tag": "Dưới 50% từ đã biết",
+    "btn": "Học từ mới",
+    "searchPlaceholder": "Tìm kiếm",
+    "card1": "Chia tay vào ngày sinh nhật của tôi?",
+    "card2": "Nấm Jangjorim",
+    "card3": "Một chuyến đi bí ẩn",
+    "card4": "Chắc chắn là có!"
+  },
+  "learnPage": {
+    "tabLearn": "Học",
+    "tabPractice": "Ôn tập",
+    "studiedSituations": "Các tình huống đã học",
+    "continueLearning": "Tiếp tục học",
+    "continue": "Tiếp tục",
+    "emptyModule": "No modules available",
+    "checkAnswer": "Check answer",
+    "typeYourAnswer": "Type your answer",
+    "dontKnow": "Don't know",
+    "correctAnswer": "Correct answer",
+    "backToLesson": "Back to lesson",
+    "finishedQuiz": "Finished quiz",
+    "modulesTitle": {
+      "alphabet": "Alphabet",
+      "daily": "Daily words"
+    },
+    "modulesDesc": {
+      "alphabet": "Alphabet Desc",
+      "daily": "Daily words Desc"
+    },
+    "lessonsTitle": {
+      "ABCDETitle": "A, B, C, D, E Sign",
+      "FGHIJTitle": "F, G, H, I, J Sign",
+      "breakfast": "Breakfast Sign"
+    },
+    "lessonsDesc": {
+      "ABCDETitle": "A, B, C, D, E Sign Desc",
+      "FGHIJTitle": "F, G, H, I, J Sign Desc",
+      "breakfast": "Breakfast Sign Desc"
+    },
+    "searchPlaceholder": "Tìm kiếm",
+    "finishedLesson": "Đã hoàn thành bài học!",
+    "finishLesson": "Kết thúc bài học",
+    "nextLesson": "Bài học tiếp theo"
+  },
+  "learn": {
+    "finishedLesson": "Đã hoàn thành bài học!",
+    "finishLesson": "Kết thúc bài học",
+    "nextLesson": "Bài học tiếp theo"
+  },
+  "courseDashboard": {
+    "level": "Cấp độ",
+    "toLevel": "Tới cấp độ {level}",
+    "score": "Điểm của tôi",
+    "progress": "Tiến độ {progress}%",
+    "completedLessons": "{countString} bài học đã hoàn thành",
+    "completedModules": "{countString} module đã hoàn thành",
+    "accomplishments": "Các thành tựu của tôi",
+    "learnedWords": "Học từ mới",
+    "fullyLearnedWords": "{count} từ đã học",
+    "startedWords": "{count} từ đã bắt đầu học",
+    "percentageFullyLearnedWords": "{percentage}%",
+    "watchedWords": "Từ đã xem",
+    "newVideosWatched": "{count} video mới đã xem",
+    "usedWords": "Dùng từ đã học",
+    "completedConversations": "{count} đối thoại đã hoàn thành",
+    "numberReplayed": "{count} lặp lại",
+    "myActivity": "Hoạt động của tôi",
+    "videosWatchedLast7Days": "Videos đã xem (7 ngày qua)",
+    "wordsLearnedLast7Days": "Từ đã học (7 ngày qua)",
+    "wordsWatchedLast7Days": "Từ đã xem (7 ngày qua)",
+    "wordsReplayedLast7Days": "Từ đã lặp lại (7 ngày qua)",
+    "wordsConversationLast7Days": "Đối thoại đã hoàn thành (7 ngày qua)",
+    "startLearning": "Bắt đầu",
+    "continue": "Tiếp tục: Giải mã bảng chữ cái",
+    "learnNewSign": "Học từ mới"
   }
 }

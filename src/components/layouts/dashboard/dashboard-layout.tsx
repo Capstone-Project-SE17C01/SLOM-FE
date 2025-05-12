@@ -24,6 +24,7 @@ export default function DashboardLayout({
     { name: "about", href: "/about" },
     { name: "contact", href: "/contact" },
     { name: "message", href: "/chat" },
+    { name: "course", href: "/course-dashboard" },
   ];
 
   return (

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { VideoIcon, Users, BookOpen, Globe } from "lucide-react";
 import PricingPlans from "@/components/layouts/dashboard/pricing-plans";
 import { useTranslations } from 'next-intl';
+import Image from "next/image";
 
 export default function TrangChuPage() {
   const { isDarkMode } = useTheme();
@@ -39,29 +40,36 @@ export default function TrangChuPage() {
       <div className="p-4">
         {/* Hero Section */}
         <section className={cn(
-          "py-16 px-4 sm:px-6 lg:px-8 text-center",
-          isDarkMode ? "bg-black" : "bg-gray-50"
+          "relative py-16 px-4 sm:px-6 lg:px-8 text-center overflow-hidden rounded-xl"
         )}>
-          <div className="max-w-3xl mx-auto">
-            <h1 className="text-4xl font-extrabold sm:text-5xl">
-              {t('hero.title')} <span className="text-black dark:text-white bg-yellow-300 px-2">SLOM</span>
+          <Image
+            src="/images/banner.png"
+            alt="Banner"
+            layout="fill"
+            objectFit="cover"
+            className="absolute inset-0 z-0"
+          />
+          <div className={cn(
+            "absolute inset-0 z-0",
+            isDarkMode ? "bg-black/70" : "bg-black/50"
+          )}></div>
+          <div className="relative z-10 max-w-3xl mx-auto">
+            <h1 className="text-4xl font-extrabold sm:text-5xl text-white">
+              WE ARE <span className="text-primary">SLOM</span>
             </h1>
             <p className={cn(
               "mt-6 text-xl",
-              isDarkMode ? "text-gray-300" : "text-gray-500"
+              isDarkMode ? "text-gray-200" : "text-gray-100"
             )}>
-              {t('hero.subtitle')}
+              SLOM is an inclusive virtual meeting platform designed for the
+              Deaf and hard-of-hearing community. Combining real-time video
+              conferencing with integrated ASL-based learning modules, SLOM
+              makes communication and education more accessible,
+              empowering users to connect, collaborate, and grow in a fully
+              sign-language-friendly environment.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <Button size="lg" className="bg-black hover:bg-gray-800 text-white">
-                {t('hero.cta')}
-              </Button>
-              <Button size="lg" variant="outline" className={cn(
-                isDarkMode ? "bg-gray-800 text-white hover:bg-gray-700 border-gray-700" : 
-                "bg-white text-gray-900 hover:bg-gray-100 border-gray-300"
-              )}>
-                {t('hero.demo')}
-              </Button>
+              {/* Buttons can be added here if needed */}
             </div>
           </div>
         </section>
@@ -201,7 +209,7 @@ export default function TrangChuPage() {
             <p className="text-xl text-muted-foreground mb-8">
               {t('cta.description')}
             </p>
-            <Button size="lg" className="bg-black hover:bg-gray-800 text-white">
+            <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
               {t('cta.button')}
             </Button>
           </div>

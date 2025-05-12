@@ -10,7 +10,12 @@
     "features": "Features",
     "about": "About",
     "contact": "Contact",
-    "message": "Message"
+    "message": "Message",
+    "course": "Course",
+    "listCourse": "List Course",
+    "scenario": "Scenario",
+    "video": "Video",
+    "conversation": "Conversation"
   },
   "language": {
     "en": "English",
@@ -385,5 +390,103 @@
       "display": "Display",
       "savePreferences": "Save Preferences"
     }
+  },
+  "practicePage": {
+    "tabLearn": "Learn",
+    "tabPractice": "Practice",
+    "reviewed": "Reviewed",
+    "ready": "Ready to review",
+    "difficultTooltip": "Sentences you struggle with will be marked as 'Difficult'. Practice these to strengthen your memory and remove them from the Difficult Words list. You can also manually mark/unmark difficult words using the lightning icon in lessons.",
+    "readyTooltip": "After you learn a new word, our smart spaced repetition system will calculate when you should review it and remind you at the right time. If you answer subsequent quizzes correctly, the interval will increase before you see that word again.",
+    "practiceBtnTooltip": "Review learned words with various test types including typing.",
+    "speedBtnTooltip": "Quickly review learned words by answering timed multiple-choice questions.",
+    "statLabelLearned": "learned lessons",
+    "statLabelReviewed": "reviewed lessons",
+    "practice": "Review",
+    "speedReview": "Speed Review",
+    "learnedSituations": "Your learned lessons",
+    "reviewedSituations": "Your reviewed lessons",
+    "countSituations": "{count} lessons",
+    "searchPlaceholder": "Search",
+    "empty": "After you complete situations, they will appear here.",
+    "yourLearnedLessons": "Your learned lessons",
+    "yourLearnedLessonsDesc": "Lessons you have completed"
+  },
+  "immersePage": {
+    "headerTitle": "Find videos on topics you love (#music), or situations you want to prepare for (#travel)",
+    "headerDesc": "Use 'Ready to Watch' for videos using words you already know",
+    "tabAll": "All",
+    "tabReady": "Ready to Watch (3)",
+    "tabWatched": "Watched",
+    "tabPractice": "Need Practice",
+    "popular": "Popular",
+    "tag": "Less than 50% known words",
+    "btn": "Learn new words",
+    "searchPlaceholder": "Search",
+    "card1": "Breakup on my birthday?",
+    "card2": "Jangjorim Mushrooms",
+    "card3": "A mysterious trip",
+    "card4": "Definitely yes!"
+  },
+  "learnPage": {
+    "tabLearn": "Learn",
+    "tabPractice": "Practice",
+    "studiedSituations": "Studied situations",
+    "continueLearning": "Continue learning",
+    "continue": "Continue",
+    "emptyModule": "No modules available",
+    "checkAnswer": "Check answer",
+    "typeYourAnswer": "Type your answer",
+    "dontKnow": "Don't know",
+    "correctAnswer": "Correct answer",
+    "backToLesson": "Back to lesson",
+    "finishedQuiz": "Finished quiz",
+    "modulesTitle": {
+      "alphabet": "Alphabet",
+      "daily": "Daily words"
+    },
+    "modulesDesc": {
+      "alphabet": "Alphabet Desc",
+      "daily": "Daily words Desc"
+    },
+    "lessonsTitle": {
+      "ABCDETitle": "A, B, C, D, E Sign",
+      "FGHIJTitle": "F, G, H, I, J Sign",
+      "breakfast": "Breakfast Sign"
+    },
+    "lessonsDesc": {
+      "ABCDETitle": "A, B, C, D, E Sign Desc",
+      "FGHIJTitle": "F, G, H, I, J Sign Desc",
+      "breakfast": "Breakfast Sign Desc"
+    },
+    "searchPlaceholder": "Search",
+    "finishedLesson": "Lesson completed!",
+    "finishLesson": "Finish lesson",
+    "nextLesson": "Next lesson"
+  },
+  "courseDashboard": {
+    "level": "Level",
+    "progress": "Progress {progress}%",
+    "completedLessons": "{countString} lessons completed",
+    "completedModules": "{countString} modules completed",
+    "accomplishments": "My Accomplishments",
+    "learnedWords": "Learned words",
+    "fullyLearnedWords": "{count} Fully Learned words",
+    "startedWords": "{count} Started learning",
+    "percentageFullyLearnedWords": "{percentage}%",
+    "watchedWords": "Watched my words",
+    "newVideosWatched": "{count} New videos watched",
+    "usedWords": "Used words",
+    "completedConversations": "{count} New conversations completed",
+    "numberReplayed": "{count} Replayed",
+    "myActivity": "My Activities",
+    "videosWatchedLast7Days": "Videos watched (last 7 days)",
+    "wordsLearnedLast7Days": "Words learned (last 7 days)",
+    "wordsWatchedLast7Days": "Words watched (last 7 days)",
+    "wordsReplayedLast7Days": "Words replayed (last 7 days)",
+    "wordsConversationLast7Days": "Words conversation (last 7 days)",
+    "startLearning": "Start learning",
+    "continue": "Continue: Decode the alphabet",
+    "learnNewSign": "Learn new sign"
   }
 }
