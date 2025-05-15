@@ -9,15 +9,16 @@ interface ThemeSwitcherProps {
   toggleDarkMode?: () => void;
 }
 
-export default function ThemeSwitcher({ isDarkMode, toggleDarkMode }: ThemeSwitcherProps) {
-  useEffect(() => {
-
-  }, []);
+export default function ThemeSwitcher({
+  isDarkMode,
+  toggleDarkMode,
+}: ThemeSwitcherProps) {
+  useEffect(() => {}, []);
   return (
-    <button 
-      onClick={toggleDarkMode} 
+    <button
+      onClick={toggleDarkMode}
       className={cn(
-        "p-2 rounded-full mr-2",
+        "p-2 rounded-full",
         isDarkMode ? "hover:bg-white/10" : "hover:bg-black/5"
       )}
     >

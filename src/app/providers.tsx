@@ -18,7 +18,7 @@ export function Providers({ children, locale, messages }: ProvidersProps) {
     <React.Suspense>
       <AppProgressBar
         shallowRouting
-        color="#75A815"
+        color="#6947A8"
         height="4px"
         options={{ showSpinner: false }}
       />
