@@ -13,18 +13,18 @@ export default function CourseSidebar({ navItems }: CourseSidebarProps) {
   const pathname = usePathname();
   const { courseTitle } = useCourse();
   return (
-    <aside className="bg-white w-64 border-r border-gray-200 flex flex-col pt-8 min-h-screen">
+    <aside className="bg-white w-64 border-r border-gray-200 flex flex-col pt-8 min-h-screen max-md:hidden">
       {/* Logo */}
       <div className="flex flex-col items-center mb-8 select-none">
         <Link
           href="/list-course"
-          className="px-4 text-yellow-400 font-extrabold text-3xl leading-none tracking-tight transition-transform duration-200 hover:scale-105 cursor-pointer select-none"
+          className="px-4 text-primary font-extrabold text-3xl leading-none tracking-tight transition-transform duration-200 hover:scale-105 cursor-pointer select-none"
           style={{ lineHeight: 1 }}
         >
           {courseTitle}
         </Link>
       </div>
-      <nav className="flex flex-col gap-2 px-4">
+      <nav className="flex flex-col gap-2">
         {navItems.map((item) => (
           <Link
             key={item.name}
@@ -32,7 +32,7 @@ export default function CourseSidebar({ navItems }: CourseSidebarProps) {
             className={`flex items-center gap-3 px-4 py-3 rounded-r-2xl font-bold text-lg transition-all duration-150
               ${
                 item.href === pathname
-                  ? "bg-gray-100 text-gray-900 border-r-8 border-yellow-400 shadow-sm"
+                  ? "bg-gray-100 text-gray-900 border-r-8 border-primary shadow-sm"
                   : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
               }
             `}

@@ -1,4 +1,7 @@
 import React, { useRef, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { FaCircle, FaStop } from "react-icons/fa";
+import { ButtonCourse } from "./buttonCourse";
 
 interface QuizInputProps {
   value: string;
@@ -84,12 +87,14 @@ export default function QuizInput({
           />
         )}
         <button
-          className={`mt-2 px-4 py-2 rounded font-bold ${
-            isRecording ? "bg-red-500 text-white" : "bg-green-500 text-white"
-          }`}
+          className={`mt-2 p-2 rounded font-bold flex items-center gap-2 rounded-full border border-gray-300`}
           onClick={isRecording ? handleStopRecording : handleStartRecording}
         >
-          {isRecording ? "Đang quay..." : "Ghi hình"}
+          {isRecording ? (
+            <FaStop className="text-red-500" />
+          ) : (
+            <FaCircle className="text-red-500" />
+          )}
         </button>
         {/* Hiện đáp án đúng dưới video nếu là dạng Sign */}
         {showSignAnswer && (
@@ -113,7 +118,7 @@ export default function QuizInput({
       {/* Chỉ render input/nút check nếu không phải dạng Sign */}
       {!showSignAnswer && (
         <>
-          <input
+          <Input
             type="text"
             value={value}
             onChange={onChange}
@@ -121,19 +126,16 @@ export default function QuizInput({
             placeholder="Nhập đáp án..."
             disabled={disabled}
           />
-          <button
-            className={`hover:bg-yellow-300 transition text-black font-bold px-6 py-2 rounded-lg shadow w-full
-              ${
-                redEffect
-                  ? "bg-red-500 text-white border-red-500 shake"
-                  : "bg-yellow-400"
-              }
-            `}
+          <ButtonCourse
+            variant="primary"
+            className={`w-full px-6 py-2 rounded-lg shadow font-bold text-base ${
+              redEffect ? "bg-red-500 text-white border-red-500 shake" : ""
+            }`}
             onClick={onCheck}
             disabled={disabled}
           >
             {checkLabel}
-          </button>
+          </ButtonCourse>
         </>
       )}
     </div>

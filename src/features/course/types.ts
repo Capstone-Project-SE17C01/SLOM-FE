@@ -44,18 +44,16 @@ export interface Lesson {
   orderNumber: number;
   createdAt: string; // ISO date string
   module?: Module | null;
-  learnWords?: LearnWord[] | null;
-  userLessonProgresses?: UserLessonProgress[] | null; // list user lesson progress
-  userQuizProgresses?: UserQuizProgress[] | null; // list user quiz progress
+  wordList?: Word[] | null;
+  quizList?: Quiz[] | null;
 }
 
 //LearnWord
-export interface LearnWord {
+export interface Word {
   id: string; // Guid as string
   lessonId: string; // Guid as string
-  word: string;
-  meaning: string;
-  videoUrl: string[] | null;
+  text: string;
+  videoSrc: string;
 }
 
 export interface Quiz {
@@ -63,13 +61,19 @@ export interface Quiz {
   lessonId: string; // Guid as string
   question: string;
   videoUrl?: string; // 1 question 1 video
-  options?: string;
+  quizOptions?: QuizOption[];
   correctAnswer: string;
   explanation?: string;
   maxScore?: number;
   createdAt: string; // ISO date string
   lesson?: Lesson | null;
   attempts?: QuizAttempt[] | null;
+}
+
+export interface QuizOption {
+  id: string; // Guid as string
+  text: string;
+  isCorrect: boolean;
 }
 
 export interface UserLessonProgress {
@@ -151,25 +155,21 @@ export interface Language {
   courses: Course[];
 }
 
-export interface CourseDashboardViewModel {
-  numberLearnedLessons: number;
-  currentModule: Module;
-  numberCompletedModules: number;
+export interface SummaryResponse {
+  totalLessonsCompleted: number;
   totalLessons: number;
+  totalModulesCompleted: number;
   totalModules: number;
-  numberMasteredWords: number; // số từ đã mastered
-  numberLearnedWords: number; // số từ đã học
-  numberWatchedWords: number; // số từ đã xem
-  numberReWatchWords: number; // số từ đã xem lại
-  numberConversationWords: number; // số từ đã làm conversation
-  numberReplayedWords: number; // số từ đã làm replay
-  activities: Activities;
-  nextLesson: Lesson;
+  totalCourseCompleted: number;
+  totalCourse: number;
+  totalWordsLearned: number;
+  totalWords: number;
+  activeLesson: Lesson | null;
+  activities: Activities | null;
 }
 
 export interface Activities {
-  recentLearnedWords: number; // last 7 days
-  recentWatchedWords: number; // last 7 days
-  recentReplayedWords: number; // last 7 days
-  recentConversationWords: number; // last 7 days
+  recentLessonsCompleted: number; // last 7 days
+  recentModulesCompleted: number; // last 7 days
+  recentCourseCompleted: number; // last 7 days
 }

@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
-import Image from "next/image";
 import { useCourse } from "@/contexts/CourseContext";
 import { useRouter } from "next/navigation";
+import CourseImage from "./courseImage";
 
 export interface CourseCardProps {
   img: string;
@@ -23,12 +23,12 @@ export default function CourseCard({
   const router = useRouter();
 
   return (
-    <div className="flex items-center bg-white border border-gray-200 rounded-3xl shadow-sm px-6 py-4 min-h-[120px] transition hover:shadow-md">
+    <div className="border-b-4 border-primary hover:bg-primary/10 flex items-center bg-white border border-gray-200 rounded-3xl shadow-sm px-6 py-4 min-h-[120px] transition hover:shadow-md">
       <div className="relative w-28 h-28 mr-6 flex-shrink-0">
-        <Image
-          src={img}
-          alt={title}
-          fill
+        <CourseImage
+          img={img}
+          title={title}
+          badge={badge}
           className="object-cover rounded-2xl"
         />
         {badge && (
@@ -51,7 +51,7 @@ export default function CourseCard({
               setCourseTitle(title);
               router.push("/learn");
             }}
-            className="font-bold text-[#1a2a32] hover:text-yellow-500 transition text-base"
+            className="font-bold text-[#1a2a32] hover:text-primary transition text-base"
           >
             {btn} <span className="ml-1">›</span>
           </button>

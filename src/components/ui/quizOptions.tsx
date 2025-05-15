@@ -1,14 +1,11 @@
 import React from "react";
+import { QuizOption } from "@/features/course/types";
 
-interface Option {
-  answer: string;
-  isCorrect: string;
-}
 interface QuizOptionsProps {
-  options: Record<string, Option>;
+  options: QuizOption[];
   selectedOption: string | null;
   isCorrect: boolean | null;
-  onSelect: (answer: string) => void;
+  onSelect: (optionId: string, isCorrect: boolean) => void;
   disabled: boolean;
 }
 
@@ -26,7 +23,7 @@ export default function QuizOptions({
           key={key}
           className={`bg-white border border-gray-300 rounded-xl px-5 py-3 font-semibold text-[#0a2233] shadow hover:bg-gray-50 transition
             ${
-              selectedOption === opt.answer
+              selectedOption === opt.id
                 ? isCorrect
                   ? "border-green-500"
                   : "border-red-500"
@@ -34,9 +31,9 @@ export default function QuizOptions({
             }
           `}
           disabled={disabled}
-          onClick={() => onSelect(opt.answer)}
+          onClick={() => onSelect(opt.id, opt.isCorrect)}
         >
-          {opt.answer}
+          {opt.text}
         </button>
       ))}
     </div>

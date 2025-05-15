@@ -1,0 +1,15 @@
+{
+  "result": {
+    "moduleId": "1",
+    "completed_at": "2021-01-01",
+    "userId": "1",
+    "module": {
+      "id": "1",
+      "courseId": "1",
+      "title": "alphabet",
+      "description": "desc",
+      "orderNumber": 1,
+      "createdAt": "2021-01-01"
+    }
+  }
+}
