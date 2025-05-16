@@ -9,8 +9,8 @@ import { MessageBox } from "@/features/message/components/user-message-box";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { initSignalRConnection } from "@/features/message/signalR";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 function Page() {
   const t = useTranslations("unAuthenMessage");
@@ -98,13 +98,13 @@ function Page() {
               >
                 <div className="w-full h-full flex items-center space-x-4">
                   {/* User Profile Image */}
-                  <Image
-                    src={user.image}
-                    alt="User Profile"
-                    className="h-[90%] rounded-full"
-                    width={40}
-                    height={40}
-                  />
+                  {/* <Avatar>
+                    <AvatarImage
+                      src={user.image}
+                      alt={`${user.name}`}
+                    />
+                    <AvatarFallback>{user.name}</AvatarFallback>
+                  </Avatar> */}
 
                   {/* User Name and Last Message */}
                   <div className="">
@@ -135,13 +135,13 @@ function Page() {
         <div className="bg-white rounded-xl flex flex-col shadow-md flex-1 border border-1">
           <div className="h-[50px] rounded-t-xl border-b px-2 flex items-center">
             <Button className="h-[90%] hover:bg-[#f5f5f5] bg-white shadow-none text-black w-auto p-0 px-2">
-              <Image
-                src={selectedUser?.image}
-                className="h-[80%] rounded-full"
-                alt="Profile"
-                width={32}
-                height={32}
-              />
+              {/* <Avatar>
+                <AvatarImage
+                  src={selectedUser.image}
+                  alt={`${selectedUser.name}`}
+                />
+                <AvatarFallback>{selectedUser.name}</AvatarFallback>
+              </Avatar> */}
               <div className=" font-bold text-lg">{selectedUser?.name}</div>
             </Button>
           </div>
