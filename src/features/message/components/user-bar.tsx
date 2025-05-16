@@ -6,7 +6,7 @@ import type {
   SearchUserMessageProps
 } from "../types";
 import { useEffect, useState, useCallback } from "react";
-import Image from "next/image";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function SearchUserMessage(searchUserMessageProps: Readonly<SearchUserMessageProps>) {
     const [getUserById] = useGetUserByIdMutation();
@@ -55,7 +55,13 @@ export function SearchUserMessage(searchUserMessageProps: Readonly<SearchUserMes
                 className="hover:bg-[#f5f5f5] bg-white text-black w-full h-[8vh] shadow-none"
                 >
                 <div className="w-full h-full flex items-center space-x-4">
-                    <Image src={user.image} alt="User Profile" width={40} height={40} className="h-[90%] rounded-full" />
+                    <Avatar>
+                        <AvatarImage
+                            src={user.image}
+                            alt={`${user.name}`}
+                        />
+                        <AvatarFallback>{user.name}</AvatarFallback>
+                    </Avatar>
 
                     <div className="flex-1">
                         <div className="text-lg  text-gray-900 text-left font-bold">{user.name}</div>
