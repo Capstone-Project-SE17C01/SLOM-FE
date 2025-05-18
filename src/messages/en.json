@@ -1,5 +1,4 @@
-{
-  "header": {
+{  "header": {
     "search": "Search",
     "notifications": "Notifications",
     "profile": "Profile",
@@ -10,7 +9,8 @@
     "features": "Features",
     "about": "About",
     "contact": "Contact",
-    "message": "Message"
+    "message": "Message",
+    "meeting": "Meeting Room"
   },
   "language": {
     "en": "English",

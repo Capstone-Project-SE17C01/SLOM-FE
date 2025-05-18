@@ -15,11 +15,10 @@ export default function DashboardLayout({
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { isDarkMode, toggleDarkMode } = useTheme();
-
   const toggleMenu = () => setMenuOpen(!menuOpen);
-
   const navItems = [
     { name: "home", href: "/trang-chu" },
+    { name: "meeting", href: "/meeting-room" },
     { name: "features", href: "/features" },
     { name: "about", href: "/about" },
     { name: "contact", href: "/contact" },

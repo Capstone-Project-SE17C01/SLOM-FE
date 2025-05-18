@@ -1,5 +1,4 @@
-{
-  "header": {
+{  "header": {
     "search": "Tìm kiếm",
     "notifications": "Thông báo",
     "profile": "Hồ sơ",
@@ -10,7 +9,8 @@
     "features": "Tính năng",
     "about": "Giới thiệu",
     "contact": "Liên hệ",
-    "message": "Tin nhắn"
+    "message": "Tin nhắn",
+    "meeting": "Phòng họp"
   },
   "language": {
     "en": "Tiếng Anh",

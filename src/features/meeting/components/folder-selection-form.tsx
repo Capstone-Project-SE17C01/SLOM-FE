@@ -1,14 +1,5 @@
 import React from 'react';
-
-interface FolderSelectionModalProps {
-  show: boolean;
-  folderName: string;
-  customFolderName: string;
-  setCustomFolderName: (name: string) => void;
-  onSelect: (folder: string) => void;
-  onCustomSubmit: () => void;
-  onClose: () => void;
-}
+import { FolderSelectionModalProps } from '../types';
 
 export const FolderSelectionModal: React.FC<FolderSelectionModalProps> = ({
   show,
