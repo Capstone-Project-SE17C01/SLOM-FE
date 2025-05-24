@@ -22,17 +22,17 @@
     "vn": "Tiếng Việt"
   },
   "pricing": {
-    "title": "Gói Dịch Vụ",
+    "title": "Gói dịch vụ",
     "description": "Chọn gói phù hợp nhất với nhu cầu học hoặc dạy ngôn ngữ ký hiệu của bạn",
-    "note": "Tất cả các gói đều bao gồm dùng thử miễn phí 14 ngày. Không cần thẻ tín dụng để bắt đầu.",
-    "contact": "Cần giải pháp tùy chỉnh cho tổ chức của bạn?",
+    "note": "Tất cả các gói đều bao gồm 14 ngày dùng thử miễn phí. Không cần thẻ tín dụng để bắt đầu.",
+    "contact": "Cần giải pháp riêng cho tổ chức của bạn?",
     "contactLink": "Liên hệ chúng tôi",
     "mostPopular": "Phổ biến nhất",
     "annual": "Hàng năm",
     "month": "/tháng",
     "year": "/năm",
     "monthly": "Hàng tháng",
-    "buttonText": "Bắt Đầu",
+    "buttonText": "Bắt đầu",
     "save": "Tiết kiệm",
     "individualLearner": {
       "title": "Học viên cá nhân",
@@ -224,11 +224,20 @@
     "paymentCancelled": "Đã hủy thanh toán",
     "processingTitle": "Đang xử lý thanh toán...",
     "processing": "Đang xử lý thanh toán...",
-    "paymentSuccessMsg": "Cảm ơn bạn đã thanh toán. ",
+    "paymentSuccessMsg": "Cảm ơn bạn đã thanh toán.",
     "paymentFailedMsg": "Xử lý thanh toán thất bại. Vui lòng thử lại hoặc liên hệ hỗ trợ.",
     "paymentCancelledMsg": "Thanh toán đã bị hủy.",
     "redirectIn": "Bạn sẽ được chuyển về trang chủ sau {seconds} giây.",
     "goHome": "Về trang chủ"
+  },
+  "successMessages": {
+    "authMessage": {
+      "successResendConfirmationCode": "Confirmation code has been resent",
+      "successSentConfirmationCode": "Confirmation code has been sent to your email",
+      "successResetPassword": "Password reset successful",
+      "successRegisterationConfirm": "Registration confirmed successfully!",
+      "successLogout": "Logged out successfully"
+    }
   },
   "errorMessages": {
     "errorDashboard": {
@@ -326,15 +335,6 @@
     "confirming": "Đang xác nhận...",
     "confirmButton": "Xác nhận đăng ký",
     "backToLogin": "Quay lại đăng nhập"
-  },
-  "successMessages": {
-    "authMessage": {
-      "successResendConfirmationCode": "Confirmation code has been resent",
-      "successSentConfirmationCode": "Confirmation code has been sent to your email",
-      "successResetPassword": "Password reset successful",
-      "successRegisterationConfirm": "Registration confirmed successfully!",
-      "successLogout": "Logged out successfully"
-    }
   },
   "profile": {
     "title": "Hồ sơ của tôi",
@@ -437,35 +437,35 @@
     "studiedSituations": "Các tình huống đã học",
     "continueLearning": "Tiếp tục học",
     "continue": "Tiếp tục",
-    "emptyModule": "No modules available",
-    "checkAnswer": "Check answer",
-    "typeYourAnswer": "Type your answer",
-    "dontKnow": "Don't know",
-    "correctAnswer": "Correct answer",
-    "backToLesson": "Back to lesson",
-    "finishedQuiz": "Finished quiz",
-    "modulesTitle": {
-      "alphabet": "Alphabet",
-      "daily": "Daily words"
-    },
-    "modulesDesc": {
-      "alphabet": "Alphabet Desc",
-      "daily": "Daily words Desc"
-    },
-    "lessonsTitle": {
-      "ABCDETitle": "A, B, C, D, E Sign",
-      "FGHIJTitle": "F, G, H, I, J Sign",
-      "breakfast": "Breakfast Sign"
-    },
-    "lessonsDesc": {
-      "ABCDETitle": "A, B, C, D, E Sign Desc",
-      "FGHIJTitle": "F, G, H, I, J Sign Desc",
-      "breakfast": "Breakfast Sign Desc"
-    },
+    "emptyModule": "Không có module nào",
+    "checkAnswer": "Kiểm tra đáp án",
+    "typeYourAnswer": "Nhập câu trả lời",
+    "dontKnow": "Không biết",
+    "correctAnswer": "Đáp án đúng",
+    "backToLesson": "Quay lại bài học",
+    "finishedQuiz": "Hoàn thành quiz",
     "searchPlaceholder": "Tìm kiếm",
     "finishedLesson": "Đã hoàn thành bài học!",
     "finishLesson": "Kết thúc bài học",
-    "nextLesson": "Bài học tiếp theo"
+    "nextLesson": "Bài học tiếp theo",
+    "modulesTitle": {
+      "alphabet": "Bảng chữ cái",
+      "daily": "Từ vựng hàng ngày"
+    },
+    "modulesDesc": {
+      "alphabet": "Mô tả bảng chữ cái",
+      "daily": "Mô tả từ vựng hàng ngày"
+    },
+    "lessonsTitle": {
+      "ABCDETitle": "Ký hiệu A, B, C, D, E",
+      "FGHIJTitle": "Ký hiệu F, G, H, I, J",
+      "breakfast": "Ký hiệu bữa sáng"
+    },
+    "lessonsDesc": {
+      "ABCDETitle": "Mô tả ký hiệu A, B, C, D, E",
+      "FGHIJTitle": "Mô tả ký hiệu F, G, H, I, J",
+      "breakfast": "Mô tả ký hiệu bữa sáng"
+    }
   },
   "learn": {
     "finishedLesson": "Đã hoàn thành bài học!",
@@ -473,30 +473,24 @@
     "nextLesson": "Bài học tiếp theo"
   },
   "courseDashboard": {
-    "level": "Cấp độ",
-    "toLevel": "Tới cấp độ {level}",
-    "score": "Điểm của tôi",
-    "progress": "Tiến độ {progress}%",
-    "completedLessons": "{countString} bài học đã hoàn thành",
-    "completedModules": "{countString} module đã hoàn thành",
-    "accomplishments": "Các thành tựu của tôi",
-    "learnedWords": "Học từ mới",
-    "fullyLearnedWords": "{count} từ đã học",
-    "startedWords": "{count} từ đã bắt đầu học",
-    "percentageFullyLearnedWords": "{percentage}%",
-    "watchedWords": "Từ đã xem",
-    "newVideosWatched": "{count} video mới đã xem",
-    "usedWords": "Dùng từ đã học",
-    "completedConversations": "{count} đối thoại đã hoàn thành",
-    "numberReplayed": "{count} lặp lại",
+    "myAccomplishments": "Thành tựu của tôi",
     "myActivity": "Hoạt động của tôi",
-    "videosWatchedLast7Days": "Videos đã xem (7 ngày qua)",
-    "wordsLearnedLast7Days": "Từ đã học (7 ngày qua)",
-    "wordsWatchedLast7Days": "Từ đã xem (7 ngày qua)",
-    "wordsReplayedLast7Days": "Từ đã lặp lại (7 ngày qua)",
-    "wordsConversationLast7Days": "Đối thoại đã hoàn thành (7 ngày qua)",
-    "startLearning": "Bắt đầu",
+    "startLearning": "Bắt đầu học",
     "continue": "Tiếp tục: Giải mã bảng chữ cái",
-    "learnNewSign": "Học từ mới"
+    "learnNewSign": "Học ký hiệu mới",
+    "percentage": "{percentage}%",
+    "progress": "Tiến độ {progress}%",
+    "lessons": "Bài học",
+    "modules": "Module",
+    "course": "Khóa học",
+    "lessonsCompleted": "{count} bài học đã hoàn thành",
+    "modulesCompleted": "{count} module đã hoàn thành",
+    "courseCompleted": "{count} khóa học đã hoàn thành",
+    "totalLessons": "{count} bài học trong khóa",
+    "totalModules": "{count} module trong khóa",
+    "totalCourse": "{count} khóa học trong hệ thống",
+    "lessonsCompletedLast7Days": "Bài học đã hoàn thành (7 ngày qua)",
+    "modulesCompletedLast7Days": "Module đã hoàn thành (7 ngày qua)",
+    "courseCompletedLast7Days": "Khóa học đã hoàn thành (7 ngày qua)"
   }
 }

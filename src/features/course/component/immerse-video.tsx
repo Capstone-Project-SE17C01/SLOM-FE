@@ -24,48 +24,48 @@ export default function ImmerseVideo() {
       label: t("popular"),
       highlight: true,
       tag: t("tag"),
-      tagColor: "bg-pink-200 text-[#b94a4a]",
+      tagColor: "bg-primary text-white",
       border: "border-4 border-[#2c3e50]",
-      img: "/images/video1.jpg",
+      img: "/images/vn-flag.png",
       title: t("card1"),
     },
     {
       id: 2,
       tag: t("tag"),
-      tagColor: "bg-pink-200 text-[#b94a4a]",
+      tagColor: "bg-primary text-white",
       border: "border border-white",
-      img: "/images/video2.jpg",
+      img: "/images/vn-flag.png",
       title: t("card2"),
     },
     {
       id: 3,
       tag: t("tag"),
-      tagColor: "bg-pink-200 text-[#b94a4a]",
+      tagColor: "bg-primary text-white",
       border: "border border-white",
-      img: "/images/video3.jpg",
+      img: "/images/vn-flag.png",
       title: t("card3"),
     },
     {
       id: 4,
       tag: t("tag"),
-      tagColor: "bg-pink-200 text-[#b94a4a]",
+      tagColor: "bg-primary text-white",
       border: "border border-white",
-      img: "/images/video4.jpg",
+      img: "/images/vn-flag.png",
       title: t("card4"),
     },
   ];
 
   function VideoHeader() {
     return (
-      <div className="bg-[#fff8e1] rounded-xl flex items-center gap-4 px-6 py-5 mb-6">
-        <div className="bg-[#ffe082] rounded-lg p-3 flex items-center justify-center">
-          <FaPlay className="text-yellow-500 text-3xl" />
+      <div className="bg-primary/10 rounded-xl flex items-center gap-4 px-6 py-5 mb-6">
+        <div className="bg-primary/10 rounded-lg p-3 flex items-center justify-center">
+          <FaPlay className="text-primary text-3xl" />
         </div>
         <div>
-          <div className="font-bold text-2xl text-[#0a2233] leading-snug">
+          <div className="font-bold text-2xl text-primary leading-snug">
             {t("headerTitle")}
           </div>
-          <div className="text-[#0a2233] text-base mt-1">{t("headerDesc")}</div>
+          <div className="text-primary text-base mt-1">{t("headerDesc")}</div>
         </div>
       </div>
     );
@@ -87,8 +87,8 @@ export default function ImmerseVideo() {
             className={`px-5 py-1.5 rounded-full font-semibold text-base border transition-all
               ${
                 active === i
-                  ? "border-yellow-400 text-[#0a2233] bg-white shadow"
-                  : "border-gray-200 text-[#0a2233] bg-gray-50 hover:border-yellow-300"
+                  ? "border-primary text-[#0a2233] bg-white shadow"
+                  : "border-gray-200 text-[#0a2233] bg-gray-50 hover:border-primary"
               }
             `}
           >
@@ -145,7 +145,7 @@ export default function ImmerseVideo() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t("searchPlaceholder")}
-            className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-300 bg-white text-base focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-300 bg-white text-base focus:outline-none focus:ring-2 focus:ring-primary"
           />
           <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
         </div>

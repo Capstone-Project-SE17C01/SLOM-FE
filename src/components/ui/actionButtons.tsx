@@ -10,7 +10,7 @@ export default function ActionButtons({
     <div className="flex flex-col items-center justify-center gap-4">
       <button
         onClick={onContinue}
-        className="w-full bg-yellow-400 hover:bg-yellow-300 transition text-black font-bold px-8 py-3 rounded-xl text-lg shadow"
+        className="w-full bg-primary hover:bg-primary/80 transition text-white font-bold py-3 rounded-xl text-lg shadow"
       >
         Tiếp tục
       </button>

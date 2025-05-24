@@ -1,5 +1,6 @@
 // src/components/ui/QuizAction.tsx
 import React from "react";
+import { ButtonCourse } from "@/components/ui/buttonCourse";
 
 export default function QuizAction({
   onDontKnow,
@@ -16,15 +17,18 @@ export default function QuizAction({
 }) {
   return (
     <div className="flex items-center justify-center flex-col">
-      <button
-        className="bg-gray-200 text-[#0a2233] font-bold px-6 py-3 rounded-xl text-sm text-base shadow"
+      <ButtonCourse
+        variant="default"
+        className="p-3 text-base shadow"
         onClick={onDontKnow}
         disabled={disabled}
       >
         {dontKnowLabel}
-      </button>
+      </ButtonCourse>
       {showExplanation && (
-        <div className="text-green-600 font-bold mt-4">{explanation}</div>
+        <div className="bg-gray-200 rounded-xl p-3 text-dark text-center font-bold mt-4">
+          {explanation}
+        </div>
       )}
     </div>
   );

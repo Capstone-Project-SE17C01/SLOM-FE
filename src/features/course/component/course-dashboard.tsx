@@ -4,15 +4,18 @@ import { useTranslations } from "next-intl";
 import { useGetCourseDashboardDataMutation } from "../api";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
-import { CourseDashboardViewModel } from "../types";
+import { SummaryResponse } from "../types";
 import { APIResponse } from "@/features/auth/types";
 import { useRouter } from "next/navigation";
 import ActivityCard from "@/components/ui/activityCard";
+import { ButtonCourse } from "@/components/ui/buttonCourse";
 
 export default function CourseDashboard() {
   const tCourseDashBoard = useTranslations("courseDashboard");
-  const [dashboardData, setDashboardData] =
-    useState<CourseDashboardViewModel | null>(null);
+  const tLearnPage = useTranslations("learnPage");
+  const [dashboardData, setDashboardData] = useState<SummaryResponse | null>(
+    null
+  );
 
   //get course id from userInfo
   const { userInfo } = useSelector((state: RootState) => state.auth);
@@ -24,40 +27,9 @@ export default function CourseDashboard() {
 
   useEffect(() => {
     //fake data
-    const fakeDashboardData: CourseDashboardViewModel = {
-      numberLearnedLessons: 10, //số bài học đã học
-      totalLessons: 20,
-      numberMasteredWords: 10, //số từ đã mastered
-      numberLearnedWords: 10, //số từ đã học
-      numberWatchedWords: 10, //số từ đã xem
-      numberReWatchWords: 10, //số từ đã xem lại
-      numberConversationWords: 10, //số từ đã làm conversation
-      numberReplayedWords: 10, //số từ đã làm replay
-      currentModule: {
-        id: "2",
-        courseId: "1",
-        title: "Module 2",
-        description: "Module 2 description",
-        orderNumber: 2,
-        createdAt: "2021-01-01",
-      },
-      numberCompletedModules: 1, //số bài học đã hoàn thành
-      totalModules: 5, //tổng số bài học
-      nextLesson: {
-        id: "3",
-        moduleId: "2",
-        title: "Lesson 3",
-        orderNumber: 3,
-        createdAt: "2021-01-01",
-      },
-      activities: {
-        recentLearnedWords: 10,
-        recentWatchedWords: 10,
-        recentReplayedWords: 10,
-        recentConversationWords: 10,
-      },
-    };
-    setDashboardData(fakeDashboardData);
+    fetch("/fakedata/summary_data.json")
+      .then((res) => res.json())
+      .then((data) => setDashboardData(data.result));
     //end fake data
     if (userInfo?.courseId && userInfo.id) {
       getCourseDashboardData({
@@ -65,149 +37,142 @@ export default function CourseDashboard() {
         userId: userInfo.id,
       })
         .unwrap()
-        .then((res: APIResponse<CourseDashboardViewModel>) => {
+        .then((res: APIResponse<SummaryResponse>) => {
           // Map từ Course sang ViewModel
           const dashboardData = res.result;
 
           if (dashboardData) {
-            setDashboardData({
-              numberLearnedLessons: dashboardData.numberLearnedLessons,
-              totalLessons: dashboardData.totalLessons,
-              numberMasteredWords: dashboardData.numberMasteredWords,
-              numberLearnedWords: dashboardData.numberLearnedWords,
-              numberWatchedWords: dashboardData.numberWatchedWords,
-              numberReWatchWords: dashboardData.numberReWatchWords,
-              numberConversationWords: dashboardData.numberConversationWords,
-              numberReplayedWords: dashboardData.numberReplayedWords,
-              currentModule: dashboardData.currentModule,
-              numberCompletedModules: dashboardData.numberCompletedModules,
-              totalModules: dashboardData.totalModules,
-              nextLesson: dashboardData.nextLesson,
-              activities: dashboardData.activities,
-            });
+            setDashboardData(dashboardData);
           }
         })
         .catch((err) => {
           console.log(err);
-          //set default value
-          setDashboardData(fakeDashboardData);
         });
     }
   }, [userInfo?.courseId, userInfo?.id, getCourseDashboardData]);
 
   return (
-    <div className="flex min-h-screen bg-[#FFFCF3]">
+    <div className="flex min-h-screen">
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         <main className="flex-1 overflow-y-auto p-8">
           <div className="max-w-4xl mx-auto">
             {/* ProgressBar */}
             <div className="mb-6">
-              <div className="text-lg font-semibold">
+              <div className="text-lg  font-semibold">
                 {/* current module title */}
-                {dashboardData?.currentModule?.title}
-                <span className="inline-block bg-yellow-400 text-white rounded-full px-2">
+                {dashboardData?.activeLesson?.title}
+                <span className="inline-block bg-[#6947A8] text-white rounded-full px-2">
                   {/*current lesson title */}
-                  {dashboardData?.currentModule?.orderNumber ?? "-"}
+                  {dashboardData?.activeLesson?.orderNumber ?? "-"}
                 </span>
               </div>
               <div className="text-sm text-gray-500 mb-1">
                 {tCourseDashBoard("progress", {
                   progress:
-                    ((dashboardData?.numberLearnedLessons ?? 0) /
+                    ((dashboardData?.totalLessonsCompleted ?? 0) /
                       (dashboardData?.totalLessons ?? 1)) *
                     100,
                 })}
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
                 <div
-                  className="bg-yellow-400 h-2.5 rounded-full"
+                  className="bg-[#6947A8] h-2.5 rounded-full"
                   style={{
                     width: `${
-                      ((dashboardData?.numberLearnedLessons ?? 0) /
+                      ((dashboardData?.totalLessonsCompleted ?? 0) /
                         (dashboardData?.totalLessons ?? 1)) *
                       100
                     }%`,
                   }}
                 ></div>
               </div>
-              <div className="flex justify-between text-sm font-medium">
+              {/* <div className="flex justify-between text-sm font-medium">
                 <span>
                   {tCourseDashBoard("completedLessons", {
-                    countString: `${dashboardData?.numberLearnedLessons}/${dashboardData?.totalLessons}`,
+                    countString: `${dashboardData?.totalLessonsCompleted}/${dashboardData?.totalLessons}`,
                   })}
                 </span>
-              </div>
+              </div> */}
             </div>
             {/* Accomplishments */}
-            <div className="bg-yellow-300 rounded-xl p-4 mb-6">
+            <div className="bg-primary rounded-xl p-4 mb-6">
               <div className="flex justify-between items-center">
-                <div className="font-bold text-lg">
-                  {tCourseDashBoard("accomplishments")}
+                <div className="font-bold text-lg text-white">
+                  {tCourseDashBoard("myAccomplishments")}
                 </div>
-                <div className="font-bold text-lg">
-                  {/*completed module / total modules*/}
-                  {tCourseDashBoard("completedModules", {
-                    countString: `${dashboardData?.numberCompletedModules}/${dashboardData?.totalModules}`,
-                  })}
-                </div>
+                <div className="font-bold text-lg text-white">-</div>
               </div>
               <div className="grid grid-cols-3 gap-4 mt-4">
-                <div className="bg-green-50 rounded-lg p-4">
-                  <div className="font-semibold">
-                    {tCourseDashBoard("learnedWords")}
+                <div className="bg-white rounded-lg p-4">
+                  <div className="font-semibold ">
+                    {tCourseDashBoard("lessons")}
                   </div>
                   <div className="text-sm text-gray-600">
                     {/*mastered words is words in completed lesson*/}
-                    {tCourseDashBoard("fullyLearnedWords", {
-                      count: dashboardData?.numberMasteredWords ?? 0,
+                    {tCourseDashBoard("lessonsCompleted", {
+                      count: dashboardData?.totalLessonsCompleted ?? 0,
                     })}
                   </div>
                   <div className="text-sm text-gray-600">
-                    {tCourseDashBoard("startedWords", {
-                      count: dashboardData?.numberLearnedWords ?? 0,
+                    {tCourseDashBoard("totalLessons", {
+                      count: dashboardData?.totalLessons ?? 0,
                     })}
                   </div>
                   <div className="font-bold text-right mt-2">
-                    {tCourseDashBoard("percentageFullyLearnedWords", {
+                    {tCourseDashBoard("percentage", {
                       percentage:
-                        ((dashboardData?.numberMasteredWords ?? 0) /
-                          (dashboardData?.numberLearnedWords ?? 1)) *
+                        ((dashboardData?.totalLessonsCompleted ?? 0) /
+                          (dashboardData?.totalLessons ?? 1)) *
                         100,
                     })}
                   </div>
                 </div>
                 <div className="bg-white rounded-lg p-4">
                   <div className="font-semibold">
-                    {tCourseDashBoard("watchedWords")}
+                    {tCourseDashBoard("modules")}
                   </div>
                   <div className="text-sm text-gray-600">
-                    {tCourseDashBoard("newVideosWatched", {
-                      count: dashboardData?.numberWatchedWords ?? 0,
+                    {tCourseDashBoard("modulesCompleted", {
+                      count: dashboardData?.totalModulesCompleted ?? 0,
                     })}
                   </div>
                   <div className="text-sm text-gray-600">
-                    {tCourseDashBoard("numberReplayed", {
-                      count: dashboardData?.numberReWatchWords ?? 0,
+                    {tCourseDashBoard("totalModules", {
+                      count: dashboardData?.totalModules ?? 0,
                     })}
                   </div>
-                  <div className="font-bold text-right mt-2">-</div>
+                  <div className="font-bold text-right mt-2">
+                    {tCourseDashBoard("percentage", {
+                      percentage:
+                        ((dashboardData?.totalModulesCompleted ?? 0) /
+                          (dashboardData?.totalModules ?? 1)) *
+                        100,
+                    })}
+                  </div>
                 </div>
                 <div className="bg-white rounded-lg p-4">
                   <div className="font-semibold">
-                    {tCourseDashBoard("usedWords")}
+                    {tCourseDashBoard("course")}
                   </div>
                   <div className="text-sm text-gray-600">
-                    {tCourseDashBoard("completedConversations", {
-                      count: dashboardData?.numberConversationWords ?? 0,
+                    {tCourseDashBoard("courseCompleted", {
+                      count: dashboardData?.totalCourseCompleted ?? 0,
                     })}
                   </div>
                   <div className="text-sm text-gray-600">
-                    {tCourseDashBoard("numberReplayed", {
-                      count: dashboardData?.numberReplayedWords ?? 0,
+                    {tCourseDashBoard("totalCourse", {
+                      count: dashboardData?.totalCourse ?? 0,
                     })}
                   </div>
-                  <div className="font-bold text-right mt-2">-</div>
+                  <div className="font-bold text-right mt-2">
+                    {tCourseDashBoard("percentage", {
+                      percentage:
+                        ((dashboardData?.totalCourseCompleted ?? 0) /
+                          (dashboardData?.totalCourse ?? 1)) *
+                        100,
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
@@ -215,33 +180,45 @@ export default function CourseDashboard() {
             <div className="mb-6 flex">
               <ActivityCard
                 title={tCourseDashBoard("myActivity")}
-                value={dashboardData?.activities.recentWatchedWords ?? 0}
-                subLabel={tCourseDashBoard("wordsLearnedLast7Days")}
-                diff={3} // hoặc lấy từ API nếu có
+                value={dashboardData?.activities?.recentLessonsCompleted ?? 0}
+                subLabel={tCourseDashBoard("lessonsCompletedLast7Days")}
+                diff={dashboardData?.activities?.recentLessonsCompleted ?? 0}
               />
             </div>
             {/* BannerStartLearning */}
-            <div className="bg-[#1B2A3A] rounded-xl p-6 flex items-center justify-between mb-6">
-              <div className="text-white">
+            <div className="bg-primary/10  rounded-xl p-6 flex items-center justify-between mb-6">
+              <div className="">
                 <div className="font-bold text-lg mb-2">
                   {tCourseDashBoard("learnNewSign")}
                 </div>
-                <div className="text-sm">{tCourseDashBoard("continue")}</div>
+                <div className="text-sm">
+                  {/* get lesson title from activeLesson*/}
+                  {dashboardData?.activeLesson?.title && (
+                    <span>
+                      {tLearnPage(
+                        "lessonsTitle." + dashboardData?.activeLesson?.title,
+                        {
+                          lessonTitle: dashboardData?.activeLesson?.title ?? "",
+                        }
+                      )}
+                    </span>
+                  )}
+                </div>
               </div>
-              <button
-                className="bg-yellow-400 text-black font-bold px-6 py-2 rounded-lg"
+              <ButtonCourse
+                variant="super"
                 onClick={() => {
                   router.push(
                     `/apprender/learn?lessonId=${
-                      dashboardData?.nextLesson.id
+                      dashboardData?.activeLesson?.id
                     }&moduleId=${
-                      dashboardData?.nextLesson.moduleId
+                      dashboardData?.activeLesson?.moduleId
                     }&back=${encodeURIComponent("/course-dashboard")}`
                   );
                 }}
               >
                 {tCourseDashBoard("startLearning")}
-              </button>
+              </ButtonCourse>
             </div>
           </div>
         </main>

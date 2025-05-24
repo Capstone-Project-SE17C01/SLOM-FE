@@ -2,7 +2,6 @@
 import { FaInfoCircle } from "react-icons/fa";
 import SwitchTabButton from "@/components/ui/switchTabButton";
 import StatCard from "@/components/ui/statCard";
-import SectionBox from "@/components/ui/sectionBox";
 import SearchInput from "@/components/ui/searchInput";
 import { useTranslations } from "next-intl";
 import {
@@ -16,6 +15,7 @@ import { useEffect, useState } from "react";
 import Spinner from "@/components/ui/spinner";
 import { Lesson, UserLessonProgress } from "../types";
 import LearningPathSection from "@/components/ui/learningPathSection";
+import { CardReview } from "@/components/ui/cardCourse";
 
 export default function PracticePage() {
   const t_practice = useTranslations("practicePage");
@@ -68,9 +68,8 @@ export default function PracticePage() {
                 orderNumber: 1,
                 createdAt: "2021-01-01",
               },
-              learnWords: [],
-              userLessonProgresses: [],
-              userQuizProgresses: [],
+              wordList: [],
+              quizList: [],
             },
             {
               id: "2",
@@ -85,6 +84,8 @@ export default function PracticePage() {
                 orderNumber: 2,
                 createdAt: "2021-01-01",
               },
+              wordList: [],
+              quizList: [],
             },
           ];
           const learnedLesson = fakedata;
@@ -122,9 +123,9 @@ export default function PracticePage() {
   }) {
     return (
       <>
-        <div className="flex items-center gap-3 mb-3">
-          <span className="text-xl font-bold text-[#0a2233]">{title}</span>
-          <span className="bg-gray-200 text-[#0a2233] rounded-full px-3 py-1 text-sm font-bold">
+        <div className="flex items-center gap-3 mb-3 max-md:flex-col max-md:gap-2 max-md:items-start">
+          <span className="text-xl font-bold">{title}</span>
+          <span className="bg-primary text-white rounded-full px-3 py-1 text-sm font-bold">
             {t_practice("countSituations", { count })}
           </span>
         </div>
@@ -134,7 +135,7 @@ export default function PracticePage() {
             lessons={lessons.map((lesson) => ({
               id: lesson.id,
               title: lesson.title,
-              image: "/images/logo/logo.png", // hoặc lesson.image nếu có
+              image: "/images/logo.png", // hoặc lesson.image nếu có
             }))}
           />
         ) : (
@@ -155,7 +156,7 @@ export default function PracticePage() {
       ) : (
         <div className="p-8">
           {/* Tabs + Search */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-8 max-md:flex-col max-md:gap-4 max-md:items-start">
             <SwitchTabButton
               tabs={[
                 { label: t_practice("tabLearn"), href: "/learn" },
@@ -165,9 +166,9 @@ export default function PracticePage() {
           </div>
 
           {/* 2 box lớn */}
-          <div className="flex gap-8 mb-10">
+          <div className="flex gap-8 mb-10 max-md:flex-col max-md:gap-4 max-md:items-start">
             {/* Box trái */}
-            <SectionBox
+            <CardReview
               title={t_practice("ready")}
               infoIcon={
                 <Tooltip>
@@ -181,17 +182,17 @@ export default function PracticePage() {
                   </TooltipContent>
                 </Tooltip>
               }
-              className="flex-1 bg-[#f5f6f7] min-w-[340px]"
+              className="flex-1 bg-primary/10 min-w-[200px] max-md:w-full"
             >
-              <div className="flex items-center gap-4">
+              <div className="flex lg:items-center gap-4 max-md:items-start">
                 <StatCard
                   value={learnedLesson.length}
                   label={t_practice("statLabelLearned")}
                 />
               </div>
-            </SectionBox>
+            </CardReview>
             {/* Box phải */}
-            <SectionBox
+            <CardReview
               title={t_practice("reviewed")}
               infoIcon={
                 <Tooltip>
@@ -205,15 +206,15 @@ export default function PracticePage() {
                   </TooltipContent>
                 </Tooltip>
               }
-              className="flex-[1.5] bg-[#fff8e1] min-w-[420px]"
+              className="flex-[1.5] bg-primary/10 min-w-[200px] max-md:w-full"
             >
-              <div className="flex items-center gap-8">
+              <div className="flex lg:items-center gap-8 max-md:items-start">
                 <StatCard
                   value={reviewedLesson.length}
                   label={t_practice("statLabelReviewed")}
                 />
               </div>
-            </SectionBox>
+            </CardReview>
           </div>
 
           {/* Các tình huống đã học và cần làm quiz */}

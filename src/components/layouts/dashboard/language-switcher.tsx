@@ -28,7 +28,7 @@ export default function LanguageSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
+        <Button variant="ghost" size="icon" className="h-8 w-8 mr-2 p-2">
           <Avatar className="h-8 w-8">
             <AvatarImage
               src={

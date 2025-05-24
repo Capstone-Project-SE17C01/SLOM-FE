@@ -19,7 +19,9 @@ export default function SwitchTabButton({
   const pathname = usePathname();
   return (
     <div
-      className={`inline-flex rounded-xl bg-gray-100 p-1 ${className || ""}`}
+      className={`inline-flex  bg-primary/10 rounded-xl bg-gray-100 p-1 ${
+        className || ""
+      }`}
     >
       {tabs.map((tab) => {
         const isActive = pathname === tab.href;
@@ -30,7 +32,7 @@ export default function SwitchTabButton({
             className={`px-8 py-2 text-lg transition-all
               ${
                 isActive
-                  ? "bg-white rounded-lg shadow font-bold border border-gray-200"
+                  ? "bg-primary text-white rounded-lg shadow font-bold border border-gray-200"
                   : "bg-transparent text-gray-700 font-normal"
               }
             `}
