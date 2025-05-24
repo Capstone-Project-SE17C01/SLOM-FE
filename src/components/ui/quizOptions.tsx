@@ -17,7 +17,7 @@ export default function QuizOptions({
   disabled,
 }: QuizOptionsProps) {
   return (
-    <div className="grid grid-cols-1 gap-4 w-full">
+    <div className="grid grid-cols-1 gap-4 w-full h-full">
       {Object.entries(options).map(([key, opt]) => (
         <button
           key={key}

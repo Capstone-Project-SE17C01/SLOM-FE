@@ -6,88 +6,58 @@ import SwitchTabButton from "@/components/ui/switchTabButton";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import LearningPathSection from "@/components/ui/learningPathSection";
-import { Module, UserModuleProgress } from "@/features/course/types";
-import { useGetUserModuleProgressMutation } from "@/features/course/api";
+import { Lesson, Module } from "@/features/course/types";
+import {
+  useGetAllModuleByCourseIdMutation,
+  useGetOngoingLessonByUserIdMutation,
+} from "@/features/course/api";
 import Spinner from "@/components/ui/spinner";
+import { RootState } from "@/redux/store";
+import { useSelector } from "react-redux";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export default function LearnPage() {
   const router = useRouter();
   const t_learn = useTranslations("learnPage");
 
   const [search, setSearch] = useState("");
-  const [debounced, setDebounced] = useState("");
-  const [userModuleProgress, setUserModuleProgress] =
-    useState<UserModuleProgress>();
+  const debounced = useDebounce(search, 1000);
+
   const [modules, setModules] = useState<Module[]>([]);
+  const [ongoingLesson, setOngoingLesson] = useState<Lesson>();
+  const { userInfo } = useSelector((state: RootState) => state.auth);
 
-  // Debounce input 1s
-  useEffect(() => {
-    const handler = setTimeout(() => setDebounced(search), 1000);
-    return () => clearTimeout(handler);
-  }, [search]);
-
-  const [getUserModuleProgress, { isLoading: isLoadingUserModuleProgress }] =
-    useGetUserModuleProgressMutation();
+  const [getOngoingLesson, { isLoading: isLoadingOngoingLesson }] =
+    useGetOngoingLessonByUserIdMutation();
+  const [getAllModuleByCourseId, { isLoading: isLoadingAllModuleByCourseId }] =
+    useGetAllModuleByCourseIdMutation();
 
   useEffect(() => {
-    fetch("/fakedata/module_data.json")
-      .then((res) => res.json())
-      .then((data) => setModules(data.result));
-  }, []);
-
-  useEffect(() => {
-    fetch("/fakedata/user_module_progress.json")
-      .then((res) => res.json())
-      .then((data) => setUserModuleProgress(data.result));
-  }, []);
-
-  useEffect(() => {
-    getUserModuleProgress({ userId: "1", moduleId: "1" })
-      .unwrap()
-      .then((res) => {
-        if (res.result) {
-          const result = res.result as UserModuleProgress;
-          setUserModuleProgress({
-            moduleId: result.moduleId,
-            moduleProgress: result.moduleProgress,
-            userId: result.userId,
-            module: result.module,
-          });
-        }
-        console.log(res);
+    if (!userInfo?.id || !userInfo?.courseId) return;
+    Promise.all([
+      getAllModuleByCourseId(userInfo.courseId).unwrap(),
+      getOngoingLesson(userInfo.id).unwrap(),
+    ])
+      .then(([modulesRes, lessonRes]) => {
+        if (modulesRes.result) setModules(modulesRes.result);
+        if (lessonRes.result) setOngoingLesson(lessonRes.result);
       })
       .catch((err) => {
-        console.log(err);
+        console.log("fetch error", err);
       });
-  }, [getUserModuleProgress]);
-  console.log(getUserModuleProgress);
+  }, [
+    getAllModuleByCourseId,
+    getOngoingLesson,
+    userInfo?.id,
+    userInfo?.courseId,
+  ]);
 
-  //json
-  useEffect(() => {
-    fetch("/fakedata/user_module_progress.json")
-      .then((res) => res.json())
-      .then((data) => setUserModuleProgress(data.result));
-  }, []);
-
-  const currentModule = userModuleProgress?.module;
-
-  // Lọc module theo title đã dịch
+  const currentModule = ongoingLesson?.module;
   const filteredModules = modules.filter((mod) =>
     mod.title.toLowerCase().includes(debounced.trim().toLowerCase())
   );
 
-  const learningModule = modules[0];
-
-  // 1. Tính progressValue
-  const progressValue =
-    userModuleProgress && typeof userModuleProgress.moduleProgress === "number"
-      ? userModuleProgress.moduleProgress < 1
-        ? Math.round(userModuleProgress.moduleProgress * 100)
-        : userModuleProgress.moduleProgress
-      : 0;
-
-  // 2. Loading overlay lên đầu
-  if (isLoadingUserModuleProgress) {
+  if (isLoadingOngoingLesson || isLoadingAllModuleByCourseId) {
     return (
       <div className="bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 w-screen h-screen fixed inset-0">
         <Spinner text="Loading..." />
@@ -127,65 +97,61 @@ export default function LearnPage() {
         </div>
       </div>
 
-      {/* Tiếp tục học */}
-      <div className="mb-8">
-        <div className="text-2xl font-extrabold mb-3">
-          {t_learn("continueLearning")}
-        </div>
-        <div className="min-w-[300px] w-full max-w-md bg-gray-50 rounded-xl shadow flex items-center p-4 mb-2 lg:flex-row sm:items-start sm:gap-4">
-          <div className="flex-1">
-            <div className="font-bold text-sm mb-1">
-              {currentModule?.title
-                ? t_learn("modulesTitle." + currentModule.title)
-                : ""}
-            </div>
-            <div className="text-gray-700 text-base mb-2">
-              {currentModule?.title
-                ? t_learn("modulesDesc." + currentModule.title)
-                : ""}
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-full h-1.5 bg-gray-200 rounded-full">
-                <div
-                  className="h-1.5 bg-gray-700 rounded-full"
-                  style={{ width: "40%" }}
-                ></div>
+      {/* Continue learning */}
+      {ongoingLesson && (
+        <div className="mb-8">
+          <div className="text-2xl font-extrabold mb-3">
+            {t_learn("continueLearning")}
+          </div>
+          <div className="min-w-[300px] w-full max-w-md bg-gray-50 rounded-xl shadow flex items-center p-4 mb-2 lg:flex-row sm:items-start sm:gap-4">
+            <div className="flex-1">
+              <div className="font-bold text-sm mb-1">
+                {currentModule?.title
+                  ? t_learn("modulesTitle." + currentModule.title)
+                  : ""}
               </div>
-              <div className="text-sm text-gray-500">{progressValue}%</div>
+              <div className="text-gray-700 text-base mb-2">
+                {ongoingLesson?.title
+                  ? t_learn("lessonsTitle." + ongoingLesson?.title)
+                  : ""}
+              </div>
+            </div>
+            <button
+              className="ml-4 bg-primary text-white font-bold px-6 py-2 rounded-lg shadow"
+              onClick={() =>
+                ongoingLesson
+                  ? router.push(
+                      `/apprender/learn?lessonId=${encodeURIComponent(
+                        ongoingLesson.id
+                      )}&lessonTitle=${encodeURIComponent(
+                        ongoingLesson.title
+                      )}&back=${encodeURIComponent("/learn")}`
+                    )
+                  : null
+              }
+            >
+              {t_learn("continue")}
+            </button>
+            <div className="ml-4 max-md:hidden">
+              <Image
+                src="/images/logo.png"
+                alt="avatar"
+                width={48}
+                height={48}
+                className="rounded-full object-cover"
+              />
             </div>
           </div>
-          <button
-            className="ml-4 bg-primary text-white font-bold px-6 py-2 rounded-lg shadow"
-            onClick={() =>
-              learningModule && learningModule.lessons?.[0]
-                ? router.push(
-                    `/apprender/learn?lessonId=${
-                      learningModule.lessons[0].id
-                    }&back=${encodeURIComponent("/learn")}`
-                  )
-                : null
-            }
-          >
-            {t_learn("continue")}
-          </button>
-          <div className="ml-4 max-md:hidden">
-            <Image
-              src="/images/logo.png"
-              alt="avatar"
-              width={48}
-              height={48}
-              className="rounded-full object-cover"
-            />
-          </div>
         </div>
-      </div>
+      )}
 
-      {/* Tiếp theo */}
+      {/* List modules and lessons */}
 
       {filteredModules.length > 0 ? (
         filteredModules.map((mod) => (
           <LearningPathSection
             key={mod.id}
+            isReview={false}
             sectionTitle={t_learn("modulesTitle." + mod.title)}
             sectionDescription={t_learn("modulesDesc." + mod.title)}
             lessons={

@@ -13,29 +13,37 @@ export interface LearningPathSectionProps {
   sectionTitle?: string;
   sectionDescription?: string;
   lessons: Lesson[];
-  review?: boolean;
+  isReview: boolean;
 }
 
 export default function LearningPathSection({
   sectionTitle,
   sectionDescription,
   lessons,
-  review,
+  isReview,
 }: LearningPathSectionProps) {
   const router = useRouter();
 
   const handleNextClick = (lesson: Lesson) => {
-    if (review) {
+    if (isReview) {
       router.push(
-        `/apprender/learn?lessonId=${
+        `/apprender/learn?lessonId=${encodeURIComponent(
           lesson.id
-        }&review=${review}&back=${encodeURIComponent("/practice")}`
+        )}&lessonTitle=${encodeURIComponent(
+          lesson.title
+        )}&review=${encodeURIComponent(isReview)}&back=${encodeURIComponent(
+          "/practice"
+        )}`
       );
     } else {
       router.push(
-        `/apprender/learn?lessonId=${
+        `/apprender/learn?lessonId=${encodeURIComponent(
           lesson.id
-        }&review=${review}&back=${encodeURIComponent("/learn")}`
+        )}&lessonTitle=${encodeURIComponent(
+          lesson.title
+        )}&review=${encodeURIComponent(isReview)}&back=${encodeURIComponent(
+          "/learn"
+        )}`
       );
     }
   };
@@ -51,7 +59,7 @@ export default function LearningPathSection({
         </div>
       )}
       <div className="overflow-x-auto pb-2">
-        <div className="flex gap-4 min-w-[900px]">
+        <div className="flex gap-4">
           {lessons.map((lesson, i) => (
             <CardLesson
               key={i}

@@ -38,7 +38,6 @@ export default function TrangChuPage() {
   return (
     <>
       <div className="p-4">
-        {/* Hero Section */}
         <section
           className={cn(
             "relative py-16 px-4 sm:px-6 lg:px-8 text-center overflow-hidden rounded-xl"
@@ -67,12 +66,7 @@ export default function TrangChuPage() {
                 isDarkMode ? "text-gray-200" : "text-gray-100"
               )}
             >
-              SLOM is an inclusive virtual meeting platform designed for the
-              Deaf and hard-of-hearing community. Combining real-time video
-              conferencing with integrated ASL-based learning modules, SLOM
-              makes communication and education more accessible, empowering
-              users to connect, collaborate, and grow in a fully
-              sign-language-friendly environment.
+              {t("description")}
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               {/* Buttons can be added here if needed */}

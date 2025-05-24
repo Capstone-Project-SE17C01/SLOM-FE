@@ -26,7 +26,8 @@
       "title": "Breaking Communication Barriers with",
       "subtitle": "The first online meeting platform optimized for sign language communication and learning",
       "cta": "Start Free Trial",
-      "demo": "Watch Demo"
+      "demo": "Watch Demo",
+      "description": "SLOM is an inclusive virtual meeting platform designed for the Deaf and hard-of-hearing community. Combining real-time video conferencing with integrated ASL-based learning modules, SLOM makes communication and education more accessible, empowering users to connect, collaborate, and grow in a fully sign-language-friendly environment."
     },
     "how": {
       "title": "How SLOM Works",
@@ -408,7 +409,7 @@
     "reviewedSituations": "Your reviewed lessons",
     "countSituations": "{count} lessons",
     "searchPlaceholder": "Search",
-    "empty": "After you complete situations, they will appear here.",
+    "empty": "After you learn lessons, they will appear here.",
     "yourLearnedLessons": "Your learned lessons",
     "yourLearnedLessonsDesc": "Lessons you have completed"
   },
@@ -429,6 +430,8 @@
     "card4": "Definitely yes!"
   },
   "learnPage": {
+    "start": "Start",
+    "stop": "Stop",
     "tabLearn": "Learn",
     "tabPractice": "Practice",
     "studiedSituations": "Studied situations",
@@ -438,12 +441,14 @@
     "checkAnswer": "Check answer",
     "typeYourAnswer": "Type your answer",
     "dontKnow": "Don't know",
+    "alreadyKnow": "I already know this",
     "correctAnswer": "Correct answer",
     "finishedQuiz": "Finished quiz",
     "backToLesson": "Back to lesson",
     "searchPlaceholder": "Search",
     "finishedLesson": "Lesson completed!",
     "finishLesson": "Finish lesson",
+    "finishQuiz": "Finish quiz",
     "nextLesson": "Next lesson",
     "modulesTitle": {
       "alphabet": "Alphabet",
@@ -454,13 +459,13 @@
       "daily": "Daily words Desc"
     },
     "lessonsTitle": {
-      "ABCDETitle": "A, B, C, D, E Sign",
-      "FGHIJTitle": "F, G, H, I, J Sign",
+      "ABCDE": "A, B, C, D, E Sign",
+      "FGHIJ": "F, G, H, I, J Sign",
       "breakfast": "Breakfast Sign"
     },
     "lessonsDesc": {
-      "ABCDETitle": "A, B, C, D, E Sign Desc",
-      "FGHIJTitle": "F, G, H, I, J Sign Desc",
+      "ABCDE": "A, B, C, D, E Sign Desc",
+      "FGHIJ": "F, G, H, I, J Sign Desc",
       "breakfast": "Breakfast Sign Desc"
     }
   },
@@ -474,14 +479,20 @@
     "lessons": "Lessons",
     "modules": "Modules",
     "course": "Course",
-    "lessonsCompleted": "{count} Lessons completed",
-    "modulesCompleted": "{count} modules completed",
-    "courseCompleted": "{count} course completed",
-    "totalLessons": "{count} Lessons in course",
+    "numberCompleted": "{count} completed",
+    "totalLessons": "{count} Lessons in module",
     "totalModules": "{count} Modules in course",
     "totalCourse": "{count} Courses in total",
     "lessonsCompletedLast7Days": "Lessons completed (last 7 days)",
     "modulesCompletedLast7Days": "Modules completed (last 7 days)",
-    "courseCompletedLast7Days": "Courses completed (last 7 days)"
+    "courseCompletedLast7Days": "Courses completed (last 7 days)",
+    "recentLessonsCompleted": "Recent lessons completed",
+    "recentModulesCompleted": "Recent modules completed",
+    "recentCoursesCompleted": "Recent courses completed"
+  },
+  "listCoursePage": {
+    "currentlyLearning": "Currently learning",
+    "languages": "Languages",
+    "chooseCourse": "Choose your course"
   }
 }

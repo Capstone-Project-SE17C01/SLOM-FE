@@ -12,18 +12,51 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { locales } from "@/i18n/config";
 import Cookies from "js-cookie";
 import constants from "@/settings/constants";
+import { useChangeLanguageMutation } from "@/features/auth/api";
+import Spinner from "@/components/ui/spinner";
+import { RootState } from "@/redux/store";
+import { useSelector } from "react-redux";
 
 export default function LanguageSwitcher() {
   const t = useTranslations();
   const locale = useLocale();
   const router = useRouter();
+  const [changeLanguage, { isLoading }] = useChangeLanguageMutation();
+  const { userInfo } = useSelector((state: RootState) => state.auth);
 
-  const handleLanguageChange = (newLocale: string) => {
-    // Save locale to cookie
-    Cookies.set(constants.LOCALE, newLocale);
-    // Refresh page to apply new locale
-    router.refresh();
+  const handleLanguageChange = async (
+    event: React.MouseEvent,
+    newLocale: string
+  ) => {
+    event.preventDefault();
+
+    if (userInfo) {
+      await changeLanguage({
+        email: userInfo.email,
+        languageId: userInfo.preferredLanguageId,
+        newLanguageCode: newLocale,
+      })
+        .unwrap()
+        .then((res) => {
+          if (res.result) {
+            //set locale to cookie
+            Cookies.set(constants.LOCALE, res.result.languageCode);
+            router.refresh();
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      // Refresh page to apply new locale
+      router.refresh();
+      Cookies.set(constants.LOCALE, newLocale);
+    }
   };
+  //spinner
+  if (isLoading) {
+    return <Spinner />;
+  }
 
   return (
     <DropdownMenu>
@@ -43,7 +76,7 @@ export default function LanguageSwitcher() {
         {locales.map((lang) => (
           <DropdownMenuItem
             key={lang}
-            onClick={() => handleLanguageChange(lang)}
+            onClick={(event) => handleLanguageChange(event, lang)}
             className={locale === lang ? "bg-accent" : ""}
           >
             <Avatar className="h-6 w-6 mr-2">

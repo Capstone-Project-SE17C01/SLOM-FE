@@ -21,18 +21,18 @@ export default function DashboardLayout({
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
   const navItems = [
-    { name: "home", href: "/trang-chu" },
+    { name: "home", href: "/" },
     { name: "features", href: "/features" },
     { name: "about", href: "/about" },
     { name: "contact", href: "/contact" },
-    ];
+  ];
 
   //if logged in navItems will add 2 items: message and course
   //check userInfo in redux
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   if (userInfo) {
     navItems.push({ name: "message", href: "/chat" });
-    navItems.push({ name: "course", href: "/course-dashboard" });
+    navItems.push({ name: "course", href: "/list-course" });
   }
 
   return (

@@ -75,7 +75,8 @@
       "title": "Phá vỡ rào cản giao tiếp với",
       "subtitle": "Nền tảng họp trực tuyến đầu tiên được tối ưu hóa cho việc giao tiếp và học ngôn ngữ ký hiệu",
       "cta": "Dùng thử miễn phí",
-      "demo": "Xem demo"
+      "demo": "Xem demo",
+      "description": "SLOM là nền tảng họp trực tuyến đầu tiên được tối ưu hóa cho việc giao tiếp và học ngôn ngữ ký hiệu. Nó kết hợp họp trực tuyến với các mô-đun học ngôn ngữ ký hiệu được tích hợp, làm cho giao tiếp và giáo dục trở nên dễ tiếp cận hơn, cung cấp cho người dùng khả năng kết nối, hợp tác và phát triển trong môi trường ngôn ngữ ký hiệu."
     },
     "how": {
       "title": "SLOM hoạt động như thế nào",
@@ -432,6 +433,8 @@
     "card4": "Chắc chắn là có!"
   },
   "learnPage": {
+    "start": "Bắt đầu",
+    "stop": "Dừng",
     "tabLearn": "Học",
     "tabPractice": "Ôn tập",
     "studiedSituations": "Các tình huống đã học",
@@ -441,12 +444,14 @@
     "checkAnswer": "Kiểm tra đáp án",
     "typeYourAnswer": "Nhập câu trả lời",
     "dontKnow": "Không biết",
+    "alreadyKnow": "Tôi đã biết cái này",
     "correctAnswer": "Đáp án đúng",
     "backToLesson": "Quay lại bài học",
     "finishedQuiz": "Hoàn thành quiz",
     "searchPlaceholder": "Tìm kiếm",
     "finishedLesson": "Đã hoàn thành bài học!",
     "finishLesson": "Kết thúc bài học",
+    "finishQuiz": "Kết thúc quiz",
     "nextLesson": "Bài học tiếp theo",
     "modulesTitle": {
       "alphabet": "Bảng chữ cái",
@@ -483,14 +488,17 @@
     "lessons": "Bài học",
     "modules": "Module",
     "course": "Khóa học",
-    "lessonsCompleted": "{count} bài học đã hoàn thành",
-    "modulesCompleted": "{count} module đã hoàn thành",
-    "courseCompleted": "{count} khóa học đã hoàn thành",
-    "totalLessons": "{count} bài học trong khóa",
-    "totalModules": "{count} module trong khóa",
+    "numberCompleted": "{count} đã hoàn thành",
+    "totalLessons": "{count} bài học trong chương",
+    "totalModules": "{count} chương trong khóa",
     "totalCourse": "{count} khóa học trong hệ thống",
     "lessonsCompletedLast7Days": "Bài học đã hoàn thành (7 ngày qua)",
     "modulesCompletedLast7Days": "Module đã hoàn thành (7 ngày qua)",
     "courseCompletedLast7Days": "Khóa học đã hoàn thành (7 ngày qua)"
+  },
+  "listCoursePage": {
+    "currentlyLearning": "Hiện đang học",
+    "languages": "Ngôn ngữ",
+    "chooseCourse": "Chọn khóa học của bạn"
   }
 }

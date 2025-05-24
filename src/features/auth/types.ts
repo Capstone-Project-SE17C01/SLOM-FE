@@ -127,3 +127,14 @@ export interface UpdatePasswordRequestDTO {
   newPassword: string;
   oldPassword: string;
 }
+
+export interface ChangeLanguageRequestDTO {
+  email: string;
+  languageId: string;
+  newLanguageCode: string;
+}
+
+export interface ChangeLanguageResponseDTO {
+  languageId: string;
+  languageCode: string;
+}

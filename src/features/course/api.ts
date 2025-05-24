@@ -3,18 +3,37 @@
 import { baseApi } from "@/redux/baseApi";
 import type {
   Course,
-  CourseDashboardViewModel,
-  DashboardDataRequestDTO,
   Lesson,
   Quiz,
-  UserCourseProgress,
-  UserLessonProgress,
-  UserModuleProgress,
+  SummaryRequestDTO,
+  SummaryResponse,
+  CourseListResponse,
+  Module,
+  Word,
 } from "./types";
 import { APIResponse } from "../auth/types";
 
 export const courseAPI = baseApi.injectEndpoints({
   endpoints: (build) => ({
+    getCourses: build.mutation<APIResponse<CourseListResponse>, string>({
+      query: (userId: string) => ({
+        url: `/api/Course/GetListCourses?userId=${userId}`,
+        method: "GET",
+        flashError: false,
+      }),
+    }),
+
+    getCourseSummary: build.mutation<
+      APIResponse<SummaryResponse>,
+      SummaryRequestDTO
+    >({
+      query: ({ courseId, userId }) => ({
+        url: `/api/Course/Summary?courseId=${courseId}&userId=${userId}`,
+        method: "GET",
+        flashError: false,
+      }),
+    }),
+
     getCourseById: build.mutation<APIResponse<Course>, string>({
       query: (id: string) => ({
         url: `/api/Course/GetCourseById?id=${id}`,
@@ -22,6 +41,7 @@ export const courseAPI = baseApi.injectEndpoints({
         flashError: false,
       }),
     }),
+
     getCourseByCategoryId: build.mutation<APIResponse<Course[]>, string>({
       query: (categoryId: string) => ({
         url: `/api/Course/GetCourseByCategoryId?categoryId=${categoryId}`,
@@ -29,6 +49,7 @@ export const courseAPI = baseApi.injectEndpoints({
         flashError: false,
       }),
     }),
+
     getCourseByLanguageId: build.mutation<APIResponse<Course[]>, string>({
       query: (languageId: string) => ({
         url: `/api/Course/GetCourseByLanguageId?languageId=${languageId}`,
@@ -36,67 +57,78 @@ export const courseAPI = baseApi.injectEndpoints({
         flashError: false,
       }),
     }),
-    getCourseDashboardData: build.mutation<
-      APIResponse<CourseDashboardViewModel>,
-      DashboardDataRequestDTO
-    >({
-      query: ({ courseId, userId }) => ({
-        url: `/api/Course/GetCourseDashboardData?courseId=${courseId}&userId=${userId}`,
+
+    getAllModuleByCourseId: build.mutation<APIResponse<Module[]>, string>({
+      query: (courseId: string) => ({
+        url: `/api/Module/AllModules?courseId=${courseId}`,
         method: "GET",
         flashError: false,
       }),
     }),
-    getUserCourseProgress: build.mutation<
-      APIResponse<UserCourseProgress>,
-      { userId: string; courseId: string }
-    >({
-      query: ({ userId, courseId }) => ({
-        url: `/api/Course/GetUserCourseProgress?userId=${userId}&courseId=${courseId}`,
+
+    getOngoingLessonByUserId: build.mutation<APIResponse<Lesson>, string>({
+      query: (userId: string) => ({
+        url: `/api/Lesson/OngoingLesson?userId=${userId}`,
         method: "GET",
         flashError: false,
       }),
     }),
-    getUserModuleProgress: build.mutation<
-      APIResponse<UserModuleProgress>,
-      { userId: string; moduleId: string }
-    >({
-      query: ({ userId, moduleId }) => ({
-        url: `/api/Course/GetUserModuleProgress?userId=${userId}&moduleId=${moduleId}`,
+
+    getListLearnedLessonByUserId: build.mutation<APIResponse<Lesson[]>, string>(
+      {
+        query: (userId: string) => ({
+          url: `/api/Lesson/GetListLearnedLesson?userId=${userId}`,
+          method: "GET",
+          flashError: false,
+        }),
+      }
+    ),
+
+    getListWordByLessonId: build.mutation<APIResponse<Word[]>, string>({
+      query: (lessonId: string) => ({
+        url: `/api/Lesson/GetListWordLesson?lessonId=${lessonId}`,
         method: "GET",
         flashError: false,
       }),
     }),
-    getLearnedLessonByUserId: build.mutation<
-      APIResponse<Lesson[]>,
-      { userId: string }
-    >({
-      query: ({ userId }) => ({
-        url: `/api/Course/GetLearnedLessonByUserId?userId=${userId}`,
+
+    getListQuizByLessonId: build.mutation<APIResponse<Quiz[]>, string>({
+      query: (lessonId: string) => ({
+        url: `/api/Lesson/GetListQuizLesson?lessonId=${lessonId}`,
         method: "GET",
         flashError: false,
       }),
     }),
-    getUserLessonProgress: build.mutation<
-      APIResponse<UserLessonProgress[]>,
+
+    addNewUserProgress: build.mutation<
+      APIResponse<string>,
       { userId: string; lessonId: string }
     >({
       query: ({ userId, lessonId }) => ({
-        url: `/api/Course/GetUserLessonProgress?userId=${userId}&lessonId=${lessonId}`,
-        method: "GET",
+        url: `/api/LessonProgress/AddNewProgress?userId=${userId}&lessonId=${lessonId}`,
+        method: "POST",
         flashError: false,
       }),
     }),
-    getAllQuizByLessonId: build.mutation<APIResponse<Quiz[]>, string>({
-      query: (lessonId: string) => ({
-        url: `/api/Course/GetAllQuizByLessonId?lessonId=${lessonId}`,
-        method: "GET",
+
+    markLessonAsCompleted: build.mutation<
+      APIResponse<string>,
+      { userId: string; lessonId: string }
+    >({
+      query: ({ userId, lessonId }) => ({
+        url: `/api/LessonProgress/CompleteLesson?userId=${userId}&lessonId=${lessonId}`,
+        method: "PUT",
         flashError: false,
       }),
     }),
-    getLessonByModuleId: build.mutation<APIResponse<Lesson[]>, string>({
-      query: (moduleId: string) => ({
-        url: `/api/Course/GetLessonByModuleId?moduleId=${moduleId}`,
-        method: "GET",
+
+    markLessonAsLearned: build.mutation<
+      APIResponse<string>,
+      { userId: string; lessonId: string }
+    >({
+      query: ({ userId, lessonId }) => ({
+        url: `/api/LessonProgress/LearnedLesson?userId=${userId}&lessonId=${lessonId}`,
+        method: "PUT",
         flashError: false,
       }),
     }),
@@ -107,10 +139,14 @@ export const {
   useGetCourseByIdMutation,
   useGetCourseByCategoryIdMutation,
   useGetCourseByLanguageIdMutation,
-  useGetCourseDashboardDataMutation,
-  useGetUserCourseProgressMutation,
-  useGetUserModuleProgressMutation,
-  useGetLearnedLessonByUserIdMutation,
-  useGetUserLessonProgressMutation,
-  useGetAllQuizByLessonIdMutation,
+  useGetCourseSummaryMutation,
+  useGetCoursesMutation,
+  useGetAllModuleByCourseIdMutation,
+  useGetOngoingLessonByUserIdMutation,
+  useGetListLearnedLessonByUserIdMutation,
+  useGetListWordByLessonIdMutation,
+  useGetListQuizByLessonIdMutation,
+  useAddNewUserProgressMutation,
+  useMarkLessonAsCompletedMutation,
+  useMarkLessonAsLearnedMutation,
 } = courseAPI;
