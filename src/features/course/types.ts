@@ -1,15 +1,15 @@
 export interface Course {
-  id: string; // Guid as string
+  id: string;
   title: string;
   description?: string;
   difficultyLevel?: string;
   thumbnailUrl?: string;
-  languageId?: string; // Guid as string
-  categoryId?: string; // Guid as string
-  creatorId?: string; // Guid as string
+  languageId?: string;
+  categoryId?: string;
+  creatorId?: string;
   isPublished: boolean;
-  createdAt: string; // ISO date string
-  updatedAt: string; // ISO date string
+  createdAt: string;
+  updatedAt: string;
   modules?: Module[];
   quizzes?: Quiz[];
   userLessonProgresses?: UserLessonProgress[];
@@ -20,137 +20,135 @@ export interface Course {
 }
 
 export interface Module {
-  id: string; // Guid as string
-  courseId: string; // Guid as string
+  id: string;
+  courseId: string;
   title: string;
   description?: string;
   orderNumber: number;
-  createdAt: string; // ISO date string
+  createdAt: string;
   lessons?: Lesson[] | null;
 }
-//dashboardDataRequest
-export interface DashboardDataRequestDTO {
+export interface SummaryRequestDTO {
   courseId: string;
   userId: string;
 }
 
 export interface Lesson {
-  id: string; // Guid as string
-  moduleId: string; // Guid as string
+  id: string;
+  moduleId: string;
   title: string;
   content?: string;
-  // videoUrl?: string[]; //list of video url
   durationMinutes?: number;
   orderNumber: number;
-  createdAt: string; // ISO date string
+  createdAt: string;
   module?: Module | null;
   wordList?: Word[] | null;
   quizList?: Quiz[] | null;
+  userLessonProgress?: UserLessonProgress[] | null;
 }
 
-//LearnWord
 export interface Word {
-  id: string; // Guid as string
-  lessonId: string; // Guid as string
+  id: string;
+  lessonId: string;
   text: string;
   videoSrc: string;
 }
 
 export interface Quiz {
-  id: string; // Guid as string
-  lessonId: string; // Guid as string
+  id: string;
+  lessonId: string;
   question: string;
-  videoUrl?: string; // 1 question 1 video
+  videoUrl?: string;
   quizOptions?: QuizOption[];
   correctAnswer: string;
   explanation?: string;
   maxScore?: number;
-  createdAt: string; // ISO date string
+  createdAt: string;
   lesson?: Lesson | null;
   attempts?: QuizAttempt[] | null;
 }
 
 export interface QuizOption {
-  id: string; // Guid as string
+  id: string;
   text: string;
   isCorrect: boolean;
 }
 
 export interface UserLessonProgress {
-  userId: string; // Guid as string
-  lessonId: string; // Guid as string
-  completedAt?: string; // ISO date string, optional
-  lessonProgress: number;
+  userId: string;
+  lessonId: string;
+  completedAt?: Date;
   user?: Profile | null;
   lesson?: Lesson | null;
+  isActive: boolean;
 }
-//userquizprogress
+
 export interface UserQuizProgress {
-  userId: string; // Guid as string
-  quizId: string; // Guid as string
-  completedAt?: string; // ISO date string, optional
+  userId: string;
+  quizId: string;
+  completedAt?: Date;
   user?: Profile | null;
   quiz?: Quiz | null;
 }
 
 export interface UserCourseProgress {
-  userId: string; // Guid as string
-  courseId: string; // Guid as string
-  completedAt?: string; // ISO date string, optional
-  courseProgress: number;
+  userId: string;
+  courseId: string;
+  completedAt?: Date;
   user?: Profile | null;
   course?: Course | null;
+  isActive: boolean;
 }
 
 export interface UserModuleProgress {
-  userId: string; // Guid as string
-  moduleId: string; // Guid as string
-  completedAt?: string; // ISO date string, optional
-  moduleProgress: number;
+  userId: string;
+  moduleId: string;
+  completedAt?: Date;
   user?: Profile | null;
   module?: Module | null;
+  isActive: boolean;
 }
 
 export interface QuizAttempt {
-  id: string; // Guid as string
-  userId: string; // Guid as string
-  quizId: string; // Guid as string
+  id: string;
+  userId: string;
+  quizId: string;
   selectedAnswer?: string;
   score: number;
-  completedAt: string; // ISO date string
+  completedAt: string;
   user: Profile;
   quiz: Quiz;
 }
 
 export interface Profile {
-  id: string; // Guid as string
+  id: string;
   username?: string;
   email?: string;
-  roleId?: string; // Guid as string
+  roleId?: string;
   avatarUrl?: string;
-  preferredLanguageId?: string; // Guid as string
-  createdAt: string; // ISO date string
-  updatedAt: string; // ISO date string
+  preferredLanguageId?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CourseCategory {
-  id: string; // Guid as string
+  id: string;
   name: string;
   description?: string;
-  parentId?: string; // Guid as string
-  createdAt: string; // ISO date string
+  parentId?: string;
+  createdAt: string;
   parent?: CourseCategory;
   subcategories: CourseCategory[];
   courses: Course[];
 }
 
 export interface Language {
-  id: string; // Guid as string
+  id: string;
   code: string;
   name: string;
   region?: string;
   isActive: boolean;
-  createdAt: string; // ISO date string
+  createdAt: string;
   profiles: Profile[];
   courses: Course[];
 }
@@ -162,14 +160,17 @@ export interface SummaryResponse {
   totalModules: number;
   totalCourseCompleted: number;
   totalCourse: number;
-  totalWordsLearned: number;
-  totalWords: number;
   activeLesson: Lesson | null;
   activities: Activities | null;
 }
 
+export interface CourseListResponse {
+  learningCourses: Course[];
+  remainingCourses: Course[];
+}
+
 export interface Activities {
-  recentLessonsCompleted: number; // last 7 days
-  recentModulesCompleted: number; // last 7 days
-  recentCourseCompleted: number; // last 7 days
+  recentLessonsCompleted: number;
+  recentModulesCompleted: number;
+  recentCoursesCompleted: number;
 }

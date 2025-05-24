@@ -26,7 +26,6 @@ export default function Page() {
   const t3 = useTranslations("successMessages.authMessage");
   const t2 = useTranslations("resultPaymentPage");
 
-  // Tách riêng các tham số từ searchParams
   const params = useMemo(
     () => ({
       period: searchParams.get("period"),
@@ -39,7 +38,6 @@ export default function Page() {
     [searchParams]
   );
 
-  // Gọi API cập nhật kế hoạch thanh toán
   useEffect(() => {
     if (params.cancel === "false") {
       if (params.code && params.id && params.status && params.orderCode) {
@@ -86,7 +84,6 @@ export default function Page() {
     }
   }, [params, updatePlan, accessToken, t, t3]);
 
-  // Đếm ngược và chuyển hướng khi trạng thái không còn là 'loading'
   useEffect(() => {
     if (status === "loading") return;
 
@@ -104,10 +101,9 @@ export default function Page() {
     return () => clearInterval(timer);
   }, [status]);
 
-  // Xử lý navigation
   useEffect(() => {
     if (shouldNavigate) {
-      router.push("/");
+      router.push("/home");
     }
   }, [shouldNavigate, router]);
 
@@ -115,7 +111,6 @@ export default function Page() {
     setShouldNavigate(true);
   };
 
-  // Hàm trả về icon theo trạng thái
   const renderIcon = () => {
     switch (status) {
       case "loading":
@@ -131,7 +126,6 @@ export default function Page() {
     }
   };
 
-  // Hàm trả về thông báo theo trạng thái
   const renderMessage = () => {
     switch (status) {
       case "loading":

@@ -3,18 +3,15 @@
 import { useState } from "react";
 import { cn } from "@/utils/cn";
 import { useTheme } from "@/contexts/ThemeContext";
-import {
-  FaClipboardList,
-  FaRocket,
-  FaRegPlayCircle,
-  FaRegCommentDots,
-} from "react-icons/fa";
+import { FaClipboardList, FaRocket, FaRegPlayCircle } from "react-icons/fa";
 
 import Header from "../dashboard/header-breadcrumb";
 import MobileMenu from "../dashboard/mobile-menu";
 import Footer from "../dashboard/footer";
 import CourseSidebar from "./course-sidebar";
 import { CourseProvider } from "@/contexts/CourseContext";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 export default function CourseLayout({
   children,
@@ -27,13 +24,17 @@ export default function CourseLayout({
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
   const navItems = [
-    { name: "home", href: "/trang-chu" },
+    { name: "home", href: "/home" },
     { name: "features", href: "/features" },
     { name: "about", href: "/about" },
     { name: "contact", href: "/contact" },
-    { name: "message", href: "/chat" },
-    { name: "course", href: "/course-dashboard" },
   ];
+
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+  if (userInfo) {
+    navItems.push({ name: "message", href: "/chat" });
+    navItems.push({ name: "course", href: "/list-course" });
+  }
 
   const sidebarItems = [
     {
@@ -43,11 +44,6 @@ export default function CourseLayout({
     },
     { name: "scenario", href: "/learn", icon: <FaRocket size={22} /> },
     { name: "video", href: "/immerse", icon: <FaRegPlayCircle size={22} /> },
-    {
-      name: "conversation",
-      href: "/communicate",
-      icon: <FaRegCommentDots size={22} />,
-    },
   ];
 
   return (

@@ -1,10 +1,15 @@
-// src/components/ui/ProgressBar.tsx
-export default function ProgressBar({ progress }: { progress: number }) {
+export default function ProgressBar({
+  progress,
+  className,
+}: {
+  progress: number;
+  className?: string;
+}) {
   return (
-    <div className="w-full max-w-4xl mx-auto mt-6 mb-8">
-      <div className="h-2 bg-gray-200 rounded-full w-full">
+    <div className={`w-full max-w-4xl mx-auto mt-6 mb-8 ${className}`}>
+      <div className="h-4 bg-gray-200 rounded-sm w-full">
         <div
-          className="h-2 bg-yellow-400 rounded-full"
+          className={`h-4 bg-primary rounded-sm`}
           style={{ width: `${progress}%` }}
         ></div>
       </div>
