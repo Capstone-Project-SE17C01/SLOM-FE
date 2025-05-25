@@ -24,7 +24,7 @@ export function SearchUser({ isSearch, setIsSearch, setListSearchUser }: Readonl
         });
         setListSearchUser(userList)
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     };
 

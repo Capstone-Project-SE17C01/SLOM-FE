@@ -1,29 +1,33 @@
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
-  name: "NextExam - FPT University Exam",
+  name: "SLOM - Language Learning Platform",
   description:
-    "Comprehensive digital transformation platform for exam organization and management at FPT University",
+    "Comprehensive language learning platform for all levels of learners",
   navItems: [
     {
       label: "Home",
       href: "/",
     },
     {
-      label: "Docs",
-      href: "/docs",
-    },
-    {
-      label: "Pricing",
-      href: "/pricing",
-    },
-    {
-      label: "Blog",
-      href: "/blog",
+      label: "Features",
+      href: "/features",
     },
     {
       label: "About",
       href: "/about",
+    },
+    {
+      label: "Contact",
+      href: "/contact",
+    },
+    {
+      label: "Message",
+      href: "/chat",
+    },
+    {
+      label: "Course",
+      href: "/list-course",
     },
   ],
   navMenuItems: [
@@ -33,7 +37,7 @@ export const siteConfig = {
     },
     {
       label: "Dashboard",
-      href: "/dashboard",
+      href: "/course-dashboard",
     },
     {
       label: "Projects",

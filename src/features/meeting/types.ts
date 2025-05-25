@@ -26,25 +26,118 @@ export interface ScheduleMeetingModalProps {
   }) => void;
 }
 
-export interface MeetingRoom {
+export interface RoomCreationModalProps {
+  show: boolean;
+  onClose: () => void;
+  onCreateRoom: (roomName: string, description: string, duration: number) => void;
+}
+
+export interface MeetingEditModalProps {
+  show: boolean;
+  meeting?: MeetingDetail;
+  onClose: () => void;
+  onUpdateMeeting: (details: UpdateMeetingRequest) => void;
+}
+
+export interface Meeting {
   id: string;
-  name: string;
+  title: string;
   description: string;
-  duration: number;
-  createdAt: string;
-  expiresAt: string;
-  participants?: {
-    id: string;
-    name: string;
-  }[];
+  hostId: string;
+  hostName: string;
+  participantCount: number;
+  startTime: string;
+  endTime?: string;
+  status: string;
+  isPrivate: boolean;
+  isHost?: boolean;
+  guestCode?: string;
 }
 
 export interface ScheduledMeeting {
   id: string;
-  name: string;
+  title: string;
   description: string;
-  date: string;
-  time: string;
-  duration: number;
-  createdAt: string; 
+  hostName: string;
+  startTime: string;
+  endTime?: string;
+  status: string;
+  guestCode?: string;
+}
+
+export interface MeetingDetail {
+  id: string;
+  title: string;
+  description: string;
+  hostId: string;
+  hostName: string;
+  participants: {
+    userId: string;
+    name: string;
+    joinTime: string;
+    leaveTime?: string;
+  }[];
+  startTime: string;
+  endTime?: string;
+  status: string;
+  isPrivate: boolean;
+  guestCode?: string;
+}
+
+export interface CreateMeetingRequest {
+  title: string;
+  description: string;
+  isImmediate: boolean;
+  startTime?: string;
+  duration?: number;
+  isPrivate: boolean;
+  userId: string; // Added userId field
+}
+
+export interface CreateMeetingResponse {
+  id: string;
+  title: string;
+  description: string;
+  startTime: string;
+  endTime?: string;
+  status: string;
+  isPrivate: boolean;
+  guestCode?: string;
+}
+
+export interface UpdateMeetingRequest {
+  title?: string;
+  description?: string;
+  startTime?: string;
+  endTime?: string;
+  status?: string;
+  maxParticipants?: number;
+  userId: string;
+}
+
+export interface JoinMeetingRequest {
+  guestCode?: string;
+  deviceInfo: string;
+  userId: string; // Added userId field
+}
+
+export interface LeaveMeetingRequest {
+  userId: string;
+}
+
+export interface AddRecordingRequest {
+  storagePath: string;
+  duration?: number;
+  userId: string; // Added userId field
+}
+
+export interface Recording {
+  id: string;
+  meetingId: string;
+  meetingTitle?: string;
+  storagePath: string;
+  duration?: number;
+  processed: boolean;
+  transcription?: string;
+  createdAt: string;
 }

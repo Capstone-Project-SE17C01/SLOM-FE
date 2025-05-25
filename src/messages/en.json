@@ -1,4 +1,29 @@
-{  "header": {
+{  
+  "welcomePage": {
+    "welcomeBack": "Welcome back, {name}!",
+    "title": "Ready to Learn & Connect",
+    "subtitle": "Choose your learning path or connect with others through our advanced meeting platform.",
+    "course": {
+      "title": "Start Learning",
+      "description": "Explore our comprehensive sign language courses designed for all skill levels.",
+      "feature1": "Interactive lessons",
+      "feature2": "HD video content",
+      "action": "Browse Courses"
+    },
+    "meetingRoom": {
+      "title": "Join Meetings",
+      "description": "Connect with others through our sign language optimized video conferencing.",
+      "feature1": "Crystal clear video",
+      "feature2": "Real-time chat",
+      "action": "Enter Meeting Room"
+    },
+    "stats": {
+      "availability": "Available",
+      "quality": "Quality",
+      "learning": "Possibilities"
+    }
+  },
+  "header": {
     "search": "Search",
     "notifications": "Notifications",
     "profile": "Profile",
@@ -10,6 +35,11 @@
     "about": "About",
     "contact": "Contact",
     "message": "Message",
+    "course": "Course",
+    "listCourse": "List Course",
+    "scenario": "Scenario",
+    "video": "Video",
+    "conversation": "Conversation",
     "meeting": "Meeting Room"
   },
   "language": {
@@ -21,7 +51,8 @@
       "title": "Breaking Communication Barriers with",
       "subtitle": "The first online meeting platform optimized for sign language communication and learning",
       "cta": "Start Free Trial",
-      "demo": "Watch Demo"
+      "demo": "Watch Demo",
+      "description": "SLOM is an inclusive virtual meeting platform designed for the Deaf and hard-of-hearing community. Combining real-time video conferencing with integrated ASL-based learning modules, SLOM makes communication and education more accessible, empowering users to connect, collaborate, and grow in a fully sign-language-friendly environment."
     },
     "how": {
       "title": "How SLOM Works",
@@ -385,5 +416,110 @@
       "display": "Display",
       "savePreferences": "Save Preferences"
     }
+  },
+  "practicePage": {
+    "tabLearn": "Learn",
+    "tabPractice": "Practice",
+    "reviewed": "Reviewed",
+    "ready": "Ready to review",
+    "difficultTooltip": "Sentences you struggle with will be marked as 'Difficult'. Practice these to strengthen your memory and remove them from the Difficult Words list. You can also manually mark/unmark difficult words using the lightning icon in lessons.",
+    "readyTooltip": "After you learn a new word, our smart spaced repetition system will calculate when you should review it and remind you at the right time. If you answer subsequent quizzes correctly, the interval will increase before you see that word again.",
+    "practiceBtnTooltip": "Review learned words with various test types including typing.",
+    "speedBtnTooltip": "Quickly review learned words by answering timed multiple-choice questions.",
+    "statLabelLearned": "learned lessons",
+    "statLabelReviewed": "reviewed lessons",
+    "practice": "Review",
+    "speedReview": "Speed Review",
+    "learnedSituations": "Your learned lessons",
+    "reviewedSituations": "Your reviewed lessons",
+    "countSituations": "{count} lessons",
+    "searchPlaceholder": "Search",
+    "empty": "After you learn lessons, they will appear here.",
+    "yourLearnedLessons": "Your learned lessons",
+    "yourLearnedLessonsDesc": "Lessons you have completed"
+  },
+  "immersePage": {
+    "headerTitle": "Find videos on topics you love (#music), or situations you want to prepare for (#travel)",
+    "headerDesc": "Use 'Ready to Watch' for videos using words you already know",
+    "tabAll": "All",
+    "tabReady": "Ready to Watch",
+    "tabWatched": "Watched",
+    "tabPractice": "Need Practice",
+    "popular": "Popular",
+    "tag": "Less than 50% known words",
+    "btn": "Learn new words",
+    "searchPlaceholder": "Search",
+    "card1": "Breakup on my birthday?",
+    "card2": "Jangjorim Mushrooms",
+    "card3": "A mysterious trip",
+    "card4": "Definitely yes!"
+  },
+  "learnPage": {
+    "start": "Start",
+    "stop": "Stop",
+    "tabLearn": "Learn",
+    "tabPractice": "Practice",
+    "studiedSituations": "Studied situations",
+    "continueLearning": "Continue learning",
+    "continue": "Continue",
+    "emptyModule": "No modules available",
+    "checkAnswer": "Check answer",
+    "typeYourAnswer": "Type your answer",
+    "dontKnow": "Don't know",
+    "alreadyKnow": "I already know this",
+    "correctAnswer": "Correct answer",
+    "finishedQuiz": "Finished quiz",
+    "backToLesson": "Back to lesson",
+    "searchPlaceholder": "Search",
+    "finishedLesson": "Lesson completed!",
+    "finishLesson": "Finish lesson",
+    "finishQuiz": "Finish quiz",
+    "nextLesson": "Next lesson",
+    "modulesTitle": {
+      "alphabet": "Alphabet",
+      "daily": "Daily words"
+    },
+    "modulesDesc": {
+      "alphabet": "Alphabet Desc",
+      "daily": "Daily words Desc"
+    },
+    "lessonsTitle": {
+      "ABCDE": "A, B, C, D, E Sign",
+      "FGHIJ": "F, G, H, I, J Sign",
+      "breakfast": "Breakfast Sign"
+    },
+    "lessonsDesc": {
+      "ABCDE": "A, B, C, D, E Sign Desc",
+      "FGHIJ": "F, G, H, I, J Sign Desc",
+      "breakfast": "Breakfast Sign Desc"
+    }
+  },
+  "courseDashboard": {
+    "myAccomplishments": "My Accomplishments",
+    "myActivity": "My Activities",
+    "startLearning": "Start learning",
+    "learnNewSign": "Learn new sign",
+    "percentage": "{percentage}%",
+    "progress": "Progress {progress}%",
+    "lessons": "Lessons",
+    "modules": "Modules",
+    "course": "Course",
+    "numberCompleted": "{count} completed",
+    "totalLessons": "{count} Lessons in module",
+    "totalModules": "{count} Modules in course",
+    "totalCourse": "{count} Courses in total",
+    "lessonsCompletedLast7Days": "Lessons completed (last 7 days)",
+    "modulesCompletedLast7Days": "Modules completed (last 7 days)",
+    "courseCompletedLast7Days": "Courses completed (last 7 days)",
+    "recentLessonsCompleted": "Recent lessons completed",
+    "recentModulesCompleted": "Recent modules completed",
+    "recentCoursesCompleted": "Recent courses completed"
+  },
+  "listCoursePage": {
+    "currentlyLearning": "Currently learning",
+    "languages": "Languages",
+    "chooseCourse": "Choose your course",
+    "chooseYourPath": "Choose your learning path",
+    "pathDescription": "Select a course that suits your learning goals and start your journey in sign language."
   }
 }

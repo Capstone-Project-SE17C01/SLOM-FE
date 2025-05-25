@@ -51,7 +51,6 @@ export function RegisterForm() {
         }
       })
       .catch((error) => {
-        console.log("Error Register\n", error);
         const errorMessage = Array.isArray(error.data.errorMessages)
           ? error.data.errorMessages[0]
           : error.data.errorMessages;

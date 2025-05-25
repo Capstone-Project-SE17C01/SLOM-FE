@@ -1,211 +1,198 @@
-import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
-import { MeetingRoom, ScheduledMeeting } from "./types";
-import { generateRandomID, generateZegoToken } from "@/services/zego/config";
+"use client";
 
-const SCHEDULED_MEETINGS_STORAGE_KEY = 'slom_scheduled_meetings';
+import { baseApi } from "@/redux/baseApi";
+import { AddRecordingRequest, CreateMeetingRequest, CreateMeetingResponse, JoinMeetingRequest, LeaveMeetingRequest, Meeting, MeetingDetail, Recording, ScheduledMeeting, UpdateMeetingRequest } from "./types";
 
-const MEETING_ROOMS_STORAGE_KEY = 'slom_meeting_rooms';
+export const meetingApi = baseApi.injectEndpoints({
+  endpoints: (builder) => ({
+    getActiveMeetings: builder.query<Meeting[], string | void>({
+      query: (userId) => ({
+        url: userId ? `/api/meeting/active?userId=${userId}` : '/api/meeting/active',
+        method: 'GET',
+        flashError: false,
+      }),
+      providesTags: (result) => 
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: 'Meeting' as const, id })),
+              { type: 'Meeting', id: 'ACTIVE' }
+            ]
+          : [{ type: 'Meeting', id: 'ACTIVE' }],
+    }),
+    getMeeting: builder.query<MeetingDetail, string>({
+      query: (id) => ({
+        url: `/api/meeting/${id}`,
+        method: 'GET',
+        flashError: false,
+      }),
+      providesTags: (result, error, id) => 
+        result 
+          ? [{ type: 'Meeting' as const, id }]
+          : [],
+    }),
+    
+    createMeeting: builder.mutation<CreateMeetingResponse, CreateMeetingRequest>({
+      query: (body) => ({
+        url: '/api/meeting',
+        method: 'POST',
+        body,
+        flashError: true,
+      }),
+    }),
+    
+    joinMeeting: builder.mutation<void, { id: string, request: JoinMeetingRequest }>({
+      query: ({ id, request }) => ({
+        url: `/api/meeting/${id}/join`,
+        method: 'POST',
+        body: request,
+        flashError: true,
+      }),
+    }),
+    
+    leaveMeeting: builder.mutation<void, { id: string, request: LeaveMeetingRequest }>({
+      query: ({ id, request }) => ({
+        url: `/api/meeting/${id}/leave`,
+        method: 'POST',
+        body: request,
+        flashError: false,
+      }),
+    }),
+    getScheduledMeetingsByMonth: builder.query<ScheduledMeeting[], { year: number, month: number, userId?: string }>({
+      query: ({ year, month, userId }) => ({
+        url: userId 
+          ? `/api/meeting/scheduled?year=${year}&month=${month}&userId=${userId}`
+          : `/api/meeting/scheduled?year=${year}&month=${month}`,
+        method: 'GET',
+        flashError: false,
+      }),
+      providesTags: (result) => 
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: 'Meeting' as const, id })),
+              { type: 'Meeting', id: 'MONTH' }
+            ]
+          : [{ type: 'Meeting', id: 'MONTH' }],
+    }),
+    
+    getScheduledMeetingsByDate: builder.query<ScheduledMeeting[], { date: string, userId?: string }>({
+      query: ({ date, userId }) => ({
+        url: userId
+          ? `/api/meeting/scheduled/date?date=${date}&userId=${userId}`
+          : `/api/meeting/scheduled/date?date=${date}`,
+        method: 'GET',
+        flashError: false,
+      }),
+      providesTags: (result) => 
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: 'Meeting' as const, id })),
+              { type: 'Meeting', id: 'DATE' }
+            ]
+          : [{ type: 'Meeting', id: 'DATE' }],
+    }),
+    
+    addRecording: builder.mutation<Recording, { id: string, request: AddRecordingRequest }>({
+      query: ({ id, request }) => ({
+        url: `/api/meeting/${id}/recording`,
+        method: 'POST',
+        body: request,
+        flashError: true,
+      }),
+      invalidatesTags: (result, error, { id }) => 
+        error ? [] : [
+          { type: 'Meeting', id },
+          { type: 'Recording', id: 'LIST' }
+        ]
+    }),
+    
+    getRecordings: builder.query<Recording[], string>({
+      query: (id) => ({
+        url: `/api/meeting/${id}/recordings`,
+        method: 'GET',
+        flashError: false,
+      }),
+      providesTags: (result) => 
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: 'Recording' as const, id })),
+              { type: 'Recording', id: 'LIST' }
+            ]
+          : [{ type: 'Recording', id: 'LIST' }],
+    }),
 
-export function getUrlParams(url?: string): URLSearchParams {
-    if (typeof window === "undefined") return new URLSearchParams("");
+    getUserMeetings: builder.query<Meeting[], string>({
+      query: (userId) => ({
+        url: `/api/meeting/user/${userId}`,
+        method: 'GET',
+        flashError: false,
+      }),
+      providesTags: (result) => 
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: 'Meeting' as const, id })),
+              { type: 'Meeting', id: 'USER' }
+            ]
+          : [{ type: 'Meeting', id: 'USER' }],
+    }),
 
-    url = url || window.location.href;
-    const urlParts = url.split("?");
-    if (urlParts.length < 2) return new URLSearchParams("");
-    return new URLSearchParams(urlParts[1]);
-}
+    getUserRecordings: builder.query<Recording[], string>({
+      query: (userId) => ({
+        url: `/api/meeting/recordings/${userId}`,
+        method: 'GET',
+        flashError: false,
+      }),
+      providesTags: (result) => 
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: 'Recording' as const, id })),
+              { type: 'Recording', id: 'USER' }
+            ]
+          : [{ type: 'Recording', id: 'USER' }],
+    }),
+    deleteMeeting: builder.mutation<{ message: string }, { id: string, userId: string }>({
+      query: ({ id, userId }) => ({
+        url: `/api/meeting/${id}?userId=${userId}`,
+        method: 'DELETE',
+        flashError: true,
+      }),
+      invalidatesTags: (result, error, { id }) => 
+        error ? [] : [
+          { type: 'Meeting', id },
+          { type: 'Meeting', id: 'DATE' },
+          { type: 'Meeting', id: 'MONTH' },
+          { type: 'Meeting', id: 'ACTIVE' }
+        ]
+    }),
+    updateMeeting: builder.mutation<MeetingDetail, { id: string, request: UpdateMeetingRequest }>({
+      query: ({ id, request }) => ({
+        url: `/api/meeting/${id}`,
+        method: 'PUT',
+        body: request,
+        flashError: true,
+      }),
+      invalidatesTags: (result, error, { id }) => 
+        error ? [] : [
+          { type: 'Meeting', id },
+          { type: 'Meeting', id: 'DATE' },
+          { type: 'Meeting', id: 'MONTH' },
+          { type: 'Meeting', id: 'ACTIVE' }
+        ]
+    })
+  })
+});
 
-export function joinZegoRoom(
-    element: HTMLDivElement,
-    roomID: string,
-    onJoinRoom?: () => void
-): ReturnType<typeof ZegoUIKitPrebuilt.create> | undefined {
-    try {
-        const kitToken = generateZegoToken(roomID);
-
-        const zp = ZegoUIKitPrebuilt.create(kitToken);
-
-        zp.joinRoom({
-            container: element,
-            sharedLinks: [
-                {
-                    name: "Personal link",
-                    url:
-                        typeof window !== "undefined"
-                            ? `${window.location.protocol}//${window.location.host}${window.location.pathname}?roomID=${roomID}`
-                            : "",
-                },
-            ],
-            scenario: {
-                mode: ZegoUIKitPrebuilt.GroupCall,
-            },
-            onJoinRoom: onJoinRoom
-        });
-
-        return zp;
-    } catch (error) {
-        console.error("Failed to join meeting:", error);
-        return undefined;
-    }
-}
-
-export function createZegoMeetingRoom(params: {
-    name: string;
-    description?: string;
-    duration: number;
-}): MeetingRoom {
-    const { name, description = '', duration } = params;
-
-    const roomId = generateRandomID(6);
-
-    const now = new Date();
-    const expiresAt = new Date(now.getTime() + duration * 60 * 1000);
-
-    const newRoom: MeetingRoom = {
-        id: roomId,
-        name,
-        description,
-        duration,
-        createdAt: now.toISOString(),
-        expiresAt: expiresAt.toISOString(),
-        participants: []
-    };
-
-    const existingRooms = getZegoMeetingRooms();
-    const updatedRooms = [...existingRooms, newRoom];
-    saveRoomsToStorage(updatedRooms);
-
-    return newRoom;
-}
-
-export function getZegoMeetingRooms(): MeetingRoom[] {
-    if (typeof window === 'undefined') return [];
-    try {
-        const storedRooms = localStorage.getItem(MEETING_ROOMS_STORAGE_KEY);
-
-        if (!storedRooms) return [];
-
-        const rooms: MeetingRoom[] = JSON.parse(storedRooms);
-        const now = new Date();
-
-        const activeRooms = rooms.filter(room =>
-            new Date(room.expiresAt) > now
-        );
-
-        if (activeRooms.length !== rooms.length) {
-            saveRoomsToStorage(activeRooms);
-        }
-
-        return activeRooms;
-    } catch (error) {
-        console.error("Error getting meeting rooms:", error);
-        return [];
-    }
-}
-
-export function getZegoMeetingRoomById(roomId: string): MeetingRoom | undefined {
-    const rooms = getZegoMeetingRooms();
-    return rooms.find(room => room.id === roomId);
-}
-
-export function addParticipantToZegoRoom(roomId: string, participantId: string, participantName: string): boolean {
-    const rooms = getZegoMeetingRooms();
-    const roomIndex = rooms.findIndex(room => room.id === roomId);
-
-    if (roomIndex === -1) return false;
-
-    if (!rooms[roomIndex].participants) {
-        rooms[roomIndex].participants = [];
-    }
-
-    const participantExists = rooms[roomIndex].participants!.some(p => p.id === participantId);
-
-    if (!participantExists) {
-        rooms[roomIndex].participants!.push({ id: participantId, name: participantName });
-        saveRoomsToStorage(rooms);
-    }
-
-    return true;
-}
-
-export function getZegoRoomTimeLeft(roomId: string): number {
-    const room = getZegoMeetingRoomById(roomId);
-    if (!room) return 0;
-
-    const now = new Date();
-    const expiresAt = new Date(room.expiresAt);
-
-    const timeLeftMs = expiresAt.getTime() - now.getTime();
-    return Math.max(0, Math.floor(timeLeftMs / 1000));
-}
-
-function saveRoomsToStorage(rooms: MeetingRoom[]): void {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem(MEETING_ROOMS_STORAGE_KEY, JSON.stringify(rooms));
-}
-
-
-function generateMeetingId(): string {
-    return 'meeting_' + Math.random().toString(36).substr(2, 9);
-}
-
-export function createScheduledMeeting(params: {
-    name: string;
-    description: string;
-    date: string;
-    time: string;
-    duration: number;
-}): ScheduledMeeting {
-    const { name, description, date, time, duration } = params;
-
-    const meeting: ScheduledMeeting = {
-        id: generateMeetingId(),
-        name,
-        description,
-        date,
-        time,
-        duration,
-        createdAt: new Date().toISOString()
-    };
-
-    const existingMeetings = getScheduledMeetings();
-    const updatedMeetings = [...existingMeetings, meeting];
-    saveScheduledMeetingsToStorage(updatedMeetings);
-
-    return meeting;
-}
-
-export function getScheduledMeetings(): ScheduledMeeting[] {
-    if (typeof window === 'undefined') return [];
-
-    try {
-        const storedMeetings = localStorage.getItem(SCHEDULED_MEETINGS_STORAGE_KEY);
-        if (!storedMeetings) return [];
-
-        return JSON.parse(storedMeetings);
-    } catch (error) {
-        console.error("Error getting scheduled meetings:", error);
-        return [];
-    }
-}
-
-export function getScheduledMeetingsForDate(date: string): ScheduledMeeting[] {
-    const meetings = getScheduledMeetings();
-    return meetings.filter(meeting => meeting.date === date);
-}
-
-export function getScheduledMeetingsForMonth(year: number, month: number): ScheduledMeeting[] {
-    const meetings = getScheduledMeetings();
-
-    const monthStr = month < 10 ? `0${month}` : `${month}`;
-
-    return meetings.filter(meeting => {
-        const meetingDate = meeting.date.split('-');
-        return meetingDate[0] === year.toString() && meetingDate[1] === monthStr;
-    });
-}
-
-function saveScheduledMeetingsToStorage(meetings: ScheduledMeeting[]): void {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem(SCHEDULED_MEETINGS_STORAGE_KEY, JSON.stringify(meetings));
-}
+export const {
+  useGetActiveMeetingsQuery,
+  useGetMeetingQuery,
+  useCreateMeetingMutation,
+  useJoinMeetingMutation,
+  useLeaveMeetingMutation,
+  useGetScheduledMeetingsByMonthQuery,
+  useGetScheduledMeetingsByDateQuery,
+  useAddRecordingMutation,
+  useGetRecordingsQuery,
+  useGetUserMeetingsQuery,
+  useGetUserRecordingsQuery,
+  useDeleteMeetingMutation,
+  useUpdateMeetingMutation
+} = meetingApi;

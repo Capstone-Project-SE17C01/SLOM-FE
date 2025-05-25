@@ -7,12 +7,7 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-
-interface RoomCreationModalProps {
-  show: boolean;
-  onClose: () => void;
-  onCreateRoom: (roomName: string, description: string, duration: number) => void;
-}
+import { RoomCreationModalProps } from '../types';
 
 export const RoomCreationModal: React.FC<RoomCreationModalProps> = ({
   show,

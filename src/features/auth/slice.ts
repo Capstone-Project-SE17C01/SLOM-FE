@@ -15,9 +15,12 @@ interface AuthSliceInterface {
     email: string;
     avatarUrl: string;
     role?: string;
-    preferredLanguageId?: string;
+    preferredLanguageId: string;
     firstname?: string;
     lastname?: string;
+    courseId?: string;
+    languageCode?: string;
+    courseTitle?: string;
   } | null;
   access_token: string | null;
 }
@@ -42,6 +45,9 @@ export const authSlice = createSlice({
       const { userInfo, accessToken } = action.payload;
       state.userInfo = userInfo;
       state.access_token = accessToken;
+      if (userInfo.languageCode) {
+        setClientCookie(constants.LOCALE, userInfo.languageCode);
+      }
       setClientCookie(constants.ACCESS_TOKEN, accessToken);
       setClientCookie(constants.USER_INFO, JSON.stringify(userInfo));
     },

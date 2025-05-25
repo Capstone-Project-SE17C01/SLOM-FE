@@ -15,9 +15,10 @@ interface RecordingHookProps {
   roomID: string;
   onSaveSuccess?: (data: CloudinaryUploadResponse) => void;
   onSaveFailed?: (error: unknown) => void;
+  onStopRecording?: (path: string, duration: number) => void;
 }
 
-export function useRecording({ roomID, onSaveSuccess, onSaveFailed }: RecordingHookProps) {
+export function useRecording({ roomID, onSaveSuccess, onSaveFailed, onStopRecording }: RecordingHookProps) {
   const [isRecording, setIsRecording] = React.useState<boolean>(false);
   const [recorder, setRecorder] = React.useState<MediaRecorder | null>(null);
   const [recordedChunks, setRecordedChunks] = React.useState<Blob[]>([]);
@@ -136,11 +137,16 @@ export function useRecording({ roomID, onSaveSuccess, onSaveFailed }: RecordingH
       generateVideoFilename(roomID), 
       { type: "video/webm; codecs=vp9,opus" }
     );
-    
-    try {   
+      try {   
       const data = await uploadVideoToCloudinary(file, folder);
       
       if (onSaveSuccess) onSaveSuccess(data);
+      // Call onStopRecording with the secure URL and duration if provided
+      if (onStopRecording && data.secure_url) {
+        const duration = data.duration ? parseInt(data.duration.toString()) : 0;
+        onStopRecording(data.secure_url, duration);
+      }
+      
       setTempRecordingData(null);
     } catch (error) {
       console.error("Error uploading to Cloudinary:", error);

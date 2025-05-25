@@ -7,6 +7,8 @@ import { useTheme } from "@/contexts/ThemeContext";
 import Header from "./header-breadcrumb";
 import MobileMenu from "./mobile-menu";
 import Footer from "./footer";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 export default function DashboardLayout({
   children,
@@ -17,13 +19,19 @@ export default function DashboardLayout({
   const { isDarkMode, toggleDarkMode } = useTheme();
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const navItems = [
-    { name: "home", href: "/trang-chu" },
-    { name: "meeting", href: "/meeting-room" },
+    { name: "home", href: "/home" },
     { name: "features", href: "/features" },
     { name: "about", href: "/about" },
     { name: "contact", href: "/contact" },
-    { name: "message", href: "/chat" },
   ];
+
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+  if (userInfo) {
+    navItems.push({ name: "message", href: "/chat" });
+    navItems.push({ name: "course", href: "/list-course" });
+    navItems.push({ name: "meeting", href: "/meeting-room" },
+    );
+  }
 
   return (
     <div
@@ -45,8 +53,8 @@ export default function DashboardLayout({
         setMenuOpen={setMenuOpen}
       />
 
-      <main className="pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div
             className={cn(
               "rounded-xl p-8 shadow-sm border",

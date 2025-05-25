@@ -61,7 +61,7 @@ export function ConfirmRegisterationForm() {
         }
       })
       .catch((error) => {
-        console.log("Error confirm registration\n", error);
+        console.error("Error confirm registration\n", error);
         error.data.errorMessages.forEach((message: string) => {
           setError(t(message));
         });
@@ -96,7 +96,7 @@ export function ConfirmRegisterationForm() {
         }
       })
       .catch((error) => {
-        console.log("Error resend code\n", error);
+        console.error("Error resend code\n", error);
       })
       .finally(() => {
         setIsResending(false);

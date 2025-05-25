@@ -13,6 +13,8 @@ import type {
   SubscriptionPlanDTO,
   LoginWithGoogleRequestDTO,
   UpdatePasswordRequestDTO,
+  ChangeLanguageRequestDTO,
+  ChangeLanguageResponseDTO,
 } from "./types";
 import { authSlice } from "./slice";
 
@@ -46,6 +48,8 @@ export const authAPI = baseApi.injectEndpoints({
                     avatarUrl: user.avatarUrl || "",
                     role: user.roleId,
                     preferredLanguageId: user.preferredLanguageId,
+                    languageCode: user.languageCode,
+                    courseTitle: "chooseCourse",
                   },
                   accessToken: loginData.result.accessToken,
                 })
@@ -53,7 +57,7 @@ export const authAPI = baseApi.injectEndpoints({
             }
           }
         } catch (error) {
-          console.error("Error fetching user profile:", error);
+          console.log("Error fetching user profile:", error);
         }
       },
     }),
@@ -85,6 +89,8 @@ export const authAPI = baseApi.injectEndpoints({
                     avatarUrl: user.avatarUrl || "",
                     role: user.roleId,
                     preferredLanguageId: user.preferredLanguageId,
+                    languageCode: user.languageCode,
+                    courseTitle: "chooseCourse",
                   },
                   accessToken: loginData.result.accessToken,
                 })
@@ -92,7 +98,7 @@ export const authAPI = baseApi.injectEndpoints({
             }
           }
         } catch (error) {
-          console.error("Error fetching user profile:", error);
+          console.log("Error fetching user profile:", error);
         }
       },
     }),
@@ -172,6 +178,17 @@ export const authAPI = baseApi.injectEndpoints({
         flashError: false,
       }),
     }),
+    changeLanguage: build.mutation<
+      APIResponse<ChangeLanguageResponseDTO>,
+      ChangeLanguageRequestDTO
+    >({
+      query: (data: ChangeLanguageRequestDTO) => ({
+        url: "/api/Profile/ChangeLanguage",
+        method: "POST",
+        body: data,
+        flashError: false,
+      }),
+    }),
   }),
 });
 
@@ -187,4 +204,5 @@ export const {
   useUpdatePlanMutation,
   useGetAllPlanQuery,
   useUpdatePasswordMutation,
+  useChangeLanguageMutation,
 } = authAPI;

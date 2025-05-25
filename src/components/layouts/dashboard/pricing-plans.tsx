@@ -52,7 +52,7 @@ export default function PricingPlans() {
   }, []);
 
   useEffect(() => {
-    if (error) console.log(t3("failGetplan"));
+    if (error) console.error(t3("failGetplan"));
   }, [isLoading, error, t3]);
 
   useEffect(() => {
@@ -86,10 +86,10 @@ export default function PricingPlans() {
       if (result?.checkoutUrl) {
         router.push(result.checkoutUrl);
       } else {
-        console.log(t3(errorMessages[0]));
+        console.error(t3(errorMessages[0]));
       }
     } catch {
-      console.log(t3("errorCreatePaymentLink"));
+      console.error(t3("errorCreatePaymentLink"));
     }
   };
 
