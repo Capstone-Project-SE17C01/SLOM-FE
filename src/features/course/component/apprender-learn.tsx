@@ -10,9 +10,9 @@ import {
   useGetListQuizByLessonIdMutation,
   useAddNewUserProgressMutation,
 } from "@/features/course/api";
-import WordPractice from "./WordPractice";
+import WordPractice from "./word-practice";
 import { RootState } from "@/redux/store";
-import QuizPractice from "./QuizPractice";
+import QuizPractice from "./quiz-practice";
 import { useSelector } from "react-redux";
 export default function ApprenderLearnPractice() {
   const searchParams = useSearchParams();
@@ -47,7 +47,7 @@ export default function ApprenderLearnPractice() {
           })
           .catch((error) => {
             setIsErrorAddNewUserProgress(true);
-            console.log(error.data?.errorMessages[0]);
+            console.error(error.data?.errorMessages[0]);
           });
       }
     };
@@ -65,7 +65,7 @@ export default function ApprenderLearnPractice() {
               const errorMessage = Array.isArray(error.data?.errorMessages)
                 ? error.data.errorMessages[0]
                 : "Failed to fetch quiz";
-              console.log(errorMessage);
+              console.error(errorMessage);
             });
         };
         fetchQuiz();
@@ -80,7 +80,7 @@ export default function ApprenderLearnPractice() {
               const errorMessage = Array.isArray(error.data?.errorMessages)
                 ? error.data.errorMessages[0]
                 : "Failed to fetch word";
-              console.log(errorMessage);
+              console.error(errorMessage);
             });
         };
         fetchWord();

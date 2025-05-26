@@ -25,7 +25,6 @@ export default function CourseCard({ course }: CourseCardProps) {
 
   const handleStartLearning = () => {
     setCourseTitle(course.title);
-    console.log("userInfo courseCard", userInfo);
     if (userInfo) {
       dispatch(
         authSlice.actions.setCredentials({

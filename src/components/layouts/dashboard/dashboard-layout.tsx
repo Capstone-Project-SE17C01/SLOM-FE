@@ -17,22 +17,20 @@ export default function DashboardLayout({
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { isDarkMode, toggleDarkMode } = useTheme();
-
   const toggleMenu = () => setMenuOpen(!menuOpen);
-
   const navItems = [
-    { name: "home", href: "/" },
+    { name: "home", href: "/home" },
     { name: "features", href: "/features" },
     { name: "about", href: "/about" },
     { name: "contact", href: "/contact" },
   ];
 
-  //if logged in navItems will add 2 items: message and course
-  //check userInfo in redux
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   if (userInfo) {
     navItems.push({ name: "message", href: "/chat" });
     navItems.push({ name: "course", href: "/list-course" });
+    navItems.push({ name: "meeting", href: "/meeting-room" },
+    );
   }
 
   return (

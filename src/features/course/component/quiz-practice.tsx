@@ -66,7 +66,6 @@ export default function QuizPractice({
 
   const handleInputCheck = (correct: boolean) => {
     if (correct) {
-      console.log("correct");
       setIsCorrect(correct);
       setCanContinue(true);
       if (canContinue) {
@@ -99,11 +98,8 @@ export default function QuizPractice({
         lessonId: lessonId,
       })
         .unwrap()
-        .then((res) => {
-          console.log(res.result);
-        })
         .catch((error) => {
-          console.log(error.data?.errorMessages[0]);
+          console.error(error.data?.errorMessages[0]);
         });
     }
     router.push(back);

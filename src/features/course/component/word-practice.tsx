@@ -59,10 +59,10 @@ export default function WordPractice({
       })
         .unwrap()
         .then((res) => {
-          console.log(res.result);
+          console.error(res.result);
         })
         .catch((error) => {
-          console.log(error.data?.errorMessages[0]);
+          console.error(error.data?.errorMessages[0]);
         });
     }
     router.push(back);

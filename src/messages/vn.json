@@ -1,4 +1,4 @@
-{
+{  
   "header": {
     "search": "Tìm kiếm",
     "notifications": "Thông báo",
@@ -15,7 +15,8 @@
     "listCourse": "Danh sách bài học",
     "scenario": "Tình huống",
     "video": "Video",
-    "conversation": "Cuộc đối thoại"
+    "conversation": "Cuộc đối thoại",
+    "meeting": "Phòng họp"
   },
   "language": {
     "en": "Tiếng Anh",
@@ -499,6 +500,8 @@
   "listCoursePage": {
     "currentlyLearning": "Hiện đang học",
     "languages": "Ngôn ngữ",
-    "chooseCourse": "Chọn khóa học của bạn"
+    "chooseCourse": "Chọn khóa học của bạn",
+    "chooseYourPath": "Chọn con đường học tập của bạn",
+    "pathDescription": "Chúng tôi cung cấp các khóa học ngôn ngữ ký hiệu từ cơ bản đến nâng cao, phù hợp với mọi trình độ. Hãy chọn khóa học phù hợp với bạn để bắt đầu hành trình học tập."
   }
 }

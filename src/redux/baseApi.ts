@@ -19,5 +19,6 @@ const baseQuery = fetchBaseQuery({
 
 export const baseApi = createApi({
   baseQuery: baseQuery,
+  tagTypes: ['Meeting', 'Recording'],
   endpoints: () => ({}),
 });

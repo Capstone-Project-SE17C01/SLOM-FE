@@ -43,7 +43,7 @@ export default function LearnPage() {
         if (lessonRes.result) setOngoingLesson(lessonRes.result);
       })
       .catch((err) => {
-        console.log("fetch error", err);
+        console.error("fetch error", err);
       });
   }, [
     getAllModuleByCourseId,
@@ -68,7 +68,7 @@ export default function LearnPage() {
   return (
     <div className="p-8">
       {/* Tabs + Search */}
-      <div className="flex lg:flex-row items-center justify-between mb-6 max-md:flex-col max-md:gap-4 max-md:items-start">
+      <div className="flex lg:flex-row items-center justify-between mb-8 max-md:flex-col max-md:gap-4 max-md:items-start">
         <SwitchTabButton
           tabs={[
             { label: t_learn("tabLearn"), href: "/learn" },
@@ -82,12 +82,12 @@ export default function LearnPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t_learn("searchPlaceholder")}
-              className="pl-10 pr-4 py-2 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-primary min-w-[220px]"
+              className="pl-10 pr-4 py-3 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent min-w-[260px] shadow-sm"
             />
             <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           </div>
           <button
-            className="font-semibold text-sm text-gray-800 flex items-center gap-1 hover:underline"
+            className="font-semibold text-sm text-primary flex items-center gap-1 hover:text-primary/80 transition-colors"
             onClick={() => {
               router.push("/practice");
             }}
@@ -100,76 +100,81 @@ export default function LearnPage() {
       {/* Continue learning */}
       {ongoingLesson && (
         <div className="mb-8">
-          <div className="text-2xl font-extrabold mb-3">
+          <div className="text-2xl font-extrabold mb-4 text-gray-900">
             {t_learn("continueLearning")}
           </div>
-          <div className="min-w-[300px] w-full max-w-md bg-gray-50 rounded-xl shadow flex items-center p-4 mb-2 lg:flex-row sm:items-start sm:gap-4">
-            <div className="flex-1">
-              <div className="font-bold text-sm mb-1">
-                {currentModule?.title
-                  ? t_learn("modulesTitle." + currentModule.title)
-                  : ""}
+          <div className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl shadow-sm border border-primary/20 p-6 max-w-2xl">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="font-bold text-sm mb-1 text-primary">
+                  {currentModule?.title
+                    ? t_learn("modulesTitle." + currentModule.title)
+                    : ""}
+                </div>
+                <div className="text-gray-700 text-lg mb-3 font-medium">
+                  {ongoingLesson?.title
+                    ? t_learn("lessonsTitle." + ongoingLesson?.title)
+                    : ""}
+                </div>
               </div>
-              <div className="text-gray-700 text-base mb-2">
-                {ongoingLesson?.title
-                  ? t_learn("lessonsTitle." + ongoingLesson?.title)
-                  : ""}
+              <div className="flex items-center gap-4">
+                <button
+                  className="bg-primary text-white font-bold px-8 py-3 rounded-lg shadow-md hover:shadow-lg hover:bg-primary/90 transition-all"
+                  onClick={() =>
+                    ongoingLesson
+                      ? router.push(
+                          `/apprender/learn?lessonId=${encodeURIComponent(
+                            ongoingLesson.id
+                          )}&lessonTitle=${encodeURIComponent(
+                            ongoingLesson.title
+                          )}&back=${encodeURIComponent("/learn")}`
+                        )
+                      : null
+                  }
+                >
+                  {t_learn("continue")}
+                </button>
+                <div className="max-md:hidden">
+                  <Image
+                    src="/images/logo.png"
+                    alt="avatar"
+                    width={56}
+                    height={56}
+                    className="rounded-full object-cover shadow-md"
+                  />
+                </div>
               </div>
-            </div>
-            <button
-              className="ml-4 bg-primary text-white font-bold px-6 py-2 rounded-lg shadow"
-              onClick={() =>
-                ongoingLesson
-                  ? router.push(
-                      `/apprender/learn?lessonId=${encodeURIComponent(
-                        ongoingLesson.id
-                      )}&lessonTitle=${encodeURIComponent(
-                        ongoingLesson.title
-                      )}&back=${encodeURIComponent("/learn")}`
-                    )
-                  : null
-              }
-            >
-              {t_learn("continue")}
-            </button>
-            <div className="ml-4 max-md:hidden">
-              <Image
-                src="/images/logo.png"
-                alt="avatar"
-                width={48}
-                height={48}
-                className="rounded-full object-cover"
-              />
             </div>
           </div>
         </div>
       )}
 
       {/* List modules and lessons */}
-
-      {filteredModules.length > 0 ? (
-        filteredModules.map((mod) => (
-          <LearningPathSection
-            key={mod.id}
-            isReview={false}
-            sectionTitle={t_learn("modulesTitle." + mod.title)}
-            sectionDescription={t_learn("modulesDesc." + mod.title)}
-            lessons={
-              mod.lessons?.map((lesson) => ({
-                id: lesson.id,
-                title: lesson?.title
-                  ? t_learn("lessonsTitle." + lesson.title)
-                  : "",
-                image: "/images/logo.png",
-              })) ?? []
-            }
-          />
-        ))
-      ) : (
-        <div className="text-center text-gray-500 mt-8">
-          {t_learn("emptyModule")}
-        </div>
-      )}
+      <div className="space-y-8">
+        {filteredModules.length > 0 ? (
+          filteredModules.map((mod) => (
+            <LearningPathSection
+              key={mod.id}
+              isReview={false}
+              sectionTitle={t_learn("modulesTitle." + mod.title)}
+              sectionDescription={t_learn("modulesDesc." + mod.title)}
+              lessons={
+                mod.lessons?.map((lesson) => ({
+                  id: lesson.id,
+                  title: lesson?.title
+                    ? t_learn("lessonsTitle." + lesson.title)
+                    : "",
+                  image: "/images/logo.png",
+                })) ?? []
+              }
+            />
+          ))
+        ) : (
+          <div className="text-center text-gray-500 mt-12 py-12">
+            <div className="text-lg font-medium">{t_learn("emptyModule")}</div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

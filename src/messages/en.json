@@ -1,4 +1,28 @@
-{
+{  
+  "welcomePage": {
+    "welcomeBack": "Welcome back, {name}!",
+    "title": "Ready to Learn & Connect",
+    "subtitle": "Choose your learning path or connect with others through our advanced meeting platform.",
+    "course": {
+      "title": "Start Learning",
+      "description": "Explore our comprehensive sign language courses designed for all skill levels.",
+      "feature1": "Interactive lessons",
+      "feature2": "HD video content",
+      "action": "Browse Courses"
+    },
+    "meetingRoom": {
+      "title": "Join Meetings",
+      "description": "Connect with others through our sign language optimized video conferencing.",
+      "feature1": "Crystal clear video",
+      "feature2": "Real-time chat",
+      "action": "Enter Meeting Room"
+    },
+    "stats": {
+      "availability": "Available",
+      "quality": "Quality",
+      "learning": "Possibilities"
+    }
+  },
   "header": {
     "search": "Search",
     "notifications": "Notifications",
@@ -15,7 +39,8 @@
     "listCourse": "List Course",
     "scenario": "Scenario",
     "video": "Video",
-    "conversation": "Conversation"
+    "conversation": "Conversation",
+    "meeting": "Meeting Room"
   },
   "language": {
     "en": "English",
@@ -493,6 +518,8 @@
   "listCoursePage": {
     "currentlyLearning": "Currently learning",
     "languages": "Languages",
-    "chooseCourse": "Choose your course"
+    "chooseCourse": "Choose your course",
+    "chooseYourPath": "Choose your learning path",
+    "pathDescription": "Select a course that suits your learning goals and start your journey in sign language."
   }
 }

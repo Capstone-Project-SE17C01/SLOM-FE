@@ -48,7 +48,6 @@ export default function QuizAI({
 
   const handleStartStreaming = async () => {
     setStreaming(true);
-    console.log("handle Start Streaming");
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
     streamRef.current = stream;
     if (videoRef.current) videoRef.current.srcObject = stream;
@@ -57,7 +56,6 @@ export default function QuizAI({
     wsRef.current = ws;
 
     ws.onopen = () => {
-      console.log("WebSocket opened");
       setStreaming(true);
       sendFrame();
     };
@@ -84,7 +82,7 @@ export default function QuizAI({
     };
 
     ws.onerror = (e) => {
-      console.log("WebSocket error===>", e);
+      console.error("WebSocket error===>", e);
       setStreaming(false);
       wsRef.current?.close();
       streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -92,7 +90,7 @@ export default function QuizAI({
     };
 
     ws.onclose = (event) => {
-      console.log("WebSocket closed===>", event);
+      console.error("WebSocket closed===>", event);
       setStreaming(false);
       wsRef.current?.close();
       streamRef.current?.getTracks().forEach((track) => track.stop());

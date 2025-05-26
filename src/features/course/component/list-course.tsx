@@ -32,28 +32,40 @@ export default function ListCoursePage() {
   }, [getCourses, userInfo?.id]);
 
   return (
-    <div className="flex min-h-screen bg-white">
-      {/* Main Content */}
-      <div className="flex-1 flex mx-28 flex-col items-center">
-        <main className="w-full max-w-6xl mx-20 pt-12 px-4">
-          <h2 className="text-3xl font-extrabold mb-4 mt-8">
-            {tDashboard("currentlyLearning")}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-            {learningCourses.map((c, i) => (
-              <CourseCard key={i} course={c} />
-            ))}
-          </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-6xl mx-auto px-4 py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            {tDashboard("chooseYourPath")}
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            {tDashboard("pathDescription")}
+          </p>
+        </div>
 
-          <h2 className="text-3xl font-extrabold mb-4 mt-8">
+        {learningCourses.length > 0 && (
+          <div className="mb-16">
+            <h2 className="text-3xl font-extrabold mb-8 text-gray-900">
+              {tDashboard("currentlyLearning")}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {learningCourses.map((c, i) => (
+                <CourseCard key={i} course={c} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div>
+          <h2 className="text-3xl font-extrabold mb-8 text-gray-900">
             {tDashboard("languages")}
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {remainingCourses.map((c, i) => (
               <CourseCard key={i} course={c} />
             ))}
           </div>
-        </main>
+        </div>
       </div>
     </div>
   );

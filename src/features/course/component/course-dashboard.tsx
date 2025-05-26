@@ -177,88 +177,86 @@ export default function CourseDashboard() {
   ];
 
   return (
-    <div className="flex min-h-screen">
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        <main className="flex-1 overflow-y-auto p-8">
-          <div className="max-w-4xl mx-auto">
-            {/* ProgressBar */}
-            <ProgressBar
-              dashboardData={dashboardData}
-              tLearnPage={tLearnPage}
-              tCourseDashBoard={tCourseDashBoard}
-            />
-            {/* Accomplishments */}
-            <div className="bg-primary rounded-xl p-4 mb-6">
-              <div className="flex justify-between items-center">
-                <div className="font-bold text-lg text-white">
-                  {tCourseDashBoard("myAccomplishments")}
-                </div>
-                <div className="font-bold text-lg text-white">
-                  {userInfo?.courseTitle}
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-4 mt-4">
-                {accomplishmentConfigs.map((cfg) => (
-                  <AccomplishmentCard
-                    key={cfg.title}
-                    {...cfg}
-                    tCourseDashBoard={tCourseDashBoard}
-                  />
-                ))}
-              </div>
+    <div className="p-8">
+      <div className="max-w-4xl mx-auto">
+        {/* ProgressBar */}
+        <ProgressBar
+          dashboardData={dashboardData}
+          tLearnPage={tLearnPage}
+          tCourseDashBoard={tCourseDashBoard}
+        />
+
+        {/* Accomplishments */}
+        <div className="bg-gradient-to-r from-primary to-primary/80 rounded-xl p-6 mb-6 shadow-lg">
+          <div className="flex justify-between items-center">
+            <div className="font-bold text-xl text-white">
+              {tCourseDashBoard("myAccomplishments")}
             </div>
-            {/* ActivityCard */}
-            <div className="mb-6 flex">
-              <ActivityCard
-                title={tCourseDashBoard("myActivity")}
-                activities={
-                  dashboardData?.activities ?? {
-                    recentLessonsCompleted: 0,
-                    recentModulesCompleted: 0,
-                    recentCoursesCompleted: 0,
-                  }
-                }
-                subLabel={tCourseDashBoard("lessonsCompletedLast7Days")}
-              />
-            </div>
-            {/* BannerStartLearning */}
-            <div className="bg-primary/10  rounded-xl p-6 flex items-center justify-between mb-6">
-              <div className="">
-                <div className="font-bold text-lg mb-2">
-                  {tCourseDashBoard("learnNewSign")}
-                </div>
-                <div className="text-sm">
-                  {/* get lesson title from activeLesson*/}
-                  {dashboardData?.activeLesson?.title && (
-                    <span>
-                      {tLearnPage(
-                        "lessonsTitle." + dashboardData?.activeLesson?.title,
-                        {
-                          lessonTitle: dashboardData?.activeLesson?.title ?? "",
-                        }
-                      )}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <ButtonCourse
-                variant="super"
-                onClick={() => {
-                  router.push(
-                    `/apprender/learn?lessonId=${
-                      dashboardData?.activeLesson?.id
-                    }&moduleId=${
-                      dashboardData?.activeLesson?.moduleId
-                    }&back=${encodeURIComponent("/course-dashboard")}`
-                  );
-                }}
-              >
-                {tCourseDashBoard("startLearning")}
-              </ButtonCourse>
+            <div className="font-bold text-lg text-white/90">
+              {userInfo?.courseTitle}
             </div>
           </div>
-        </main>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+            {accomplishmentConfigs.map((cfg) => (
+              <AccomplishmentCard
+                key={cfg.title}
+                {...cfg}
+                tCourseDashBoard={tCourseDashBoard}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* ActivityCard */}
+        <div className="mb-6">
+          <ActivityCard
+            title={tCourseDashBoard("myActivity")}
+            activities={
+              dashboardData?.activities ?? {
+                recentLessonsCompleted: 0,
+                recentModulesCompleted: 0,
+                recentCoursesCompleted: 0,
+              }
+            }
+            subLabel={tCourseDashBoard("lessonsCompletedLast7Days")}
+          />
+        </div>
+
+        {/* BannerStartLearning */}
+        <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl p-6 flex items-center justify-between mb-6 border border-primary/20">
+          <div>
+            <div className="font-bold text-xl mb-2 text-gray-900">
+              {tCourseDashBoard("learnNewSign")}
+            </div>
+            <div className="text-sm text-gray-600">
+              {dashboardData?.activeLesson?.title && (
+                <span>
+                  {tLearnPage(
+                    "lessonsTitle." + dashboardData?.activeLesson?.title,
+                    {
+                      lessonTitle: dashboardData?.activeLesson?.title ?? "",
+                    }
+                  )}
+                </span>
+              )}
+            </div>
+          </div>
+          <ButtonCourse
+            variant="super"
+            className="shadow-lg hover:shadow-xl transition-shadow"
+            onClick={() => {
+              router.push(
+                `/apprender/learn?lessonId=${
+                  dashboardData?.activeLesson?.id
+                }&moduleId=${
+                  dashboardData?.activeLesson?.moduleId
+                }&back=${encodeURIComponent("/course-dashboard")}`
+              );
+            }}
+          >
+            {tCourseDashBoard("startLearning")}
+          </ButtonCourse>
+        </div>
       </div>
     </div>
   );

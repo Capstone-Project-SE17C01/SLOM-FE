@@ -66,7 +66,7 @@ export default function TrangChuPage() {
                 isDarkMode ? "text-gray-200" : "text-gray-100"
               )}
             >
-              {t("description")}
+              {t("hero.description")}
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               {/* Buttons can be added here if needed */}

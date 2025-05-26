@@ -84,7 +84,7 @@ function useLessons(userId?: string) {
         setReviewedLesson(reviewed);
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
       });
   }, [userId, getListLearnedLessonByUserId]);
 

@@ -45,7 +45,7 @@ export default function LanguageSwitcher() {
           }
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
         });
     } else {
       // Refresh page to apply new locale

@@ -71,7 +71,7 @@ export function ForgotPasswordForm() {
       .catch((error) => {
         error.data.errorMessages.forEach((message: string) => {
           setError((prev) => [...prev, t(message)]);
-          console.log("Error send code\n", t(message));
+          console.error("Error send code\n", t(message));
         });
       })
       .finally(() => {
@@ -107,7 +107,7 @@ export function ForgotPasswordForm() {
         }
       })
       .catch((error) => {
-        console.log(error);
+        console.error(error);
 
         error.data.errorMessages.forEach((message: string) => {
           setError((prev) => [...prev, t(message)]);

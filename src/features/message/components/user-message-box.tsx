@@ -24,7 +24,7 @@ export function MessageBox({ messages, setMessages, userId, selectedUser }: Read
           getMessages = response;
         }
       } catch(error) {
-        console.log(error);
+        console.error(error);
       }
       return getMessages;
     }, [getMessageById, userId]);

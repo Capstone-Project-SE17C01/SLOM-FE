@@ -57,7 +57,7 @@ export const authAPI = baseApi.injectEndpoints({
             }
           }
         } catch (error) {
-          console.error("Error fetching user profile:", error);
+          console.log("Error fetching user profile:", error);
         }
       },
     }),
@@ -98,7 +98,7 @@ export const authAPI = baseApi.injectEndpoints({
             }
           }
         } catch (error) {
-          console.error("Error fetching user profile:", error);
+          console.log("Error fetching user profile:", error);
         }
       },
     }),
