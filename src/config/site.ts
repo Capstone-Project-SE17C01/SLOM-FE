@@ -29,6 +29,10 @@ export const siteConfig = {
       label: "Course",
       href: "/list-course",
     },
+    {
+      label: "Archive",
+      href: "/archive",
+    },
   ],
   navMenuItems: [
     {

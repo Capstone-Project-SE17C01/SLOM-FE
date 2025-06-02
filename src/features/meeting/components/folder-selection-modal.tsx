@@ -1,9 +1,9 @@
 import React from 'react';
-import { FolderSelectionModalProps } from '../types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { FolderIcon } from 'lucide-react';
+import { FolderSelectionModalProps } from '../types';
 
 export const FolderSelectionModal: React.FC<FolderSelectionModalProps> = ({
   show,
@@ -72,5 +72,4 @@ export const FolderSelectionModal: React.FC<FolderSelectionModalProps> = ({
       </DialogContent>
     </Dialog>
   );
-};
-
+}; 

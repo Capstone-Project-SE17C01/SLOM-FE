@@ -1,7 +1,7 @@
 "use client";
 
 import { baseApi } from "@/redux/baseApi";
-import { AddRecordingRequest, CreateMeetingRequest, CreateMeetingResponse, JoinMeetingRequest, LeaveMeetingRequest, Meeting, MeetingDetail, Recording, ScheduledMeeting, UpdateMeetingRequest } from "./types";
+import { AddRecordingRequest, CreateMeetingRequest, CreateMeetingResponse, JoinMeetingRequest, LeaveMeetingRequest, Meeting, MeetingDetail, Recording, ScheduledMeeting, UpdateMeetingRequest, MoveRecordingRequest, DeleteRecordingRequest } from "./types";
 
 export const meetingApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -101,7 +101,8 @@ export const meetingApi = baseApi.injectEndpoints({
       invalidatesTags: (result, error, { id }) => 
         error ? [] : [
           { type: 'Meeting', id },
-          { type: 'Recording', id: 'LIST' }
+          { type: 'Recording', id: 'LIST' },
+          { type: 'Recording', id: 'USER' }
         ]
     }),
     
@@ -149,6 +150,36 @@ export const meetingApi = baseApi.injectEndpoints({
             ]
           : [{ type: 'Recording', id: 'USER' }],
     }),
+    
+    moveRecording: builder.mutation<Recording, { id: string, request: MoveRecordingRequest }>({
+      query: ({ id, request }) => ({
+        url: `/api/meeting/recording/${id}/move`,
+        method: 'PUT',
+        body: request,
+        flashError: true,
+      }),
+      invalidatesTags: (result, error, { id }) => 
+        error ? [] : [
+          { type: 'Recording', id },
+          { type: 'Recording', id: 'USER' }
+        ]
+    }),
+    
+    deleteRecording: builder.mutation<{ message: string }, { id: string, request: DeleteRecordingRequest }>({
+      query: ({ id, request }) => ({
+        url: `/api/meeting/recording/${id}`,
+        method: 'DELETE',
+        body: request,
+        flashError: true,
+      }),
+      invalidatesTags: (result, error, { id }) => 
+        error ? [] : [
+          { type: 'Recording', id },
+          { type: 'Recording', id: 'USER' },
+          { type: 'Recording', id: 'LIST' }
+        ]
+    }),
+    
     deleteMeeting: builder.mutation<{ message: string }, { id: string, userId: string }>({
       query: ({ id, userId }) => ({
         url: `/api/meeting/${id}?userId=${userId}`,
@@ -193,6 +224,8 @@ export const {
   useGetRecordingsQuery,
   useGetUserMeetingsQuery,
   useGetUserRecordingsQuery,
+  useMoveRecordingMutation,
+  useDeleteRecordingMutation,
   useDeleteMeetingMutation,
   useUpdateMeetingMutation
 } = meetingApi;

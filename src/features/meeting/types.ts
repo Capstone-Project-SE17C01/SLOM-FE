@@ -141,3 +141,12 @@ export interface Recording {
   transcription?: string;
   createdAt: string;
 }
+
+export interface MoveRecordingRequest {
+  targetFolder: string;
+  userId: string;
+}
+
+export interface DeleteRecordingRequest {
+  userId: string;
+}
