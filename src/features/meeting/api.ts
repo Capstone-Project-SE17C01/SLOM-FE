@@ -1,7 +1,7 @@
 "use client";
 
 import { baseApi } from "@/redux/baseApi";
-import { AddRecordingRequest, CreateMeetingRequest, CreateMeetingResponse, JoinMeetingRequest, LeaveMeetingRequest, Meeting, MeetingDetail, Recording, ScheduledMeeting, UpdateMeetingRequest } from "./types";
+import { AddRecordingRequest, CreateMeetingRequest, CreateMeetingResponse, LeaveMeetingRequest, Meeting, MeetingDetail, Recording, ScheduledMeeting, UpdateMeetingRequest } from "./types";
 
 export const meetingApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -40,14 +40,6 @@ export const meetingApi = baseApi.injectEndpoints({
       }),
     }),
     
-    joinMeeting: builder.mutation<void, { id: string, request: JoinMeetingRequest }>({
-      query: ({ id, request }) => ({
-        url: `/api/meeting/${id}/join`,
-        method: 'POST',
-        body: request,
-        flashError: true,
-      }),
-    }),
     
     leaveMeeting: builder.mutation<void, { id: string, request: LeaveMeetingRequest }>({
       query: ({ id, request }) => ({
@@ -185,7 +177,6 @@ export const {
   useGetActiveMeetingsQuery,
   useGetMeetingQuery,
   useCreateMeetingMutation,
-  useJoinMeetingMutation,
   useLeaveMeetingMutation,
   useGetScheduledMeetingsByMonthQuery,
   useGetScheduledMeetingsByDateQuery,

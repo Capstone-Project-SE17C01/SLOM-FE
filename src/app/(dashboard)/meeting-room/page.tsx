@@ -42,7 +42,6 @@ import { MeetingEditModal } from "@/features/meeting/components/edit-meeting-for
 import {
   useGetActiveMeetingsQuery,
   useCreateMeetingMutation,
-  useJoinMeetingMutation,
   useGetScheduledMeetingsByMonthQuery,
   useGetScheduledMeetingsByDateQuery,
   useGetUserRecordingsQuery,
@@ -241,7 +240,6 @@ export default function MeetingRoomPage() {
     });
 
   const [createMeeting] = useCreateMeetingMutation();
-  const [joinMeeting] = useJoinMeetingMutation();
   const [deleteMeeting, { isLoading: isDeleting }] = useDeleteMeetingMutation();
   const [updateMeeting, { isLoading: isUpdating }] = useUpdateMeetingMutation();
 
@@ -302,24 +300,8 @@ export default function MeetingRoomPage() {
   };
 
   const handleJoinRoom = async (roomCode: string) => {
-    try {
-      if (!userInfo || !userInfo.id) {
-        throw new Error("User not authenticated");
-      }
-
-      await joinMeeting({
-        id: roomCode,
-        request: {
-          deviceInfo: navigator.userAgent,
-          userId: userInfo.id,
-        },
-      });
-
-      setShowJoinModal(false);
-      router.push(`/meeting?roomID=${roomCode}`);
-    } catch (error) {
-      console.error("Failed to join room:", error);
-    }
+    setShowJoinModal(false);
+    router.push(`/meeting?roomID=${roomCode}`);
   };
   const handleScheduleMeetingSubmit = async (details: {
     name: string;

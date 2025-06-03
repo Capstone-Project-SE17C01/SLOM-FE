@@ -115,11 +115,6 @@ export interface UpdateMeetingRequest {
   userId: string;
 }
 
-export interface JoinMeetingRequest {
-  guestCode?: string;
-  deviceInfo: string;
-  userId: string; // Added userId field
-}
 
 export interface LeaveMeetingRequest {
   userId: string;

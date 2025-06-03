@@ -10,7 +10,7 @@ import { Mic, Square, Clock, AlarmClock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { generateZegoToken } from "@/services/zego/config";
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
-import { useGetMeetingQuery, useJoinMeetingMutation, useLeaveMeetingMutation, useAddRecordingMutation } from "@/features/meeting/api";
+import { useGetMeetingQuery, useLeaveMeetingMutation, useAddRecordingMutation } from "@/features/meeting/api";
 
 function ZegoMeetingTimerDisplay({ roomId, onExpired }: { roomId: string; onExpired?: () => void }) {
   const { data: meeting } = useGetMeetingQuery(roomId, { pollingInterval: 30000 });
@@ -110,7 +110,6 @@ export default function App(): JSX.Element {
   const [meetingError, setMeetingError] = React.useState<string | null>(null);
   const { userInfo } = useSelector((state: RootState) => state.auth);
 
-  const [joinMeeting] = useJoinMeetingMutation();
   const [leaveMeeting] = useLeaveMeetingMutation();
   const [addRecording] = useAddRecordingMutation();
   const { data: meetingData, error: meetingDataError } = useGetMeetingQuery(roomID, { 
@@ -202,14 +201,6 @@ export default function App(): JSX.Element {
     if (!element || !roomID || !userInfo || !userInfo.id) return;
 
     try {
-      await joinMeeting({ 
-        id: roomID, 
-        request: { 
-          deviceInfo: navigator.userAgent,
-          userId: userInfo.id
-        } 
-      });
-
       const kitToken = generateZegoToken(roomID);
       const zp = ZegoUIKitPrebuilt.create(kitToken);
 
@@ -234,7 +225,7 @@ export default function App(): JSX.Element {
       console.error("Failed to join meeting:", error);
       setMeetingError("Failed to join meeting. Please try again later.");
     }
-  }, [roomID, joinMeeting, userInfo, setMeetingError]);
+  }, [roomID, userInfo, setMeetingError]);
 
   const myMeeting = React.useCallback((element: HTMLDivElement | null) => {
     if (element) joinZegoRoom(element);
