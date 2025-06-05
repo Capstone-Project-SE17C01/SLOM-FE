@@ -60,11 +60,17 @@ export default function ListCoursePage() {
           <h2 className="text-3xl font-extrabold mb-8 text-gray-900">
             {tDashboard("languages")}
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {remainingCourses.map((c, i) => (
-              <CourseCard key={i} course={c} />
-            ))}
-          </div>
+          {!remainingCourses || remainingCourses.length === 0 ? (
+            <div className="text-center text-gray-500">
+              {tDashboard("noCourseRemain")}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {remainingCourses.map((c, i) => (
+                <CourseCard key={i} course={c} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

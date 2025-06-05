@@ -107,14 +107,10 @@ export default function LearnPage() {
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <div className="font-bold text-sm mb-1 text-primary">
-                  {currentModule?.title
-                    ? t_learn("modulesTitle." + currentModule.title)
-                    : ""}
+                  {currentModule?.title ? currentModule.title : "Module Title"}
                 </div>
                 <div className="text-gray-700 text-lg mb-3 font-medium">
-                  {ongoingLesson?.title
-                    ? t_learn("lessonsTitle." + ongoingLesson?.title)
-                    : ""}
+                  {ongoingLesson?.title ? ongoingLesson.title : "Lesson Title"}
                 </div>
               </div>
               <div className="flex items-center gap-4">
@@ -156,14 +152,12 @@ export default function LearnPage() {
             <LearningPathSection
               key={mod.id}
               isReview={false}
-              sectionTitle={t_learn("modulesTitle." + mod.title)}
-              sectionDescription={t_learn("modulesDesc." + mod.title)}
+              sectionTitle={mod.title}
+              sectionDescription={mod.title}
               lessons={
                 mod.lessons?.map((lesson) => ({
                   id: lesson.id,
-                  title: lesson?.title
-                    ? t_learn("lessonsTitle." + lesson.title)
-                    : "",
+                  title: lesson?.title ? lesson.title : "Lesson Title",
                   image: "/images/logo.png",
                 })) ?? []
               }

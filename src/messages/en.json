@@ -1,4 +1,4 @@
-{  
+{
   "welcomePage": {
     "welcomeBack": "Welcome back, {name}!",
     "title": "Ready to Learn & Connect",
@@ -474,25 +474,7 @@
     "finishedLesson": "Lesson completed!",
     "finishLesson": "Finish lesson",
     "finishQuiz": "Finish quiz",
-    "nextLesson": "Next lesson",
-    "modulesTitle": {
-      "alphabet": "Alphabet",
-      "daily": "Daily words"
-    },
-    "modulesDesc": {
-      "alphabet": "Alphabet Desc",
-      "daily": "Daily words Desc"
-    },
-    "lessonsTitle": {
-      "ABCDE": "A, B, C, D, E Sign",
-      "FGHIJ": "F, G, H, I, J Sign",
-      "breakfast": "Breakfast Sign"
-    },
-    "lessonsDesc": {
-      "ABCDE": "A, B, C, D, E Sign Desc",
-      "FGHIJ": "F, G, H, I, J Sign Desc",
-      "breakfast": "Breakfast Sign Desc"
-    }
+    "nextLesson": "Next lesson"
   },
   "courseDashboard": {
     "myAccomplishments": "My Accomplishments",
@@ -516,6 +498,7 @@
     "recentCoursesCompleted": "Recent courses completed"
   },
   "listCoursePage": {
+    "noCourseRemain": "No course remain",
     "currentlyLearning": "Currently learning",
     "languages": "Languages",
     "chooseCourse": "Choose your course",

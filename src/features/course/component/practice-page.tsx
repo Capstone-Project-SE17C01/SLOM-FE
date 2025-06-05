@@ -26,13 +26,11 @@ function SectionList({
   count,
   lessons,
   emptyText,
-  t_learn,
 }: {
   title: string;
   count: number;
   lessons: Lesson[];
   emptyText: string;
-  t_learn: ReturnType<typeof useTranslations>;
 }) {
   const t_practice = useTranslations("practicePage");
   return (
@@ -48,7 +46,7 @@ function SectionList({
           isReview={true}
           lessons={lessons.map((lesson) => ({
             id: lesson.id,
-            title: t_learn("lessonsTitle." + lesson.title),
+            title: lesson.title,
             image: "/images/logo.png",
           }))}
         />
@@ -93,7 +91,6 @@ function useLessons(userId?: string) {
 
 export default function PracticePage() {
   const t_practice = useTranslations("practicePage");
-  const t_learn = useTranslations("learnPage");
   const [searchValue, setSearchValue] = useState("");
   const debounced = useDebounce(searchValue, 500);
   const router = useRouter();
@@ -199,7 +196,6 @@ export default function PracticePage() {
           count={filteredLearnedLessons.length}
           lessons={filteredLearnedLessons}
           emptyText={t_practice("empty")}
-          t_learn={t_learn}
         />
         {/* reviewed situations */}
         <SectionList
@@ -207,7 +203,6 @@ export default function PracticePage() {
           count={filteredReviewedLessons.length}
           lessons={filteredReviewedLessons}
           emptyText={t_practice("empty")}
-          t_learn={t_learn}
         />
       </div>
     </TooltipProvider>

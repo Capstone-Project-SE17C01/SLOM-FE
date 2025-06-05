@@ -53,14 +53,12 @@ export default function QuizInput({
     recorder.start();
     setIsRecording(true);
 
-    // Tự động dừng sau 5s (25fps không cần set vì MediaRecorder tự xử lý)
     setTimeout(() => {
       recorder.stop();
       setIsRecording(false);
     }, 5000);
   };
 
-  // Stop recording (nếu muốn cho user bấm dừng)
   const handleStopRecording = () => {
     if (mediaRecorder && isRecording) {
       mediaRecorder.stop();
