@@ -1,4 +1,4 @@
-{  
+{
   "header": {
     "search": "Tìm kiếm",
     "notifications": "Thông báo",
@@ -453,25 +453,7 @@
     "finishedLesson": "Đã hoàn thành bài học!",
     "finishLesson": "Kết thúc bài học",
     "finishQuiz": "Kết thúc quiz",
-    "nextLesson": "Bài học tiếp theo",
-    "modulesTitle": {
-      "alphabet": "Bảng chữ cái",
-      "daily": "Từ vựng hàng ngày"
-    },
-    "modulesDesc": {
-      "alphabet": "Mô tả bảng chữ cái",
-      "daily": "Mô tả từ vựng hàng ngày"
-    },
-    "lessonsTitle": {
-      "ABCDETitle": "Ký hiệu A, B, C, D, E",
-      "FGHIJTitle": "Ký hiệu F, G, H, I, J",
-      "breakfast": "Ký hiệu bữa sáng"
-    },
-    "lessonsDesc": {
-      "ABCDETitle": "Mô tả ký hiệu A, B, C, D, E",
-      "FGHIJTitle": "Mô tả ký hiệu F, G, H, I, J",
-      "breakfast": "Mô tả ký hiệu bữa sáng"
-    }
+    "nextLesson": "Bài học tiếp theo"
   },
   "learn": {
     "finishedLesson": "Đã hoàn thành bài học!",
@@ -498,6 +480,7 @@
     "courseCompletedLast7Days": "Khóa học đã hoàn thành (7 ngày qua)"
   },
   "listCoursePage": {
+    "noCourseRemain": "Không có khóa học còn lại",
     "currentlyLearning": "Hiện đang học",
     "languages": "Ngôn ngữ",
     "chooseCourse": "Chọn khóa học của bạn",

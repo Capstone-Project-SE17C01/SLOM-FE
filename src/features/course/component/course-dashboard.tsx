@@ -47,14 +47,9 @@ function AccomplishmentCard({
 
 function ProgressBar({
   dashboardData,
-  tLearnPage,
   tCourseDashBoard,
 }: {
   dashboardData: SummaryResponse | null;
-  tLearnPage: (
-    key: string,
-    params?: Record<string, string | number | Date>
-  ) => string;
   tCourseDashBoard: (
     key: string,
     params?: Record<string, string | number | Date>
@@ -69,14 +64,8 @@ function ProgressBar({
       <div className="text-lg mb-2 font-semibold">
         {/* current module title */}
         {dashboardData?.activeLesson?.module?.title
-          ? tLearnPage(
-              "modulesTitle." + dashboardData.activeLesson.module.title,
-              {
-                moduleTitle:
-                  dashboardData.activeLesson.module.orderNumber ?? "",
-              }
-            )
-          : ""}
+          ? dashboardData.activeLesson.module.title
+          : "Module Title"}
         <span className="inline-block bg-[#6947A8] ml-2 text-white rounded-full px-2">
           {/*current lesson title */}
           {dashboardData?.activeLesson?.orderNumber ?? "-"}
@@ -100,7 +89,6 @@ function ProgressBar({
 export default function CourseDashboard() {
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const tCourseDashBoard = useTranslations("courseDashboard");
-  const tLearnPage = useTranslations("learnPage");
   const [dashboardData, setDashboardData] = useState<SummaryResponse | null>(
     null
   );
@@ -142,7 +130,6 @@ export default function CourseDashboard() {
     );
   }
 
-  // Config cho các accomplishments
   const accomplishmentConfigs = [
     {
       title: tCourseDashBoard("lessons"),
@@ -182,7 +169,6 @@ export default function CourseDashboard() {
         {/* ProgressBar */}
         <ProgressBar
           dashboardData={dashboardData}
-          tLearnPage={tLearnPage}
           tCourseDashBoard={tCourseDashBoard}
         />
 
@@ -230,14 +216,7 @@ export default function CourseDashboard() {
             </div>
             <div className="text-sm text-gray-600">
               {dashboardData?.activeLesson?.title && (
-                <span>
-                  {tLearnPage(
-                    "lessonsTitle." + dashboardData?.activeLesson?.title,
-                    {
-                      lessonTitle: dashboardData?.activeLesson?.title ?? "",
-                    }
-                  )}
-                </span>
+                <span>{dashboardData?.activeLesson?.title}</span>
               )}
             </div>
           </div>

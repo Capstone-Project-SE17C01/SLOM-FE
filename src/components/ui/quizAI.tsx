@@ -29,7 +29,6 @@ export default function QuizAI({
     setIsStreaming(val);
   };
 
-  // Gửi frame qua WebSocket
   const sendFrame = () => {
     if (!videoRef.current || !wsRef.current || wsRef.current.readyState !== 1)
       return;

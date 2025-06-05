@@ -9,7 +9,6 @@ export default function ImmerseVideo() {
   const [activeTab, setActiveTab] = useState(0);
   const [search, setSearch] = useState("");
 
-  // Tabs filter lấy từ i18n
   const videoTabs = [
     { label: t("tabAll") },
     { label: t("tabReady") },
@@ -17,7 +16,6 @@ export default function ImmerseVideo() {
     { label: t("tabPractice") },
   ];
 
-  // Dummy data for cards lấy từ i18n
   const videoCards = [
     {
       id: 1,

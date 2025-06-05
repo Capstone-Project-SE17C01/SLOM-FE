@@ -61,7 +61,6 @@ export function RegisterForm() {
       });
   };
 
-  // Thêm validation
   const isFormValid =
     registerData.email.trim() !== "" &&
     registerData.password.trim() !== "" &&

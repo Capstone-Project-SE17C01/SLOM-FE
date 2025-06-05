@@ -136,7 +136,6 @@ const CardTitleLessonFooter = ({
   </span>
 );
 
-// CardWrap: bọc lesson card, nhận className, onClick, children
 const CardWrap = ({
   children,
   className,
@@ -155,7 +154,6 @@ const CardWrap = ({
   </div>
 );
 
-// CardImageCircle: ảnh tròn, nửa nổi bên phải lesson card
 const CardImageCircle = ({
   src,
   alt,
@@ -192,7 +190,6 @@ const CardImageCircle = ({
   </div>
 );
 
-// CardTitle: title bài học, đúng style
 const CardTitle = ({
   children,
   className,
@@ -209,7 +206,6 @@ const CardTitle = ({
   </div>
 );
 
-// CardLesson: lesson card gộp, props title, image, onClick, className
 const CardLesson = ({
   title,
   image,
