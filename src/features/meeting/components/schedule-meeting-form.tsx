@@ -9,6 +9,7 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScheduleMeetingModalProps } from '../types';
 
+
 export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
   show,
   onClose,
