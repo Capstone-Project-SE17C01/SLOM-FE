@@ -18,7 +18,8 @@ export function generateZegoToken(roomID: string): string {
   const userID = generateRandomID(5);
   const userName = generateRandomID(5);
   
-  return ZegoUIKitPrebuilt.generateKitTokenForTest(
+  // Use proper token generation for production
+  return ZegoUIKitPrebuilt.generateKitTokenForProduction(
     ZEGO_APP_ID,
     ZEGO_SERVER_SECRET,
     roomID,
