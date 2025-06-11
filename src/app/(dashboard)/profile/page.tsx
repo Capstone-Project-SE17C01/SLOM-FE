@@ -21,14 +21,22 @@ import { toast } from "sonner";
 import Cookies from "js-cookie";
 import constants from "@/settings/constants";
 import { Eye, EyeOff, Lock } from "lucide-react";
+import { useGetHistoryPaymentMutation } from "@/features/profile/api";
+import { HistoryPaymentDTO } from "@/features/profile/types";
+import TableTransaction from "@/features/profile/component/table-transaction";
+import Spinner from "@/components/ui/spinner";
 
 export default function ProfilePage() {
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const t = useTranslations();
   const [updatePassword] = useUpdatePasswordMutation();
+  const [getHistoryPayment, { isLoading: isLoadingHistoryPayment }] =
+    useGetHistoryPaymentMutation();
   const [isLoading, setIsLoading] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string>("");
+  const [historyPayment, setHistoryPayment] = useState<HistoryPaymentDTO[]>([]);
+  const [activeTab, setActiveTab] = useState(t("profile.tabs.personal"));
 
   const [passwordForm, setPasswordForm] = useState({
     accessToken: "",
@@ -103,6 +111,18 @@ export default function ProfilePage() {
       });
   };
 
+  const handleTransaction = async () => {
+    setActiveTab(t("profile.tabs.transaction"));
+    if (userInfo?.id) {
+      try {
+        const response = await getHistoryPayment(userInfo?.id).unwrap();
+        setHistoryPayment(response.result || []);
+      } catch (error) {
+        console.log("error", error);
+      }
+    }
+  };
+
   if (!userInfo) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -170,20 +190,26 @@ export default function ProfilePage() {
         </div>
 
         <div className="md:col-span-2">
-          <Tabs defaultValue="personal">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="mb-6">
-              <TabsTrigger value="personal">
+              <TabsTrigger value={t("profile.tabs.personal")}>
                 {t("profile.tabs.personal")}
               </TabsTrigger>
-              <TabsTrigger value="security">
+              <TabsTrigger value={t("profile.tabs.security")}>
                 {t("profile.tabs.security")}
               </TabsTrigger>
-              <TabsTrigger value="preferences">
+              <TabsTrigger value={t("profile.tabs.preferences")}>
                 {t("profile.tabs.preferences")}
+              </TabsTrigger>
+              <TabsTrigger
+                value={t("profile.tabs.transaction")}
+                onClick={handleTransaction}
+              >
+                {t("profile.tabs.transaction")}
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="personal">
+            <TabsContent value={t("profile.tabs.personal")}>
               <Card>
                 <CardHeader>
                   <CardTitle>{t("profile.personalInfo.title")}</CardTitle>
@@ -254,7 +280,7 @@ export default function ProfilePage() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="security">
+            <TabsContent value={t("profile.tabs.security")}>
               <Card>
                 <CardHeader>
                   <CardTitle>{t("profile.security.title")}</CardTitle>
@@ -388,7 +414,7 @@ export default function ProfilePage() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="preferences">
+            <TabsContent value={t("profile.tabs.preferences")}>
               <Card>
                 <CardHeader>
                   <CardTitle>{t("profile.preferences.title")}</CardTitle>
@@ -416,6 +442,29 @@ export default function ProfilePage() {
                   </div>
 
                   <Button>{t("profile.preferences.savePreferences")}</Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value={t("profile.tabs.transaction")}>
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("profile.transaction.title")}</CardTitle>
+                  <CardDescription>
+                    {t("profile.transaction.description")}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {isLoadingHistoryPayment ? (
+                    <div className="flex items-center justify-center">
+                      <Spinner />
+                    </div>
+                  ) : (
+                    <TableTransaction
+                      data={historyPayment}
+                      userId={userInfo?.id || ""}
+                    />
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>

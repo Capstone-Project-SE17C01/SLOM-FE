@@ -21,33 +21,30 @@ export default function QuizAction({
 }) {
   return (
     <>
-      {canContinue && (
-        <div className="flex items-center justify-center w-full mb-4 flex-col">
+      <div className="flex flex-col items-center justify-center mt-4 gap-4 w-full">
+        {canContinue && (
           <ButtonCourse
             variant="primary"
-            className="p-3 text-base shadow w-full"
+            className="w-full bg-primary hover:bg-primary/80 transition-all duration-300 text-center text-white font-bold py-3 rounded-xl text-lg shadow"
             onClick={onContinue}
           >
             {t_learn("continue")}
           </ButtonCourse>
-        </div>
-      )}
-      <div className="flex items-center justify-center flex-col mb-4">
+        )}
         <ButtonCourse
           variant="default"
-          className="p-3 text-base shadow"
+          className="w-full border-2 border-gray-300 rounded-xl py-3 font-semibold text-lg text-[#0a2233] flex items-center justify-center gap-2"
           onClick={onDontKnow}
           disabled={disabled}
         >
           {t_learn("dontKnow")}
         </ButtonCourse>
         {showExplanation && (
-          <div className="bg-gray-200 rounded-xl p-3 text-dark text-center font-bold mt-4">
+          <div className="bg-gray-200 rounded-xl p-3 text-dark text-center font-bold mt-1 w-full">
             {explanation}
           </div>
         )}
       </div>
-      {canContinue}
     </>
   );
 }
