@@ -87,19 +87,23 @@ export default function WordPractice({
           </button>
         </div>
       ) : (
-        <div className="w-full max-w-4xl mx-auto grid grid-cols-12 gap-8">
-          <div className="col-span-4 flex items-center justify-center">
-            <VideoSquare videoUrl={currentSign?.videoSrc || ""} />
+        <div className="w-full max-w-4xl mx-auto flex flex-col gap-8">
+          <div className="grid grid-cols-2 gap-8">
+            <div className="flex items-center justify-center">
+              <VideoSquare videoUrl={currentSign?.videoSrc || ""} />
+            </div>
+            <div className="flex flex-col items-center justify-center gap-4 border border-gray-200 rounded-lg p-4">
+              <MeaningCard meaning={currentSign?.text || ""} />
+            </div>
           </div>
-          <div className="col-span-4 flex flex-col items-center justify-center gap-4 border border-gray-200 rounded-lg p-4">
-            <MeaningCard meaning={currentSign?.text || ""} />
-          </div>
-          <div className="col-span-4 flex items-center justify-start flex-col w-full">
-            <ActionButtons
-              onContinue={handleContinue}
-              onAlreadyKnow={handleAlreadyKnow}
-              t_learn={t_learn}
-            />
+          <div className="flex justify-center">
+            <div className="flex gap-4">
+              <ActionButtons
+                onContinue={handleContinue}
+                onAlreadyKnow={handleAlreadyKnow}
+                t_learn={t_learn}
+              />
+            </div>
           </div>
         </div>
       )}

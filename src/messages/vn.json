@@ -349,7 +349,33 @@
     "tabs": {
       "personal": "Thông tin cá nhân",
       "security": "Bảo mật",
-      "preferences": "Tùy chọn"
+      "preferences": "Tùy chọn",
+      "history": "Lịch sử",
+      "transaction": "Giao dịch"
+    },
+    "report": {
+      "title": "Báo cáo",
+      "description": "Báo cáo vấn đề với giao dịch của bạn",
+      "success": "Báo cáo đã được gửi thành công",
+      "error": "Báo cáo thất bại",
+      "titlePlaceholder": "Nhập tiêu đề",
+      "contentPlaceholder": "Nhập nội dung",
+      "selectType": "Chọn loại",
+      "selectTypePlaceholder": "Chọn loại",
+      "cancel": "Hủy",
+      "submit": "Gửi",
+      "type": "Loại báo cáo",
+      "transactionId": "Mã giao dịch",
+      "paymentIssue": "Vấn đề thanh toán",
+      "content": "Nội dung",
+      "submitting": "Đang gửi...",
+      "errors": {
+        "titleRequired": "Tiêu đề là bắt buộc",
+        "titleTooShort": "Tiêu đề phải có ít nhất 5 ký tự",
+        "typeRequired": "Loại báo cáo là bắt buộc",
+        "contentRequired": "Nội dung là bắt buộc",
+        "contentTooShort": "Nội dung phải có ít nhất 10 ký tự"
+      }
     },
     "personalInfo": {
       "title": "Thông tin cá nhân",
@@ -392,6 +418,24 @@
       "notifications": "Thông báo",
       "display": "Hiển thị",
       "savePreferences": "Lưu tùy chọn"
+    },
+    "transaction": {
+      "title": "Giao dịch",
+      "description": "Xem lịch sử giao dịch của bạn tại đây",
+      "paymentMethod": "Phương thức thanh toán",
+      "amount": "Số tiền",
+      "status": "Trạng thái",
+      "date": "Ngày",
+      "noData": "Không có dữ liệu",
+      "action": "Hành động",
+      "report": "Báo cáo"
+    },
+    "history": {
+      "title": "Lịch sử",
+      "description": "Xem lịch sử giao dịch của bạn tại đây",
+      "paymentMethod": "Phương thức thanh toán",
+      "amount": "Số tiền",
+      "status": "Trạng thái"
     }
   },
   "practicePage": {

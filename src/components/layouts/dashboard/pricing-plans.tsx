@@ -63,7 +63,8 @@ export default function PricingPlans() {
   const handlePayment = async (
     e: React.FormEvent,
     planId: string,
-    price: number
+    price: number,
+    planName: string
   ) => {
     e.preventDefault();
     try {
@@ -72,6 +73,7 @@ export default function PricingPlans() {
       const response = await createPaymentLinkMutation({
         subscriptionId: planId,
         userId: userInfo.id,
+        productName: t(`${planName}.title`),
         paymentMethod: "PAYOS",
         status: "PENDING",
         durationMonth: durationPlan,
@@ -188,7 +190,9 @@ export default function PricingPlans() {
                         ? "default"
                         : "outline"
                     }
-                    onClick={(e) => handlePayment(e, plan.id, plan.price)}
+                    onClick={(e) =>
+                      handlePayment(e, plan.id, plan.price, plan.name)
+                    }
                   >
                     {t("buttonText")}
                   </Button>

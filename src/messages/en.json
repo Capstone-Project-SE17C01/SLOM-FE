@@ -372,7 +372,51 @@
     "tabs": {
       "personal": "Personal Info",
       "security": "Security",
-      "preferences": "Preferences"
+      "preferences": "Preferences",
+      "history": "History",
+      "transaction": "Transaction"
+    },
+    "report": {
+      "title": "Report",
+      "description": "Report a problem with your transaction",
+      "success": "Report sent successfully",
+      "error": "Report failed",
+      "titlePlaceholder": "Enter title",
+      "contentPlaceholder": "Enter content",
+      "selectType": "Select type",
+      "selectTypePlaceholder": "Select type",
+      "cancel": "Cancel",
+      "submit": "Submit",
+      "type": "Type",
+      "transactionId": "Transaction ID",
+      "paymentIssue": "Payment Issue",
+      "content": "Content",
+      "submitting": "Submitting...",
+      "errors": {
+        "titleRequired": "Title is required",
+        "titleTooShort": "Title must be at least 5 characters",
+        "typeRequired": "Type is required",
+        "contentRequired": "Content is required",
+        "contentTooShort": "Content must be at least 10 characters"
+      }
+    },
+    "transaction": {
+      "title": "Transaction",
+      "description": "View your transaction history here",
+      "paymentMethod": "Payment Method",
+      "amount": "Amount",
+      "status": "Status",
+      "date": "Date",
+      "noData": "No data",
+      "action": "Action",
+      "report": "Report"
+    },
+    "history": {
+      "title": "History",
+      "description": "View your payment history here",
+      "paymentMethod": "Payment Method",
+      "amount": "Amount",
+      "status": "Status"
     },
     "personalInfo": {
       "title": "Personal Information",
