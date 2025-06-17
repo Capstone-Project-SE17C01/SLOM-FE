@@ -10,6 +10,7 @@ import type {
   CourseListResponse,
   Module,
   Word,
+  VideoSuggest,
 } from "./types";
 import { APIResponse } from "../auth/types";
 
@@ -100,6 +101,16 @@ export const courseAPI = baseApi.injectEndpoints({
       }),
     }),
 
+    getVideoSuggest: build.mutation<APIResponse<VideoSuggest>,
+        { userId: string; pageNumber: number; searchQuery: string }
+      >({
+      query: ({userId, pageNumber, searchQuery}) => ({
+        url: `/api/VideoSuggest?UserId=${userId}&PageNumber=${pageNumber}&PageSize=20&SearchQuery=${searchQuery}`,
+        method: "GET",
+        flashError: false,
+      }),
+    }),
+
     addNewUserProgress: build.mutation<
       APIResponse<string>,
       { userId: string; lessonId: string }
@@ -146,6 +157,7 @@ export const {
   useGetListLearnedLessonByUserIdMutation,
   useGetListWordByLessonIdMutation,
   useGetListQuizByLessonIdMutation,
+  useGetVideoSuggestMutation,
   useAddNewUserProgressMutation,
   useMarkLessonAsCompletedMutation,
   useMarkLessonAsLearnedMutation,

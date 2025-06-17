@@ -174,3 +174,28 @@ export interface Activities {
   recentModulesCompleted: number;
   recentCoursesCompleted: number;
 }
+
+export interface ListVideoSuggestResult {
+  videoThumbnail: string;
+  id: string;
+  title: string;
+  description: string;
+  videoUrl: string;
+  publishDate: string;
+  videoId: string;
+}
+
+export interface VideoSuggest {
+  videoSuggest: ListVideoSuggestResult[] | null,
+  isLoadFullPage: boolean
+}
+
+export interface VideoHeaderInput {
+  headerTitle: string
+  headerDesc: string
+}
+
+export interface VideoTabsInput {
+  active: number;
+  setActive: (i: number) => void;
+}
