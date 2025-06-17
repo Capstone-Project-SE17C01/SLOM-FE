@@ -141,6 +141,26 @@ export const meetingApi = baseApi.injectEndpoints({
             ]
           : [{ type: 'Recording', id: 'USER' }],
     }),
+
+    getAllRecordingStoragePaths: builder.query<{
+      totalCount: number;
+      storagePaths: Array<{
+        storagePath: string;
+        meetingId: string;
+        recordingId: string;
+        createdAt: string;
+      }>
+    }, { page?: number; limit?: number } | void>({
+      query: (params) => ({
+        url: `/api/Meeting/recordings/storage-paths/all${
+          params ? `?page=${params.page || 1}&limit=${params.limit || 10}` : ''
+        }`,
+        method: 'GET',
+        flashError: false,
+      }),
+      providesTags: [{ type: 'Recording', id: 'ALL_STORAGE_PATHS' }],
+    }),
+
     deleteMeeting: builder.mutation<{ message: string }, { id: string, userId: string }>({
       query: ({ id, userId }) => ({
         url: `/api/meeting/${id}?userId=${userId}`,
@@ -185,5 +205,6 @@ export const {
   useGetUserMeetingsQuery,
   useGetUserRecordingsQuery,
   useDeleteMeetingMutation,
-  useUpdateMeetingMutation
+  useUpdateMeetingMutation,
+  useGetAllRecordingStoragePathsQuery
 } = meetingApi;

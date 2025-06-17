@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import React from "react";
 import { cn } from "@/utils/cn";
-import { getAllVideosFromCloudinary } from "@/services/cloudinary/config";
 import { toast } from "sonner";
 import { AlertTriangle, Play, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useGetAllRecordingStoragePathsQuery } from "@/features/meeting/api";
 
 interface CloudinaryRecording {
   id: string;
@@ -23,84 +24,98 @@ interface CloudinaryRecordingsProps {
 }
 
 export function CloudinaryRecordings({ isDarkMode }: CloudinaryRecordingsProps) {
-  const [recordings, setRecordings] = useState<CloudinaryRecording[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [allRecordings, setAllRecordings] = useState<CloudinaryRecording[]>([]);
+  const limit = 20;
 
-  const fetchVideos = async (cursor?: string) => {
-    try {
-      const response = await getAllVideosFromCloudinary(undefined, 20, cursor);
-      
-      // Transform Cloudinary response to match expected format
-      const transformedSessions = response.resources.map((video) => ({
-        id: video.public_id,
-        meetingTitle: video.public_id.replace(/^meeting-/, '').replace(/-\d+\.webm$/, ''),
-        createdAt: video.created_at,
-        duration: video.duration ? Math.round(video.duration / 60) : null,
-        processed: true,
-        url: video.secure_url,
-        folder: video.folder || 'general',
-        transcription: null,
-      }));
-      
-      if (cursor) {
-        // Append to existing recordings when loading more
-        setRecordings(prev => [...prev, ...transformedSessions]);
+  // Use the new API hook
+  const { data, isLoading, isFetching, error } = useGetAllRecordingStoragePathsQuery({ 
+    page, 
+    limit 
+  });
+
+  // Transform backend data to component format
+  const transformRecordings = (storagePaths: Array<{
+    storagePath: string;
+    meetingId: string;
+    recordingId: string;
+    createdAt: string;
+  }>): CloudinaryRecording[] => {
+    return storagePaths.map((recording) => {
+      // Extract meeting title from storage path
+      const urlParts = recording.storagePath.split('/');
+      const filename = urlParts[urlParts.length - 1];
+      const meetingTitle = filename
+        .replace(/^meeting-/, '')
+        .replace(/-\d+_[a-z0-9]+\.webm$/, '')
+        .replace(recording.meetingId + '-', '');
+
+      // Extract folder from URL path
+      const folder = urlParts[urlParts.length - 2] || 'general';
+
+      return {
+        id: recording.recordingId,
+        meetingTitle: meetingTitle || recording.meetingId,
+        createdAt: recording.createdAt,
+        duration: null, // Backend doesn't provide duration yet
+        processed: true, // Assume all recordings from backend are processed
+        url: recording.storagePath,
+        folder: folder,
+        transcription: null, // Backend doesn't provide transcription yet
+      };
+    });
+  };
+
+  // Update recordings when data changes
+  React.useEffect(() => {
+    if (data?.storagePaths) {
+      const transformed = transformRecordings(data.storagePaths);
+      if (page === 1) {
+        setAllRecordings(transformed);
       } else {
-        // Replace recordings on initial load
-        setRecordings(transformedSessions);
-      }
-      
-      setNextCursor(response.next_cursor);
-    } catch (error) {
-      console.error("Failed to fetch videos from Cloudinary:", error);
-      toast.error("Failed to load recorded sessions", {
-        icon: <AlertTriangle className="h-4 w-4 text-red-500" />,
-        description: "Please check your Cloudinary configuration.",
-      });
-      if (!cursor) {
-        setRecordings([]);
+        setAllRecordings(prev => [...prev, ...transformed]);
       }
     }
+  }, [data, page]);
+
+  const handleLoadMore = () => {
+    setPage(prev => prev + 1);
   };
 
-  const handleLoadMore = async () => {
-    if (!nextCursor) return;
-    
-    setIsLoadingMore(true);
-    await fetchVideos(nextCursor);
-    setIsLoadingMore(false);
-  };
+  const hasMore = data ? allRecordings.length < data.totalCount : false;
 
-  useEffect(() => {
-    const loadInitialVideos = async () => {
-      setIsLoading(true);
-      await fetchVideos();
-      setIsLoading(false);
-    };
-    
-    loadInitialVideos();
-  }, []);
-
-  if (isLoading) {
+  if (isLoading && page === 1) {
     return (
       <div className="p-6 text-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50">
         <div className="flex items-center justify-center gap-2">
           <Loader2 className="h-5 w-5 animate-spin" />
           <p className={cn("text-lg", isDarkMode ? "text-gray-400" : "text-gray-500")}>
-            Loading recorded sessions from Cloudinary...
+            Loading recorded sessions...
           </p>
         </div>
       </div>
     );
   }
 
-  if (recordings.length === 0) {
+  if (error) {
+    toast.error("Failed to load recorded sessions", {
+      icon: <AlertTriangle className="h-4 w-4 text-red-500" />,
+      description: "Please check your connection and try again.",
+    });
+    return (
+      <div className="p-6 text-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50">
+        <p className={cn("text-lg text-red-500", isDarkMode ? "text-red-400" : "text-red-600")}>
+          Failed to load recorded sessions
+        </p>
+      </div>
+    );
+  }
+
+  if (allRecordings.length === 0 && !isLoading) {
     return (
       <div className="p-6 text-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50">
         <p className={cn("text-lg", isDarkMode ? "text-gray-400" : "text-gray-500")}>
-          No recorded sessions available in Cloudinary
+          No recorded sessions available
         </p>
       </div>
     );
@@ -109,7 +124,7 @@ export function CloudinaryRecordings({ isDarkMode }: CloudinaryRecordingsProps) 
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {recordings.map((recording) => (
+        {allRecordings.map((recording) => (
           <div
             key={recording.id}
             className={cn(
@@ -186,15 +201,15 @@ export function CloudinaryRecordings({ isDarkMode }: CloudinaryRecordingsProps) 
       </div>
 
       {/* Load More Button */}
-      {nextCursor && (
+      {hasMore && (
         <div className="mt-6 text-center">
           <Button
             onClick={handleLoadMore}
-            disabled={isLoadingMore}
+            disabled={isFetching}
             variant="outline"
             className="min-w-[150px]"
           >
-            {isLoadingMore ? (
+            {isFetching ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Loading more...
