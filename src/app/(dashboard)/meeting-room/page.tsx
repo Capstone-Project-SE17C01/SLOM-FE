@@ -39,6 +39,7 @@ import {
 import { JoinMeetingModal } from "@/features/meeting/components/join-meeting-form";
 import { ScheduleMeetingModal } from "@/features/meeting/components/schedule-meeting-form";
 import { MeetingEditModal } from "@/features/meeting/components/edit-meeting-form";
+import { CloudinaryRecordings } from "@/features/meeting/components/cloudinary-recordings";
 import {
   useGetActiveMeetingsQuery,
   useCreateMeetingMutation,
@@ -841,89 +842,7 @@ export default function MeetingRoomPage() {
               )}
             </TabsContent>
             <TabsContent value="recorded">
-              {isLoadingRecordings ? (
-                <div className="p-6 text-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50">
-                  <p
-                    className={cn(
-                      "text-lg",
-                      isDarkMode ? "text-gray-400" : "text-gray-500",
-                    )}
-                  >
-                    Loading recorded sessions...
-                  </p>
-                </div>
-              ) : recordedSessions.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {recordedSessions.map((recording) => (
-                    <div
-                      key={recording.id}
-                      className={cn(
-                        "p-4 rounded-lg border transition-all",
-                        isDarkMode
-                          ? "bg-gray-800 border-gray-700 hover:border-[#6947A8]"
-                          : "bg-white border-gray-200 hover:border-[#6947A8]",
-                      )}
-                    >
-                      <div className="mb-2 flex justify-between items-center">
-                        <h3 className="font-medium truncate">
-                          {recording.meetingTitle || "Untitled Recording"}
-                        </h3>
-                        <span
-                          className={cn(
-                            "text-xs px-2 py-0.5 rounded-full",
-                            recording.processed
-                              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                              : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
-                          )}
-                        >
-                          {recording.processed ? "Processed" : "Processing"}
-                        </span>
-                      </div>
-
-                      <div className="space-y-1 mb-2">
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          <span className="inline-block min-w-[100px]">
-                            Date:
-                          </span>
-                          <span className="font-medium">
-                            {new Date(recording.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          <span className="inline-block min-w-[100px]">
-                            Duration:
-                          </span>
-                          <span className="font-medium">
-                            {recording.duration
-                              ? `${recording.duration} minutes`
-                              : "Unknown"}
-                          </span>
-                        </div>
-                      </div>
-
-                      {recording.transcription && (
-                        <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                          <span className="font-medium">Transcription:</span>
-                          <p className="line-clamp-2 mt-1">
-                            {recording.transcription}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-6 text-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50">
-                  <p
-                    className={cn(
-                      "text-lg",
-                      isDarkMode ? "text-gray-400" : "text-gray-500",
-                    )}
-                  >
-                    No recorded sessions available
-                  </p>
-                </div>
-              )}
+              <CloudinaryRecordings isDarkMode={isDarkMode} />
             </TabsContent>
           </Tabs>
         </div>
