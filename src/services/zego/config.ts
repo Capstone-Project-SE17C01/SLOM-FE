@@ -1,8 +1,8 @@
 // Server-side function to generate Zego token
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 
-const ZEGO_APP_ID = 1147290316;
-const ZEGO_SERVER_SECRET = "7998e439ac9d1e3a2d22bb44583f929e";
+const ZEGO_APP_ID = 1513876976;
+const ZEGO_SERVER_SECRET = "0a8136b157fdb3b40cfb4293cf2fb121";
 
 // Function to generate a random user ID
 function generateRandomID(len: number = 5): string {
