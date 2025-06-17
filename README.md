@@ -2,6 +2,23 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+### Environment Setup
+
+1. Copy the `.env.example` file to `.env`:
+```bash
+cp .env.example .env
+```
+
+2. Fill in all required environment variables in the `.env` file. The application requires:
+   - **API Configuration**: Backend API endpoints
+   - **Firebase Configuration**: For authentication and storage
+   - **Cloudinary Configuration**: For video recording storage
+   - **Zego Configuration**: For video call functionality
+
+3. Ensure all required variables are set before running the application.
+
+### Running the Development Server
+
 First, run the development server:
 
 ```bash
