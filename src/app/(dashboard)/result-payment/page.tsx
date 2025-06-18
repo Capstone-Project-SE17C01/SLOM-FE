@@ -22,8 +22,8 @@ export default function Page() {
   const [status, setStatus] = useState<Status>("loading");
   const [shouldNavigate, setShouldNavigate] = useState(false);
   const accessToken = Cookies.get(constants.ACCESS_TOKEN);
-  const t = useTranslations("errorMessages.errorDashboard");
-  const t2 = useTranslations("resultPaymentPage");
+  const t_error_dashboard = useTranslations("errorMessages.errorDashboard");
+  const t_result_payment = useTranslations("resultPaymentPage");
 
   const params = useMemo(
     () => ({
@@ -42,7 +42,7 @@ export default function Page() {
       (async () => {
         try {
           if (!accessToken) {
-            toast.error(t("notAuthenticated"));
+            toast.error(t_error_dashboard("notAuthenticated"));
             setStatus("error");
             return;
           }
@@ -59,7 +59,7 @@ export default function Page() {
           }).unwrap();
 
           if (response.errorMessages?.length) {
-            toast.error(t("paymentStatusWrong"));
+            toast.error(t_result_payment("paymentStatusWrong"));
             setStatus("error");
           }
           if (response.result) {
@@ -71,15 +71,15 @@ export default function Page() {
             }
           }
         } catch {
-          toast.error(t("paymentUpdateFailed"));
+          toast.error(t_result_payment("paymentUpdateFailed"));
           setStatus("error");
         }
       })();
     } else {
-      toast.error(t("paymentStatusWrong"));
+      toast.error(t_result_payment("paymentStatusWrong"));
       setStatus("error");
     }
-  }, [params, updatePlan, accessToken, t]);
+  }, [params, updatePlan, accessToken, t_result_payment, t_error_dashboard]);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -126,31 +126,31 @@ export default function Page() {
   const renderMessage = () => {
     switch (status) {
       case "loading":
-        return t2("processing");
+        return t_result_payment("processing");
       case "error":
         return (
           <>
-            {t2("paymentFailedMsg")}
+            {t_result_payment("paymentFailedMsg")}
             <br />
-            {t2("redirectIn", { seconds: countdown })}
+            {t_result_payment("redirectIn", { seconds: countdown })}
           </>
         );
       case "success":
         return (
           <>
-            {t2("paymentSuccessMsg")}
-            {t2("redirectIn", { seconds: countdown })}
+            {t_result_payment("paymentSuccessMsg")}
+            {t_result_payment("redirectIn", { seconds: countdown })}
           </>
         );
       case "cancelled":
         return (
           <>
-            {t2("paymentCancelledMsg")}
-            {t2("redirectIn", { seconds: countdown })}
+            {t_result_payment("paymentCancelledMsg")}
+            {t_result_payment("redirectIn", { seconds: countdown })}
           </>
         );
       default:
-        return t2("processing");
+        return t_result_payment("processing");
     }
   };
 
@@ -162,10 +162,10 @@ export default function Page() {
           <h1 className="text-2xl font-bold">
             {
               {
-                success: t2("paymentSuccess"),
-                error: t2("paymentFailed"),
-                cancelled: t2("paymentCancelled"),
-                loading: t2("processingTitle"),
+                success: t_result_payment("paymentSuccess"),
+                error: t_result_payment("paymentFailed"),
+                cancelled: t_result_payment("paymentCancelled"),
+                loading: t_result_payment("processingTitle"),
               }[status]
             }
           </h1>
@@ -175,7 +175,7 @@ export default function Page() {
             className="mt-4"
             disabled={status !== "success" && status !== "cancelled"}
           >
-            {t2("goHome")}
+            {t_result_payment("goHome")}
           </Button>
         </div>
       </div>

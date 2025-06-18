@@ -304,6 +304,7 @@
     }
   },
   "loginPage": {
+    "title": "Login to",
     "emailLabel": "Email",
     "passwordLabel": "Password",
     "loginButton": "Login",
@@ -548,5 +549,16 @@
     "chooseCourse": "Choose your course",
     "chooseYourPath": "Choose your learning path",
     "pathDescription": "Select a course that suits your learning goals and start your journey in sign language."
+  },
+  "quizAI": {
+    "reRecord": "Re-record",
+    "recordDuration": "Record duration",
+    "record": "Record",
+    "stop": "Stop",
+    "processing": "Processing...",
+    "sign": "Sign",
+    "detect": "Detect",
+    "videoError": "Cannot play video. Please try again.",
+    "initializing": "Initializing..."
   }
 }

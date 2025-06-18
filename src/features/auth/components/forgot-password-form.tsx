@@ -39,14 +39,14 @@ export function ForgotPasswordForm() {
   const [forgotPassword] = useForgotPasswordMutation();
   const [confirmRegistration] = useConfirmRegistrationMutation();
 
-  const t = useTranslations("errorMessages.authError");
-  const t2 = useTranslations("forgotPasswordPage");
-  const t3 = useTranslations("successMessages.authMessage");
+  const t_error_auth = useTranslations("errorMessages.authError");
+  const t_forgot_password = useTranslations("forgotPasswordPage");
+  const t_success_auth = useTranslations("successMessages.authMessage");
 
   const handleSendCode = async () => {
     if (!formData.email) {
-      setError([t("emptyEmail")]);
-      toast.error(t("emptyEmail"));
+      setError([t_error_auth("emptyEmail")]);
+      toast.error(t_error_auth("emptyEmail"));
       return;
     }
     setIsSendingCode(true);
@@ -65,13 +65,13 @@ export function ForgotPasswordForm() {
       .unwrap()
       .then((response) => {
         if (response.httpStatusCode === HttpStatusCode.Ok) {
-          toast.success(t3("successSentConfirmationCode"));
+          toast.success(t_success_auth("successSentConfirmationCode"));
         }
       })
       .catch((error) => {
         error.data.errorMessages.forEach((message: string) => {
-          setError((prev) => [...prev, t(message)]);
-          console.error("Error send code\n", t(message));
+          setError((prev) => [...prev, t_error_auth(message)]);
+          console.error("Error send code\n", t_error_auth(message));
         });
       })
       .finally(() => {
@@ -83,7 +83,7 @@ export function ForgotPasswordForm() {
     e.preventDefault();
     setError([]);
     if (formData.newPassword !== formData.confirmNewPassword) {
-      setError([t("passwordsNotMatch")]);
+      setError([t_error_auth("passwordsNotMatch")]);
       toast.error(error);
       return;
     }
@@ -93,7 +93,7 @@ export function ForgotPasswordForm() {
       !formData.newPassword ||
       !formData.confirmNewPassword
     ) {
-      setError([t("emptyFields")]);
+      setError([t_error_auth("emptyFields")]);
       toast.error(error);
       return;
     }
@@ -102,7 +102,7 @@ export function ForgotPasswordForm() {
       .unwrap()
       .then((response) => {
         if (response.httpStatusCode === HttpStatusCode.Ok) {
-          toast.success(t3("successResetPassword"));
+          toast.success(t_success_auth("successResetPassword"));
           router.push("/login");
         }
       })
@@ -110,8 +110,8 @@ export function ForgotPasswordForm() {
         console.error(error);
 
         error.data.errorMessages.forEach((message: string) => {
-          setError((prev) => [...prev, t(message)]);
-          toast.error(t(message));
+          setError((prev) => [...prev, t_error_auth(message)]);
+          toast.error(t_error_auth(message));
         });
       })
       .finally(() => {
@@ -146,12 +146,13 @@ export function ForgotPasswordForm() {
         <Card className="w-full max-w-[400px] sm:min-w-[400px] bg-white/90 backdrop-blur-sm max-h-screen overflow-auto">
           <CardContent className="pt-6 px-4 sm:px-6">
             <h1 className="text-center text-xl sm:text-2xl font-normal mb-6">
-              {t2("title")} <span className="text-primary">SLOM!</span>
+              {t_forgot_password("title")}{" "}
+              <span className="text-primary">SLOM!</span>
             </h1>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="email" className="text-sm sm:text-base">
-                  {t2("emailLabel")}
+                  {t_forgot_password("emailLabel")}
                 </Label>
                 <div className="flex gap-2">
                   <div className="relative flex-1">
@@ -161,7 +162,7 @@ export function ForgotPasswordForm() {
                       autoComplete="new-email"
                       value={formData.email}
                       onChange={handleChange("email")}
-                      placeholder={t2("emailPlaceholder")}
+                      placeholder={t_forgot_password("emailPlaceholder")}
                       required
                       className="h-9 sm:h-10 text-sm sm:text-base pl-9 w-full"
                     />
@@ -177,12 +178,12 @@ export function ForgotPasswordForm() {
                     {isSendingCode ? (
                       <div className="flex items-center justify-center gap-2">
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        {t2("sending")}
+                        {t_forgot_password("sending")}
                       </div>
                     ) : countdown > 0 ? (
-                      `${t2("resend")} (${countdown}s)`
+                      `${t_forgot_password("resend")} (${countdown}s)`
                     ) : (
-                      t2("sendCode")
+                      t_forgot_password("sendCode")
                     )}
                   </Button>
                 </div>
@@ -190,7 +191,7 @@ export function ForgotPasswordForm() {
 
               <div className="grid gap-2">
                 <Label htmlFor="code" className="text-sm sm:text-base">
-                  {t2("confirmationCodeLabel")}
+                  {t_forgot_password("confirmationCodeLabel")}
                 </Label>
                 <div className="relative">
                   <Input
@@ -198,7 +199,7 @@ export function ForgotPasswordForm() {
                     autoComplete="new-code"
                     value={formData.confirmationCode}
                     onChange={handleChange("confirmationCode")}
-                    placeholder={t2("confirmationCodePlaceholder")}
+                    placeholder={t_forgot_password("confirmationCodePlaceholder")}
                     required
                     className="h-9 sm:h-10 text-sm sm:text-base pl-9"
                   />
@@ -208,7 +209,7 @@ export function ForgotPasswordForm() {
 
               <div className="grid gap-2">
                 <Label htmlFor="newPassword" className="text-sm sm:text-base">
-                  {t2("newPasswordLabel")}
+                  {t_forgot_password("newPasswordLabel")}
                 </Label>
                 <div className="relative">
                   <Input
@@ -217,7 +218,7 @@ export function ForgotPasswordForm() {
                     type={showNewPassword ? "text" : "password"}
                     value={formData.newPassword || ""}
                     onChange={handleChange("newPassword")}
-                    placeholder={t2("newPasswordPlaceholder")}
+                    placeholder={t_forgot_password("newPasswordPlaceholder")}
                     required
                     className="h-9 sm:h-10 pr-10 pl-9 text-sm sm:text-base w-full"
                   />
@@ -244,7 +245,7 @@ export function ForgotPasswordForm() {
                   htmlFor="confirmNewPassword"
                   className="text-sm sm:text-base"
                 >
-                  {t2("confirmNewPasswordLabel")}
+                  {t_forgot_password("confirmNewPasswordLabel")}
                 </Label>
                 <div className="relative">
                   <Input
@@ -253,7 +254,7 @@ export function ForgotPasswordForm() {
                     type={showConfirmPassword ? "text" : "password"}
                     value={formData.confirmNewPassword}
                     onChange={handleChange("confirmNewPassword")}
-                    placeholder={t2("confirmNewPasswordPlaceholder")}
+                    placeholder={t_forgot_password("confirmNewPasswordPlaceholder")}
                     required
                     className="h-9 sm:h-10 pr-10 pl-9 text-sm sm:text-base w-full"
                   />
@@ -287,16 +288,16 @@ export function ForgotPasswordForm() {
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    {t2("resetting")}
+                    {t_forgot_password("resetting")}
                   </div>
                 ) : (
-                  t2("resetPassword")
+                  t_forgot_password("resetPassword")
                 )}
               </Button>
               <div className="text-center text-xs sm:text-sm">
-                {t2("rememberPassword")}{" "}
+                {t_forgot_password("rememberPassword")}{" "}
                 <Link href="/login" className="text-primary hover:underline">
-                  {t2("backToLogin")}
+                  {t_forgot_password("backToLogin")}
                 </Link>
               </div>
             </form>
