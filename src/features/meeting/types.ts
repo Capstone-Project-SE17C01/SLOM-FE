@@ -91,7 +91,7 @@ export interface CreateMeetingRequest {
   startTime?: string;
   duration?: number;
   isPrivate: boolean;
-  userId: string; // Added userId field
+  userId: string;
 }
 
 export interface CreateMeetingResponse {
@@ -123,7 +123,7 @@ export interface LeaveMeetingRequest {
 export interface AddRecordingRequest {
   storagePath: string;
   duration?: number;
-  userId: string; // Added userId field
+  userId: string;
 }
 
 export interface Recording {
