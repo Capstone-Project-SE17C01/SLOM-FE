@@ -38,6 +38,7 @@ export default function MeetingRoomPage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedDateString, setSelectedDateString] = useState<string | null>(null);
   const [selectedMeeting, setSelectedMeeting] = useState<MeetingDetail | undefined>(undefined);
+  const [meetingId, setMeetingId] = useState<string | null>(null);
 
   const { data: activeMeetings = [], isLoading: isLoadingMeetings } = useGetActiveMeetingsQuery(userInfo?.id);
   const { data: monthMeetings = [] } = useGetScheduledMeetingsByMonthQuery({ year, month, userId: userInfo?.id });
@@ -79,8 +80,11 @@ export default function MeetingRoomPage() {
       const localDateTime = new Date(`${details.date}T${details.time}`);
       const utcDateTime = new Date(Date.UTC(localDateTime.getFullYear(), localDateTime.getMonth(), localDateTime.getDate(), localDateTime.getHours(), localDateTime.getMinutes(), localDateTime.getSeconds()));
       const meetingRequest: CreateMeetingRequest = { title: details.name, description: details.description, isImmediate: false, startTime: utcDateTime.toISOString(), duration: details.duration, isPrivate: false, userId: userInfo.id };
-      await createMeeting(meetingRequest).unwrap();
-      setShowScheduleModal(false);
+      await createMeeting(meetingRequest).then((response) => {
+        if (response.data && response.data.id) {
+          setMeetingId(response.data.id);
+        }
+      });
     } catch (error) {
       console.error("Failed to schedule meeting:", error);
     }
@@ -350,7 +354,7 @@ export default function MeetingRoomPage() {
       </div>
       <RoomCreationModal show={showCreateModal} onClose={() => setShowCreateModal(false)} onCreateRoom={handleCreateRoom} />
       <JoinMeetingModal show={showJoinModal} onClose={() => setShowJoinModal(false)} onJoinRoom={handleJoinRoom} />
-      <ScheduleMeetingModal show={showScheduleModal} onClose={() => setShowScheduleModal(false)} onScheduleMeeting={handleScheduleMeetingSubmit} />
+      <ScheduleMeetingModal show={showScheduleModal} onClose={() => setShowScheduleModal(false)} onScheduleMeeting={handleScheduleMeetingSubmit} meetingId={meetingId ?? undefined} />
       <MeetingEditModal show={showEditModal} onClose={() => setShowEditModal(false)} meeting={selectedMeeting} onUpdateMeeting={handleUpdateMeeting} />
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>

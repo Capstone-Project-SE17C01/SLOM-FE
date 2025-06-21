@@ -1,7 +1,7 @@
 "use client";
 
 import { baseApi } from "@/redux/baseApi";
-import { AddRecordingRequest, CreateMeetingRequest, CreateMeetingResponse, LeaveMeetingRequest, Meeting, MeetingDetail, Recording, ScheduledMeeting, UpdateMeetingRequest } from "./types";
+import { AddRecordingRequest, CreateMeetingRequest, CreateMeetingResponse, LeaveMeetingRequest, Meeting, MeetingDetail, Recording, ScheduledMeeting, SendMeetingEmailDto, UpdateMeetingRequest } from "./types";
 
 export const meetingApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -96,36 +96,6 @@ export const meetingApi = baseApi.injectEndpoints({
           { type: 'Recording', id: 'LIST' }
         ]
     }),
-    
-    getRecordings: builder.query<Recording[], string>({
-      query: (id) => ({
-        url: `/api/meeting/${id}/recordings`,
-        method: 'GET',
-        flashError: false,
-      }),
-      providesTags: (result) => 
-        result
-          ? [
-              ...result.map(({ id }) => ({ type: 'Recording' as const, id })),
-              { type: 'Recording', id: 'LIST' }
-            ]
-          : [{ type: 'Recording', id: 'LIST' }],
-    }),
-
-    getUserMeetings: builder.query<Meeting[], string>({
-      query: (userId) => ({
-        url: `/api/meeting/user/${userId}`,
-        method: 'GET',
-        flashError: false,
-      }),
-      providesTags: (result) => 
-        result
-          ? [
-              ...result.map(({ id }) => ({ type: 'Meeting' as const, id })),
-              { type: 'Meeting', id: 'USER' }
-            ]
-          : [{ type: 'Meeting', id: 'USER' }],
-    }),
 
     getUserRecordings: builder.query<Recording[], string>({
       query: (userId) => ({
@@ -169,10 +139,17 @@ export const meetingApi = baseApi.injectEndpoints({
           { type: 'Meeting', id: 'MONTH' },
           { type: 'Meeting', id: 'ACTIVE' }
         ]
-    })
-  })
+    }),
+    sendMeetingInvitation: builder.mutation<void, { id: string; request: SendMeetingEmailDto }>({
+      query: ({ id, request }) => ({
+        url: `/api/meeting/${id}/send-email`,
+        method: 'POST',
+        body: request,
+        flashError: true,
+      }),
+    }),
+  }),
 });
-
 export const {
   useGetActiveMeetingsQuery,
   useGetMeetingQuery,
@@ -181,9 +158,8 @@ export const {
   useGetScheduledMeetingsByMonthQuery,
   useGetScheduledMeetingsByDateQuery,
   useAddRecordingMutation,
-  useGetRecordingsQuery,
-  useGetUserMeetingsQuery,
   useGetUserRecordingsQuery,
   useDeleteMeetingMutation,
-  useUpdateMeetingMutation
+  useUpdateMeetingMutation,
+  useSendMeetingInvitationMutation
 } = meetingApi;

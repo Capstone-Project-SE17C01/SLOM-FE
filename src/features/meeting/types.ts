@@ -24,6 +24,7 @@ export interface ScheduleMeetingModalProps {
     time: string;
     duration: number;
   }) => void;
+  meetingId?: string;
 }
 
 export interface RoomCreationModalProps {
@@ -135,4 +136,10 @@ export interface Recording {
   processed: boolean;
   transcription?: string;
   createdAt: string;
+}
+
+export interface SendMeetingEmailDto {
+  recipientEmails: string[];
+  senderName: string;
+  customMessage?: string;
 }

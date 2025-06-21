@@ -8,12 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScheduleMeetingModalProps } from '../types';
+import { useSendMeetingInvitationMutation } from "../api";
 
 
 export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
   show,
   onClose,
   onScheduleMeeting,
+  meetingId,
 }) => {
   const { isDarkMode } = useTheme();
   const [name, setName] = useState('');
@@ -21,10 +23,14 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [duration, setDuration] = useState(30);
-  
+  const [recipientEmails, setRecipientEmails] = useState<string>('');
+  const [senderName, setSenderName] = useState('');
+  const [customMessage, setCustomMessage] = useState('');
+  const [showInvitation, setShowInvitation] = useState(false);
+  const [sendInvitation, { isLoading: isSending, isSuccess: isSent }] = useSendMeetingInvitationMutation();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  
+
   if (!show) return null;
 
   const daysInMonth = new Date(
@@ -53,10 +59,10 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
     setDate(newDate.toISOString().split('T')[0]);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!date || !time) return;
-    
+
     onScheduleMeeting({
       name,
       description,
@@ -64,13 +70,27 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
       time,
       duration,
     });
-    
+
+    setShowInvitation(true);
     setName('');
     setDescription('');
     setDate('');
     setTime('');
     setDuration(30);
     setSelectedDate(null);
+  };
+
+  const handleSendInvitation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!meetingId || !recipientEmails || !senderName) return;
+    await sendInvitation({
+      id: meetingId,
+      request: {
+        recipientEmails: recipientEmails.split(',').map(email => email.trim()),
+        senderName,
+        customMessage,
+      }
+    });
   };
 
   const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -170,7 +190,6 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                 ))}
               </div>
               
-              {/* Time selection */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="time" className="text-sm font-medium block mb-1">
@@ -215,6 +234,68 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
           </form>
         </CardContent>
       </Card>
+      {showInvitation && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <Card className={cn(
+            "w-full max-w-lg mx-auto",
+            isDarkMode ? "bg-gray-800 text-white" : "bg-white"
+          )}>
+            <CardHeader className="relative">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold">Send Meeting Invitation Email</h3>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowInvitation(false)}
+                  className="absolute right-2 top-2"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSendInvitation} className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium block mb-1">Recipient Emails (comma separated)</label>
+                  <Input
+                    value={recipientEmails}
+                    onChange={e => setRecipientEmails(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium block mb-1">Sender Name</label>
+                  <Input
+                    value={senderName}
+                    onChange={e => setSenderName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium block mb-1">Custom Message</label>
+                  <Input
+                    value={customMessage}
+                    onChange={e => setCustomMessage(e.target.value)}
+                  />
+                </div>
+                <div className="pt-4">
+                  <Button
+                    type="submit"
+                    className="w-full bg-[#6947A8] hover:bg-[#5a3c96] text-white"
+                    disabled={isSending}
+                  >
+                    {isSending ? "Sending..." : "Send Invitation"}
+                  </Button>
+                  {isSent && (
+                    <div className="text-green-600 mt-2 text-center">Invitation sent!</div>
+                  )}
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
+
