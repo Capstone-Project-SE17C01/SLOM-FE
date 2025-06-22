@@ -44,9 +44,9 @@ export function ConfirmRegisterationForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
 
-  const t2 = useTranslations("confirmRegisterPage");
-  const t = useTranslations("errorMessages.authError");
-  const t3 = useTranslations("successMessages.authMessage");
+  const t_confirm_register = useTranslations("confirmRegisterPage");
+  const t_error_auth = useTranslations("errorMessages.authError");
+  const t_success_auth = useTranslations("successMessages.authMessage");
 
   const handleConfirm = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,14 +56,14 @@ export function ConfirmRegisterationForm() {
       .unwrap()
       .then((response) => {
         if (response.httpStatusCode === HttpStatusCode.Ok) {
-          toast.success(t3("successRegisterationConfirm"));
+          toast.success(t_success_auth("successRegisterationConfirm"));
           router.push("/login");
         }
       })
       .catch((error) => {
         console.error("Error confirm registration\n", error);
         error.data.errorMessages.forEach((message: string) => {
-          setError(t(message));
+          setError(t_error_auth(message));
         });
       })
       .finally(() => {
@@ -92,7 +92,7 @@ export function ConfirmRegisterationForm() {
       .unwrap()
       .then((response) => {
         if (response.status === HttpStatusCode.Ok) {
-          toast.success(t3(response.data));
+          toast.success(t_success_auth(response.data));
         }
       })
       .catch((error) => {
@@ -125,12 +125,13 @@ export function ConfirmRegisterationForm() {
         <Card className="w-full max-w-[400px] sm:min-w-[400px] bg-white/90 backdrop-blur-sm max-h-screen overflow-auto">
           <CardContent className="pt-6 px-4 sm:px-6">
             <h1 className="text-center text-xl sm:text-2xl font-normal mb-6">
-              {t2("title")} <span className="text-primary">SLOM!</span>
+              {t_confirm_register("title")}{" "}
+              <span className="text-primary">SLOM!</span>
             </h1>
             <form onSubmit={handleConfirm} className="flex flex-col gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="email" className="text-sm sm:text-base">
-                  {t2("emailLabel")}
+                  {t_confirm_register("emailLabel")}
                 </Label>
                 <div className="relative">
                   <Input
@@ -144,7 +145,7 @@ export function ConfirmRegisterationForm() {
                         username: e.target.value.split("@")[0],
                       })
                     }
-                    placeholder={t2("emailPlaceholder")}
+                    placeholder={t_confirm_register("emailPlaceholder")}
                     required
                     className="h-9 sm:h-10 text-sm sm:text-base pl-9"
                     disabled={!!email}
@@ -158,7 +159,7 @@ export function ConfirmRegisterationForm() {
                     htmlFor="confirmationCode"
                     className="text-sm sm:text-base"
                   >
-                    {t2("confirmationCodeLabel")}
+                    {t_confirm_register("confirmationCodeLabel")}
                   </Label>
                 </div>
                 <div className="flex gap-2">
@@ -173,7 +174,9 @@ export function ConfirmRegisterationForm() {
                           confirmationCode: e.target.value,
                         })
                       }
-                      placeholder={t2("confirmationCodePlaceholder")}
+                      placeholder={t_confirm_register(
+                        "confirmationCodePlaceholder"
+                      )}
                       required
                       className="h-9 sm:h-10 text-sm sm:text-base pl-9 w-full"
                     />
@@ -191,12 +194,12 @@ export function ConfirmRegisterationForm() {
                     {isResending ? (
                       <div className="flex items-center justify-center gap-2">
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        {t2("sending")}
+                        {t_confirm_register("sending")}
                       </div>
                     ) : countdown > 0 ? (
-                      `${t2("resend")} (${countdown}s)`
+                      `${t_confirm_register("resend")} (${countdown}s)`
                     ) : (
-                      t2("resendCode")
+                      t_confirm_register("resendCode")
                     )}
                   </Button>
                 </div>
@@ -212,15 +215,15 @@ export function ConfirmRegisterationForm() {
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    {t2("confirming")}
+                    {t_confirm_register("confirming")}
                   </div>
                 ) : (
-                  t2("confirmButton")
+                  t_confirm_register("confirmButton")
                 )}
               </Button>
               <div className="text-center text-xs sm:text-sm">
                 <Link href="/login" className="text-primary hover:underline">
-                  {t2("backToLogin")}
+                  {t_confirm_register("backToLogin")}
                 </Link>
               </div>
             </form>
