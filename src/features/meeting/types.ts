@@ -1,3 +1,5 @@
+import { List } from "lodash";
+
 export interface FolderSelectionModalProps {
   show: boolean;
   folderName: string;
@@ -24,6 +26,7 @@ export interface ScheduleMeetingModalProps {
     time: string;
     duration: number;
   }) => void;
+  meetingId?: string;
 }
 
 export interface RoomCreationModalProps {
@@ -91,7 +94,7 @@ export interface CreateMeetingRequest {
   startTime?: string;
   duration?: number;
   isPrivate: boolean;
-  userId: string; // Added userId field
+  userId: string;
 }
 
 export interface CreateMeetingResponse {
@@ -123,7 +126,7 @@ export interface LeaveMeetingRequest {
 export interface AddRecordingRequest {
   storagePath: string;
   duration?: number;
-  userId: string; // Added userId field
+  userId: string;
 }
 
 export interface Recording {
@@ -135,4 +138,15 @@ export interface Recording {
   processed: boolean;
   transcription?: string;
   createdAt: string;
+}
+
+export interface SendMeetingEmailDto {
+  recipientEmails: string[];
+  senderName: string;
+  customMessage?: string;
+}
+
+export interface MeetingInvitation {
+  meetingId: string;
+  email: List<string>;
 }
