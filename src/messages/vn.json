@@ -281,6 +281,7 @@
     }
   },
   "loginPage": {
+    "title": "Đăng nhập vào",
     "emailLabel": "Email",
     "passwordLabel": "Mật khẩu",
     "loginButton": "Đăng nhập",
@@ -530,5 +531,16 @@
     "chooseCourse": "Chọn khóa học của bạn",
     "chooseYourPath": "Chọn con đường học tập của bạn",
     "pathDescription": "Chúng tôi cung cấp các khóa học ngôn ngữ ký hiệu từ cơ bản đến nâng cao, phù hợp với mọi trình độ. Hãy chọn khóa học phù hợp với bạn để bắt đầu hành trình học tập."
+  },
+  "quizAI": {
+    "reRecord": "Ghi lại",
+    "recordDuration": "Thời lượng ghi hình",
+    "record": "Ghi",
+    "stop": "Dừng",
+    "processing": "Đang xử lý...",
+    "sign": "Ký hiệu",
+    "detect": "Nhận dạng",
+    "videoError": "Không thể phát video. Vui lòng thử lại.",
+    "initializing": "Đang khởi tạo..."
   }
 }

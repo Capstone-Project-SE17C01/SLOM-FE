@@ -3,6 +3,8 @@ const RETURN_URL = process.env.NEXT_PUBLIC_RETURN_URL || "";
 const API_SERVER_SOCKET = process?.env?.NEXT_PUBLIC_SERVER_SOCKET_URL || "";
 const ASSETS_URL = process.env.NEXT_PUBLIC_ASSETS_URL;
 const SITE_URL = "/";
+const ZEGO_APP_ID = Number(process.env.NEXT_PUBLIC_ZEGO_APP_ID) || 1513876976;
+const ZEGO_SERVER_SECRET = process.env.NEXT_PUBLIC_ZEGO_SERVER_SECRET || "";
 
 const USER_INFO = "_user_info";
 const ACCESS_TOKEN = "_access_token";
@@ -51,6 +53,8 @@ const constants = {
   REDIRECT_URL_GOOGLE,
   ENPOINT_URL_GOOGLE,
   LOCALE,
+  ZEGO_APP_ID,
+  ZEGO_SERVER_SECRET,
 };
 
 export default constants;

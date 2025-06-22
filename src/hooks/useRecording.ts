@@ -133,15 +133,14 @@ export function useRecording({ roomID, onSaveSuccess, onSaveFailed, onStopRecord
     const { uploadVideoToCloudinary, generateVideoFilename } = await import('@/services/cloudinary/config');
     
     const file = new File(
-      [tempRecordingData], 
-      generateVideoFilename(roomID), 
+      [tempRecordingData],
+      generateVideoFilename(roomID),
       { type: "video/webm; codecs=vp9,opus" }
     );
-      try {   
+      try {
       const data = await uploadVideoToCloudinary(file, folder);
       
       if (onSaveSuccess) onSaveSuccess(data);
-      // Call onStopRecording with the secure URL and duration if provided
       if (onStopRecording && data.secure_url) {
         const duration = data.duration ? parseInt(data.duration.toString()) : 0;
         onStopRecording(data.secure_url, duration);

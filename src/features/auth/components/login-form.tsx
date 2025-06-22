@@ -24,8 +24,8 @@ export function LoginForm() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
-  const t = useTranslations("errorMessages.authError");
-  const t2 = useTranslations("loginPage");
+  const t_error_auth = useTranslations("errorMessages.authError");
+  const t_login = useTranslations("loginPage");
 
   const [login] = useLoginMutation();
   const [signInWithGoogle] = useLoginWithGoogleMutation();
@@ -49,7 +49,7 @@ export function LoginForm() {
         const errorMessage = Array.isArray(error.data.errorMessages)
           ? error.data.errorMessages[0]
           : error.data.errorMessages;
-        setError(t(errorMessage));
+        setError(t_error_auth(errorMessage));
       })
       .finally(() => {
         setIsLoading(false);
@@ -82,14 +82,14 @@ export function LoginForm() {
           const errorMessage = Array.isArray(error.data.errorMessages)
             ? error.data.errorMessages[0]
             : error.data.errorMessages;
-          setError(t(errorMessage));
-          toast.error(t(errorMessage));
+          setError(t_error_auth(errorMessage));
+          toast.error(t_error_auth(errorMessage));
         })
         .finally(() => {
           setIsLoading(false);
         });
     }
-  }, [router, setError, setIsLoading, signInWithGoogle, t]);
+  }, [router, setError, setIsLoading, signInWithGoogle, t_error_auth]);
 
   useEffect(() => {
     handleGoogleLogin();
@@ -117,12 +117,12 @@ export function LoginForm() {
         <Card className="w-full max-w-[400px] sm:min-w-[400px] bg-white/90 backdrop-blur-sm max-h-screen overflow-auto">
           <CardContent className="pt-6 px-4 sm:px-6">
             <h1 className="text-center text-xl sm:text-2xl font-normal mb-6">
-              Login to <span className="text-primary">SLOM!</span>
+              {t_login("title")} <span className="text-primary">SLOM!</span>
             </h1>
             <form onSubmit={handleEmailLogin} className="flex flex-col gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="email" className="text-sm sm:text-base">
-                  {t2("emailLabel")}
+                  {t_login("emailLabel")}
                 </Label>
                 <div className="relative">
                   <Input
@@ -131,7 +131,7 @@ export function LoginForm() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    placeholder={t2("emailPlaceholder")}
+                    placeholder={t_login("emailPlaceholder")}
                     className="h-9 sm:h-10 text-sm sm:text-base pl-9"
                     autoComplete="username"
                   />
@@ -140,7 +140,7 @@ export function LoginForm() {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="password" className="text-sm sm:text-base">
-                  {t2("passwordLabel")}
+                  {t_login("passwordLabel")}
                 </Label>
                 <div className="relative">
                   <Input
@@ -149,7 +149,7 @@ export function LoginForm() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    placeholder={t2("passwordPlaceholder")}
+                    placeholder={t_login("passwordPlaceholder")}
                     className="h-9 sm:h-10 pr-10 pl-9 text-sm sm:text-base w-full"
                     autoComplete="current-password"
                   />
@@ -183,14 +183,14 @@ export function LoginForm() {
                     htmlFor="remember"
                     className="text-xs sm:text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    {t2("rememberMe")}
+                    {t_login("rememberMe")}
                   </label>
                 </div>
                 <Link
                   href="/forgot-password"
                   className="text-xs sm:text-sm text-primary hover:underline"
                 >
-                  {t2("forgetPassword")}
+                  {t_login("forgetPassword")}
                 </Link>
               </div>
               {error && (
@@ -204,17 +204,17 @@ export function LoginForm() {
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    {t2("loggingIn")}
+                    {t_login("loggingIn")}
                   </div>
                 ) : (
-                  t2("loginButton")
+                  t_login("loginButton")
                 )}
               </Button>
             </form>
             <div className="flex items-center gap-4 my-4">
               <div className="h-[1px] flex-1 bg-gray-300"></div>
               <span className="text-gray-500 text-sm sm:text-base">
-                {t2("or")}
+                {t_login("or")}
               </span>
               <div className="h-[1px] flex-1 bg-gray-300"></div>
             </div>
@@ -228,7 +228,7 @@ export function LoginForm() {
               {isLoading ? (
                 <div className="flex items-center justify-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  {t2("loggingIn")}
+                  {t_login("loggingIn")}
                 </div>
               ) : (
                 <>
@@ -257,14 +257,14 @@ export function LoginForm() {
                       fill="#4285F4"
                     />
                   </svg>
-                  {t2("loginWithGoogle")}
+                  {t_login("loginWithGoogle")}
                 </>
               )}
             </Button>
             <div className="text-center text-xs sm:text-sm mt-4">
-              {t2("registerPrompt")}{" "}
+              {t_login("registerPrompt")}{" "}
               <Link href="/register" className="text-primary hover:underline">
-                {t2("register")}
+                {t_login("register")}
               </Link>
             </div>
           </CardContent>
@@ -273,7 +273,7 @@ export function LoginForm() {
           <div className="bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 w-screen h-screen fixed inset-0">
             <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg">
               <Loader2 className="h-5 w-5 animate-spin text-primary" />
-              <span>{t2("loggingIn")}</span>
+              <span>{t_login("loggingIn")}</span>
             </div>
           </div>
         )}

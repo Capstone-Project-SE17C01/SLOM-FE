@@ -24,8 +24,9 @@ import {
   CreatePaymentLinkResponseDTO,
   SubscriptionPlanDTO,
 } from "@/features/auth/types";
-import Cookies from "js-cookie";
 import { useTranslations } from "next-intl";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 export default function PricingPlans() {
   const { isDarkMode } = useTheme();
@@ -33,27 +34,16 @@ export default function PricingPlans() {
   const [annual, setAnnual] = useState(false);
   const [durationPlan, setDurationPlan] = useState<number>(1);
   const [discount, setDiscount] = useState<number>(0);
-  const [userInfo, setUserInfo] = useState<{
-    id: string;
-    email?: string;
-    username?: string;
-  } | null>(null);
   const { data, error, isLoading } = useGetAllPlanQuery();
   const [createPaymentLinkMutation] = useCreatePaymentLinkMutation();
-  const t = useTranslations("pricing");
-  const t2 = useTranslations("errorMessages.errorDashboard");
-  const t3 = useTranslations("errorMessages.paymentError");
+  const t_pricing = useTranslations("pricing");
+  const t_error_dashboard = useTranslations("errorMessages.errorDashboard");
+  const t_error_payment = useTranslations("errorMessages.paymentError");
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
 
   useEffect(() => {
-    const userInfoCookie = Cookies.get(constants.USER_INFO);
-    if (userInfoCookie != null && userInfoCookie != "undefined") {
-      setUserInfo(JSON.parse(userInfoCookie));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (error) console.error(t3("failGetplan"));
-  }, [isLoading, error, t3]);
+    if (error) console.error(t_error_payment("failGetplan"));
+  }, [isLoading, error, t_error_payment]);
 
   useEffect(() => {
     setDurationPlan(annual ? 12 : 1);
@@ -68,12 +58,13 @@ export default function PricingPlans() {
   ) => {
     e.preventDefault();
     try {
-      if (!userInfo?.id) return toast.error(t2("notAuthenticated"));
+      if (!userInfo?.id)
+        return toast.error(t_error_dashboard("notAuthenticated"));
 
       const response = await createPaymentLinkMutation({
         subscriptionId: planId,
         userId: userInfo.id,
-        productName: t(`${planName}.title`),
+        productName: t_pricing(`${planName}.title`),
         paymentMethod: "PAYOS",
         status: "PENDING",
         durationMonth: durationPlan,
@@ -88,10 +79,10 @@ export default function PricingPlans() {
       if (result?.checkoutUrl) {
         router.push(result.checkoutUrl);
       } else {
-        console.error(t3(errorMessages[0]));
+        console.error(t_error_payment(errorMessages[0]));
       }
     } catch {
-      console.error(t3("errorCreatePaymentLink"));
+      console.error(t_error_payment("errorCreatePaymentLink"));
     }
   };
 
@@ -108,18 +99,18 @@ export default function PricingPlans() {
     >
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-4">{t("title")}</h2>
+          <h2 className="text-4xl font-bold mb-4">{t_pricing("title")}</h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            {t("description")}
+            {t_pricing("description")}
           </p>
 
           <div className="flex items-center justify-center gap-2 mb-8">
             <span className={annual ? "text-muted-foreground" : "font-medium"}>
-              {t("monthly")}
+              {t_pricing("monthly")}
             </span>
             <Switch checked={annual} onCheckedChange={setAnnual} />
             <span className={!annual ? "text-muted-foreground" : "font-medium"}>
-              {t("annual")}
+              {t_pricing("annual")}
             </span>
           </div>
         </div>
@@ -143,13 +134,13 @@ export default function PricingPlans() {
               >
                 {plan.name === "Professional Educator" && (
                   <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 text-xs font-medium">
-                    {t("mostPopular")}
+                    {t_pricing("mostPopular")}
                   </div>
                 )}
                 <CardHeader>
-                  <CardTitle> {t(`${plan.name}.title`)}</CardTitle>
+                  <CardTitle> {t_pricing(`${plan.name}.title`)}</CardTitle>
                   <CardDescription>
-                    {t(`${plan.name}.descriptionPlan`)}
+                    {t_pricing(`${plan.name}.descriptionPlan`)}
                   </CardDescription>
                   <div className="mt-4">
                     <span className="text-3xl font-bold">
@@ -159,11 +150,11 @@ export default function PricingPlans() {
                       )}
                     </span>
                     <span className="text-muted-foreground ml-2">
-                      {annual ? t("year") : t("month")}
+                      {annual ? t_pricing("year") : t_pricing("month")}
                     </span>
                     {discount > 0 && (
                       <span className="text-sm text-green-500 ml-2">
-                        ({t("save")} {discount}&#37;)
+                        ({t_pricing("save")} {discount}&#37;)
                       </span>
                     )}
                   </div>
@@ -173,7 +164,9 @@ export default function PricingPlans() {
                     {parsedFeatures.map((feature, i) => (
                       <li key={i} className="flex items-center gap-2">
                         <Check className="h-4 w-4 text-primary" />
-                        <span>{t(`${plan.name}.features.${feature}`)}</span>
+                        <span>
+                          {t_pricing(`${plan.name}.features.${feature}`)}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -194,7 +187,7 @@ export default function PricingPlans() {
                       handlePayment(e, plan.id, plan.price, plan.name)
                     }
                   >
-                    {t("buttonText")}
+                    {t_pricing("buttonText")}
                   </Button>
                 </CardFooter>
               </Card>
@@ -203,11 +196,11 @@ export default function PricingPlans() {
         </div>
 
         <div className="text-center mt-12">
-          <p className="text-muted-foreground">{t("note")}</p>
+          <p className="text-muted-foreground">{t_pricing("note")}</p>
           <p className="mt-2">
-            {t("contact")}{" "}
+            {t_pricing("contact")}{" "}
             <a href="#" className="underline text-primary">
-              {t("contactLink")}
+              {t_pricing("contactLink")}
             </a>
           </p>
         </div>
