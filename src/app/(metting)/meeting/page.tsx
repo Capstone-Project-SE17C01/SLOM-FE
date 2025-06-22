@@ -11,6 +11,7 @@ import { useSpeechToText } from "@/hooks/useSpeechToText";
 import { generateZegoToken } from "@/services/zego/config";
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 import { useGetMeetingQuery, useLeaveMeetingMutation, useAddRecordingMutation } from "@/features/meeting/api";
+import { useEffect } from "react";
 
 export default function MeetingPage() {
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function MeetingPage() {
   const [hasJoinedRoom, setHasJoinedRoom] = React.useState(false);
   const [meetingExpired, setMeetingExpired] = React.useState(false);
   const [timeRemaining, setTimeRemaining] = React.useState<number | null>(null);
-
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
   const { transcript, isListening, startListening, stopListening, resetTranscript } = useSpeechToText();
   const [leaveMeeting] = useLeaveMeetingMutation();
   const [addRecording] = useAddRecordingMutation();
@@ -109,6 +110,12 @@ export default function MeetingPage() {
     }
   }, [roomID, userInfo, isListening, stopListening, resetTranscript]);
 
+  useEffect(() => {
+    if (containerRef.current && roomID && userInfo?.id) {
+      joinZegoRoom(containerRef.current);
+    }
+  }, [roomID, userInfo?.id, joinZegoRoom]);
+
   const formatTime = (time: number | null) => {
     if (!time) return "--:--:--";
     const hours = Math.floor(time / 3600);
@@ -119,7 +126,11 @@ export default function MeetingPage() {
 
   return (
     <>
-      <div className="myCallContainer" ref={(el) => { if (el) joinZegoRoom(el); }} style={{ height: "100vh", width: "100vw" }} />
+      <div
+        className="myCallContainer"
+        ref={containerRef}
+        style={{ height: "100vh", width: "100vw" }}
+      />
       
       {hasJoinedRoom && !meetingExpired && roomID && (
         <div className="fixed bottom-5 left-5 z-[999] flex items-center gap-4 bg-opacity-80 bg-gray-900 dark:bg-gray-800 py-2 px-4 rounded-full shadow-lg">

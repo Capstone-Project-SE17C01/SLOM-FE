@@ -80,7 +80,7 @@ export const MeetingRoomGrid: React.FC<MeetingRoomGridProps> = ({
             </div>
           )}
           
-          <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="mt-2">
             <Button 
               variant="outline" 
               size="sm" 
