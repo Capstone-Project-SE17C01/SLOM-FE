@@ -144,9 +144,12 @@ export default function QuizAI({
     }
   };
 
-  // Gửi video base64 qua websocket
+  // Send video to websocket
   const sendVideoToWS = (base64data: string) => {
-    const ws = new WebSocket(`ws://localhost:8000/ws/${userId}`);
+    const ws = new WebSocket(
+      `wss://sign-detection-436879212893.australia-southeast1.run.app/ws/${userId}`
+    );
+
     wsRef.current = ws;
     ws.onopen = () => {
       ws.send(base64data);
@@ -173,7 +176,7 @@ export default function QuizAI({
         setIsCorrect(false);
       }
       if (data.video) {
-        // Backend trả về video MP4 với codec H.264 (sau khi cài OpenH264)
+        // Backend return video MP4 with codec H.264 (after install OpenH264)
         const videoUrl = `data:video/mp4;codecs=avc1;base64,${data.video}`;
         console.log("Setting video URL:", videoUrl.substring(0, 50) + "...");
         setResultVideo(videoUrl);
@@ -198,7 +201,7 @@ export default function QuizAI({
     };
   };
 
-  // Dừng ghi hình thủ công
+  // Stop recording manually
   const handleStopRecording = () => {
     setIsRecording(false);
     if (
@@ -215,7 +218,7 @@ export default function QuizAI({
   return (
     <div className="flex flex-col items-center gap-2 w-full h-full">
       <div className="w-full flex flex-col items-center border border-gray-300 rounded-lg h-full">
-        {/* Hiển thị preview webcam hoặc video kết quả */}
+        {/* Show preview webcam or result video */}
         {!resultVideo ? (
           <video
             ref={videoRef}
@@ -252,7 +255,7 @@ export default function QuizAI({
             </ButtonCourse>
           </div>
         )}
-        {/* Nút điều khiển */}
+        {/* Control button */}
         {!resultVideo && (
           <div className="mt-2 flex flex-col items-center gap-2">
             <div className="flex items-center gap-2">
@@ -312,7 +315,7 @@ export default function QuizAI({
             {t_quizAI("initializing") || "Đang khởi tạo camera..."}
           </div>
         )}
-        {/* show detect sign and answer */}
+        {/* Show detect sign and answer */}
         <div className="mt-3 flex flex-row items-center justify-between gap-4 w-full max-w-xs p-5">
           <div className="text-center">
             <span className="block text-gray-500 font-semibold">

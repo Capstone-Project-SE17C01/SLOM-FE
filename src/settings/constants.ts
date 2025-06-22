@@ -5,6 +5,9 @@ const ASSETS_URL = process.env.NEXT_PUBLIC_ASSETS_URL;
 const SITE_URL = "/";
 const ZEGO_APP_ID = Number(process.env.NEXT_PUBLIC_ZEGO_APP_ID) || 1513876976;
 const ZEGO_SERVER_SECRET = process.env.NEXT_PUBLIC_ZEGO_SERVER_SECRET || "";
+const WEBSOCKET_SIGN_DETECTION_URL =
+  process.env.NEXT_PUBLIC_WEBSOCKET_SIGN_DETECTION_URL ||
+  "wss://sign-detection-436879212893.australia-southeast1.run.app/ws";
 
 const USER_INFO = "_user_info";
 const ACCESS_TOKEN = "_access_token";
@@ -55,6 +58,7 @@ const constants = {
   LOCALE,
   ZEGO_APP_ID,
   ZEGO_SERVER_SECRET,
+  WEBSOCKET_SIGN_DETECTION_URL,
 };
 
 export default constants;
