@@ -1,3 +1,5 @@
+import { List } from "lodash";
+
 export interface FolderSelectionModalProps {
   show: boolean;
   folderName: string;
@@ -142,4 +144,9 @@ export interface SendMeetingEmailDto {
   recipientEmails: string[];
   senderName: string;
   customMessage?: string;
+}
+
+export interface MeetingInvitation {
+  meetingId: string;
+  email: List<string>;
 }

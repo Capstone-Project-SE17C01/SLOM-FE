@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScheduleMeetingModalProps } from '../types';
-import { useSendMeetingInvitationMutation } from "../api";
+import { useCreateInvitationMutation, useSendMeetingInvitationMutation } from "../api";
 
 
 export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
@@ -28,6 +28,7 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
   const [customMessage, setCustomMessage] = useState('');
   const [showInvitation, setShowInvitation] = useState(false);
   const [sendInvitation, { isLoading: isSending, isSuccess: isSent }] = useSendMeetingInvitationMutation();
+  const [createInvitation] = useCreateInvitationMutation();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
@@ -83,6 +84,12 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
   const handleSendInvitation = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!meetingId || !recipientEmails || !senderName) return;
+    await createInvitation({
+      request: {
+        email: recipientEmails.split(',').map(email => email.trim()),
+        meetingId
+      }
+    });
     await sendInvitation({
       id: meetingId,
       request: {
