@@ -11,6 +11,7 @@ import type {
   Module,
   Word,
   VideoSuggest,
+  ReminderDTO,
 } from "./types";
 import { APIResponse } from "../auth/types";
 
@@ -101,10 +102,11 @@ export const courseAPI = baseApi.injectEndpoints({
       }),
     }),
 
-    getVideoSuggest: build.mutation<APIResponse<VideoSuggest>,
-        { userId: string; pageNumber: number; searchQuery: string }
-      >({
-      query: ({userId, pageNumber, searchQuery}) => ({
+    getVideoSuggest: build.mutation<
+      APIResponse<VideoSuggest>,
+      { userId: string; pageNumber: number; searchQuery: string }
+    >({
+      query: ({ userId, pageNumber, searchQuery }) => ({
         url: `/api/VideoSuggest?UserId=${userId}&PageNumber=${pageNumber}&PageSize=20&SearchQuery=${searchQuery}`,
         method: "GET",
         flashError: false,
@@ -143,6 +145,24 @@ export const courseAPI = baseApi.injectEndpoints({
         flashError: false,
       }),
     }),
+    //get reminder
+    getReminder: build.mutation<APIResponse<ReminderDTO>, string>({
+      query: (email: string) => ({
+        url: `/api/Reminder/GetReminder?email=${email}`,
+        method: "GET",
+        flashError: false,
+      }),
+    }),
+
+    //setup reminder
+    setupReminder: build.mutation<APIResponse<ReminderDTO>, ReminderDTO>({
+      query: (data: ReminderDTO) => ({
+        url: `/api/Reminder/SetupReminder`,
+        method: "POST",
+        body: data,
+        flashError: false,
+      }),
+    }),
   }),
 });
 
@@ -161,4 +181,6 @@ export const {
   useAddNewUserProgressMutation,
   useMarkLessonAsCompletedMutation,
   useMarkLessonAsLearnedMutation,
+  useGetReminderMutation,
+  useSetupReminderMutation,
 } = courseAPI;
