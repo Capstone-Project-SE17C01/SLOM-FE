@@ -23,7 +23,6 @@ export default function Page() {
   const [shouldNavigate, setShouldNavigate] = useState(false);
   const accessToken = Cookies.get(constants.ACCESS_TOKEN);
   const t = useTranslations("errorMessages.errorDashboard");
-  const t3 = useTranslations("successMessages.authMessage");
   const t2 = useTranslations("resultPaymentPage");
 
   const params = useMemo(
@@ -39,50 +38,48 @@ export default function Page() {
   );
 
   useEffect(() => {
-    if (params.cancel === "false") {
-      if (params.code && params.id && params.status && params.orderCode) {
-        (async () => {
-          try {
-            if (!accessToken) {
-              toast.error(t("notAuthenticated"));
-              setStatus("error");
-              return;
-            }
+    if (params.code && params.id && params.status && params.orderCode) {
+      (async () => {
+        try {
+          if (!accessToken) {
+            toast.error(t("notAuthenticated"));
+            setStatus("error");
+            return;
+          }
+          const tokenInfo = jwtDecode<{ sub: string }>(accessToken);
+          const userId = tokenInfo.sub;
+          const response = await updatePlan({
+            userId,
+            period: Number(params.period),
+            code: params.code as string,
+            id: params.id as string,
+            cancel: params.cancel === "false",
+            status: params.status,
+            orderCode: params.orderCode,
+          }).unwrap();
 
-            const tokenInfo = jwtDecode<{ sub: string }>(accessToken);
-            const userId = tokenInfo.sub;
-
-            const response = await updatePlan({
-              userId,
-              period: Number(params.period),
-              code: params.code as string,
-              id: params.id as string,
-              cancel: params.cancel === "false",
-              status: params.status,
-              orderCode: params.orderCode,
-            }).unwrap();
-
-            if (response.errorMessages?.length) {
-              toast.error(t("paymentStatusWrong"));
-              setStatus("error");
-            }
-            if (response.result) {
-              toast.success(t3(response.result));
-              setStatus("success");
-            }
-          } catch {
-            toast.error(t("paymentUpdateFailed"));
+          if (response.errorMessages?.length) {
+            toast.error(t("paymentStatusWrong"));
             setStatus("error");
           }
-        })();
-      } else {
-        toast.error(t("paymentStatusWrong"));
-        setStatus("error");
-      }
+          if (response.result) {
+            console.log("response.result", response.result);
+            if (params.cancel === "false") {
+              setStatus("success");
+            } else {
+              setStatus("cancelled");
+            }
+          }
+        } catch {
+          toast.error(t("paymentUpdateFailed"));
+          setStatus("error");
+        }
+      })();
     } else {
-      setStatus("cancelled");
+      toast.error(t("paymentStatusWrong"));
+      setStatus("error");
     }
-  }, [params, updatePlan, accessToken, t, t3]);
+  }, [params, updatePlan, accessToken, t]);
 
   useEffect(() => {
     if (status === "loading") return;
