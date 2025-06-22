@@ -98,18 +98,18 @@ export default function ImmerseVideo() {
         ])
           .then(([videoListResponse]) => {
             if (videoListResponse.result != null) {
-              let getListVideo: VideoSuggest | null = videoListResponse.result
+              const getListVideo: VideoSuggest | null = videoListResponse.result
 
               if (getListVideo.isLoadFullPage) {
                 setIsLoadFull(true);
               }
 
               if (videoList != null) {
-                let currentVideoList = [...videoList.videoSuggest ?? []];
-                let gotVideoList = [...getListVideo.videoSuggest ?? []];
+                const currentVideoList = [...videoList.videoSuggest ?? []];
+                const gotVideoList = [...getListVideo.videoSuggest ?? []];
                 if (gotVideoList != null && currentVideoList != null) {
                   currentVideoList.push(...gotVideoList)
-                  let result: VideoSuggest = {
+                  const result: VideoSuggest = {
                     videoSuggest: currentVideoList,
                     isLoadFullPage: getListVideo.isLoadFullPage
                   };
@@ -126,7 +126,7 @@ export default function ImmerseVideo() {
           });
       }
     }
-  }, []);
+  }, [getVideoSuggestion, userInfo?.id]);
 
   useEffect(() => {
     const div = chatContainerRef.current;
@@ -158,6 +158,7 @@ export default function ImmerseVideo() {
         console.error("fetch error", err);
       });
   }, [
+    getVideoSuggestion,
     userInfo?.id,
     userInfo?.courseId,
     search
