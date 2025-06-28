@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import ActivityCard from "@/components/ui/activityCard";
 import { ButtonCourse } from "@/components/ui/buttonCourse";
 import Spinner from "@/components/ui/spinner";
+import { ReminderDialog } from "./reminder-dialog";
 
 function AccomplishmentCard({
   title,
@@ -76,9 +77,9 @@ function ProgressBar({
           progress: percent.toFixed(2),
         })}
       </div>
-      <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+      <div className="w-full bg-primary/30 rounded-full h-2.5 mb-2">
         <div
-          className="bg-[#6947A8] h-2.5 rounded-full"
+          className="bg-primary h-2.5 rounded-full"
           style={{ width: `${percent}%` }}
         ></div>
       </div>
@@ -93,7 +94,7 @@ export default function CourseDashboard() {
     null
   );
   const router = useRouter();
-
+  const [isOpen, setIsOpen] = useState(false);
   useEffect(() => {
     if (!userInfo) {
       router.push("/login");
@@ -178,9 +179,14 @@ export default function CourseDashboard() {
             <div className="font-bold text-xl text-white">
               {tCourseDashBoard("myAccomplishments")}
             </div>
-            <div className="font-bold text-lg text-white/90">
-              {userInfo?.courseTitle}
-            </div>
+
+            {/* Reminder Dialog */}
+            <ReminderDialog
+              isOpen={isOpen}
+              onOpenChange={setIsOpen}
+              userEmail={userInfo?.email}
+              userId={userInfo?.id}
+            />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
             {accomplishmentConfigs.map((cfg) => (
@@ -224,13 +230,17 @@ export default function CourseDashboard() {
             variant="super"
             className="shadow-lg hover:shadow-xl transition-shadow"
             onClick={() => {
-              router.push(
-                `/apprender/learn?lessonId=${
-                  dashboardData?.activeLesson?.id
-                }&moduleId=${
-                  dashboardData?.activeLesson?.moduleId
-                }&back=${encodeURIComponent("/course-dashboard")}`
-              );
+              if (dashboardData?.activeLesson) {
+                router.push(
+                  `/apprender/learn?lessonId=${
+                    dashboardData.activeLesson.id
+                  }&moduleId=${
+                    dashboardData.activeLesson.moduleId
+                  }&back=${encodeURIComponent("/course-dashboard")}`
+                );
+              } else {
+                router.push("/learn");
+              }
             }}
           >
             {tCourseDashBoard("startLearning")}

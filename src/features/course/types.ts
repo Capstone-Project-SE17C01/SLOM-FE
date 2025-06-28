@@ -186,16 +186,24 @@ export interface ListVideoSuggestResult {
 }
 
 export interface VideoSuggest {
-  videoSuggest: ListVideoSuggestResult[] | null,
-  isLoadFullPage: boolean
+  videoSuggest: ListVideoSuggestResult[] | null;
+  isLoadFullPage: boolean;
 }
 
 export interface VideoHeaderInput {
-  headerTitle: string
-  headerDesc: string
+  headerTitle: string;
+  headerDesc: string;
 }
 
 export interface VideoTabsInput {
   active: number;
   setActive: (i: number) => void;
+}
+
+export interface ReminderDTO {
+  email: string;
+  message?: string;
+  userId?: string;
+  timeToSend: string;
+  isActive: boolean;
 }

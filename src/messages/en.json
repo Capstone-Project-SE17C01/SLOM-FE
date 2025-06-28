@@ -540,7 +540,11 @@
     "courseCompletedLast7Days": "Courses completed (last 7 days)",
     "recentLessonsCompleted": "Recent lessons completed",
     "recentModulesCompleted": "Recent modules completed",
-    "recentCoursesCompleted": "Recent courses completed"
+    "recentCoursesCompleted": "Recent courses completed",
+    "setReminder": "Set Reminder",
+    "reminderSetSuccessfully": "Reminder set successfully",
+    "reminderSetFailed": "Reminder set failed",
+    "reminderActive": "Active"
   },
   "listCoursePage": {
     "noCourseRemain": "No course remain",

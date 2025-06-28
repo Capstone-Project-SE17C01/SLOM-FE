@@ -522,7 +522,11 @@
     "totalCourse": "{count} khóa học trong hệ thống",
     "lessonsCompletedLast7Days": "Bài học đã hoàn thành (7 ngày qua)",
     "modulesCompletedLast7Days": "Module đã hoàn thành (7 ngày qua)",
-    "courseCompletedLast7Days": "Khóa học đã hoàn thành (7 ngày qua)"
+    "courseCompletedLast7Days": "Khóa học đã hoàn thành (7 ngày qua)",
+    "setReminder": "Đặt lịch nhắc nhở",
+    "reminderSetSuccessfully": "Lưu cài đặt thành công",
+    "reminderSetFailed": "Lưu cài đặt thất bại",
+    "reminderActive": "Kích hoạt"
   },
   "listCoursePage": {
     "noCourseRemain": "Không có khóa học còn lại",
