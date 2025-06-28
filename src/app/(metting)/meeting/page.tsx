@@ -7,11 +7,11 @@ import { useRouter } from "next/navigation";
 import { useRecording } from "@/hooks/useRecording";
 import { Mic, Square, Clock, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useSpeechToText } from "@/hooks/useSpeechToText";
 import { generateZegoToken } from "@/services/zego/config";
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 import { useGetMeetingQuery, useLeaveMeetingMutation, useAddRecordingMutation } from "@/features/meeting/api";
 import { useEffect } from "react";
+import { useSpeechToText } from "@/hooks/useSpeechToText";
 
 export default function MeetingPage() {
   const router = useRouter();
@@ -21,7 +21,19 @@ export default function MeetingPage() {
   const [meetingExpired, setMeetingExpired] = React.useState(false);
   const [timeRemaining, setTimeRemaining] = React.useState<number | null>(null);
   const containerRef = React.useRef<HTMLDivElement | null>(null);
-  const { transcript, isListening, startListening, stopListening, resetTranscript } = useSpeechToText();
+  const [speechLang, setSpeechLang] = React.useState<"vi-VN" | "en-US">("vi-VN");
+  const subscriptionKey = process.env.NEXT_PUBLIC_AZURE_SPEECH_KEY || "";
+  const region = process.env.NEXT_PUBLIC_AZURE_REGION || "";
+  const translatorKey = process.env.NEXT_PUBLIC_AZURE_TRANSLATOR_KEY || "";
+  const fromLang = speechLang === "vi-VN" ? "en-US" : "vi-VN";
+  const toLang = speechLang === "vi-VN" ? "vi" : "en";
+  const { transcript, isListening, startListening, stopListening, resetTranscript } = useSpeechToText({
+    subscriptionKey,
+    region,
+    translatorKey,
+    fromLang,
+    toLang,
+  });
   const [leaveMeeting] = useLeaveMeetingMutation();
   const [addRecording] = useAddRecordingMutation();
   const { data: meetingData } = useGetMeetingQuery(roomID, { skip: !roomID, pollingInterval: 30000 });
@@ -133,7 +145,7 @@ export default function MeetingPage() {
       />
       
       {hasJoinedRoom && !meetingExpired && roomID && (
-        <div className="fixed bottom-5 left-5 z-[999] flex items-center gap-4 bg-opacity-80 bg-gray-900 dark:bg-gray-800 py-2 px-4 rounded-full shadow-lg">
+        <div className="fixed bottom-3 left-5 z-[999] flex items-center gap-4 bg-opacity-80 bg-gray-900 dark:bg-gray-800 py-2 px-4 rounded-full shadow-lg">
           {meetingData && (
             <div className="text-sm text-gray-200 mr-2">
               <span className="font-medium">{meetingData.title}</span>
@@ -170,9 +182,19 @@ export default function MeetingPage() {
               </>
             )}
           </button>
+        </div>
+      )}
 
-          <div className="h-8 w-[1px] bg-gray-500 dark:bg-gray-600 mx-1" />
-
+      {hasJoinedRoom && !meetingExpired && roomID && (
+        <div className="fixed bottom-3 right-60 z-[999] bg-opacity-80 bg-gray-900 dark:bg-gray-800 py-2 px-4 rounded-full shadow-lg flex items-center gap-2">
+          <select
+            value={speechLang}
+            onChange={e => setSpeechLang(e.target.value as "vi-VN" | "en-US")}
+            className="h-8 rounded-full bg-gray-200 text-gray-800 text-sm font-medium px-3"
+          >
+            <option value="vi-VN">Tiếng Việt</option>
+            <option value="en-US">English</option>
+          </select>
           <button
             onClick={() => isListening ? stopListening() : startListening()}
             className={cn(
