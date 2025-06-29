@@ -29,8 +29,8 @@ export default function DashboardLayout({
   if (userInfo) {
     navItems.push({ name: "message", href: "/chat" });
     navItems.push({ name: "course", href: "/list-course" });
-    navItems.push({ name: "meeting", href: "/meeting-room" },
-    );
+    navItems.push({ name: "meeting", href: "/meeting-room" });
+    navItems.push({ name: "contact", href: "/contact" });
   }
 
   return (
