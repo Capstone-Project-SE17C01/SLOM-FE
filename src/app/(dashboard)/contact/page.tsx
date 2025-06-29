@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { MapPin, Mail, Phone, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { useCreateFeedbackMutation } from "@/features/feedback/api";
 
 export default function ContactPage() {
   const { isDarkMode } = useTheme();
@@ -28,6 +29,7 @@ export default function ContactPage() {
     message: "",
   });
 
+  const [createFeedback] = useCreateFeedbackMutation();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (
@@ -44,8 +46,8 @@ export default function ContactPage() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      await createFeedback(formData).unwrap();
       toast.success(t("success"));
       setFormData({
         name: "",
@@ -53,8 +55,11 @@ export default function ContactPage() {
         subject: "",
         message: "",
       });
+    } catch {
+      toast.error(t("error") || "Gửi phản hồi thất bại");
+    } finally {
       setIsSubmitting(false);
-    }, 1500);
+    }
   };
 
   const contactInfo = [

@@ -27,11 +27,10 @@ export default function DashboardLayout({
 
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   if (userInfo) {
-    navItems = [
-      { name: "message", href: "/chat" },
-      { name: "course", href: "/list-course" },
-      { name: "meeting", href: "/meeting-room" },
-    ];
+    navItems.push({ name: "message", href: "/chat" });
+    navItems.push({ name: "course", href: "/list-course" });
+    navItems.push({ name: "meeting", href: "/meeting-room" });
+    navItems.push({ name: "contact", href: "/contact" });
   }
 
   return (
