@@ -18,7 +18,7 @@ export default function DashboardLayout({
   const [menuOpen, setMenuOpen] = useState(false);
   const { isDarkMode, toggleDarkMode } = useTheme();
   const toggleMenu = () => setMenuOpen(!menuOpen);
-  const navItems = [
+  let navItems = [
     { name: "home", href: "/home" },
     { name: "features", href: "/features" },
     { name: "about", href: "/about" },
