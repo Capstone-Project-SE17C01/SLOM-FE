@@ -6,11 +6,13 @@ import { RootState } from "@/redux/store";
 import { FolderSelectionModal } from "@/features/meeting/components/folder-selection-form";
 import { useRouter } from "next/navigation";
 import { useRecording } from "@/hooks/useRecording";
-import { Mic, Square, Clock, AlarmClock } from "lucide-react";
+import { useSignLanguageRecognition } from "@/hooks/useSignLanguageRecognition";
+import { Mic, Square, Clock, AlarmClock, Languages } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { generateZegoToken } from "@/services/zego/config";
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 import { useGetMeetingQuery, useLeaveMeetingMutation, useAddRecordingMutation } from "@/features/meeting/api";
+import { SignLanguageOverlay, SignLanguageToggleButton } from "@/components/ui/signLanguageOverlay";
 
 function ZegoMeetingTimerDisplay({ roomId, onExpired }: { roomId: string; onExpired?: () => void }) {
   const { data: meeting } = useGetMeetingQuery(roomId, { pollingInterval: 30000 });
@@ -108,6 +110,7 @@ export default function App(): JSX.Element {
   const [hasJoinedRoom, setHasJoinedRoom] = React.useState<boolean>(false);
   const [meetingExpired, setMeetingExpired] = React.useState<boolean>(false);
   const [meetingError, setMeetingError] = React.useState<string | null>(null);
+  const [signLanguageVisible, setSignLanguageVisible] = React.useState<boolean>(false);
   const { userInfo } = useSelector((state: RootState) => state.auth);
 
   const [leaveMeeting] = useLeaveMeetingMutation();
@@ -230,6 +233,22 @@ export default function App(): JSX.Element {
   const myMeeting = React.useCallback((element: HTMLDivElement | null) => {
     if (element) joinZegoRoom(element);
   }, [joinZegoRoom]);
+
+  // Sign Language Recognition hook
+  const signLanguageRecognition = useSignLanguageRecognition({
+    onResult: (result) => {
+      console.log("Sign language recognition result:", result);
+    },
+    captureInterval: 200
+  });
+
+  // Auto show overlay when sign language recognition is activated
+  React.useEffect(() => {
+    if (signLanguageRecognition.isActive && !signLanguageVisible) {
+      setSignLanguageVisible(true);
+    }
+  }, [signLanguageRecognition.isActive, signLanguageVisible]);
+
   return (
     <>      
       {meetingError && (
@@ -287,8 +306,62 @@ export default function App(): JSX.Element {
               </>
             )}
           </button>
+
+          <div className="h-8 w-[1px] bg-gray-500 dark:bg-gray-600 mx-1"></div>
+
+          <button
+            onClick={signLanguageRecognition.toggleRecognition}
+            className={cn(
+              "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all",
+              "font-medium text-sm",
+              signLanguageRecognition.isActive
+                ? "bg-green-500 text-white hover:bg-green-600"
+                : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+            )}
+          >
+            {signLanguageRecognition.isActive ? (
+              <>
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400"></span>
+                </span>
+                <Languages className="w-3.5 h-3.5" />
+                <span>Sign AI</span>
+              </>
+            ) : (
+              <>
+                <Languages className="w-3.5 h-3.5" />
+                <span>Sign AI</span>
+              </>
+            )}
+          </button>
         </div>
-      )}      {meetingExpired && (
+      )}
+
+      {/* Sign Language Recognition Overlay */}
+      {hasJoinedRoom && !meetingExpired && (
+        <>
+          <SignLanguageOverlay
+            isActive={signLanguageRecognition.isActive}
+            isConnected={signLanguageRecognition.isConnected}
+            connectionStatus={signLanguageRecognition.connectionStatus}
+            currentPrediction={signLanguageRecognition.currentPrediction}
+            confidence={signLanguageRecognition.confidence}
+            lastUpdate={signLanguageRecognition.lastUpdate}
+            recentPredictions={signLanguageRecognition.recentPredictions}
+            isVisible={signLanguageVisible}
+            onToggleVisibility={() => setSignLanguageVisible(!signLanguageVisible)}
+          />
+          
+          <SignLanguageToggleButton
+            isVisible={signLanguageVisible}
+            onToggle={() => setSignLanguageVisible(true)}
+            isActive={signLanguageRecognition.isActive}
+          />
+        </>
+      )}
+
+      {meetingExpired && (
         <div
           style={{
             position: "fixed",
