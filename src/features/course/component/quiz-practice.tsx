@@ -141,7 +141,7 @@ export default function QuizPractice({
       ) : (
         <>
           <div className="w-full max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 px-2">
-            <div className="w-full md:col-span-5 flex items-center justify-center mb-4 md:mb-0">
+            <div className="w-full md:col-span-6 flex items-center justify-center mb-4 md:mb-0">
               {currentQuiz?.question &&
               currentQuiz.question.startsWith("http") ? (
                 <VideoSquare videoUrl={currentQuiz.question} />
@@ -151,7 +151,7 @@ export default function QuizPractice({
                 </div>
               )}
             </div>
-            <div className="w-full md:col-span-5 flex flex-col items-center h-full justify-center gap-4 mb-4 md:mb-0">
+            <div className="w-full md:col-span-6 flex flex-col items-center h-full justify-center gap-4 mb-4 md:mb-0">
               {currentQuiz?.quizType === "MultiChoice" ? (
                 <QuizOptions
                   options={currentQuiz.quizOptions || []}
@@ -173,7 +173,9 @@ export default function QuizPractice({
                 />
               )}
             </div>
-            <div className="w-full md:col-span-2 flex items-center justify-start flex-col">
+          </div>
+          <div className="flex justify-center mt-4">
+            <div className="flex gap-4">
               <QuizAction
                 onContinue={handleContinue}
                 onDontKnow={handleDontKnow}

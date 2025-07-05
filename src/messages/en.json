@@ -304,6 +304,7 @@
     }
   },
   "loginPage": {
+    "title": "Login to",
     "emailLabel": "Email",
     "passwordLabel": "Password",
     "loginButton": "Login",
@@ -372,7 +373,51 @@
     "tabs": {
       "personal": "Personal Info",
       "security": "Security",
-      "preferences": "Preferences"
+      "preferences": "Preferences",
+      "history": "History",
+      "transaction": "Transaction"
+    },
+    "report": {
+      "title": "Report",
+      "description": "Report a problem with your transaction",
+      "success": "Report sent successfully",
+      "error": "Report failed",
+      "titlePlaceholder": "Enter title",
+      "contentPlaceholder": "Enter content",
+      "selectType": "Select type",
+      "selectTypePlaceholder": "Select type",
+      "cancel": "Cancel",
+      "submit": "Submit",
+      "type": "Type",
+      "transactionId": "Transaction ID",
+      "paymentIssue": "Payment Issue",
+      "content": "Content",
+      "submitting": "Submitting...",
+      "errors": {
+        "titleRequired": "Title is required",
+        "titleTooShort": "Title must be at least 5 characters",
+        "typeRequired": "Type is required",
+        "contentRequired": "Content is required",
+        "contentTooShort": "Content must be at least 10 characters"
+      }
+    },
+    "transaction": {
+      "title": "Transaction",
+      "description": "View your transaction history here",
+      "paymentMethod": "Payment Method",
+      "amount": "Amount",
+      "status": "Status",
+      "date": "Date",
+      "noData": "No data",
+      "action": "Action",
+      "report": "Report"
+    },
+    "history": {
+      "title": "History",
+      "description": "View your payment history here",
+      "paymentMethod": "Payment Method",
+      "amount": "Amount",
+      "status": "Status"
     },
     "personalInfo": {
       "title": "Personal Information",
@@ -495,7 +540,11 @@
     "courseCompletedLast7Days": "Courses completed (last 7 days)",
     "recentLessonsCompleted": "Recent lessons completed",
     "recentModulesCompleted": "Recent modules completed",
-    "recentCoursesCompleted": "Recent courses completed"
+    "recentCoursesCompleted": "Recent courses completed",
+    "setReminder": "Set Reminder",
+    "reminderSetSuccessfully": "Reminder set successfully",
+    "reminderSetFailed": "Reminder set failed",
+    "reminderActive": "Active"
   },
   "listCoursePage": {
     "noCourseRemain": "No course remain",
@@ -504,5 +553,16 @@
     "chooseCourse": "Choose your course",
     "chooseYourPath": "Choose your learning path",
     "pathDescription": "Select a course that suits your learning goals and start your journey in sign language."
+  },
+  "quizAI": {
+    "reRecord": "Re-record",
+    "recordDuration": "Record duration",
+    "record": "Record",
+    "stop": "Stop",
+    "processing": "Processing...",
+    "sign": "Sign",
+    "detect": "Detect",
+    "videoError": "Cannot play video. Please try again.",
+    "initializing": "Initializing..."
   }
 }

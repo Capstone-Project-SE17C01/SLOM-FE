@@ -1,5 +1,4 @@
 "use client";
-
 import * as React from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
@@ -7,7 +6,9 @@ import { FolderSelectionModal } from "@/features/meeting/components/folder-selec
 import { useRouter } from "next/navigation";
 import { useRecording } from "@/hooks/useRecording";
 import { useSignLanguageRecognition } from "@/hooks/useSignLanguageRecognition";
-import { Mic, Square, Clock, AlarmClock, Languages } from "lucide-react";
+import { useEffect } from "react";
+import { useSpeechToText } from "@/hooks/useSpeechToText";
+import { Mic, Square, Clock, AlarmClock, Languages, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { generateZegoToken } from "@/services/zego/config";
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
@@ -49,7 +50,6 @@ function ZegoMeetingTimerDisplay({ roomId, onExpired }: { roomId: string; onExpi
       
       return () => clearInterval(interval);
     } else if (meeting) {
-      // If the meeting exists but has no endTime, show a default state
       setIsLoading(false);
       setTimeRemaining(null);
     }
@@ -104,135 +104,38 @@ function ZegoMeetingTimerDisplay({ roomId, onExpired }: { roomId: string; onExpi
   );
 }
 
-export default function App(): JSX.Element {
+export default function MeetingPage() {
   const router = useRouter();
-  const [roomID, setRoomID] = React.useState<string>("");
-  const [hasJoinedRoom, setHasJoinedRoom] = React.useState<boolean>(false);
-  const [meetingExpired, setMeetingExpired] = React.useState<boolean>(false);
-  const [meetingError, setMeetingError] = React.useState<string | null>(null);
-  const [signLanguageVisible, setSignLanguageVisible] = React.useState<boolean>(false);
   const { userInfo } = useSelector((state: RootState) => state.auth);
-
+  
+  // Meeting states
+  const [roomID, setRoomID] = React.useState("");
+  const [hasJoinedRoom, setHasJoinedRoom] = React.useState(false);
+  const [meetingExpired, setMeetingExpired] = React.useState(false);
+  const [signLanguageVisible, setSignLanguageVisible] = React.useState(false);
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
+  
+  // Speech-to-text states
+  const [speechLang, setSpeechLang] = React.useState<"vi-VN" | "en-US">("vi-VN");
+  const subscriptionKey = process.env.NEXT_PUBLIC_AZURE_SPEECH_KEY || "";
+  const region = process.env.NEXT_PUBLIC_AZURE_REGION || "";
+  const translatorKey = process.env.NEXT_PUBLIC_AZURE_TRANSLATOR_KEY || "";
+  const fromLang = speechLang === "vi-VN" ? "en-US" : "vi-VN";
+  const toLang = speechLang === "vi-VN" ? "vi" : "en";
+  
+  // API hooks
   const [leaveMeeting] = useLeaveMeetingMutation();
   const [addRecording] = useAddRecordingMutation();
-  const { data: meetingData, error: meetingDataError } = useGetMeetingQuery(roomID, { 
-    skip: !roomID,
-    pollingInterval: 30000 
+  const { data: meetingData } = useGetMeetingQuery(roomID, { skip: !roomID, pollingInterval: 30000 });
+
+  // Speech-to-text hook
+  const { transcript, isListening, startListening, stopListening, resetTranscript } = useSpeechToText({
+    subscriptionKey,
+    region,
+    translatorKey,
+    fromLang,
+    toLang,
   });
-  
-  React.useEffect(() => {
-    if (meetingDataError) {
-      console.error('Error fetching meeting data:', meetingDataError);
-      setMeetingError('Failed to load meeting information. Please try again later.');
-    }
-  }, [meetingDataError]);
-
-  const handleRecordingSave = React.useCallback(async (recordingPath: string, duration: number) => {
-    if (!roomID || !userInfo || !userInfo.id) return;
-    
-    try {
-      await addRecording({
-        id: roomID,
-        request: {
-          storagePath: recordingPath,
-          duration,
-          userId: userInfo.id
-        }
-      }).unwrap();
-    } catch (error) {
-      console.error("Failed to save recording:", error);
-    }
-  }, [addRecording, roomID, userInfo]);
-
-  const {
-    isRecording,
-    startRecording,
-    stopRecording,
-    showFolderModal,
-    setShowFolderModal,
-    folderName,
-    customFolderName,
-    setCustomFolderName,
-    handleFolderSelect,
-    handleCustomFolderSubmit
-  } = useRecording({
-    roomID,
-    onStopRecording: handleRecordingSave
-  });
-  React.useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const id = params.get("roomID");
-      if (id) {
-        setRoomID(id);
-      }
-    }
-  }, []);
-  React.useEffect(() => {
-    if (meetingData) {
-      if (meetingData.status === 'Ended') {
-        setMeetingExpired(true);
-      }
-      
-      if (meetingData.endTime) {
-        const endTime = new Date(meetingData.endTime).getTime();
-        const now = new Date().getTime();
-        
-        if (now >= endTime) {
-          setMeetingExpired(true);
-        }
-      }
-    }
-  }, [meetingData]);
-
-  React.useEffect(() => {
-    return () => {
-      if (roomID && userInfo && userInfo.id) {
-        leaveMeeting({
-          id: roomID,
-          request: {
-            userId: userInfo.id
-          }
-        }).catch(err => {
-          console.error("Error leaving meeting:", err);
-        });
-      }
-    };
-  }, [leaveMeeting, roomID, userInfo]);
-  
-  const joinZegoRoom = React.useCallback(async (element: HTMLDivElement) => {
-    if (!element || !roomID || !userInfo || !userInfo.id) return;
-
-    try {
-      const kitToken = generateZegoToken(roomID);
-      const zp = ZegoUIKitPrebuilt.create(kitToken);
-
-      zp.joinRoom({
-        container: element,
-        sharedLinks: [
-          {
-            name: "Personal link",
-            url: typeof window !== "undefined"
-              ? `${window.location.protocol}//${window.location.host}${window.location.pathname}?roomID=${roomID}`
-              : "",
-          },
-        ],
-        scenario: {
-          mode: ZegoUIKitPrebuilt.GroupCall,
-        },
-        onJoinRoom: () => {
-          setHasJoinedRoom(true);
-        }
-      });
-    } catch (error) {
-      console.error("Failed to join meeting:", error);
-      setMeetingError("Failed to join meeting. Please try again later.");
-    }
-  }, [roomID, userInfo, setMeetingError]);
-
-  const myMeeting = React.useCallback((element: HTMLDivElement | null) => {
-    if (element) joinZegoRoom(element);
-  }, [joinZegoRoom]);
 
   // Sign Language Recognition hook
   const signLanguageRecognition = useSignLanguageRecognition({
@@ -249,22 +152,94 @@ export default function App(): JSX.Element {
     }
   }, [signLanguageRecognition.isActive, signLanguageVisible]);
 
-  return (
-    <>      
-      {meetingError && (
-        <div className="fixed top-0 left-0 right-0 bg-red-500 text-white p-3 text-center z-[1001]">
-          {meetingError}
-        </div>
-      )}
+  const handleRecordingSave = React.useCallback(async (recordingPath: string, duration: number) => {
+    if (!roomID || !userInfo?.id) return;
+    try {
+      await addRecording({
+        id: roomID,
+        request: { storagePath: recordingPath, duration, userId: userInfo.id }
+      }).unwrap();
+    } catch (error) {
+      console.error("Failed to save recording:", error);
+    }
+  }, [addRecording, roomID, userInfo]);
+
+  const {
+    isRecording, startRecording, stopRecording, showFolderModal, setShowFolderModal,
+    folderName, customFolderName, setCustomFolderName, handleFolderSelect, handleCustomFolderSubmit
+  } = useRecording({ roomID, onStopRecording: handleRecordingSave });
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("roomID");
+      if (id) setRoomID(id);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (meetingData?.endTime) {
+      const endTime = new Date(meetingData.endTime).getTime();
+      const now = new Date().getTime();
+      const timeLeft = Math.max(0, Math.floor((endTime - now) / 1000));
       
+      if (timeLeft <= 0 || meetingData.status === 'Ended') {
+        setMeetingExpired(true);
+      }
+    }
+  }, [meetingData]);
+
+  React.useEffect(() => {
+    return () => {
+      if (isListening) stopListening();
+      resetTranscript();
+      if (roomID && userInfo?.id) {
+        leaveMeeting({ id: roomID, request: { userId: userInfo.id } });
+      }
+    };
+  }, [leaveMeeting, roomID, userInfo, isListening, stopListening, resetTranscript]);
+
+  const joinZegoRoom = React.useCallback(async (element: HTMLDivElement) => {
+    if (!element || !roomID || !userInfo?.id) return;
+    try {
+      const kitToken = generateZegoToken(roomID);
+      const zp = ZegoUIKitPrebuilt.create(kitToken);
+      zp.joinRoom({
+        container: element,
+        sharedLinks: [{
+          name: "Personal link",
+          url: typeof window !== "undefined" ? `${window.location.protocol}//${window.location.host}${window.location.pathname}?roomID=${roomID}` : "",
+        }],
+        scenario: { mode: ZegoUIKitPrebuilt.GroupCall },
+        onJoinRoom: () => setHasJoinedRoom(true),
+        onLeaveRoom: () => {
+          setHasJoinedRoom(false);
+          if (isListening) stopListening();
+          resetTranscript();
+        }
+      });
+    } catch (error) {
+      console.error("Failed to join meeting:", error);
+    }
+  }, [roomID, userInfo, isListening, stopListening, resetTranscript]);
+
+  useEffect(() => {
+    if (containerRef.current && roomID && userInfo?.id) {
+      joinZegoRoom(containerRef.current);
+    }
+  }, [roomID, userInfo?.id, joinZegoRoom]);
+
+  return (
+    <>
       <div
         className="myCallContainer"
-        ref={myMeeting}
+        ref={containerRef}
         style={{ height: "100vh", width: "100vw" }}
-      ></div>      {hasJoinedRoom && !meetingExpired && (
-        <div
-          className="fixed bottom-5 left-5 z-[999] flex items-center gap-4 bg-opacity-80 bg-gray-900 dark:bg-gray-800 py-2 px-4 rounded-full shadow-lg"
-        >
+      />
+      
+      {/* Main control bar */}
+      {hasJoinedRoom && !meetingExpired && roomID && (
+        <div className="fixed bottom-3 left-5 z-[999] flex items-center gap-4 bg-opacity-80 bg-gray-900 dark:bg-gray-800 py-2 px-4 rounded-full shadow-lg">
           {meetingData && (
             <div className="text-sm text-gray-200 mr-2">
               <span className="font-medium">{meetingData.title}</span>
@@ -273,28 +248,23 @@ export default function App(): JSX.Element {
           
           <ZegoMeetingTimerDisplay
             roomId={roomID}
-            onExpired={() => {
-              setMeetingExpired(true);
-            }}
+            onExpired={() => setMeetingExpired(true)}
           />
 
-          <div className="h-8 w-[1px] bg-gray-500 dark:bg-gray-600 mx-1"></div>
+          <div className="h-8 w-[1px] bg-gray-500 dark:bg-gray-600 mx-1" />
 
           <button
             onClick={isRecording ? stopRecording : startRecording}
             className={cn(
-              "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all",
-              "font-medium text-sm",
-              isRecording
-                ? "bg-red-500 text-white hover:bg-red-600"
-                : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+              "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all font-medium text-sm",
+              isRecording ? "bg-red-500 text-white hover:bg-red-600" : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
             )}
           >
             {isRecording ? (
               <>
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-300 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-red-400"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-300 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-red-400" />
                 </span>
                 <Square className="w-3.5 h-3.5" />
                 <span>Stop</span>
@@ -307,13 +277,12 @@ export default function App(): JSX.Element {
             )}
           </button>
 
-          <div className="h-8 w-[1px] bg-gray-500 dark:bg-gray-600 mx-1"></div>
+          <div className="h-8 w-[1px] bg-gray-500 dark:bg-gray-600 mx-1" />
 
           <button
             onClick={signLanguageRecognition.toggleRecognition}
             className={cn(
-              "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all",
-              "font-medium text-sm",
+              "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all font-medium text-sm",
               signLanguageRecognition.isActive
                 ? "bg-green-500 text-white hover:bg-green-600"
                 : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
@@ -322,8 +291,8 @@ export default function App(): JSX.Element {
             {signLanguageRecognition.isActive ? (
               <>
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
                 </span>
                 <Languages className="w-3.5 h-3.5" />
                 <span>Sign AI</span>
@@ -335,6 +304,49 @@ export default function App(): JSX.Element {
               </>
             )}
           </button>
+        </div>
+      )}
+
+      {/* Speech-to-text control bar */}
+      {hasJoinedRoom && !meetingExpired && roomID && (
+        <div className="fixed bottom-3 right-5 z-[999] bg-opacity-80 bg-gray-900 dark:bg-gray-800 py-2 px-4 rounded-full shadow-lg flex items-center gap-2">
+          <select
+            value={speechLang}
+            onChange={e => setSpeechLang(e.target.value as "vi-VN" | "en-US")}
+            className="h-8 rounded-full bg-gray-200 text-gray-800 text-sm font-medium px-3"
+          >
+            <option value="vi-VN">Tiếng Việt</option>
+            <option value="en-US">English</option>
+          </select>
+          <button
+            onClick={() => isListening ? stopListening() : startListening()}
+            className={cn(
+              "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all font-medium text-sm",
+              isListening ? "bg-blue-500 text-white hover:bg-blue-600" : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+            )}
+          >
+            <MessageCircle className="w-3.5 h-3.5" />
+            <span>{isListening ? "Stop Speech" : "Speech to Text"}</span>
+          </button>
+        </div>
+      )}
+
+      {/* Speech-to-text transcript display */}
+      {hasJoinedRoom && !meetingExpired && roomID && transcript && (
+        <div className="fixed bottom-20 left-5 right-5 z-[997] max-w-2xl mx-auto">
+          <div className="bg-black/80 text-white p-4 rounded-lg backdrop-blur-sm">
+            <div className="flex items-center gap-2 mb-2">
+              <MessageCircle className="w-4 h-4" />
+              <span className="text-sm font-medium">Speech to Text</span>
+              {isListening && (
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
+                </span>
+              )}
+            </div>
+            <p className="text-sm leading-relaxed">{transcript}</p>
+          </div>
         </div>
       )}
 
@@ -362,22 +374,8 @@ export default function App(): JSX.Element {
       )}
 
       {meetingExpired && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.85)",
-            zIndex: 1000,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            color: "white"
-          }}
-        >          <h2 className="text-2xl font-bold mb-4">Meeting Ended</h2>
+        <div className="fixed inset-0 bg-black/85 z-[1000] flex flex-col justify-center items-center text-white">
+          <h2 className="text-2xl font-bold mb-4">Meeting Ended</h2>
           {meetingData && (
             <p className="mb-3 text-lg text-center max-w-md">
               The meeting &ldquo;{meetingData.title}&rdquo; has ended

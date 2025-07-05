@@ -23,7 +23,7 @@ export default function CourseLayout({
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
-  const navItems = [
+  let navItems = [
     { name: "home", href: "/home" },
     { name: "features", href: "/features" },
     { name: "about", href: "/about" },
@@ -35,6 +35,7 @@ export default function CourseLayout({
     navItems.push({ name: "message", href: "/chat" });
     navItems.push({ name: "course", href: "/list-course" });
     navItems.push({ name: "meeting", href: "/meeting-room" });
+    navItems.push({ name: "contact", href: "/contact" });
   }
 
   const courseNavItems = [

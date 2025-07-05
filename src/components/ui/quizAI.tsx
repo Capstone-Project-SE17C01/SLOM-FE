@@ -1,12 +1,19 @@
-import React, { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
+import React, { useRef, useState, useEffect } from "react";
 import { FaPlay, FaStop } from "react-icons/fa";
-import Image from "next/image";
+import { ButtonCourse } from "./buttonCourse";
 
 interface QuizAIProps {
   onResult: (correct: boolean, aiAnswer?: string) => void;
   disabled: boolean;
   signAnswer: string;
   userId?: string;
+}
+
+interface AIResponse {
+  error?: string;
+  predict?: string;
+  video?: string;
 }
 
 export default function QuizAI({
@@ -16,145 +23,321 @@ export default function QuizAI({
   userId,
 }: QuizAIProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isStreaming, setIsStreaming] = useState(false);
-  const wsRef = useRef<WebSocket | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(false);
   const [detectSign, setDetectSign] = useState<string>("");
-  const isStreamingRef = useRef(false);
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
-  const [correctImage, setCorrectImage] = useState<string | null>(null);
+  const [resultVideo, setResultVideo] = useState<string | null>(null);
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const [recordingDuration, setRecordingDuration] = useState<number>(3);
+  const [recordingProgress, setRecordingProgress] = useState<number>(0);
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  //translation t
+  const t_quizAI = useTranslations("quizAI");
 
-  const setStreaming = (val: boolean) => {
-    isStreamingRef.current = val;
-    setIsStreaming(val);
-  };
-
-  const sendFrame = () => {
-    if (!videoRef.current || !wsRef.current || wsRef.current.readyState !== 1)
-      return;
-    const canvas = document.createElement("canvas");
-    canvas.width = videoRef.current.videoWidth;
-    canvas.height = videoRef.current.videoHeight;
-    const ctx = canvas.getContext("2d");
-    if (ctx) {
-      ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-      const dataUrl = canvas.toDataURL("image/jpeg");
-      const base64 = dataUrl.split(",")[1];
-      wsRef.current.send(base64);
+  // Cập nhật tiến trình ghi hình
+  useEffect(() => {
+    if (isRecording) {
+      const startTime = Date.now();
+      progressIntervalRef.current = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(
+          (elapsed / (recordingDuration * 1000)) * 100,
+          100
+        );
+        setRecordingProgress(progress);
+        if (progress >= 100) {
+          if (progressIntervalRef.current) {
+            clearInterval(progressIntervalRef.current);
+          }
+        }
+      }, 100);
+    } else {
+      setRecordingProgress(0);
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
     }
-    if (isStreamingRef.current) setTimeout(sendFrame, 1500);
+    return () => {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
+    };
+  }, [isRecording, recordingDuration]);
+
+  // Bắt đầu ghi hình
+  const handleStartRecording = async () => {
+    setIsInitializing(true);
+    setIsRecording(false);
+    setIsProcessing(false);
+    setResultVideo(null);
+    setDetectSign("");
+    setIsCorrect(false);
+    chunksRef.current = [];
+
+    try {
+      // Lấy stream từ webcam
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      setMediaStream(stream);
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+
+        // Đợi camera render và hiển thị (2 giây)
+        console.log("📹 Camera initialized, waiting for render...");
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        // Kiểm tra xem video đã sẵn sàng chưa
+        if (videoRef.current.readyState >= 2) {
+          // HAVE_CURRENT_DATA
+          console.log("✅ Camera is ready and visible");
+        } else {
+          console.log("⏳ Camera still loading, waiting a bit more...");
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+      }
+
+      setIsInitializing(false);
+      setIsRecording(true);
+
+      // Tạo MediaRecorder
+      const mediaRecorder = new window.MediaRecorder(stream, {
+        mimeType: "video/webm",
+      });
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunksRef.current.push(e.data);
+        }
+      };
+      mediaRecorder.onstop = async () => {
+        setIsProcessing(true);
+        // Dừng stream
+        stream.getTracks().forEach((track) => track.stop());
+        // Tạo blob video
+        const blob = new Blob(chunksRef.current, { type: "video/webm" });
+        // Đọc blob thành base64
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64data = (reader.result as string).split(",")[1];
+          // Gửi qua websocket
+          sendVideoToWS(base64data);
+        };
+        reader.readAsDataURL(blob);
+      };
+      // Bắt đầu ghi
+      mediaRecorder.start();
+      // Ghi theo thời lượng đã chọn
+      setTimeout(() => {
+        mediaRecorder.stop();
+        setIsRecording(false);
+      }, recordingDuration * 1000);
+    } catch (error) {
+      console.error("❌ Error initializing camera:", error);
+      setIsInitializing(false);
+      alert(t_quizAI("cameraError") || "Không thể truy cập camera");
+    }
   };
 
-  const handleStartStreaming = async () => {
-    setStreaming(true);
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    streamRef.current = stream;
-    if (videoRef.current) videoRef.current.srcObject = stream;
+  // Send video to websocket
+  const sendVideoToWS = (base64data: string) => {
+    const ws = new WebSocket(
+      `wss://sign-detection-436879212893.australia-southeast1.run.app/ws/${userId}`
+    );
 
-    const ws = new WebSocket(`ws://localhost:8000/ws/${userId}`);
     wsRef.current = ws;
-
     ws.onopen = () => {
-      setStreaming(true);
-      sendFrame();
+      ws.send(base64data);
     };
-
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      setDetectSign(data.predict);
+      const data = JSON.parse(event.data) as AIResponse;
+      setIsProcessing(false);
+      if (data.error) {
+        onResult(false, data.error);
+        setResultVideo(null);
+        setDetectSign("");
+        setIsCorrect(false);
+        ws.close();
+        return;
+      }
+      setDetectSign(data.predict ?? "");
       if (
         typeof data.predict === "string" &&
         data.predict.trim().toLowerCase() ===
           (signAnswer ?? "").trim().toLowerCase()
       ) {
         setIsCorrect(true);
-        if (data.image) {
-          setCorrectImage(`data:image/jpeg;base64,${data.image}`);
-        }
-        setStreaming(false);
-        wsRef.current?.close();
-        streamRef.current?.getTracks().forEach((track) => track.stop());
-        onResult(true, data.predict);
       } else {
         setIsCorrect(false);
       }
+      if (data.video) {
+        // Backend return video MP4 with codec H.264 (after install OpenH264)
+        const videoUrl = `data:video/mp4;codecs=avc1;base64,${data.video}`;
+        console.log("Setting video URL:", videoUrl.substring(0, 50) + "...");
+        setResultVideo(videoUrl);
+      } else {
+        console.log(" no data.video", data.video?.substring(0, 50) + "...");
+      }
+      onResult(
+        typeof data.predict === "string" &&
+          data.predict.trim().toLowerCase() ===
+            (signAnswer ?? "").trim().toLowerCase(),
+        data.predict
+      );
+      ws.close();
     };
-
-    ws.onerror = (e) => {
-      console.error("WebSocket error===>", e);
-      setStreaming(false);
-      wsRef.current?.close();
-      streamRef.current?.getTracks().forEach((track) => track.stop());
+    ws.onerror = () => {
+      setIsProcessing(false);
       onResult(false, "onError");
+      ws.close();
     };
-
-    ws.onclose = (event) => {
-      console.error("WebSocket closed===>", event);
-      setStreaming(false);
-      wsRef.current?.close();
-      streamRef.current?.getTracks().forEach((track) => track.stop());
-      onResult(false, "onClose");
+    ws.onclose = () => {
+      setIsProcessing(false);
     };
   };
 
-  const handleStopStreaming = () => {
-    setStreaming(false);
-    wsRef.current?.close();
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
+  // Stop recording manually
+  const handleStopRecording = () => {
+    setIsRecording(false);
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state === "recording"
+    ) {
+      mediaRecorderRef.current.stop();
+    }
+    if (mediaStream) {
+      mediaStream.getTracks().forEach((track) => track.stop());
     }
   };
 
   return (
     <div className="flex flex-col items-center gap-2 w-full h-full">
-      {/* Camera preview */}
-      <div className="w-full flex flex-col items-center mb-2 border border-gray-300 rounded-lg p-5 h-full">
-        {!correctImage ? (
+      <div className="w-full flex flex-col items-center border border-gray-300 rounded-lg h-full">
+        {/* Show preview webcam or result video */}
+        {!resultVideo ? (
           <video
             ref={videoRef}
             autoPlay
             muted
-            className="rounded-lg border border-gray-300 w-full max-w-xs h-full"
+            className="rounded-lg w-full border border-gray-300"
           />
         ) : (
-          <Image
-            src={correctImage}
-            alt="Correct prediction"
-            width={320}
-            height={240}
-            className="rounded-lg border border-green-700 w-full max-w-xs"
-          />
-        )}
-        {!correctImage && (
-          <button
-            className="mt-2 p-2 rounded font-bold flex items-center gap-2 rounded-full border border-gray-300"
-            onClick={isStreaming ? handleStopStreaming : handleStartStreaming}
-            disabled={disabled}
-          >
-            {isStreaming ? <FaStop /> : <FaPlay />}
-          </button>
-        )}
-        {/* show detect sign and answer */}
-        {
-          <div className="mt-3 flex flex-row items-center justify-between gap-4 w-full max-w-xs">
-            <div className="text-center">
-              <span className="block text-gray-500 font-semibold">Sign</span>
-              <span className="block text-lg font-bold text-green-700">
-                {signAnswer}
-              </span>
-            </div>
-            <div className="text-center">
-              <span className="block text-gray-500 font-semibold">Detect</span>
-              <span
-                className={`block text-lg font-bold ${
-                  isCorrect ? "text-green-700" : "text-blue-700"
-                }`}
-              >
-                {detectSign}
-              </span>
-            </div>
+          <div className="flex flex-col items-center gap-2 p-5 w-full h-full border border-gray-300 rounded-lg">
+            <video
+              src={resultVideo}
+              controls
+              autoPlay
+              loop
+              className="rounded-lg border border-green-700 w-full"
+              onError={(e) => {
+                const videoElement = e.target as HTMLVideoElement;
+                console.error("Video error:", {
+                  error: videoElement.error,
+                  networkState: videoElement.networkState,
+                  readyState: videoElement.readyState,
+                  src: resultVideo?.substring(0, 50) + "...",
+                });
+                alert(t_quizAI("videoError"));
+              }}
+            />
+            <ButtonCourse
+              variant="primary"
+              className="mt-2 p-2 rounded font-bold flex items-center gap-2 rounded-full border border-gray-300 bg-blue-500 text-white hover:bg-blue-600"
+              onClick={() => setResultVideo(null)}
+              disabled={disabled || isProcessing || isInitializing}
+            >
+              <FaPlay /> {t_quizAI("reRecord")}
+            </ButtonCourse>
           </div>
-        }
+        )}
+        {/* Control button */}
+        {!resultVideo && (
+          <div className="mt-2 flex flex-col items-center gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">
+                {t_quizAI("recordDuration")}
+              </span>
+              <input
+                type="range"
+                min="3"
+                max="5"
+                step="1"
+                value={recordingDuration}
+                onChange={(e) => setRecordingDuration(Number(e.target.value))}
+                className="w-24 bg-primary-500"
+                disabled={isRecording || isInitializing}
+              />
+              <span className="text-sm font-bold">{recordingDuration}s</span>
+            </div>
+            <ButtonCourse
+              variant="primary"
+              className="p-2 rounded font-bold flex items-center gap-2 rounded-full border border-gray-300"
+              onClick={isRecording ? handleStopRecording : handleStartRecording}
+              disabled={disabled || isProcessing || isInitializing}
+            >
+              {isInitializing ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  {t_quizAI("initializing") || "Đang khởi tạo..."}
+                </>
+              ) : isRecording ? (
+                <>
+                  <FaStop />
+                  {t_quizAI("stop")}
+                </>
+              ) : (
+                <>
+                  <FaPlay />
+                  {`${t_quizAI("record")} ${recordingDuration}s`}
+                </>
+              )}
+            </ButtonCourse>
+            {isRecording && (
+              <div className="w-full max-w-xs bg-gray-200 rounded-full h-2.5">
+                <div
+                  className="bg-blue-600 h-2.5 rounded-full"
+                  style={{ width: `${recordingProgress}%` }}
+                ></div>
+              </div>
+            )}
+          </div>
+        )}
+        {isProcessing && (
+          <div className="mt-2 text-blue-600">{t_quizAI("processing")}</div>
+        )}
+        {isInitializing && (
+          <div className="mt-2 text-orange-600">
+            {t_quizAI("initializing") || "Đang khởi tạo camera..."}
+          </div>
+        )}
+        {/* Show detect sign and answer */}
+        <div className="mt-3 flex flex-row items-center justify-between gap-4 w-full max-w-xs p-5">
+          <div className="text-center">
+            <span className="block text-gray-500 font-semibold">
+              {t_quizAI("sign")}
+            </span>
+            <span className="block text-lg font-bold text-green-700">
+              {signAnswer}
+            </span>
+          </div>
+          <div className="text-center">
+            <span className="block text-gray-500 font-semibold">
+              {t_quizAI("detect")}
+            </span>
+            <span
+              className={`block text-lg font-bold ${
+                isCorrect ? "text-green-700" : "text-blue-700"
+              }`}
+            >
+              {detectSign}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );

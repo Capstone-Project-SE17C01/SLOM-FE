@@ -18,7 +18,7 @@ export default function DashboardLayout({
   const [menuOpen, setMenuOpen] = useState(false);
   const { isDarkMode, toggleDarkMode } = useTheme();
   const toggleMenu = () => setMenuOpen(!menuOpen);
-  const navItems = [
+  let navItems = [
     { name: "home", href: "/home" },
     { name: "features", href: "/features" },
     { name: "about", href: "/about" },
@@ -29,8 +29,8 @@ export default function DashboardLayout({
   if (userInfo) {
     navItems.push({ name: "message", href: "/chat" });
     navItems.push({ name: "course", href: "/list-course" });
-    navItems.push({ name: "meeting", href: "/meeting-room" },
-    );
+    navItems.push({ name: "meeting", href: "/meeting-room" });
+    navItems.push({ name: "contact", href: "/contact" });
   }
 
   return (

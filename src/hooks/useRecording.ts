@@ -21,23 +21,23 @@ interface RecordingHookProps {
 export function useRecording({ roomID, onSaveSuccess, onSaveFailed, onStopRecording }: RecordingHookProps) {
   const [isRecording, setIsRecording] = React.useState<boolean>(false);
   const [recorder, setRecorder] = React.useState<MediaRecorder | null>(null);
-  const [recordedChunks, setRecordedChunks] = React.useState<Blob[]>([]);
+  const recordedChunksRef = React.useRef<Blob[]>([]);
   const [showFolderModal, setShowFolderModal] = React.useState<boolean>(false);
   const [folderName, setFolderName] = React.useState<string>("");
   const [customFolderName, setCustomFolderName] = React.useState<string>("");
   const [tempRecordingData, setTempRecordingData] = React.useState<Blob | null>(null);
   const startRecording = async () => {
-    setRecordedChunks([]);
+    recordedChunksRef.current = [];
     
     try {
-      const displayStream = await navigator.mediaDevices.getDisplayMedia({ 
+      const displayStream = await navigator.mediaDevices.getDisplayMedia({
         video: true,
         audio: true
       });
       
       let audioStream: MediaStream | undefined;
       try {
-        audioStream = await navigator.mediaDevices.getUserMedia({ 
+        audioStream = await navigator.mediaDevices.getUserMedia({
           audio: true,
           video: false
         });
@@ -70,7 +70,7 @@ export function useRecording({ roomID, onSaveSuccess, onSaveFailed, onStopRecord
       
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
-          setRecordedChunks((prev) => [...prev, event.data]);
+          recordedChunksRef.current.push(event.data);
         }
       };
       
@@ -100,10 +100,11 @@ export function useRecording({ roomID, onSaveSuccess, onSaveFailed, onStopRecord
   };
 
   const processRecording = () => {
-    if (recordedChunks.length === 0) return;
+    const useChunks = recordedChunksRef.current;
+    if (useChunks.length === 0) return;
     
-    const blob = new Blob(recordedChunks, { 
-      type: "video/webm; codecs=vp9,opus" 
+    const blob = new Blob(useChunks, {
+      type: "video/webm; codecs=vp9,opus"
     });
     
     setTempRecordingData(blob);
@@ -133,15 +134,14 @@ export function useRecording({ roomID, onSaveSuccess, onSaveFailed, onStopRecord
     const { uploadVideoToCloudinary, generateVideoFilename } = await import('@/services/cloudinary/config');
     
     const file = new File(
-      [tempRecordingData], 
-      generateVideoFilename(roomID), 
+      [tempRecordingData],
+      generateVideoFilename(roomID),
       { type: "video/webm; codecs=vp9,opus" }
     );
-      try {   
+      try {
       const data = await uploadVideoToCloudinary(file, folder);
       
       if (onSaveSuccess) onSaveSuccess(data);
-      // Call onStopRecording with the secure URL and duration if provided
       if (onStopRecording && data.secure_url) {
         const duration = data.duration ? parseInt(data.duration.toString()) : 0;
         onStopRecording(data.secure_url, duration);

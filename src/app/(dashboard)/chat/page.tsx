@@ -39,7 +39,6 @@ function Page() {
     );
   }
 
-  // send message
   const sendMessage = async (message: string) => {
     if (connection && message.trim()) {
       await connection.send(
