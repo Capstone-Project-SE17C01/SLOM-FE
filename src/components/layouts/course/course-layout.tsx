@@ -10,8 +10,6 @@ import MobileMenu from "../dashboard/mobile-menu";
 import Footer from "../dashboard/footer";
 import CourseTopNav from "./course-top-nav";
 import { CourseProvider } from "@/contexts/CourseContext";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
 
 export default function CourseLayout({
   children,
@@ -23,20 +21,13 @@ export default function CourseLayout({
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
-  let navItems = [
+  const navItems = [
     { name: "home", href: "/home" },
-    { name: "features", href: "/features" },
-    { name: "about", href: "/about" },
-    { name: "contact", href: "/contact" },
+    { name: "message", href: "/chat" },
+    { name: "course", href: "/list-course" },
+    { name: "meeting", href: "/meeting-room" },
+    { name: "contact", href: "/contact" }
   ];
-
-  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
-  if (userInfo) {
-    navItems.push({ name: "message", href: "/chat" });
-    navItems.push({ name: "course", href: "/list-course" });
-    navItems.push({ name: "meeting", href: "/meeting-room" });
-    navItems.push({ name: "contact", href: "/contact" });
-  }
 
   const courseNavItems = [
     {
