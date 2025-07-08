@@ -11,12 +11,14 @@ interface ReminderFormProps {
   userEmail?: string;
   userId?: string;
   onSuccess: () => void;
+  onActiveChange: (isActive: boolean) => void;
 }
 
 export function ReminderForm({
   userEmail,
   userId,
   onSuccess,
+  onActiveChange,
 }: ReminderFormProps) {
   const tCourseDashBoard = useTranslations("courseDashboard");
   const [setupReminder] = useSetupReminderMutation();
@@ -67,6 +69,7 @@ export function ReminderForm({
             setMessage(response.result.message || "");
             setTimeToSend(response.result.timeToSend);
             setIsActive(response.result.isActive);
+            onActiveChange(response.result.isActive);
           }
         });
     } catch (error) {

@@ -523,6 +523,8 @@
     "lessonsCompletedLast7Days": "Bài học đã hoàn thành (7 ngày qua)",
     "modulesCompletedLast7Days": "Module đã hoàn thành (7 ngày qua)",
     "courseCompletedLast7Days": "Khóa học đã hoàn thành (7 ngày qua)",
+    "moduleTitle": "Tiêu đề module",
+    "lessonTitle": "Tiêu đề bài học",
     "setReminder": "Đặt lịch nhắc nhở",
     "reminderSetSuccessfully": "Lưu cài đặt thành công",
     "reminderSetFailed": "Lưu cài đặt thất bại",

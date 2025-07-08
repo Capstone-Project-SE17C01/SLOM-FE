@@ -30,7 +30,11 @@ export default function DashboardLayout({
     navItems.push({ name: "message", href: "/chat" });
     navItems.push({ name: "course", href: "/list-course" });
     navItems.push({ name: "meeting", href: "/meeting-room" });
-    navItems.push({ name: "contact", href: "/contact" });
+    // Remove duplicate 'contact' if already exists
+    navItems = navItems.filter(
+      (item, index, self) =>
+        index === self.findIndex((t) => t.name === item.name)
+    );
   }
 
   return (

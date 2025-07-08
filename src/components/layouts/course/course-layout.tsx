@@ -36,6 +36,10 @@ export default function CourseLayout({
     navItems.push({ name: "course", href: "/list-course" });
     navItems.push({ name: "meeting", href: "/meeting-room" });
     navItems.push({ name: "contact", href: "/contact" });
+    navItems = navItems.filter(
+      (item, index, self) =>
+        index === self.findIndex((t) => t.name === item.name)
+    );
   }
 
   const courseNavItems = [
