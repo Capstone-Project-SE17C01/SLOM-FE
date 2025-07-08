@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useGetCourseSummaryMutation } from "../api";
+import { useGetCourseSummaryMutation, useGetReminderMutation } from "../api";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { SummaryResponse } from "../types";
@@ -66,10 +66,10 @@ function ProgressBar({
         {/* current module title */}
         {dashboardData?.activeLesson?.module?.title
           ? dashboardData.activeLesson.module.title
-          : "Module Title"}
+          : tCourseDashBoard("moduleTitle")}
         <span className="inline-block bg-[#6947A8] ml-2 text-white rounded-full px-2">
           {/*current lesson title */}
-          {dashboardData?.activeLesson?.orderNumber ?? "-"}
+          {dashboardData?.activeLesson?.orderNumber ?? "0"}
         </span>
       </div>
       <div className="text-sm text-gray-500 mb-1">
@@ -93,6 +93,9 @@ export default function CourseDashboard() {
   const [dashboardData, setDashboardData] = useState<SummaryResponse | null>(
     null
   );
+  const [getReminder] = useGetReminderMutation();
+  const [isActive, setIsActive] = useState(false);
+
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   useEffect(() => {
@@ -121,7 +124,21 @@ export default function CourseDashboard() {
           console.log(err);
         });
     }
-  }, [userInfo, getCourseSummary]);
+
+    //get reminder
+    if (userInfo?.email) {
+      (async () => {
+        try {
+          const response = await getReminder(userInfo.email).unwrap();
+          if (response.result) {
+            setIsActive(response.result.isActive);
+          }
+        } catch {
+          console.log("error get reminder");
+        }
+      })();
+    }
+  }, [userInfo, getCourseSummary, getReminder]);
 
   if (isLoadingCourseSummary) {
     return (
@@ -186,6 +203,7 @@ export default function CourseDashboard() {
               onOpenChange={setIsOpen}
               userEmail={userInfo?.email}
               userId={userInfo?.id}
+              isActive={isActive}
             />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">

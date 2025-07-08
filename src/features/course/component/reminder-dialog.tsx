@@ -1,4 +1,4 @@
-import { BellIcon } from "lucide-react";
+import { BellIcon, BellOffIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -9,21 +9,27 @@ import {
 import { ButtonCourse } from "@/components/ui/buttonCourse";
 import { ReminderForm } from "./reminder-form";
 import { useTranslations } from "next-intl";
+import { useState, useEffect } from "react";
 
 interface ReminderDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   userEmail?: string;
   userId?: string;
+  isActive: boolean;
 }
 
-export function ReminderDialog({
-  isOpen,
-  onOpenChange,
-  userEmail,
-  userId,
-}: ReminderDialogProps) {
+export function ReminderDialog(props: ReminderDialogProps) {
+  const { isOpen, onOpenChange, userEmail, userId, isActive } = props;
   const tCourseDashBoard = useTranslations("courseDashboard");
+  const [localIsActive, setLocalIsActive] = useState(isActive);
+
+  // Sync local state with prop
+  useEffect(() => {
+    setLocalIsActive(isActive);
+  }, [isActive]);
+
+  const Icon = localIsActive ? BellIcon : BellOffIcon;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -32,7 +38,7 @@ export function ReminderDialog({
           variant="primaryOutline"
           className="bg-white text-primary hover:bg-primary hover:text-white group"
         >
-          <BellIcon className="w-4 h-4 group-hover:animate-[ring_1s_ease-in-out_infinite]" />
+          <Icon className="w-4 h-4 group-hover:animate-[ring_1s_ease-in-out_infinite]" />
         </ButtonCourse>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
@@ -43,6 +49,7 @@ export function ReminderDialog({
           userEmail={userEmail}
           userId={userId}
           onSuccess={() => onOpenChange(false)}
+          onActiveChange={setLocalIsActive}
         />
       </DialogContent>
     </Dialog>

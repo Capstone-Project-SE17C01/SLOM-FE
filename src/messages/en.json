@@ -541,6 +541,8 @@
     "recentLessonsCompleted": "Recent lessons completed",
     "recentModulesCompleted": "Recent modules completed",
     "recentCoursesCompleted": "Recent courses completed",
+    "moduleTitle": "Module Title",
+    "lessonTitle": "Lesson Title",
     "setReminder": "Set Reminder",
     "reminderSetSuccessfully": "Reminder set successfully",
     "reminderSetFailed": "Reminder set failed",
