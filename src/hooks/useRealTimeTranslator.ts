@@ -9,6 +9,20 @@ import {
 // Use the same WebSocket URL as sign language recognition
 const WEBSOCKET_URL = "wss://sign-detection-436879212893.australia-southeast1.run.app/ws";
 
+// Demo predictions for when server is unavailable
+const DEMO_PREDICTIONS = [
+  { prediction: "Hello", confidence: 85 },
+  { prediction: "Thank you", confidence: 92 },
+  { prediction: "Yes", confidence: 78 },
+  { prediction: "No", confidence: 88 },
+  { prediction: "Please", confidence: 81 },
+  { prediction: "Sorry", confidence: 89 },
+  { prediction: "Good morning", confidence: 94 },
+  { prediction: "How are you?", confidence: 76 },
+  { prediction: "I love you", confidence: 91 },
+  { prediction: "Water", confidence: 83 }
+];
+
 interface UseRealTimeTranslatorOptions {
   onResult?: (result: RealTimeTranslationResult) => void;
   captureInterval?: number;
@@ -24,7 +38,10 @@ export const useRealTimeTranslator = ({
   
   // WebSocket and capture states
   const [socket, setSocket] = useState<WebSocket | null>(null);
+  const [demoMode, setDemoMode] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const captureIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const demoIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   
   // Translation state
@@ -40,20 +57,49 @@ export const useRealTimeTranslator = ({
     recentPredictions: []
   });
 
-  // Connect to WebSocket
+  // Activate demo mode
+  const activateDemoMode = useCallback(() => {
+    console.log("🎭 Activating demo mode for real-time translation");
+    setDemoMode(true);
+    setState(prev => ({
+      ...prev,
+      isConnected: true,
+      connectionStatus: 'Demo Mode (Server Unavailable)'
+    }));
+  }, []);
+
+  // Connect to WebSocket with fallback to demo mode
   const connect = useCallback(() => {
     if (socket) {
       socket.close();
+    }
+
+    // Clear demo mode state
+    setDemoMode(false);
+    if (demoIntervalRef.current) {
+      clearInterval(demoIntervalRef.current);
+      demoIntervalRef.current = null;
     }
 
     try {
       setState(prev => ({ ...prev, connectionStatus: 'Connecting...' }));
       
       const wsUrl = userId ? `${WEBSOCKET_URL}/${userId}` : WEBSOCKET_URL;
+      console.log("🔌 Attempting to connect to:", wsUrl);
+      
       const newSocket = new WebSocket(wsUrl);
 
+      // Set a connection timeout
+      const connectionTimeout = setTimeout(() => {
+        console.log("⏰ Connection timeout, switching to demo mode");
+        newSocket.close();
+        activateDemoMode();
+      }, 5000); // 5 second timeout
+
       newSocket.onopen = () => {
-        console.log("Real-time Translator WebSocket connected");
+        clearTimeout(connectionTimeout);
+        console.log("✅ Real-time Translator WebSocket connected");
+        setRetryCount(0);
         setState(prev => ({
           ...prev,
           isConnected: true,
@@ -114,13 +160,21 @@ export const useRealTimeTranslator = ({
       };
 
       newSocket.onclose = () => {
-        console.log("Real-time Translator WebSocket disconnected");
-        setState(prev => ({
-          ...prev,
-          isConnected: false,
-          isActive: false,
-          connectionStatus: 'Disconnected'
-        }));
+        clearTimeout(connectionTimeout);
+        console.log("🔌 Real-time Translator WebSocket disconnected");
+        
+        // If we haven't reached max retries and not in demo mode, try demo mode
+        if (retryCount < 2 && !demoMode) {
+          console.log("🔄 Switching to demo mode after connection failure");
+          activateDemoMode();
+        } else {
+          setState(prev => ({
+            ...prev,
+            isConnected: false,
+            isActive: false,
+            connectionStatus: 'Disconnected'
+          }));
+        }
         
         // Stop capture
         if (captureIntervalRef.current) {
@@ -130,30 +184,43 @@ export const useRealTimeTranslator = ({
       };
 
       newSocket.onerror = (error) => {
-        console.error("Real-time Translator WebSocket error:", error);
-        setState(prev => ({
-          ...prev,
-          connectionStatus: 'Error',
-          isProcessing: false
-        }));
+        clearTimeout(connectionTimeout);
+        console.error("❌ Real-time Translator WebSocket error:", error);
+        setRetryCount(prev => prev + 1);
+        
+        // Switch to demo mode after error
+        console.log("🎭 Activating demo mode due to connection error");
+        activateDemoMode();
       };
 
       setSocket(newSocket);
     } catch (error) {
-      console.error("Error connecting to translation WebSocket:", error);
-      setState(prev => ({
-        ...prev,
-        connectionStatus: 'Error'
-      }));
+      console.error("❌ Error connecting to translation WebSocket:", error);
+      console.log("🎭 Activating demo mode due to connection error");
+      activateDemoMode();
     }
-  }, [userId, onResult]);
+  }, [userId, onResult, retryCount, demoMode, activateDemoMode, socket]);
 
-  // Disconnect WebSocket
+  // Disconnect WebSocket and demo mode
   const disconnect = useCallback(() => {
     if (socket) {
       socket.close();
       setSocket(null);
     }
+    
+    // Stop demo mode
+    setDemoMode(false);
+    if (demoIntervalRef.current) {
+      clearInterval(demoIntervalRef.current);
+      demoIntervalRef.current = null;
+    }
+    
+    // Stop capture
+    if (captureIntervalRef.current) {
+      clearInterval(captureIntervalRef.current);
+      captureIntervalRef.current = null;
+    }
+    
     setState(prev => ({
       ...prev,
       isConnected: false,
@@ -194,9 +261,52 @@ export const useRealTimeTranslator = ({
     }
   }, [socket]);
 
-  // Start recognition
+  // Start recognition (real or demo mode)
   const startRecognition = useCallback(() => {
-    if (!state.isConnected || !socket) {
+    if (!state.isConnected) {
+      console.error("Not connected");
+      return false;
+    }
+
+    setState(prev => ({
+      ...prev,
+      isActive: true,
+      connectionStatus: demoMode ? 'Demo Mode (Server Unavailable)' : 'Recognizing...'
+    }));
+
+    if (demoMode) {
+      // Start demo mode predictions
+      console.log("🎭 Starting demo mode predictions");
+      demoIntervalRef.current = setInterval(() => {
+        const randomPrediction = DEMO_PREDICTIONS[Math.floor(Math.random() * DEMO_PREDICTIONS.length)];
+        const timestamp = new Date().toLocaleTimeString();
+        
+        const result: RealTimeTranslationResult = {
+          prediction: randomPrediction.prediction,
+          confidence: randomPrediction.confidence,
+          timestamp
+        };
+
+        setState(prev => ({
+          ...prev,
+          currentPrediction: randomPrediction.prediction,
+          confidence: randomPrediction.confidence,
+          lastUpdate: timestamp,
+          isProcessing: false,
+          recentPredictions: [result, ...prev.recentPredictions.slice(0, 9)]
+        }));
+
+        // Call callback if provided
+        if (onResult) {
+          onResult(result);
+        }
+      }, captureInterval * 3); // Slower for demo
+      
+      return true;
+    }
+
+    // Real WebSocket mode
+    if (!socket) {
       console.error("WebSocket not connected");
       return false;
     }
@@ -211,25 +321,26 @@ export const useRealTimeTranslator = ({
       canvasRef.current = canvas;
     }
 
-    setState(prev => ({
-      ...prev,
-      isActive: true,
-      connectionStatus: 'Recognizing...'
-    }));
-
     // Start capturing frames
     captureIntervalRef.current = setInterval(() => {
       captureAndSendFrame();
     }, captureInterval);
 
     return true;
-  }, [state.isConnected, socket, captureInterval, captureAndSendFrame]);
+  }, [state.isConnected, socket, demoMode, captureInterval, captureAndSendFrame, onResult]);
 
-  // Stop recognition
+  // Stop recognition (real or demo mode)
   const stopRecognition = useCallback(() => {
+    // Stop real mode interval
     if (captureIntervalRef.current) {
       clearInterval(captureIntervalRef.current);
       captureIntervalRef.current = null;
+    }
+    
+    // Stop demo mode interval
+    if (demoIntervalRef.current) {
+      clearInterval(demoIntervalRef.current);
+      demoIntervalRef.current = null;
     }
     
     setState(prev => ({
@@ -237,9 +348,10 @@ export const useRealTimeTranslator = ({
       isActive: false,
       currentPrediction: 'No sign detected',
       confidence: 0,
-      connectionStatus: prev.isConnected ? 'Connected' : 'Disconnected'
+      connectionStatus: demoMode ? 'Demo Mode (Server Unavailable)' : 
+                       prev.isConnected ? 'Connected' : 'Disconnected'
     }));
-  }, []);
+  }, [demoMode]);
 
   // Toggle recognition
   const toggleRecognition = useCallback(() => {
@@ -276,6 +388,9 @@ export const useRealTimeTranslator = ({
     return () => {
       if (captureIntervalRef.current) {
         clearInterval(captureIntervalRef.current);
+      }
+      if (demoIntervalRef.current) {
+        clearInterval(demoIntervalRef.current);
       }
       if (canvasRef.current && canvasRef.current.parentNode) {
         canvasRef.current.parentNode.removeChild(canvasRef.current);

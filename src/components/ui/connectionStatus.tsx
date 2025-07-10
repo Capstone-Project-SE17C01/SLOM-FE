@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { RealTimeTranslationState } from "@/features/translator/types";
-import { Wifi, WifiOff, Loader2, AlertCircle, CheckCircle } from "lucide-react";
+import { Wifi, WifiOff, Loader2, AlertCircle, CheckCircle, Play } from "lucide-react";
 
 interface ConnectionStatusProps {
   connectionStatus: RealTimeTranslationState['connectionStatus'];
@@ -49,6 +49,15 @@ export default function ConnectionStatus({
           bgColor: 'bg-red-100',
           dotColor: 'bg-red-500',
           message: 'Connection error occurred'
+        };
+      case 'Demo Mode (Server Unavailable)':
+        return {
+          icon: Play,
+          color: 'text-orange-600',
+          bgColor: 'bg-orange-100',
+          dotColor: 'bg-orange-500',
+          message: 'Running in demo mode - Server temporarily unavailable',
+          pulse: true
         };
       default: // Disconnected
         return {
@@ -114,6 +123,17 @@ export default function ConnectionStatus({
             <div className="w-1 h-6 bg-purple-500 rounded-full animate-pulse" />
             <div className="w-1 h-6 bg-purple-500 rounded-full animate-pulse delay-75" />
             <div className="w-1 h-6 bg-purple-500 rounded-full animate-pulse delay-150" />
+          </div>
+        </div>
+      )}
+
+      {/* Demo mode indicator */}
+      {isActive && connectionStatus === 'Demo Mode (Server Unavailable)' && (
+        <div className="flex items-center gap-1">
+          <div className="flex space-x-1">
+            <div className="w-1 h-6 bg-orange-500 rounded-full animate-pulse" />
+            <div className="w-1 h-6 bg-orange-500 rounded-full animate-pulse delay-75" />
+            <div className="w-1 h-6 bg-orange-500 rounded-full animate-pulse delay-150" />
           </div>
         </div>
       )}
