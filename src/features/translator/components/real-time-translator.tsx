@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -22,33 +20,20 @@ import ConnectionStatus from "@/components/ui/connectionStatus";
 import { RealTimeTranslatorProps } from "../types";
 
 export default function RealTimeTranslator({
-  onResult,
   language = 'en',
-  captureInterval = 200,
   showConfidence = true,
   autoStart = false
-}: RealTimeTranslatorProps) {
+}: Partial<RealTimeTranslatorProps>) {
   
   const { isDarkMode } = useTheme();
-  const { userInfo } = useSelector((state: RootState) => state.auth);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraLoading, setCameraLoading] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
 
-  // Initialize real-time translator
-  const translator = useRealTimeTranslator({
-    onResult: (result) => {
-      console.log("Translation result:", result);
-      if (onResult) {
-        onResult(result);
-      }
-    },
-    captureInterval,
-    userId: userInfo?.id,
-    language
-  });
+  // Initialize real-time translator (Camera only mode - WebSocket disabled)
+  const translator = useRealTimeTranslator();
 
   // Auto-start if requested
   useEffect(() => {

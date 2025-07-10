@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { RealTimeTranslationState } from "@/features/translator/types";
-import { Wifi, WifiOff, Loader2, AlertCircle, CheckCircle, Play } from "lucide-react";
+import { Wifi, WifiOff, Loader2, AlertCircle, CheckCircle, Play, Camera } from "lucide-react";
 
 interface ConnectionStatusProps {
   connectionStatus: RealTimeTranslationState['connectionStatus'];
@@ -58,6 +58,14 @@ export default function ConnectionStatus({
           dotColor: 'bg-orange-500',
           message: 'Running in demo mode - Server temporarily unavailable',
           pulse: true
+        };
+      case 'Camera Only Mode (WebSocket Disabled)':
+        return {
+          icon: Camera,
+          color: 'text-blue-600',
+          bgColor: 'bg-blue-100',
+          dotColor: 'bg-blue-500',
+          message: 'Camera preview only - WebSocket temporarily disabled'
         };
       default: // Disconnected
         return {

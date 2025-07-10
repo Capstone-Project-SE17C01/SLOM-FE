@@ -26,7 +26,7 @@ export interface RealTimeTranslationState {
   isActive: boolean;
   isRecording: boolean;
   isProcessing: boolean;
-  connectionStatus: 'Disconnected' | 'Connecting...' | 'Connected' | 'Recognizing...' | 'Error' | 'Demo Mode (Server Unavailable)';
+  connectionStatus: 'Disconnected' | 'Connecting...' | 'Connected' | 'Recognizing...' | 'Error' | 'Demo Mode (Server Unavailable)' | 'Camera Only Mode (WebSocket Disabled)';
   currentPrediction: string;
   confidence: number;
   lastUpdate: string;
