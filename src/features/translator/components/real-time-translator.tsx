@@ -33,6 +33,8 @@ export default function RealTimeTranslator({
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [cameraActive, setCameraActive] = useState(false);
+  const [cameraLoading, setCameraLoading] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
 
   // Initialize real-time translator
@@ -55,63 +57,196 @@ export default function RealTimeTranslator({
     }
   }, [autoStart, translator]);
 
+  // Check camera permissions and available devices on mount
+  useEffect(() => {
+    const checkCameraAvailability = async () => {
+      try {
+        // Check if mediaDevices is supported
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          console.warn("❌ mediaDevices not supported");
+          return;
+        }
+
+        // Check available video devices
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+        console.log("📹 Available video devices:", videoDevices.length);
+        videoDevices.forEach((device, index) => {
+          console.log(`  ${index + 1}. ${device.label || 'Unknown Camera'} (${device.deviceId})`);
+        });
+
+        if (videoDevices.length === 0) {
+          console.warn("⚠️ No video devices found");
+        }
+
+        // Check current permissions
+        if (navigator.permissions && navigator.permissions.query) {
+          const permission = await navigator.permissions.query({ name: 'camera' as PermissionName });
+          console.log("🔐 Camera permission status:", permission.state);
+        }
+      } catch (error) {
+        console.error("❌ Error checking camera availability:", error);
+      }
+    };
+
+    checkCameraAvailability();
+  }, []);
+
   // Start camera and WebSocket connection
   const startTranslation = async () => {
     try {
-      // Request camera access
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 640 },
-          height: { ideal: 480 },
-          facingMode: 'user'
-        },
-        audio: false
-      });
+      setCameraLoading(true);
+      setCameraError(null);
+      
+      console.log("🎥 Starting camera...");
+      
+      // Check if getUserMedia is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error("Camera access is not supported in this browser");
+      }
+
+      // Request camera access with fallback options
+      let stream: MediaStream;
+      try {
+        // Try with ideal resolution first
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            width: { ideal: 640, min: 320 },
+            height: { ideal: 480, min: 240 },
+            facingMode: 'user'
+          },
+          audio: false
+        });
+      } catch (err) {
+        console.warn("Failed with ideal settings, trying basic:", err);
+        // Fallback to basic video constraints
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false
+        });
+      }
+
+      console.log("✅ Camera stream obtained:", stream);
+      console.log("📹 Video tracks:", stream.getVideoTracks());
 
       setMediaStream(stream);
-      setCameraActive(true);
 
+      // Wait for video element to be ready
       if (videoRef.current) {
+        console.log("🔗 Setting video source...");
         videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+        
+        // Wait for video to load
+        await new Promise<void>((resolve, reject) => {
+          if (!videoRef.current) {
+            reject(new Error("Video element not found"));
+            return;
+          }
+
+          const video = videoRef.current;
+          
+          const handleLoadedMetadata = () => {
+            console.log("📊 Video metadata loaded:", {
+              videoWidth: video.videoWidth,
+              videoHeight: video.videoHeight,
+              readyState: video.readyState
+            });
+            video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+            video.removeEventListener('error', handleError);
+            resolve();
+          };
+
+          const handleError = (e: Event) => {
+            console.error("❌ Video error:", e);
+            video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+            video.removeEventListener('error', handleError);
+            reject(new Error("Failed to load video"));
+          };
+
+          video.addEventListener('loadedmetadata', handleLoadedMetadata);
+          video.addEventListener('error', handleError);
+          
+          // Start playing
+          video.play().catch(playError => {
+            console.error("Play error:", playError);
+            reject(playError);
+          });
+        });
+
+        console.log("🎬 Video playing successfully!");
       }
+
+      setCameraActive(true);
+      setCameraLoading(false);
 
       // Connect to WebSocket if not connected
       if (!translator.state.isConnected) {
+        console.log("🔌 Connecting to WebSocket...");
         translator.connect();
         
         // Wait for connection then start recognition
         setTimeout(() => {
           if (translator.state.isConnected) {
+            console.log("🔍 Starting recognition...");
             translator.startRecognition();
           }
         }, 1000);
       } else {
+        console.log("🔍 Starting recognition...");
         translator.startRecognition();
       }
 
     } catch (error) {
-      console.error("Error starting translation:", error);
-      alert("Could not access camera. Please check permissions and try again.");
+      console.error("❌ Error starting translation:", error);
+      setCameraLoading(false);
+      setCameraActive(false);
+      
+      let errorMessage = "Could not access camera. ";
+      if (error instanceof Error) {
+        if (error.name === 'NotAllowedError') {
+          errorMessage += "Please allow camera permissions and try again.";
+        } else if (error.name === 'NotFoundError') {
+          errorMessage += "No camera found. Please connect a camera and try again.";
+        } else if (error.name === 'NotReadableError') {
+          errorMessage += "Camera is already in use by another application.";
+        } else {
+          errorMessage += error.message;
+        }
+      } else {
+        errorMessage += "Unknown error occurred.";
+      }
+      
+      setCameraError(errorMessage);
+      alert(errorMessage);
     }
   };
 
   // Stop translation and camera
   const stopTranslation = () => {
+    console.log("🛑 Stopping translation...");
+    
     // Stop recognition
     translator.stopRecognition();
     
     // Stop camera
     if (mediaStream) {
-      mediaStream.getTracks().forEach(track => track.stop());
+      console.log("📹 Stopping camera stream...");
+      mediaStream.getTracks().forEach(track => {
+        track.stop();
+        console.log("🔌 Stopped track:", track.kind, track.label);
+      });
       setMediaStream(null);
     }
     
     setCameraActive(false);
+    setCameraLoading(false);
+    setCameraError(null);
     
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
+    
+    console.log("✅ Translation stopped");
   };
 
   // Clear translation history
@@ -179,7 +314,74 @@ export default function RealTimeTranslator({
                   muted
                   playsInline
                   className="w-full h-full object-cover"
+                  style={{ 
+                    transform: 'scaleX(-1)', // Mirror effect for natural feel
+                    backgroundColor: '#000000', // Ensure black background
+                    minHeight: '100%',
+                    minWidth: '100%'
+                  }}
+                  onLoadedMetadata={() => {
+                    console.log("📊 Video metadata loaded in component");
+                  }}
+                  onCanPlay={() => {
+                    console.log("✅ Video can play");
+                  }}
+                  onPlay={() => {
+                    console.log("▶️ Video started playing");
+                  }}
+                  onError={(e) => {
+                    console.error("❌ Video element error:", e);
+                  }}
                 />
+              ) : cameraLoading ? (
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mx-auto mb-4"></div>
+                    <p className={cn(
+                      "text-lg font-medium",
+                      isDarkMode ? "text-gray-300" : "text-gray-600"
+                    )}>
+                      Initializing Camera...
+                    </p>
+                    <p className={cn(
+                      "text-sm",
+                      isDarkMode ? "text-gray-400" : "text-gray-500"
+                    )}>
+                      Please allow camera access when prompted
+                    </p>
+                  </div>
+                </div>
+              ) : cameraError ? (
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="text-center max-w-md px-4">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center">
+                      <Camera className="w-8 h-8 text-red-500" />
+                    </div>
+                    <p className={cn(
+                      "text-lg font-medium mb-2",
+                      isDarkMode ? "text-gray-300" : "text-gray-600"
+                    )}>
+                      Camera Error
+                    </p>
+                    <p className={cn(
+                      "text-sm",
+                      isDarkMode ? "text-gray-400" : "text-gray-500"
+                    )}>
+                      {cameraError}
+                    </p>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="mt-4"
+                      onClick={() => {
+                        setCameraError(null);
+                        startTranslation();
+                      }}
+                    >
+                      Try Again
+                    </Button>
+                  </div>
+                </div>
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <div className="text-center">
@@ -213,15 +415,24 @@ export default function RealTimeTranslator({
             
             {/* Control buttons */}
             <div className="flex items-center justify-center gap-4">
-              {!translator.state.isActive ? (
+              {!translator.state.isActive && !cameraActive ? (
                 <Button 
                   size="lg" 
                   className="bg-blue-500 hover:bg-blue-600 text-white px-8"
                   onClick={startTranslation}
-                  disabled={translator.state.connectionStatus === 'Connecting...'}
+                  disabled={cameraLoading || translator.state.connectionStatus === 'Connecting...'}
                 >
-                  <Play className="w-5 h-5 mr-2" />
-                  Start Translation
+                  {cameraLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+                      Starting...
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-5 h-5 mr-2" />
+                      Start Translation
+                    </>
+                  )}
                 </Button>
               ) : (
                 <Button 
