@@ -1,23 +1,14 @@
 "use client";
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/lib/utils";
 import { 
-  Video, 
   Upload, 
-  Mic, 
-  Camera, 
-  Play, 
-  Pause,
-  Volume2,
-  VolumeX,
   Languages,
   FileVideo,
-  Zap,
-  Clock
+  Zap
 } from "lucide-react";
 
 import RealTimeTranslator from "@/features/translator/components/real-time-translator";

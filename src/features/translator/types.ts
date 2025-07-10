@@ -103,7 +103,7 @@ export interface ProcessVideoResponse {
 // WebSocket message types
 export interface WebSocketMessage {
   type: 'video_frame' | 'translation_result' | 'error' | 'connection_status';
-  data: any;
+  data: string | TranslationResponse | { message: string; code?: string } | { status: string; message?: string };
   timestamp: string;
 }
 

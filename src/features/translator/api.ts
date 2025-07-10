@@ -45,7 +45,7 @@ export const translatorApi = baseApi.injectEndpoints({
 
     // Process uploaded video for translation (mock for now)
     processVideoTranslation: builder.mutation<ProcessVideoResponse, ProcessVideoRequest>({
-      queryFn: async ({ videoId, language = 'en' }) => {
+      queryFn: async ({ videoId }) => {
         try {
           // Mock processing - replace with actual API call when backend is ready
           await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate processing time
@@ -112,7 +112,7 @@ export const translatorApi = baseApi.injectEndpoints({
         method: 'GET',
         flashError: false,
       }),
-      providesTags: (result, error, userId) => 
+      providesTags: (result) => 
         result
           ? [
               ...result.map(({ id }) => ({ type: 'Translation' as const, id })),
@@ -125,7 +125,7 @@ export const translatorApi = baseApi.injectEndpoints({
     saveTranslationResult: builder.mutation<TranslationHistory, { 
       userId: string, 
       type: 'realtime' | 'upload', 
-      result: any 
+      result: VideoTranslationResult | TranslationHistory
     }>({
       query: ({ userId, type, result }) => ({
         url: `/api/translator/save`,

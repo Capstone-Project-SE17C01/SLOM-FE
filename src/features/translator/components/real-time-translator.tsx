@@ -12,7 +12,6 @@ import {
   Play, 
   Pause, 
   RotateCcw, 
-  Settings,
   History,
   Download
 } from "lucide-react";
@@ -20,7 +19,7 @@ import {
 import { useRealTimeTranslator } from "@/hooks/useRealTimeTranslator";
 import TranslationDisplay from "@/components/ui/translationDisplay";
 import ConnectionStatus from "@/components/ui/connectionStatus";
-import { RealTimeTranslatorProps, RealTimeTranslationResult } from "../types";
+import { RealTimeTranslatorProps } from "../types";
 
 export default function RealTimeTranslator({
   onResult,

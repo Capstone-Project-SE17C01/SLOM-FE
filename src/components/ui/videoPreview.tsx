@@ -17,7 +17,7 @@ export default function VideoPreview({
   const [isMuted, setIsMuted] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(1);
+
 
   // Update video element when videoUrl changes
   useEffect(() => {

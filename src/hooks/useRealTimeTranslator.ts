@@ -19,8 +19,7 @@ interface UseRealTimeTranslatorOptions {
 export const useRealTimeTranslator = ({
   onResult,
   captureInterval = 200,
-  userId,
-  language = 'en'
+  userId
 }: UseRealTimeTranslatorOptions = {}): UseRealTimeTranslatorReturn => {
   
   // WebSocket and capture states
@@ -163,53 +162,6 @@ export const useRealTimeTranslator = ({
     }));
   }, [socket]);
 
-  // Start recognition
-  const startRecognition = useCallback(() => {
-    if (!state.isConnected || !socket) {
-      console.error("WebSocket not connected");
-      return false;
-    }
-
-    // Create hidden canvas for frame capture if not exists
-    if (!canvasRef.current) {
-      const canvas = document.createElement('canvas');
-      canvas.width = 640;
-      canvas.height = 480;
-      canvas.style.display = 'none';
-      document.body.appendChild(canvas);
-      canvasRef.current = canvas;
-    }
-
-    setState(prev => ({
-      ...prev,
-      isActive: true,
-      connectionStatus: 'Recognizing...'
-    }));
-
-    // Start capturing frames
-    captureIntervalRef.current = setInterval(() => {
-      captureAndSendFrame();
-    }, captureInterval);
-
-    return true;
-  }, [state.isConnected, socket, captureInterval]);
-
-  // Stop recognition
-  const stopRecognition = useCallback(() => {
-    if (captureIntervalRef.current) {
-      clearInterval(captureIntervalRef.current);
-      captureIntervalRef.current = null;
-    }
-    
-    setState(prev => ({
-      ...prev,
-      isActive: false,
-      currentPrediction: 'No sign detected',
-      confidence: 0,
-      connectionStatus: prev.isConnected ? 'Connected' : 'Disconnected'
-    }));
-  }, []);
-
   // Capture frame from video and send to WebSocket
   const captureAndSendFrame = useCallback(() => {
     if (!socket || socket.readyState !== WebSocket.OPEN || !canvasRef.current) {
@@ -241,6 +193,53 @@ export const useRealTimeTranslator = ({
       setState(prev => ({ ...prev, isProcessing: false }));
     }
   }, [socket]);
+
+  // Start recognition
+  const startRecognition = useCallback(() => {
+    if (!state.isConnected || !socket) {
+      console.error("WebSocket not connected");
+      return false;
+    }
+
+    // Create hidden canvas for frame capture if not exists
+    if (!canvasRef.current) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 640;
+      canvas.height = 480;
+      canvas.style.display = 'none';
+      document.body.appendChild(canvas);
+      canvasRef.current = canvas;
+    }
+
+    setState(prev => ({
+      ...prev,
+      isActive: true,
+      connectionStatus: 'Recognizing...'
+    }));
+
+    // Start capturing frames
+    captureIntervalRef.current = setInterval(() => {
+      captureAndSendFrame();
+    }, captureInterval);
+
+    return true;
+  }, [state.isConnected, socket, captureInterval, captureAndSendFrame]);
+
+  // Stop recognition
+  const stopRecognition = useCallback(() => {
+    if (captureIntervalRef.current) {
+      clearInterval(captureIntervalRef.current);
+      captureIntervalRef.current = null;
+    }
+    
+    setState(prev => ({
+      ...prev,
+      isActive: false,
+      currentPrediction: 'No sign detected',
+      confidence: 0,
+      connectionStatus: prev.isConnected ? 'Connected' : 'Disconnected'
+    }));
+  }, []);
 
   // Toggle recognition
   const toggleRecognition = useCallback(() => {

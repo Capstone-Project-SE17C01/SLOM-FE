@@ -38,6 +38,45 @@ export const useVideoUploadTranslator = ({
     error: null
   });
 
+  // Process uploaded video
+  const processVideoFile = useCallback(async (videoId: string) => {
+    try {
+      setState(prev => ({
+        ...prev,
+        isProcessing: true,
+        error: null
+      }));
+
+      const processResult = await processVideo({
+        videoId,
+        language
+      }).unwrap();
+
+      if (processResult.result) {
+        setState(prev => ({
+          ...prev,
+          isProcessing: false,
+          translationResult: processResult.result!
+        }));
+
+        // Call result callback
+        if (onResult) {
+          onResult(processResult.result);
+        }
+      } else {
+        throw new Error('Processing failed - no result returned');
+      }
+
+    } catch (error) {
+      console.error('Processing error:', error);
+      setState(prev => ({
+        ...prev,
+        isProcessing: false,
+        error: error instanceof Error ? error.message : 'Processing failed'
+      }));
+    }
+  }, [processVideo, language, onResult]);
+
   // Upload video file
   const uploadVideoFile = useCallback(async (file: File) => {
     try {
@@ -94,46 +133,7 @@ export const useVideoUploadTranslator = ({
         error: error instanceof Error ? error.message : 'Upload failed'
       }));
     }
-  }, [uploadVideo, language, userId, maxFileSize]);
-
-  // Process uploaded video
-  const processVideoFile = useCallback(async (videoId: string) => {
-    try {
-      setState(prev => ({
-        ...prev,
-        isProcessing: true,
-        error: null
-      }));
-
-      const processResult = await processVideo({
-        videoId,
-        language
-      }).unwrap();
-
-      if (processResult.result) {
-        setState(prev => ({
-          ...prev,
-          isProcessing: false,
-          translationResult: processResult.result!
-        }));
-
-        // Call result callback
-        if (onResult) {
-          onResult(processResult.result);
-        }
-      } else {
-        throw new Error('Processing failed - no result returned');
-      }
-
-    } catch (error) {
-      console.error('Processing error:', error);
-      setState(prev => ({
-        ...prev,
-        isProcessing: false,
-        error: error instanceof Error ? error.message : 'Processing failed'
-      }));
-    }
-  }, [processVideo, language, onResult]);
+  }, [uploadVideo, language, userId, maxFileSize, processVideoFile]);
 
   // Clear all state
   const clearState = useCallback(() => {
