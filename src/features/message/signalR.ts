@@ -10,7 +10,7 @@ export function initSignalRConnection({
   onConnectionCreated,
 }: InitSignalROptions): () => void {
   const connection = new HubConnectionBuilder()
-    .withUrl("https://slom-api-b0ftgtcghscrg4d9.southeastasia-01.azurewebsites.net/hub")
+    .withUrl(`${process.env.NEXT_PUBLIC_API_SERVER}/hub`)
     .withAutomaticReconnect()
     .configureLogging(LogLevel.Information)
     .build();

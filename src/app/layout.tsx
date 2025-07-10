@@ -6,7 +6,7 @@ import "./globals.css";
 
 import { geistMono, geistSans } from "@/config/fonts";
 import { Providers } from "./providers";
-
+import Chatbot from "@/components/ui/chatbot";
 const lexend = Lexend({
   subsets: ["latin"],
   variable: "--font-lexend",
@@ -34,6 +34,7 @@ export default async function RootLayout({
       >
         <Providers locale={locale} messages={messages}>
           {children}
+          <Chatbot />
         </Providers>
       </body>
     </html>

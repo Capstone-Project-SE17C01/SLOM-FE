@@ -24,7 +24,6 @@ export const OPENROUTER_CONFIG = {
   model: 'deepseek/deepseek-chat-v3-0324:free',
   headers: {
     'Content-Type': 'application/json',
-    'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
     'X-Title': 'SLOM Video Summarizer',
   },
   systemPrompt: "You are an expert summarizer. Summarize the provided text concisely and accurately in no more than 50 words, preserving the main ideas and key points."

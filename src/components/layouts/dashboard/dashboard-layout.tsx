@@ -18,24 +18,22 @@ export default function DashboardLayout({
   const [menuOpen, setMenuOpen] = useState(false);
   const { isDarkMode, toggleDarkMode } = useTheme();
   const toggleMenu = () => setMenuOpen(!menuOpen);
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   let navItems = [
     { name: "home", href: "/home" },
     { name: "features", href: "/features" },
     { name: "about", href: "/about" },
     { name: "contact", href: "/contact" },
   ];
-
-  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   if (userInfo) {
-    navItems.push({ name: "message", href: "/chat" });
-    navItems.push({ name: "course", href: "/list-course" });
-    navItems.push({ name: "meeting", href: "/meeting-room" });
-    navItems.push({ name: "translator", href: "/translator" });
-    // Remove duplicate 'contact' if already exists
-    navItems = navItems.filter(
-      (item, index, self) =>
-        index === self.findIndex((t) => t.name === item.name)
-    );
+    navItems = [
+      { name: "home", href: "/home" },
+      { name: "message", href: "/chat" },
+      { name: "course", href: "/list-course" },
+      { name: "meeting", href: "/meeting-room" },
+      { name: "contact", href: "/contact" },
+      { name: "translator", href: "/translator" }
+    ];
   }
 
   return (
