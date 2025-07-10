@@ -31,7 +31,8 @@ export default function DashboardLayout({
       { name: "message", href: "/chat" },
       { name: "course", href: "/list-course" },
       { name: "meeting", href: "/meeting-room" },
-      { name: "contact", href: "/contact" }
+      { name: "contact", href: "/contact" },
+      { name: "translator", href: "/translator" }
     ];
   }
 

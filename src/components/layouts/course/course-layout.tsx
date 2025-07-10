@@ -26,6 +26,7 @@ export default function CourseLayout({
     { name: "message", href: "/chat" },
     { name: "course", href: "/list-course" },
     { name: "meeting", href: "/meeting-room" },
+    { name: "translator", href: "/translator" },
     { name: "contact", href: "/contact" }
   ];
 
