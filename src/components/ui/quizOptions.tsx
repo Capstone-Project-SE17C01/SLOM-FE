@@ -1,5 +1,5 @@
 import React from "react";
-import { QuizOption } from "@/features/course/types";
+import { QuizOption } from "@/types/ICourse";
 
 interface QuizOptionsProps {
   options: QuizOption[];

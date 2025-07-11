@@ -1,4 +1,4 @@
-import constants from "@/settings/constants";
+import constants from "@/config/constants";
 import { initializeApp } from "firebase/app";
 import { GoogleAuthProvider, getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";

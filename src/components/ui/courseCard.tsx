@@ -2,12 +2,12 @@
 import React from "react";
 import { useCourse } from "@/contexts/CourseContext";
 import { useRouter } from "next/navigation";
-import { Course } from "@/features/course/types";
+import { Course } from "@/types/ICourse";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "@/redux/store";
-import { authSlice } from "@/features/auth/slice";
+import { RootState } from "@/middleware/store";
+import { authSlice } from "@/redux/auth/slice";
 
 export interface CourseCardProps {
   course: Course;

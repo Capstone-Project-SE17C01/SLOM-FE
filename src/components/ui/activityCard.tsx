@@ -1,4 +1,4 @@
-import { Activities } from "@/features/course/types";
+import { Activities } from "@/types/ICourse";
 import { useTranslations } from "next-intl";
 import React, { useState } from "react";
 import { FaChartBar, FaChevronRight, FaCaretUp } from "react-icons/fa";

@@ -1,6 +1,5 @@
 import { useRef, useState } from "react";
 import * as SpeechSDK from "microsoft-cognitiveservices-speech-sdk";
-
 export interface UseSpeechToTextOptions {
   subscriptionKey: string;
   region: string;
@@ -8,23 +7,18 @@ export interface UseSpeechToTextOptions {
   fromLang: "vi-VN" | "en-US";
   toLang: "vi" | "en";
 }
-
 export function useSpeechToText(options: UseSpeechToTextOptions) {
   const [transcript, setTranscript] = useState("");
   const [isListening, setIsListening] = useState(false);
   const recognizerRef = useRef<SpeechSDK.SpeechRecognizer | null>(null);
-
   const startListening = () => {
     if (isListening) return;
     setTranscript("");
     setIsListening(true);
-
     const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(options.subscriptionKey, options.region);
     speechConfig.speechRecognitionLanguage = options.fromLang;
-
     const audioConfig = SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
     const recognizer = new SpeechSDK.SpeechRecognizer(speechConfig, audioConfig);
-
     recognizer.recognizing = (_s, e) => {
       setTranscript(e.result.text);
     };
@@ -50,11 +44,9 @@ export function useSpeechToText(options: UseSpeechToTextOptions) {
       recognizer.close();
       recognizerRef.current = null;
     };
-
     recognizer.startContinuousRecognitionAsync();
     recognizerRef.current = recognizer;
   };
-
   const stopListening = () => {
     setIsListening(false);
     recognizerRef.current?.stopContinuousRecognitionAsync(() => {
@@ -62,7 +54,6 @@ export function useSpeechToText(options: UseSpeechToTextOptions) {
       recognizerRef.current = null;
     });
   };
-
   return {
     transcript,
     isListening,
@@ -71,7 +62,6 @@ export function useSpeechToText(options: UseSpeechToTextOptions) {
     resetTranscript: () => setTranscript(""),
   };
 }
-
 async function translateText(
   text: string,
   from: string,
