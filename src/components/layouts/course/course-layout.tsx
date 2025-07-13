@@ -35,6 +35,7 @@ export default function CourseLayout({
     navItems.push({ name: "message", href: "/chat" });
     navItems.push({ name: "course", href: "/list-course" });
     navItems.push({ name: "meeting", href: "/meeting-room" });
+    navItems.push({ name: "qa", href: "/qa" });
   }
 
   const courseNavItems = [
