@@ -3,7 +3,7 @@ import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import React from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { RootState } from "@/middleware/store";
 import { cn } from "@/utils/cn";
 
 interface CourseTopNavProps {

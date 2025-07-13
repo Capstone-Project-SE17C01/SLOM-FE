@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
-import { TranslationDisplayProps } from "@/features/translator/types";
+import { cn } from "@/utils/cn";
+import { TranslationDisplayProps } from "@/types/ITranslator";
 import { Clock, Zap } from "lucide-react";
 
 export default function TranslationDisplay({

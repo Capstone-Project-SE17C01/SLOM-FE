@@ -8,7 +8,7 @@ import Header from "./header-breadcrumb";
 import MobileMenu from "./mobile-menu";
 import Footer from "./footer";
 import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { RootState } from "@/middleware/store";
 
 export default function DashboardLayout({
   children,

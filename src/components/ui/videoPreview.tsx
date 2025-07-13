@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
-import { VideoPreviewProps } from "@/features/translator/types";
+import { cn } from "@/utils/cn";
+import { VideoPreviewProps } from "@/types/ITranslator";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Volume2, VolumeX, X, Loader2, FileVideo } from "lucide-react";
 import { useState, useRef, useEffect } from "react";

@@ -4,9 +4,9 @@ import * as React from "react";
 import { Provider } from "react-redux";
 import { AppProgressBar } from "next-nprogress-bar";
 import { Toaster } from "sonner";
-import { store } from "@/redux/store";
 import { NextIntlClientProvider } from "next-intl";
 import { Messages } from "next-intl";
+import { store } from "@/middleware/store";
 export interface ProvidersProps {
   children: React.ReactNode;
   locale: string;

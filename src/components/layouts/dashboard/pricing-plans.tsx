@@ -14,19 +14,19 @@ import {
 } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Check } from "lucide-react";
-import { useGetAllPlanQuery } from "@/features/auth/api";
+import { useGetAllPlanQuery } from "@/api/AuthApi";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { useCreatePaymentLinkMutation } from "@/features/auth/api";
-import constants from "@/settings/constants";
+import { useCreatePaymentLinkMutation } from "@/api/AuthApi";
+import constants from "@/config/constants";
 import {
   APIResponse,
   CreatePaymentLinkResponseDTO,
   SubscriptionPlanDTO,
-} from "@/features/auth/types";
+} from "@/types/IAuth";
 import { useTranslations } from "next-intl";
 import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { RootState } from "@/middleware/store";
 
 export default function PricingPlans() {
   const { isDarkMode } = useTheme();

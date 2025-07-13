@@ -9,12 +9,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTranslations } from "next-intl";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { locales } from "@/i18n/config";
+import { locales } from "@/config/i18n/config";
 import Cookies from "js-cookie";
-import constants from "@/settings/constants";
-import { useChangeLanguageMutation } from "@/features/auth/api";
+import constants from "@/config/constants";
+import { useChangeLanguageMutation } from "@/api/AuthApi";
 import Spinner from "@/components/ui/spinner";
-import { RootState } from "@/redux/store";
+import { RootState } from "@/middleware/store";
 import { useSelector } from "react-redux";
 
 export default function LanguageSwitcher() {

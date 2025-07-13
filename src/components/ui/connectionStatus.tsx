@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
-import { RealTimeTranslationState } from "@/features/translator/types";
+import { cn } from "@/utils/cn";
+import { RealTimeTranslationState } from "@/types/ITranslator";
 import { Wifi, WifiOff, Loader2, AlertCircle, CheckCircle, Play, Camera } from "lucide-react";
 
 interface ConnectionStatusProps {
