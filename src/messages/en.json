@@ -40,7 +40,8 @@
     "scenario": "Scenario",
     "video": "Video",
     "conversation": "Conversation",
-    "meeting": "Meeting Room"
+    "meeting": "Meeting Room",
+    "qa": "Q&A"
   },
   "language": {
     "en": "English",
