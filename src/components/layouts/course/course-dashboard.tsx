@@ -31,12 +31,12 @@ function AccomplishmentCard({
   ) => string;
 }) {
   return (
-    <div className="bg-white rounded-lg p-4">
+    <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
       <div className="font-semibold ">{title}</div>
-      <div className="text-sm text-gray-600">
+      <div className="text-sm text-gray-600 dark:text-gray-300">
         {tCourseDashBoard("numberCompleted", { count: completed })}
       </div>
-      <div className="text-sm text-gray-600">
+      <div className="text-sm text-gray-600 dark:text-gray-300">
         {tCourseDashBoard(totalLabel, { count: total })}
       </div>
       <div className="font-bold text-right mt-2">
@@ -67,12 +67,12 @@ function ProgressBar({
         {dashboardData?.activeLesson?.module?.title
           ? dashboardData.activeLesson.module.title
           : tCourseDashBoard("moduleTitle")}
-        <span className="inline-block bg-[#6947A8] ml-2 text-white rounded-full px-2">
+        <span className="inline-block bg-[#6947A8] dark:bg-[#4b2e6a] ml-2 text-white rounded-full px-2">
           {/*current lesson title */}
           {dashboardData?.activeLesson?.orderNumber ?? "0"}
         </span>
       </div>
-      <div className="text-sm text-gray-500 mb-1">
+      <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
         {tCourseDashBoard("progress", {
           progress: percent.toFixed(2),
         })}
@@ -142,7 +142,7 @@ export default function CourseDashboard() {
 
   if (isLoadingCourseSummary) {
     return (
-      <div className="bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 w-screen h-screen fixed inset-0">
+      <div className="bg-black/50 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 w-screen h-screen fixed inset-0">
         <Spinner text="Loading..." />
       </div>
     );
@@ -182,7 +182,7 @@ export default function CourseDashboard() {
   ];
 
   return (
-    <div className="p-8">
+    <div className="p-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
       <div className="max-w-4xl mx-auto">
         {/* ProgressBar */}
         <ProgressBar
@@ -191,9 +191,9 @@ export default function CourseDashboard() {
         />
 
         {/* Accomplishments */}
-        <div className="bg-gradient-to-r from-primary to-primary/80 rounded-xl p-6 mb-6 shadow-lg">
+        <div className="bg-gradient-to-r from-primary to-primary/80 dark:from-gray-800 dark:to-gray-700 rounded-xl p-6 mb-6 shadow-lg">
           <div className="flex justify-between items-center">
-            <div className="font-bold text-xl text-white">
+            <div className="font-bold text-xl text-white dark:text-gray-200">
               {tCourseDashBoard("myAccomplishments")}
             </div>
 
@@ -233,12 +233,12 @@ export default function CourseDashboard() {
         </div>
 
         {/* BannerStartLearning */}
-        <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl p-6 flex items-center justify-between mb-6 border border-primary/20">
+        <div className="bg-gradient-to-r from-primary/10 to-primary/5 dark:from-gray-800 dark:to-gray-700 rounded-xl p-6 flex items-center justify-between mb-6 border border-primary/20 dark:border-gray-700">
           <div>
-            <div className="font-bold text-xl mb-2 text-gray-900">
+            <div className="font-bold text-xl mb-2 text-gray-900 dark:text-gray-200">
               {tCourseDashBoard("learnNewSign")}
             </div>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 dark:text-gray-300">
               {dashboardData?.activeLesson?.title && (
                 <span>{dashboardData?.activeLesson?.title}</span>
               )}

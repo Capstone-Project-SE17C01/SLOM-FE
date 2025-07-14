@@ -47,12 +47,12 @@ export function SearchUserMessage(searchUserMessageProps: Readonly<SearchUserMes
     }, [searchUserMessageProps.userId, getUserMessage])
 
     return (
-        <div style={{ overflowY: 'scroll' }} className="flex-1 ">
+        <div className="flex-1 overflow-y-scroll">
             {users.map((user : User) => (
                 <Button
                 key={user.id}
                 onClick={() => searchUserMessageProps.handleUserSelect(user)}
-                className="hover:bg-[#f5f5f5] bg-white text-black w-full h-[8vh] shadow-none"
+                className="w-full h-[8vh] shadow-none bg-white text-black hover:bg-[#f5f5f5] dark:bg-[#18181c] dark:text-white dark:hover:bg-[#23272f]"
                 >
                 <div className="w-full h-full flex items-center space-x-4">
                     <Avatar>
@@ -64,8 +64,8 @@ export function SearchUserMessage(searchUserMessageProps: Readonly<SearchUserMes
                     </Avatar>
 
                     <div className="flex-1">
-                        <div className="text-lg  text-gray-900 text-left font-bold">{user.name}</div>
-                        <div className="text-sm text-gray-600 text-left flex">
+                        <div className="text-lg text-gray-900 dark:text-white text-left font-bold">{user.name}</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-200 text-left flex">
                             <div className="max-w-[110px]" style={{textOverflow: 'ellipsis', overflow: 'hidden'}}>{user.isSender ? "You: " : ""} {user.lastMessage}</div>
                             <div className="flex-1">· {user.lastSent}</div>
                         </div>

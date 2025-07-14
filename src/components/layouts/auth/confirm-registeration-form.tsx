@@ -118,13 +118,13 @@ export function ConfirmRegisterationForm() {
           backgroundRepeat: "no-repeat",
         }}
       >
-        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-black/60 dark:bg-black/80" />
       </div>
 
       <div className="fixed inset-0 flex items-center justify-center p-4 overflow-hidden">
-        <Card className="w-full max-w-[400px] sm:min-w-[400px] bg-white/90 backdrop-blur-sm max-h-screen overflow-auto">
+        <Card className="w-full max-w-[400px] sm:min-w-[400px] bg-white/90 dark:bg-neutral-900/95 backdrop-blur-sm max-h-screen overflow-auto">
           <CardContent className="pt-6 px-4 sm:px-6">
-            <h1 className="text-center text-xl sm:text-2xl font-normal mb-6">
+            <h1 className="text-center text-xl sm:text-2xl font-normal mb-6 dark:text-neutral-100">
               {t_confirm_register("title")}{" "}
               <span className="text-primary">SLOM!</span>
             </h1>
@@ -150,7 +150,7 @@ export function ConfirmRegisterationForm() {
                     className="h-9 sm:h-10 text-sm sm:text-base pl-9"
                     disabled={!!email}
                   />
-                  <Mail className="h-4 w-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Mail className="h-4 w-4 text-gray-500 dark:text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 </div>
               </div>
               <div className="grid gap-2">
@@ -180,7 +180,7 @@ export function ConfirmRegisterationForm() {
                       required
                       className="h-9 sm:h-10 text-sm sm:text-base pl-9 w-full"
                     />
-                    <KeyRound className="h-4 w-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <KeyRound className="h-4 w-4 text-gray-500 dark:text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   </div>
                   <Button
                     type="button"
@@ -231,10 +231,10 @@ export function ConfirmRegisterationForm() {
         </Card>
       </div>
       {(isLoading || isResending) && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg">
+        <div className="fixed inset-0 bg-black/50 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="flex items-center gap-2 bg-white dark:bg-neutral-900 px-4 py-2 rounded-lg">
             <Loader2 className="h-5 w-5 animate-spin text-primary" />
-            <span>{isLoading ? "Confirming..." : "Sending code..."}</span>
+            <span className="dark:text-neutral-100">{isLoading ? "Confirming..." : "Sending code..."}</span>
           </div>
         </div>
       )}

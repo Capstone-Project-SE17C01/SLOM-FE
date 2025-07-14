@@ -10,7 +10,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 function SideBarVideo(card: Readonly<ListVideoSuggestResult>) {
     return (
         <button
-            className={`relative rounded-2xl overflow-hidden flex flex-col justify-between min-w-[260px] w-full h-[30%] bg-white shadow-sm cursor-pointer transition-transform duration-200 mb-2 border`}
+            className={`relative rounded-2xl overflow-hidden flex flex-col justify-between min-w-[260px] w-full h-[30%] bg-white dark:bg-gray-800 shadow-sm cursor-pointer transition-transform duration-200 mb-2 border border-gray-200 dark:border-gray-700`}
             onClick={() => { window.location.replace(`/video?videoId=${card.videoId}`) }}
         >
             <div className="flex h-full">
@@ -28,7 +28,7 @@ function SideBarVideo(card: Readonly<ListVideoSuggestResult>) {
                         >
                             {card.tag}
                         </div> */}
-                    <div className="font-semibold text-[#0a2233] text-sm mb-4 line-clamp-2">
+                    <div className="font-semibold text-[#0a2233] dark:text-gray-200 text-sm mb-4 line-clamp-2">
                         {card.title}
                     </div>
                     {/* <button className="mt-auto w-fit px-5 py-2 rounded-xl border-2 border-[#0a2233] font-bold text-[#0a2233] bg-white hover:bg-gray-50 transition text-base">

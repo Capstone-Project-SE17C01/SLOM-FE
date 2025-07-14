@@ -73,14 +73,14 @@ export default function WordPractice({
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-900">
       <LessonHeader title={lessonTitle} onClose={() => router.push(back)} />
       <ProgressBar progress={isComplete ? 100 : progress} />
       {isComplete ? (
         <div className="text-center mt-20 text-2xl font-bold flex flex-col items-center gap-6">
           {t_learn("finishedLesson")}
           <button
-            className="bg-gray-200 text-[#0a2233] font-bold px-8 py-3 rounded-xl text-lg shadow mt-6"
+            className="bg-gray-200 dark:bg-gray-700 text-[#0a2233] dark:text-gray-100 font-bold px-8 py-3 rounded-xl text-lg shadow mt-6"
             onClick={handleFinish}
           >
             {t_learn("finishLesson")}
@@ -92,7 +92,7 @@ export default function WordPractice({
             <div className="flex items-center justify-center">
               <VideoSquare videoUrl={currentSign?.videoSrc || ""} />
             </div>
-            <div className="flex flex-col items-center justify-center gap-4 border border-gray-200 rounded-lg p-4">
+            <div className="flex flex-col items-center justify-center gap-4 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
               <MeaningCard meaning={currentSign?.text || ""} />
             </div>
           </div>

@@ -110,13 +110,13 @@ export function LoginForm() {
           backgroundRepeat: "no-repeat",
         }}
       >
-        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-black/60 dark:bg-black/80" />
       </div>
 
       <div className="fixed inset-0 flex items-center justify-center p-4 overflow-hidden">
-        <Card className="w-full max-w-[400px] sm:min-w-[400px] bg-white/90 backdrop-blur-sm max-h-screen overflow-auto">
+        <Card className="w-full max-w-[400px] sm:min-w-[400px] bg-white/90 dark:bg-neutral-900/95 backdrop-blur-sm max-h-screen overflow-auto">
           <CardContent className="pt-6 px-4 sm:px-6">
-            <h1 className="text-center text-xl sm:text-2xl font-normal mb-6">
+            <h1 className="text-center text-xl sm:text-2xl font-normal mb-6 dark:text-neutral-100">
               {t_login("title")} <span className="text-primary">SLOM!</span>
             </h1>
             <form onSubmit={handleEmailLogin} className="flex flex-col gap-4">
@@ -153,11 +153,11 @@ export function LoginForm() {
                     className="h-9 sm:h-10 pr-10 pl-9 text-sm sm:text-base w-full"
                     autoComplete="current-password"
                   />
-                  <Lock className="h-4 w-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Lock className="h-4 w-4 text-gray-500 dark:text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-full"
                     aria-label={
                       showPassword ? "Hide password" : "Show password"
                     }
@@ -212,16 +212,16 @@ export function LoginForm() {
               </Button>
             </form>
             <div className="flex items-center gap-4 my-4">
-              <div className="h-[1px] flex-1 bg-gray-300"></div>
-              <span className="text-gray-500 text-sm sm:text-base">
+              <div className="h-[1px] flex-1 bg-gray-300 dark:bg-neutral-700"></div>
+              <span className="text-gray-500 dark:text-gray-400 text-sm sm:text-base">
                 {t_login("or")}
               </span>
-              <div className="h-[1px] flex-1 bg-gray-300"></div>
+              <div className="h-[1px] flex-1 bg-gray-300 dark:bg-neutral-700"></div>
             </div>
             <Button
               type="button"
               variant="outline"
-              className="w-full h-9 sm:h-10 bg-white hover:bg-gray-50 flex items-center justify-center gap-2 text-sm sm:text-base border-0"
+              className="w-full h-9 sm:h-10 bg-white dark:bg-neutral-900 hover:bg-gray-50 dark:hover:bg-neutral-800 flex items-center justify-center gap-2 text-sm sm:text-base border-0"
               onClick={redirectToGoogleLogin}
               disabled={isLoading}
             >
@@ -270,10 +270,10 @@ export function LoginForm() {
           </CardContent>
         </Card>
         {isLoading && (
-          <div className="bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 w-screen h-screen fixed inset-0">
-            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg">
+          <div className="bg-black/50 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 w-screen h-screen fixed inset-0">
+            <div className="flex items-center gap-2 bg-white dark:bg-neutral-900 px-4 py-2 rounded-lg">
               <Loader2 className="h-5 w-5 animate-spin text-primary" />
-              <span>{t_login("loggingIn")}</span>
+              <span className="dark:text-neutral-100">{t_login("loggingIn")}</span>
             </div>
           </div>
         )}

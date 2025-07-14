@@ -34,13 +34,15 @@ export default function RealTimeTranslator({
 
   // Initialize real-time translator (Camera only mode - WebSocket disabled)
   const translator = useRealTimeTranslator();
+  // destructure các giá trị primitive cần thiết từ translator cho useEffect
+  const { state: { isConnected }, connect } = translator;
 
   // Auto-start if requested
   useEffect(() => {
-    if (autoStart && !translator.state.isConnected) {
-      translator.connect();
+    if (autoStart && !isConnected) {
+      connect();
     }
-  }, [autoStart, translator]);
+  }, [autoStart, isConnected, connect]);
 
   // Check camera permissions and available devices on mount
   useEffect(() => {
@@ -260,14 +262,16 @@ export default function RealTimeTranslator({
   };
 
   // Cleanup on unmount
+  // destructure disconnect từ translator cho useEffect cleanup
+  const { disconnect } = translator;
   useEffect(() => {
     return () => {
       if (mediaStream) {
         mediaStream.getTracks().forEach(track => track.stop());
       }
-      translator.disconnect();
+      disconnect();
     };
-  }, [mediaStream, translator]);
+  }, [mediaStream, disconnect]);
 
   return (
     <div className="space-y-6">

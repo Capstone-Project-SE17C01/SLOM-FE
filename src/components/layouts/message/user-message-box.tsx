@@ -94,10 +94,15 @@ export function MessageBox({ messages, setMessages, userId, selectedUser }: Read
     }, [messages, currentPage, isLoadFull, handleScroll]);
 
     return (
-        <div className="flex-1 overflow-y-scroll p-2.5 bg-white" ref={chatContainerRef}>
+        <div className="flex-1 overflow-y-scroll p-2.5 bg-white dark:bg-[#18181b]" ref={chatContainerRef}>
             {messages.map((message) => (
               <div key={message.id} className={"flex w-full" + (message.isSender ? " justify-end" : " justify-start")}>
-                <div className={"p-2 px-4 rounded-3xl max-w-[30%] break-all mb-0.5" + (message.isSender ? " bg-[#9c2cfc] text-white" : " bg-[#f0f0f0]")}>
+                <div className={
+                  "p-2 px-4 rounded-3xl max-w-[30%] break-all mb-0.5" +
+                  (message.isSender
+                    ? " bg-[#9c2cfc] dark:bg-[#7c1fc2] text-white"
+                    : " bg-[#f0f0f0] dark:bg-[#27272a]")
+                }>
                   <p>{message.content}</p>
                 </div>
               </div>
