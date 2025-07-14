@@ -1,7 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useGetCourseSummaryMutation, useGetReminderMutation } from "../../../api/CourseApi";
+import {
+  useGetCourseSummaryMutation,
+  useGetReminderMutation,
+} from "../../../api/CourseApi";
 import { useSelector } from "react-redux";
 import { RootState } from "@/middleware/store";
 import { SummaryResponse } from "../../../types/ICourse";
@@ -128,14 +131,18 @@ export default function CourseDashboard() {
     //get reminder
     if (userInfo?.email) {
       (async () => {
-        try {
-          const response = await getReminder(userInfo.email).unwrap();
-          if (response.result) {
-            setIsActive(response.result.isActive);
-          }
-        } catch {
-          console.log("error get reminder");
-        }
+        await getReminder(userInfo.email)
+          .unwrap()
+          .then((res) => {
+            if (res.result) {
+              setIsActive(res.result.isActive);
+            } else {
+              setIsActive(false);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       })();
     }
   }, [userInfo, getCourseSummary, getReminder]);
