@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/middleware/store";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,7 @@ export default function UploadVideoTranslator({
   const { isDarkMode } = useTheme();
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const [dragActive, setDragActive] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Initialize video upload translator
   const translator = useVideoUploadTranslator({
@@ -133,7 +134,7 @@ export default function UploadVideoTranslator({
                   className={cn(
                     "border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer",
                     dragActive ? "border-blue-400 bg-blue-50" : "border-gray-300",
-                    isDarkMode ? 
+                    isDarkMode ?
                       dragActive ? "border-blue-400 bg-blue-900/20" : "border-gray-600 bg-gray-700" :
                       dragActive ? "bg-blue-50" : "bg-gray-50",
                     "hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
@@ -143,16 +144,16 @@ export default function UploadVideoTranslator({
                   onDragOver={handleDrag}
                   onDrop={handleDrop}
                   onClick={() => {
-                    const input = document.createElement('input');
-                    input.type = 'file';
-                    input.accept = acceptedFormats.join(',');
-                    input.onchange = (e) => {
-                      const target = e.target as HTMLInputElement;
-                      handleFileSelect(target.files);
-                    };
-                    input.click();
+                    inputRef.current?.click();
                   }}
                 >
+                  <input
+                    ref={inputRef}
+                    type="file"
+                    accept={acceptedFormats.join(',')}
+                    style={{ display: 'none' }}
+                    onChange={e => handleFileSelect(e.target.files)}
+                  />
                   <Upload className={cn(
                     "w-16 h-16 mx-auto mb-4",
                     dragActive ? "text-blue-500" : isDarkMode ? "text-gray-400" : "text-gray-500"
@@ -169,10 +170,13 @@ export default function UploadVideoTranslator({
                   )}>
                     or click to browse files
                   </p>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="border-blue-500 text-blue-500 hover:bg-blue-50"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={e => {
+                      e.stopPropagation();
+                      inputRef.current?.click();
+                    }}
                   >
                     <Upload className="w-4 h-4 mr-2" />
                     Choose File

@@ -32,20 +32,20 @@ export default function ListCoursePage() {
   }, [getCourses, userInfo?.id]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             {tDashboard("chooseYourPath")}
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             {tDashboard("pathDescription")}
           </p>
         </div>
 
         {learningCourses.length > 0 && (
           <div className="mb-16">
-            <h2 className="text-3xl font-extrabold mb-8 text-gray-900">
+            <h2 className="text-3xl font-extrabold mb-8 text-gray-900 dark:text-gray-100">
               {tDashboard("currentlyLearning")}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -57,11 +57,11 @@ export default function ListCoursePage() {
         )}
 
         <div>
-          <h2 className="text-3xl font-extrabold mb-8 text-gray-900">
+          <h2 className="text-3xl font-extrabold mb-8 text-gray-900 dark:text-gray-100">
             {tDashboard("languages")}
           </h2>
           {!remainingCourses || remainingCourses.length === 0 ? (
-            <div className="text-center text-gray-500">
+            <div className="text-center text-gray-500 dark:text-gray-400">
               {tDashboard("noCourseRemain")}
             </div>
           ) : (

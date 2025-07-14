@@ -44,8 +44,7 @@ export default function CourseLayout({
     <CourseProvider>
       <div
         className={cn(
-          "min-h-screen flex flex-col",
-          isDarkMode ? "text-white" : "text-black"
+          "min-h-screen flex flex-col text-black dark:text-white"
         )}
       >
         <Header
@@ -61,18 +60,14 @@ export default function CourseLayout({
           setMenuOpen={setMenuOpen}
         />
 
-        <CourseTopNav navItems={courseNavItems} />
-
-        <main className="flex-1 bg-gray-50 min-h-screen">
+        <main className="flex-1 bg-gray-50 dark:bg-gray-900 min-h-screen">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div
               className={cn(
-                "rounded-xl shadow-sm border min-h-[calc(100vh-200px)]",
-                isDarkMode
-                  ? "bg-gray-800 border-gray-700 text-white"
-                  : "bg-white border-gray-200 text-black"
+                "rounded-xl shadow-sm border min-h-[calc(100vh-200px)] bg-white border-gray-200 text-black dark:bg-gray-800 dark:border-gray-700 dark:text-white"
               )}
             >
+              <CourseTopNav navItems={courseNavItems} />
               {children}
             </div>
           </div>

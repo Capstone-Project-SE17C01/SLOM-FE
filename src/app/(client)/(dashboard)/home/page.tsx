@@ -7,6 +7,7 @@ import PricingPlans from "@/components/layouts/dashboard/pricing-plans";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useTheme } from "@/contexts/ThemeContext";
+import Chatbot from "@/components/ui/chatbot";
 
 export default function TrangChuPage() {
   const { isDarkMode } = useTheme();
@@ -38,6 +39,7 @@ export default function TrangChuPage() {
   return (
     <>
       <div className="p-4">
+        <Chatbot />
         <section
           className={cn(
             "relative py-16 px-4 sm:px-6 lg:px-8 text-center overflow-hidden rounded-xl"
@@ -84,14 +86,14 @@ export default function TrangChuPage() {
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="relative h-64 md:h-80 rounded-lg overflow-hidden shadow-lg">
                 {/* Placeholder for video/screenshot of the platform */}
-                <div
-                  className={cn(
-                    "absolute inset-0 flex items-center justify-center",
-                    isDarkMode ? "bg-gray-800" : "bg-gray-200"
-                  )}
+                <video
+                  className="absolute inset-0 w-full h-full object-cover"
+                  src="/videos/demo.mp4"
+                  controls
+                  poster="/images/video-poster.png"
                 >
-                  <span className="text-2xl font-medium">{t("how.demo")}</span>
-                </div>
+                  {t("how.demo")}
+                </video>
               </div>
 
               <div className="space-y-6">
@@ -213,7 +215,13 @@ export default function TrangChuPage() {
               >
                 <p className="italic mb-4">{t("testimonials.quote1")}</p>
                 <div className="flex items-center">
-                  <div className="h-10 w-10 rounded-full bg-gray-300 mr-3"></div>
+                  <Image
+                    src="/images/avatar-1.jpg"
+                    alt="User Avatar"
+                    width={40}
+                    height={40}
+                    className="rounded-full mr-3"                   
+                  />
                   <div>
                     <p className="font-medium">{t("testimonials.author1")}</p>
                     <p className="text-sm text-muted-foreground">
@@ -233,7 +241,13 @@ export default function TrangChuPage() {
               >
                 <p className="italic mb-4">{t("testimonials.quote2")}</p>
                 <div className="flex items-center">
-                  <div className="h-10 w-10 rounded-full bg-gray-300 mr-3"></div>
+                  <Image
+                    src="/images/avatar-2.jpg"
+                    alt="User Avatar"
+                    width={40}
+                    height={40}
+                    className="rounded-full mr-3"                   
+                  />
                   <div>
                     <p className="font-medium">{t("testimonials.author2")}</p>
                     <p className="text-sm text-muted-foreground">

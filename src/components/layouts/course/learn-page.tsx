@@ -66,7 +66,7 @@ export default function LearnPage() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-8 bg-white dark:bg-gray-900 min-h-screen">
       {/* Tabs + Search */}
       <div className="flex lg:flex-row items-center justify-between mb-8 max-md:flex-col max-md:gap-4 max-md:items-start">
         <SwitchTabButton
@@ -82,7 +82,7 @@ export default function LearnPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t_learn("searchPlaceholder")}
-              className="pl-10 pr-4 py-3 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent min-w-[260px] shadow-sm"
+              className="pl-10 pr-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent min-w-[260px] shadow-sm text-black dark:text-gray-100"
             />
             <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           </div>
@@ -100,10 +100,10 @@ export default function LearnPage() {
       {/* Continue learning */}
       {ongoingLesson && (
         <div className="mb-8">
-          <div className="text-2xl font-extrabold mb-4 text-gray-900">
+          <div className="text-2xl font-extrabold mb-4 text-gray-900 dark:text-gray-100">
             {t_learn("continueLearning")}
           </div>
-          <div className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl shadow-sm border border-primary/20 p-6 max-w-2xl">
+          <div className="bg-gradient-to-r from-primary/5 to-primary/10 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-sm border border-primary/20 dark:border-gray-700 p-6 max-w-2xl">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <div className="font-bold text-sm mb-1 text-primary">
@@ -111,7 +111,7 @@ export default function LearnPage() {
                     ? currentModule.title
                     : t_learn("moduleTitle")}
                 </div>
-                <div className="text-gray-700 text-lg mb-3 font-medium">
+                <div className="text-gray-700 dark:text-gray-300 text-lg mb-3 font-medium">
                   {ongoingLesson?.title
                     ? ongoingLesson.title
                     : t_learn("lessonTitle")}

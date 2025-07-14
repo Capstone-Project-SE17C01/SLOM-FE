@@ -95,10 +95,10 @@ const Chatbot: React.FC = () => {
             aria-label="Open chatbot"
             onClick={() => setOpen(true)}
             style={{
-              width: 64,
-              height: 64,
+              width: 44,
+              height: 44,
               borderRadius: "50%",
-              background: "#0078d4",
+              background: "linear-gradient(135deg, #a259ff 0%, #6d28d9 100%)",
               boxShadow: "0 4px 24px rgba(0,0,0,0.18)",
               border: "none",
               display: "flex",
@@ -108,9 +108,16 @@ const Chatbot: React.FC = () => {
               transition: "background 0.2s",
             }}
           >
-            <svg width="32" height="32" fill="none" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="12" fill="#fff" opacity="0.15"/>
-              <path d="M7 8h10M7 12h6m-6 4h4" stroke="#fff" strokeWidth="2" strokeLinecap="round"/>
+            {/* Icon chat bubble tím, nhỏ */}
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="12" fill="#a259ff" opacity="0.15"/>
+              <path d="M7 8h10M7 12h6m-6 4h4" stroke="#a259ff" strokeWidth="2" strokeLinecap="round"/>
+              <path d="M5 19l2.5-2.5" stroke="#a259ff" strokeWidth="2" strokeLinecap="round"/>
+              <ellipse cx="12" cy="12" rx="7" ry="6" fill="#fff" opacity="0.7"/>
+              <ellipse cx="12" cy="12" rx="5" ry="4" fill="#a259ff" opacity="0.15"/>
+              <circle cx="9.5" cy="12" r="1" fill="#a259ff"/>
+              <circle cx="12" cy="12" r="1" fill="#a259ff"/>
+              <circle cx="14.5" cy="12" r="1" fill="#a259ff"/>
             </svg>
           </button>
         )}
@@ -136,7 +143,7 @@ const Chatbot: React.FC = () => {
           >
             <div
               style={{
-                background: "#0078d4",
+                background: "linear-gradient(135deg, #a259ff 0%, #6d28d9 100%)",
                 color: "#fff",
                 padding: "12px 16px",
                 fontWeight: 600,
@@ -146,6 +153,15 @@ const Chatbot: React.FC = () => {
                 justifyContent: "space-between",
               }}
             >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style={{marginRight: 8}}>
+                <circle cx="12" cy="12" r="12" fill="#fff" opacity="0.15"/>
+                <path d="M7 8h10M7 12h6m-6 4h4" stroke="#fff" strokeWidth="2" strokeLinecap="round"/>
+                <ellipse cx="12" cy="12" rx="7" ry="6" fill="#fff" opacity="0.7"/>
+                <ellipse cx="12" cy="12" rx="5" ry="4" fill="#a259ff" opacity="0.15"/>
+                <circle cx="9.5" cy="12" r="1" fill="#a259ff"/>
+                <circle cx="12" cy="12" r="1" fill="#a259ff"/>
+                <circle cx="14.5" cy="12" r="1" fill="#a259ff"/>
+              </svg>
               Chatbot AI
               <button
                 aria-label="Close chatbot"
@@ -231,8 +247,8 @@ const Chatbot: React.FC = () => {
                 disabled={loading || !input.trim()}
                 style={{
                   marginLeft: 8,
-                  background: "#0078d4",
-                  color: "#fff",
+                  background: "linear-gradient(135deg, #a259ff 0%, #6d28d9 100%)",
+                  color: "white",
                   border: "none",
                   borderRadius: 8,
                   padding: "8px 16px",

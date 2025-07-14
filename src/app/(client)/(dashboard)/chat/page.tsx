@@ -33,8 +33,8 @@ function Page() {
 
   if (!userInfo) {
     return (
-      <div className="flex items-center justify-center h-[70vh] border-1 bg-[#f0f0f0] rounded">
-        <p>{t("loginPrompt")}</p>
+      <div className="flex items-center justify-center h-[70vh] border-1 bg-[#f0f0f0] dark:bg-[#23272f] rounded">
+        <p className="dark:text-white">{t("loginPrompt")}</p>
       </div>
     );
   }
@@ -67,9 +67,9 @@ function Page() {
   return (
     <div className="h-[70vh] flex">
       {/* User list on the left */}
-      <div className="bg-white rounded-xl w-[20vw] pl-2.5 pr-2.5 pt-2.5 mr-5 shadow-md flex flex-col border border-1">
+      <div className="bg-white dark:bg-[#23272f] rounded-xl w-[20vw] pl-2.5 pr-2.5 pt-2.5 mr-5 shadow-md flex flex-col border border-1">
         <div className="pr-4 h-[80px] mb-[3%]">
-          <h3 className="h-[50%] text-3xl font-bold">Chat</h3>
+          <h3 className="h-[50%] text-3xl font-bold dark:text-white">Chat</h3>
 
           <div className="h-[50%] relative">
             <SearchUser
@@ -93,7 +93,7 @@ function Page() {
               <Button
                 key={user.id}
                 onClick={() => handleUserSelect(user)}
-                className="hover:bg-[#f5f5f5] bg-white text-black w-full h-[8vh] shadow-none"
+                className="hover:bg-[#f5f5f5] dark:hover:bg-[#353945] bg-white dark:bg-[#23272f] text-black dark:text-white w-full h-[8vh] shadow-none"
               >
                 <div className="w-full h-full flex items-center space-x-4">
                   {/* User Profile Image */}
@@ -107,7 +107,7 @@ function Page() {
 
                   {/* User Name and Last Message */}
                   <div className="">
-                    <div className="text-lg  text-gray-900 text-left font-bold">
+                    <div className="text-lg text-gray-900 dark:text-white text-left font-bold">
                       {user.name}
                     </div>
                   </div>
@@ -120,20 +120,20 @@ function Page() {
 
       {/* Chat area on the right */}
       {selectedUser == null || selectedUser == undefined ? (
-        <div className="bg-white rounded-xl shadow-md p-6 flex items-center justify-center flex-1 border border-1">
+        <div className="bg-white dark:bg-[#23272f] rounded-xl shadow-md p-6 flex items-center justify-center flex-1 border border-1">
           <div className="text-center">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
               No User Selected
             </h2>
-            <p className="text-gray-500">
+            <p className="text-gray-500 dark:text-gray-300">
               Please select or find a user to view their details.
             </p>
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-xl flex flex-col shadow-md flex-1 border border-1">
+        <div className="bg-white dark:bg-[#23272f] rounded-xl flex flex-col shadow-md flex-1 border border-1">
           <div className="h-[50px] rounded-t-xl border-b px-2 flex items-center">
-            <Button className="h-[90%] hover:bg-[#f5f5f5] bg-white shadow-none text-black w-auto p-0 px-2">
+            <Button className="h-[90%] hover:bg-[#f5f5f5] dark:hover:bg-[#353945] bg-white dark:bg-[#23272f] shadow-none text-black dark:text-white w-auto p-0 px-2">
               <Avatar>
                 <AvatarImage
                   src={selectedUser.image}
@@ -174,7 +174,7 @@ function Page() {
               <input
                 type="text"
                 placeholder="Aa"
-                className="h-[60%] rounded-full w-[90%] p-2.5 border border-[#ccc] m-0 bg-[#f3f3f5]"
+                className="h-[60%] rounded-full w-[90%] p-2.5 border border-[#ccc] dark:border-[#444] m-0 bg-[#f3f3f5] dark:bg-[#353945] text-black dark:text-white"
                 onKeyDown={(e) => {
                   const target = e.target as HTMLInputElement; // Type assertion here
                   if (e.key === "Enter" && target.value.trim() !== "") {
@@ -185,14 +185,14 @@ function Page() {
               />
 
               <div className="h-full flex justify-center items-center w-[5%]">
-                <div className="h-[85%] w-[85%] rounded-full hover:bg-[#f5f5f5] bg-white shadow-none p-0 flex justify-center items-center cursor-pointer">
+                <div className="h-[85%] w-[85%] rounded-full hover:bg-[#f5f5f5] dark:hover:bg-[#353945] bg-white dark:bg-[#23272f] shadow-none p-0 flex justify-center items-center cursor-pointer">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
                     stroke="currentColor"
-                    className="size-6 text-black"
+                    className="size-6 text-black dark:text-white"
                   >
                     <path
                       strokeLinecap="round"

@@ -10,15 +10,15 @@ import { ListVideoSuggestResult, VideoHeaderInput, VideoSuggest, VideoTabsInput 
 
 function VideoHeader(input: Readonly<VideoHeaderInput>) {
   return (
-    <div className="bg-primary/10 rounded-xl flex items-center gap-4 px-6 py-5 mb-6">
-      <div className="bg-primary/10 rounded-lg p-3 flex items-center justify-center">
+    <div className="bg-primary/10 dark:bg-gray-800 rounded-xl flex items-center gap-4 px-6 py-5 mb-6">
+      <div className="bg-primary/10 dark:bg-gray-700 rounded-lg p-3 flex items-center justify-center">
         <FaPlay className="text-primary text-3xl" />
       </div>
       <div>
-        <div className="font-bold text-2xl text-primary leading-snug">
+        <div className="font-bold text-2xl text-primary dark:text-primary leading-snug">
           {input.headerTitle}
         </div>
-        <div className="text-primary text-base mt-1">{input.headerDesc}</div>
+        <div className="text-primary dark:text-primary text-base mt-1">{input.headerDesc}</div>
       </div>
     </div>
   );
@@ -40,8 +40,8 @@ function VideoTabs(input: Readonly<VideoTabsInput>) {
           onClick={() => input.setActive(i)}
           className={`px-5 py-1.5 rounded-full font-semibold text-base border transition-all
               ${input.active === i
-              ? "border-primary text-[#0a2233] bg-white shadow"
-              : "border-gray-200 text-[#0a2233] bg-gray-50 hover:border-primary"
+              ? "border-primary text-[#0a2233] dark:text-gray-200 bg-white dark:bg-gray-800 shadow"
+              : "border-gray-200 dark:border-gray-700 text-[#0a2233] dark:text-gray-200 bg-gray-50 dark:bg-gray-900 hover:border-primary"
             }
             `}
         >
@@ -55,7 +55,7 @@ function VideoTabs(input: Readonly<VideoTabsInput>) {
 function VideoCard(card: Readonly<ListVideoSuggestResult>) {
   return (
     <button
-      className={`relative rounded-2xl overflow-hidden flex flex-col justify-between min-w-[260px] max-w-[320px] bg-white shadow-sm hover:scale-105 transition-transform duration-200 border cursor-pointer`}
+      className={`relative rounded-2xl overflow-hidden flex flex-col justify-between min-w-[260px] max-w-[320px] bg-white dark:bg-gray-800 shadow-sm hover:scale-105 transition-transform duration-200 border border-gray-200 dark:border-gray-700 cursor-pointer`}
       onClick={() => { window.location.replace(`/video?videoId=${card.videoId}`) }}
     >
       <div className="relative w-full h-[220px]">
@@ -67,7 +67,7 @@ function VideoCard(card: Readonly<ListVideoSuggestResult>) {
         />
       </div>
       <div className="flex flex-col flex-1 p-4 pt-3">
-        <div className="font-semibold text-[#0a2233] text-base mb-4 line-clamp-2">
+        <div className="font-semibold text-[#0a2233] dark:text-gray-200 text-base mb-4 line-clamp-2">
           {card.title}
         </div>
       </div>
@@ -175,9 +175,9 @@ export default function ImmerseVideo() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t("searchPlaceholder")}
-            className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-300 bg-white text-base focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-base focus:outline-none focus:ring-2 focus:ring-primary text-black dark:text-white"
           />
-          <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+          <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-lg" />
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-2">

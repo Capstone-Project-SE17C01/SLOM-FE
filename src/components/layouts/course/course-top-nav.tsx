@@ -17,7 +17,7 @@ export default function CourseTopNav({ navItems }: CourseTopNavProps) {
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
 
   return (
-    <div className="bg-white border-b border-gray-200 shadow-sm">
+    <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Course Title */}
@@ -41,11 +41,11 @@ export default function CourseTopNav({ navItems }: CourseTopNavProps) {
                   className={cn(
                     "flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200",
                     isActive
-                      ? "bg-primary text-white shadow-md"
-                      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                      ? "bg-primary text-white shadow-md dark:bg-primary dark:text-white"
+                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
                   )}
                 >
-                  <span className={cn("text-lg", isActive ? "text-white" : "text-gray-600")}>
+                  <span className={cn("text-lg", isActive ? "text-white" : "text-gray-600 dark:text-gray-300")}>
                     {item.icon}
                   </span>
                   <span>{t(item.name)}</span>
@@ -56,7 +56,7 @@ export default function CourseTopNav({ navItems }: CourseTopNavProps) {
 
           {/* Mobile Menu Button - you can expand this later */}
           <div className="md:hidden">
-            <button className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100">
+            <button className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>

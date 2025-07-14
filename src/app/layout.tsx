@@ -6,7 +6,6 @@ import "./globals.css";
 
 import { geistMono, geistSans } from "@/config/fonts";
 import { Providers } from "./providers";
-import Chatbot from "@/components/ui/chatbot";
 const lexend = Lexend({
   subsets: ["latin"],
   variable: "--font-lexend",
@@ -29,12 +28,14 @@ export default async function RootLayout({
   const messages = await getMessages();
   return (
     <html lang={locale}>
+      <head>
+        <link rel="icon" href="/images/logo.png" />
+      </head>
       <body
         className={`${lexend.variable} ${geistSans.variable} ${geistMono.variable} antialiased shadow-md`}
       >
         <Providers locale={locale} messages={messages}>
           {children}
-          <Chatbot />
         </Providers>
       </body>
     </html>
