@@ -11,7 +11,7 @@ export interface SearchUserProps {
   readonly setIsSearch: Dispatch<SetStateAction<boolean>>;
   readonly setListSearchUser: Dispatch<SetStateAction<User[]>>;
 }
-// User interface
+
 export interface User {
   id: number;
   name: string;

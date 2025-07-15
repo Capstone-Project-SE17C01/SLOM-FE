@@ -17,7 +17,7 @@ export default function CourseLayout({
   children: React.ReactNode;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { isDarkMode, toggleDarkMode } = useTheme();
+  const { toggleDarkMode } = useTheme();
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
