@@ -222,7 +222,32 @@ export default function VideoViewerPage() {
                     <div className={cn("prose prose-sm max-w-none", isDarkMode ? "prose-invert" : "", "prose-headings:text-[#6947A8] prose-headings:font-bold", "prose-strong:text-[#6947A8] prose-strong:font-semibold", "prose-ul:space-y-1 prose-li:text-sm")}>
                       <div className="whitespace-pre-wrap text-sm leading-relaxed">{summary}</div>
                     </div>
-                    <div className="pt-4 border-t border-gray-200/50 dark:border-gray-700/50">
+                    <div className="flex flex-col gap-2 pt-4 border-t border-gray-200/50 dark:border-gray-700/50">
+                      <Button
+                        onClick={() => {
+                          const blob = new Blob(
+                            [
+                              `<html><head><meta charset="utf-8"></head><body><h2>Video Summary</h2><pre>${summary.replace(/</g, "<").replace(/>/g, ">").replace(/\n/g, "<br/>")}</pre></body></html>`
+                            ],
+                            { type: "application/msword" }
+                          );
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement("a");
+                          a.href = url;
+                          a.download = "video-summary.doc";
+                          document.body.appendChild(a);
+                          a.click();
+                          setTimeout(() => {
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(url);
+                          }, 0);
+                        }}
+                        variant="secondary"
+                        size="sm"
+                        className="w-full"
+                      >
+                        Download Word
+                      </Button>
                       <Button onClick={() => { setHasSummary(false); setSummary(""); }} variant="outline" size="sm" className="w-full">Generate New Summary</Button>
                     </div>
                   </div>

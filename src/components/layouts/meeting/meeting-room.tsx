@@ -110,22 +110,34 @@ export interface MeetingRoomActionsProps {
   onStartMeeting: () => void;
   onJoinMeeting: () => void;
   onScheduleMeeting: () => void;
+  disableStart?: boolean;
+  disableJoin?: boolean;
+  disableSchedule?: boolean;
+  disableReason?: string;
 }
 
 export const MeetingRoomActions: React.FC<MeetingRoomActionsProps> = ({
   onStartMeeting,
   onJoinMeeting,
   onScheduleMeeting,
+  disableStart = false,
+  disableJoin = false,
+  disableSchedule = false,
+  disableReason = "",
 }) => {
   const { isDarkMode } = useTheme();
-  
+
   return (
     <div className="space-y-3 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-      <Button 
+      <Button
         onClick={onStartMeeting}
         className="w-full text-left flex items-center py-5 px-4 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg"
         variant="outline"
-      >        <div className="flex-shrink-0 mr-4 h-10 w-10 flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 rounded-full">          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        disabled={disableStart}
+        title={disableStart && disableReason ? disableReason : undefined}
+      >
+        <div className="flex-shrink-0 mr-4 h-10 w-10 flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 rounded-full">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M15 10L19.5528 7.72361C20.2177 7.39116 21 7.87465 21 8.61803V15.382C21 16.1253 20.2177 16.6088 19.5528 16.2764L15 14M5 18H13C14.1046 18 15 17.1046 15 16V8C15 6.89543 14.1046 6 13 6H5C3.89543 6 3 6.89543 3 8V16C3 17.1046 3.89543 18 5 18Z" stroke="#0066ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
@@ -137,13 +149,16 @@ export const MeetingRoomActions: React.FC<MeetingRoomActionsProps> = ({
           )}>Create a new meeting</div>
         </div>
       </Button>
-      
-      <Button 
+
+      <Button
         onClick={onJoinMeeting}
         className="w-full text-left flex items-center py-5 px-4 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg"
         variant="outline"
+        disabled={disableJoin}
+        title={disableJoin && disableReason ? disableReason : undefined}
       >
-        <div className="flex-shrink-0 mr-4 h-10 w-10 flex items-center justify-center bg-green-100 dark:bg-green-900/30 rounded-full">          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <div className="flex-shrink-0 mr-4 h-10 w-10 flex items-center justify-center bg-green-100 dark:bg-green-900/30 rounded-full">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M13 7L18 12M18 12L13 17M18 12H6" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
@@ -155,13 +170,16 @@ export const MeetingRoomActions: React.FC<MeetingRoomActionsProps> = ({
           )}>Join using meeting code or link</div>
         </div>
       </Button>
-      
-      <Button 
+
+      <Button
         onClick={onScheduleMeeting}
         className="w-full text-left flex items-center py-5 px-4 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg"
         variant="outline"
+        disabled={disableSchedule}
+        title={disableSchedule && disableReason ? disableReason : undefined}
       >
-        <div className="flex-shrink-0 mr-4 h-10 w-10 flex items-center justify-center bg-purple-100 dark:bg-purple-900/30 rounded-full">          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <div className="flex-shrink-0 mr-4 h-10 w-10 flex items-center justify-center bg-purple-100 dark:bg-purple-900/30 rounded-full">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M8 7V3M16 7V3M7 11H17M5 21H19C20.1046 21 21 20.1046 21 19V7C21 5.89543 20.1046 5 19 5H5C3.89543 5 3 5.89543 3 7V19C3 20.1046 3.89543 21 5 21Z" stroke="#6947A8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>

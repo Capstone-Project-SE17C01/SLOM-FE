@@ -1,5 +1,8 @@
 "use client";
 import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { useUpdateProfileMutation } from "@/api/ProfileApi";
+import { useGetUserProfileQuery } from "@/api/AuthApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,7 +17,6 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 import { Eye, EyeOff, Lock } from "lucide-react";
@@ -37,6 +39,58 @@ export default function ProfilePage() {
   const [error, setError] = useState<string>("");
   const [historyPayment, setHistoryPayment] = useState<HistoryPaymentDTO[]>([]);
   const [activeTab, setActiveTab] = useState(t("profile.tabs.personal"));
+
+  // Thêm state cho profile
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [bio, setBio] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [profileId, setProfileId] = useState("");
+  const [email, setEmail] = useState("");
+  const [location, setLocation] = useState("");
+
+  const [updateProfile] = useUpdateProfileMutation();
+  const { data: profileData, refetch } = useGetUserProfileQuery(userInfo?.email, { skip: !userInfo?.email });
+
+  // Khi có profileData, tách userName thành firstName, lastName
+  useEffect(() => {
+    console.log("profileData", profileData);
+    if (profileData?.result) {
+      const { username, avatarUrl, bio, id, email, location } = profileData.result;
+      const nameParts = (username || "").trim().split(" ");
+      setFirstName(nameParts[0] || "");
+      setLastName(nameParts.length > 1 ? nameParts.slice(1).join(" ") : "");
+      setBio(bio || "");
+      setAvatarUrl(avatarUrl || "");
+      setProfileId(id || "");
+      setEmail(email || "");
+      setLocation(location || "");
+    }
+  }, [profileData]);
+
+  const handleProfileSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    const safeFirst = firstName?.trim() || "";
+    const safeLast = lastName?.trim() || "";
+    const safeUserName = (safeFirst + " " + safeLast).trim();
+    try {
+      await updateProfile({
+        id: profileId,
+        userName: safeUserName,
+        email,
+        avatarUrl,
+        bio,
+        location,
+      }).unwrap();
+      toast.success(t("profile.personalInfo.updateSuccess"));
+      refetch();
+    } catch {
+      toast.error(t("profile.personalInfo.updateFail"));
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const [passwordForm, setPasswordForm] = useState({
     accessToken: "",
@@ -198,9 +252,6 @@ export default function ProfilePage() {
               <TabsTrigger value={t("profile.tabs.security")}>
                 {t("profile.tabs.security")}
               </TabsTrigger>
-              <TabsTrigger value={t("profile.tabs.preferences")}>
-                {t("profile.tabs.preferences")}
-              </TabsTrigger>
               <TabsTrigger
                 value={t("profile.tabs.transaction")}
                 onClick={handleTransaction}
@@ -218,7 +269,7 @@ export default function ProfilePage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form className="space-y-6">
+                  <form className="space-y-6" onSubmit={handleProfileSubmit}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <Label htmlFor="firstName">
@@ -226,14 +277,19 @@ export default function ProfilePage() {
                         </Label>
                         <Input
                           id="firstName"
-                          defaultValue={userInfo.firstname}
+                          value={firstName}
+                          onChange={e => setFirstName(e.target.value)}
                         />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="lastName">
                           {t("profile.personalInfo.lastName")}
                         </Label>
-                        <Input id="lastName" defaultValue={userInfo.lastname} />
+                        <Input
+                          id="lastName"
+                          value={lastName}
+                          onChange={e => setLastName(e.target.value)}
+                        />
                       </div>
                     </div>
 
@@ -255,6 +311,8 @@ export default function ProfilePage() {
                       </Label>
                       <Textarea
                         id="bio"
+                        value={bio}
+                        onChange={e => setBio(e.target.value)}
                         placeholder={t("profile.personalInfo.bioPlaceholder")}
                         rows={4}
                       />
@@ -266,6 +324,8 @@ export default function ProfilePage() {
                       </Label>
                       <Input
                         id="location"
+                        value={location}
+                        onChange={e => setLocation(e.target.value)}
                         placeholder={t(
                           "profile.personalInfo.locationPlaceholder"
                         )}
@@ -410,38 +470,6 @@ export default function ProfilePage() {
                         : t("profile.security.updatePassword")}
                     </Button>
                   </form>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value={t("profile.tabs.preferences")}>
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("profile.preferences.title")}</CardTitle>
-                  <CardDescription>
-                    {t("profile.preferences.description")}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium">
-                      {t("profile.preferences.notifications")}
-                    </h3>
-                    <div className="space-y-4">
-                      {/* Add notification preferences here */}
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium">
-                      {t("profile.preferences.display")}
-                    </h3>
-                    <div className="space-y-4">
-                      {/* Add display preferences here */}
-                    </div>
-                  </div>
-
-                  <Button>{t("profile.preferences.savePreferences")}</Button>
                 </CardContent>
               </Card>
             </TabsContent>

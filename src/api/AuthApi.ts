@@ -91,6 +91,7 @@ export const authAPI = baseApi.injectEndpoints({
                     preferredLanguageId: user.preferredLanguageId,
                     languageCode: user.languageCode,
                     courseTitle: "chooseCourse",
+                    vipUser: user.vipUser || false,
                   },
                   accessToken: loginData.result.accessToken,
                 })

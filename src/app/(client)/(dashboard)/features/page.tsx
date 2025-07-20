@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/card";
 import { useTranslations } from "next-intl";
 import { useTheme } from "@/contexts/ThemeContext";
+import Link from "next/link";
 
 export default function FeaturesPage() {
   const { isDarkMode } = useTheme();
@@ -84,7 +85,7 @@ export default function FeaturesPage() {
           {t("hero.readySub")}
         </p>
         <Button size="lg" className="gap-2 group">
-          {t("hero.cta")}
+          <Link href="/register">{t("hero.cta")}</Link>
           <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
         </Button>
       </div>

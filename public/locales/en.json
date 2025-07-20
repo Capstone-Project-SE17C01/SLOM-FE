@@ -27,7 +27,6 @@
     "search": "Search",
     "notifications": "Notifications",
     "profile": "Profile",
-    "settings": "Settings",
     "logout": "Logout",
     "signIn": "Sign In",
     "home": "Home",
@@ -106,51 +105,39 @@
     }
   },
   "pricing": {
-    "title": "Pricing Plans",
-    "description": "Choose the plan that best fits your sign language learning or teaching needs",
-    "note": "All plans include a 14-day free trial. No credit card required to start.",
-    "contact": "Need a custom solution for your organization?",
-    "contactLink": "Contact Us",
-    "mostPopular": "Most Popular",
-    "annual": "Annual",
+    "title": "Choose Your Plan",
+    "description": "Select the plan that best fits your needs.",
+    "monthly": "Monthly",
+    "annual": "Yearly",
     "month": "/month",
     "year": "/year",
-    "monthly": "Monthly",
-    "buttonText": "Get Started",
     "save": "Save",
-    "individualLearner": {
-      "title": "Individual Learner",
-      "descriptionPlan": "Perfect for independent sign language learners",
+    "mostPopular": "Most Popular",
+    "buttonText": "Get Started",
+    "currentPlan": "Current Plan",
+    "note": "You can cancel your subscription at any time.",
+    "contact": "Need help?",
+    "contactLink": "Contact us",
+    "free": {
+      "title": "Free",
+      "descriptionPlan": "Basic access for individuals who want to try our service.",
       "features": {
-        "feature1": "Access to all sign language lessons",
-        "feature2": "Join up to 5 group sessions per month",
-        "feature3": "HD video quality",
-        "feature4": "Basic learning materials"
+        "feature1": "Meeting duration: 30 minutes per session",
+        "feature2": "Meeting creation: 3 times per day",
+        "feature3": "No permission to record, store, or summarize meetings",
+        "feature4": "Translator: Upload up to 5 files per day",
+        "feature5": "Translator: No real-time camera usage"
       }
     },
-    "professionalEducator": {
-      "title": "Professional Educator",
-      "descriptionPlan": "For sign language teachers and tutors",
+    "pro": {
+      "title": "Pro",
+      "descriptionPlan": "Unlimited access for professionals and teams.",
       "features": {
-        "feature1": "Create and host unlimited classes",
-        "feature2": "Advanced teaching tools",
-        "feature3": "Student progress tracking",
-        "feature4": "Comprehensive resource library",
-        "feature5": "Premium video quality",
-        "feature6": "Recording and playback"
-      }
-    },
-    "institution": {
-      "title": "Institution",
-      "descriptionPlan": "For schools and organizations",
-      "features": {
-        "feature1": "Multiple educator accounts",
-        "feature2": "Administrative dashboard",
-        "feature3": "Custom branding options",
-        "feature4": "API access for integration",
-        "feature5": "Priority support",
-        "feature6": "Advanced analytics",
-        "feature7": "Enterprise-grade security"
+        "feature1": "Meeting duration: Unlimited",
+        "feature2": "Meeting creation: Unlimited",
+        "feature3": "Can record, store, and summarize meetings",
+        "feature4": "Translator: Unlimited file uploads",
+        "feature5": "Translator: Real-time camera supported"
       }
     }
   },
@@ -430,7 +417,8 @@
       "bioPlaceholder": "Tell us about yourself",
       "location": "Location",
       "locationPlaceholder": "City, Country",
-      "saveChanges": "Save Changes"
+      "saveChanges": "Save Changes",
+      "updateSuccess": "Profile updated successfully!"
     },
     "security": {
       "title": "Security",

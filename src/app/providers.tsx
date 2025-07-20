@@ -14,14 +14,10 @@ export interface ProvidersProps {
 }
 
 export function Providers({ children, locale, messages }: ProvidersProps) {
-  // Thêm effect để đồng bộ class dark vào thẻ html
   React.useEffect(() => {
     const updateDarkClass = () => {
-      // Ưu tiên lấy từ localStorage, fallback theo hệ thống
       const theme = localStorage.getItem("theme");
-      const isDark =
-        theme === "dark" ||
-        (!theme && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      const isDark = theme === "dark";
       document.documentElement.classList.toggle("dark", isDark);
     };
     updateDarkClass();

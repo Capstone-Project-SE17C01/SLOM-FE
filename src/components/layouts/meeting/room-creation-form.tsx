@@ -8,6 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { RoomCreationModalProps } from '../../../types/IMeeting';
+import { useSelector } from "react-redux";
+import { useGetScheduledMeetingsByDateQuery } from "@/api/MeetingApi";
+import dayjs from "dayjs";
+import { RootState } from '@/middleware/store';
 
 export const RoomCreationModal: React.FC<RoomCreationModalProps> = ({
   show,
@@ -21,16 +25,38 @@ export const RoomCreationModal: React.FC<RoomCreationModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+  const isVip = userInfo?.vipUser === true;
+
+  const today = dayjs().format("YYYY-MM-DD");
+  const { data: meetingsToday } = useGetScheduledMeetingsByDateQuery(
+    { date: today, userId: userInfo?.id },
+    { skip: !userInfo?.id }
+  );
+  const meetingCount = meetingsToday?.length || 0;
+
+  const isFreeUserLimitReached = !isVip && meetingCount >= 3;
+
   if (!show) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (!isVip) {
+      if (duration > 30) {
+        setError("Free accounts can only create rooms up to 30 minutes.");
+        return;
+      }
+      if (meetingCount >= 3) {
+        setError("You have reached the daily limit of 3 room creations for free accounts.");
+        return;
+      }
+    }
+
     setIsLoading(true);
-    
     try {
       await onCreateRoom(roomName, description, duration);
-      
       setRoomName('');
       setDescription('');
       setDuration(30);
@@ -50,10 +76,10 @@ export const RoomCreationModal: React.FC<RoomCreationModalProps> = ({
         <CardHeader className="relative pb-2">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Create Room</h3>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={onClose} 
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
               className="absolute right-2 top-2"
             >
               <X className="h-4 w-4" />
@@ -101,20 +127,23 @@ export const RoomCreationModal: React.FC<RoomCreationModalProps> = ({
                     "w-full p-2 border rounded",
                     isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"
                   )}
+                  disabled={isFreeUserLimitReached}
                 >
-                  <option value="15">15 mins</option>
-                  <option value="30">30 mins</option>
-                  <option value="45">45 mins</option>
-                  <option value="60">1 hour</option>
-                  <option value="90">1.5 hours</option>
-                  <option value="120">2 hours</option>
-                  <option value="180">3 hours</option>
-                  <option value="240">4 hours</option>
-                  <option value="480">8 hours</option>
+                  <option value="15">15 phút</option>
+                  <option value="30">30 phút</option>
+                  <option value="45" disabled={!isVip}>45 phút</option>
+                  <option value="60" disabled={!isVip}>1 giờ</option>
+                  <option value="90" disabled={!isVip}>1.5 giờ</option>
+                  <option value="120" disabled={!isVip}>2 giờ</option>
+                  <option value="180" disabled={!isVip}>3 giờ</option>
+                  <option value="240" disabled={!isVip}>4 giờ</option>
+                  <option value="480" disabled={!isVip}>8 giờ</option>
                 </select>
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Meeting will automatically end after the selected duration
+                {isVip
+                  ? "Phòng họp sẽ tự động kết thúc sau thời lượng đã chọn."
+                  : "Tài khoản miễn phí chỉ được tạo phòng tối đa 30 phút/lần, tối đa 3 lần/ngày."}
               </p>
             </div>
             <div className="pt-4">
@@ -123,12 +152,16 @@ export const RoomCreationModal: React.FC<RoomCreationModalProps> = ({
                   {error}
                 </div>
               )}
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full bg-[#6947A8] hover:bg-[#5a3c96] text-white"
-                disabled={isLoading}
+                disabled={isLoading || isFreeUserLimitReached}
               >
-                {isLoading ? 'Creating...' : 'Create Room'}
+                {isLoading
+                  ? 'Đang tạo...'
+                  : isFreeUserLimitReached
+                    ? 'Đã đạt giới hạn/ngày'
+                    : 'Tạo phòng'}
               </Button>
             </div>
           </form>

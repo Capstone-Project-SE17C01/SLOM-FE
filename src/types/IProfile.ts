@@ -20,3 +20,13 @@ export interface ReportType {
   id: string;
   name: string;
 }
+
+export interface IProfile {
+  id: string;
+  userName: string;
+  email: string;
+  bio?: string;
+  location?: string;
+  avatarUrl?: string;
+  vipUser?: boolean;
+}

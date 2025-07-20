@@ -36,8 +36,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-.windsurfrules
-
+.env
 
 # ignore lock file
 package-lock.json
