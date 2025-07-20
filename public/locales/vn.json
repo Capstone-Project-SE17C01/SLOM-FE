@@ -3,7 +3,6 @@
     "search": "Tìm kiếm",
     "notifications": "Thông báo",
     "profile": "Hồ sơ",
-    "settings": "Cài đặt",
     "logout": "Đăng xuất",
     "signIn": "Đăng nhập",
     "home": "Trang chủ",
@@ -36,41 +35,29 @@
     "monthly": "Hàng tháng",
     "buttonText": "Bắt đầu",
     "save": "Tiết kiệm",
-    "individualLearner": {
-      "title": "Học viên cá nhân",
-      "descriptionPlan": "Phù hợp cho người tự học ngôn ngữ ký hiệu",
-      "features": {
-        "feature1": "Truy cập tất cả bài học ngôn ngữ ký hiệu",
-        "feature2": "Tham gia tối đa 5 buổi nhóm mỗi tháng",
-        "feature3": "Chất lượng video HD",
-        "feature4": "Tài liệu học cơ bản"
-      }
-    },
-    "professionalEducator": {
-      "title": "Giáo viên chuyên nghiệp",
-      "descriptionPlan": "Dành cho giáo viên và gia sư ngôn ngữ ký hiệu",
-      "features": {
-        "feature1": "Tạo và tổ chức lớp học không giới hạn",
-        "feature2": "Công cụ giảng dạy nâng cao",
-        "feature3": "Theo dõi tiến độ học viên",
-        "feature4": "Thư viện tài nguyên toàn diện",
-        "feature5": "Chất lượng video cao cấp",
-        "feature6": "Ghi hình và phát lại"
-      }
-    },
-    "institution": {
-      "title": "Tổ chức/Trường học",
-      "descriptionPlan": "Dành cho trường học và tổ chức",
-      "features": {
-        "feature1": "Nhiều tài khoản giáo viên",
-        "feature2": "Bảng điều khiển quản trị",
-        "feature3": "Tùy chỉnh thương hiệu",
-        "feature4": "API tích hợp",
-        "feature5": "Hỗ trợ ưu tiên",
-        "feature6": "Phân tích nâng cao",
-        "feature7": "Bảo mật cấp doanh nghiệp"
-      }
-    }
+    "currentPlan": "Gói hiện tại",
+    "free": {
+       "title": "Miễn phí",
+       "descriptionPlan": "Truy cập cơ bản cho cá nhân muốn trải nghiệm dịch vụ.",
+       "features": {
+         "feature1": "Thời lượng họp: 30 phút/lượt",
+         "feature2": "Tạo phòng: 3 lượt/ngày",
+         "feature3": "Được ghi hình, lưu trữ và tóm tắt cuộc họp",
+         "feature4": "Dịch thuật: Tải lên tối đa 5 file/ngày",
+         "feature5": "Dịch thuật: Không dùng camera thời gian thực"
+       }
+     },
+     "pro": {
+       "title": "Pro",
+       "descriptionPlan": "Truy cập không giới hạn cho chuyên gia và nhóm.",
+       "features": {
+         "feature1": "Thời lượng họp: Không giới hạn",
+         "feature2": "Tạo phòng: Không giới hạn",
+         "feature3": "Không được ghi hình, lưu trữ và tóm tắt cuộc họp",
+         "feature4": "Dịch thuật: Tải lên không giới hạn",
+         "feature5": "Dịch thuật: Dùng được camera thời gian thực"
+       }
+     }
   },
   "home": {
     "hero": {

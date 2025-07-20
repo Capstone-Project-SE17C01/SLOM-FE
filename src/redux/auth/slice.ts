@@ -21,6 +21,7 @@ interface AuthSliceInterface {
     courseId?: string;
     languageCode?: string;
     courseTitle?: string;
+    vipUser?: boolean;
   } | null;
   access_token: string | null;
 }

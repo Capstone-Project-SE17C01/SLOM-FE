@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
-import { Menu, X, LogOut, Settings, UserCircle } from "lucide-react";
+import { Menu, X, LogOut, UserCircle } from "lucide-react";
 import { cn } from "@/utils/cn";
 import ThemeSwitcher from "./theme-switcher";
 import LanguageSwitcher from "./language-switcher";
@@ -138,10 +138,6 @@ export default function Header({
                       <span>Profile</span>
                     </DropdownMenuItem>
                   </Link>
-                  <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
-                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild className="text-destructive">
                     <button

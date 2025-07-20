@@ -19,10 +19,15 @@ export default function ThemeSwitcher({
       onClick={toggleDarkMode}
       className={cn(
         "p-2 rounded-full",
-        isDarkMode ? "hover:bg-white/10" : "hover:bg-black/5"
       )}
     >
-      {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+      <span className="flex items-center justify-center h-9 w-9 rounded-full bg-white/90 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 shadow-inner transition-all duration-300">
+        {isDarkMode ? (
+          <Sun className="h-5 w-5 text-yellow-500 transition-all duration-300" />
+        ) : (
+          <Moon className="h-5 w-5 text-blue-500 transition-all duration-300" />
+        )}
+      </span>
     </button>
   );
 }

@@ -117,7 +117,7 @@ export function LoginForm() {
         <Card className="w-full max-w-[400px] sm:min-w-[400px] bg-white/90 dark:bg-neutral-900/95 backdrop-blur-sm max-h-screen overflow-auto">
           <CardContent className="pt-6 px-4 sm:px-6">
             <h1 className="text-center text-xl sm:text-2xl font-normal mb-6 dark:text-neutral-100">
-              {t_login("title")} <span className="text-primary">SLOM!</span>
+              {t_login("title")} <Link href="/" className="text-primary">SLOM!</Link>
             </h1>
             <form onSubmit={handleEmailLogin} className="flex flex-col gap-4">
               <div className="grid gap-2">

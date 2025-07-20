@@ -25,7 +25,7 @@ export default function MeetingRoomPage() {
   const router = useRouter();
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const { copyToClipboard, isCopying } = useClipboard();
-  
+
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
@@ -47,6 +47,15 @@ export default function MeetingRoomPage() {
   const [createMeeting] = useCreateMeetingMutation();
   const [deleteMeeting, { isLoading: isDeleting }] = useDeleteMeetingMutation();
   const [updateMeeting, { isLoading: isUpdating }] = useUpdateMeetingMutation();
+
+  const todayStr = new Date().toISOString().split("T")[0];
+  const meetingsToday = monthMeetings.filter(
+    (meeting) => new Date(meeting.startTime).toISOString().split("T")[0] === todayStr
+  );
+  const meetingCountToday = meetingsToday.length;
+  const isVip = !!userInfo?.vipUser;
+  const isFreeUserLimitReached = !isVip && meetingCountToday >= 3;
+  const freeUserLimitReason = "Free accounts can create up to 3 rooms per day, each room up to 30 minutes. Upgrade for unlimited usage.";
 
   const formattedActiveMeetings = activeMeetings.map((meeting) => ({
     id: meeting.id,
@@ -187,7 +196,7 @@ export default function MeetingRoomPage() {
     const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay();
     const firstDay = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
     const calendarDays = [];
-    
+
     for (let i = 0; i < firstDay; i++) calendarDays.push(null);
     for (let day = 1; day <= daysInMonth; day++) {
       calendarDays.push(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day));
@@ -201,7 +210,7 @@ export default function MeetingRoomPage() {
           const hasMeetings = monthMeetings.some((meeting) => new Date(meeting.startTime).toISOString().split("T")[0] === formattedDate);
           const isSelected = selectedDate?.toDateString() === day.toDateString();
           const isToday = new Date().toDateString() === day.toDateString();
-          
+
           return (
             <div key={day.getTime()} onClick={() => handleDateSelection(day)} className={cn("h-8 flex items-center justify-center rounded-full text-xs cursor-pointer relative", isSelected ? "bg-[#6947A8] text-white" : isToday ? "border border-[#6947A8] text-[#6947A8]" : isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100")}>
               {day.getDate()}
@@ -225,8 +234,31 @@ export default function MeetingRoomPage() {
       <div className="flex flex-col md:flex-row gap-8">
         <div className="md:w-80 flex-shrink-0">
           <h2 className="text-2xl font-bold mb-4">Meeting Room</h2>
+          {!isVip && (
+            <div className={cn(
+              "mb-4 p-3 rounded bg-yellow-50 border border-yellow-300 text-yellow-800 text-sm",
+              isDarkMode ? "bg-yellow-900/20 border-yellow-700 text-yellow-200" : ""
+            )}>
+              {isFreeUserLimitReached ? (
+                <>
+                  <span className="font-bold">You have reached your daily usage limit.</span><br />
+                  {freeUserLimitReason}
+                </>
+              ) : (
+                <>Free account: Up to 3 room creations per day, each room up to 30 minutes. Upgrade for unlimited usage.</>
+              )}
+            </div>
+          )}
           <div className="space-y-6">
-            <MeetingRoomActions onStartMeeting={() => setShowCreateModal(true)} onJoinMeeting={() => setShowJoinModal(true)} onScheduleMeeting={() => setShowScheduleModal(true)} />
+            <MeetingRoomActions
+              onStartMeeting={() => setShowCreateModal(true)}
+              onJoinMeeting={() => setShowJoinModal(true)}
+              onScheduleMeeting={() => setShowScheduleModal(true)}
+              disableStart={isFreeUserLimitReached}
+              disableJoin={isFreeUserLimitReached}
+              disableSchedule={isFreeUserLimitReached}
+              disableReason={isFreeUserLimitReached ? freeUserLimitReason : ""}
+            />
             <div className={cn("p-4 rounded-lg border", isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200")}>
               <h3 className="font-medium mb-3">Meeting Appointment</h3>
               <div className="mb-3 flex space-x-2">
@@ -267,7 +299,9 @@ export default function MeetingRoomPage() {
             <TabsList className="mb-4">
               <TabsTrigger value="available">Available Rooms</TabsTrigger>
               <TabsTrigger value="upcoming">Upcoming Meetings</TabsTrigger>
-              <TabsTrigger value="recorded">Recorded Sessions</TabsTrigger>
+              {isVip && (
+                <TabsTrigger value="recorded">Recorded Sessions</TabsTrigger>
+              )}
             </TabsList>
             <TabsContent value="available">
               {isLoadingMeetings ? (

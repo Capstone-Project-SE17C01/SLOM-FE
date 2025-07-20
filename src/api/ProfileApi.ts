@@ -1,7 +1,7 @@
 "use client";
 
 import { baseApi } from "@/services";
-import { CreateReportRequestDTO, HistoryPaymentDTO, ReportType } from "../types/IProfile";
+import { CreateReportRequestDTO, HistoryPaymentDTO, IProfile, ReportType } from "../types/IProfile";
 import { APIResponse } from "../types/IAuth";
 
 export const profileAPI = baseApi.injectEndpoints({
@@ -29,6 +29,19 @@ export const profileAPI = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    getProfile: build.query<APIResponse<IProfile>, string>({
+      query: (email) => ({
+        url: `/api/Profile?email=${email}`,
+        method: "GET",
+      }),
+    }),
+    updateProfile: build.mutation<APIResponse<void>, IProfile>({
+      query: (data) => ({
+        url: `/api/Profile`,
+        method: "PUT",
+        body: data
+      }),
+    }),
   }),
 });
 
@@ -36,4 +49,6 @@ export const {
   useGetHistoryPaymentMutation,
   useReportPaymentMutation,
   useGetReportTypeMutation,
+  useUpdateProfileMutation,
+  useGetProfileQuery,
 } = profileAPI;

@@ -26,47 +26,47 @@ function ZegoMeetingTimerDisplay({ roomId, onExpired }: { roomId: string; onExpi
       const endTime = new Date(meeting.endTime).getTime();
       const now = new Date().getTime();
       const timeLeft = Math.max(0, Math.floor((endTime - now) / 1000));
-      
+
       setTimeRemaining(timeLeft);
       setIsLoading(false);
-      
+
       if (timeLeft <= 0 || meeting.status === 'Ended') {
         setIsExpired(true);
         if (onExpired) onExpired();
       }
-      
+
       const interval = setInterval(() => {
         const now = new Date().getTime();
         const timeLeft = Math.max(0, Math.floor((endTime - now) / 1000));
-        
+
         setTimeRemaining(timeLeft);
-        
+
         if (timeLeft <= 0) {
           setIsExpired(true);
           if (onExpired) onExpired();
           clearInterval(interval);
         }
       }, 1000);
-      
+
       return () => clearInterval(interval);
     } else if (meeting) {
       setIsLoading(false);
       setTimeRemaining(null);
     }
   }, [meeting, onExpired]);
-  
+
   const formatTimeDisplay = () => {
     if (timeRemaining === null) return "--:--:--";
-    
+
     const hours = Math.floor(timeRemaining / 3600);
     const minutes = Math.floor((timeRemaining % 3600) / 60);
     const seconds = timeRemaining % 60;
-    
+
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
-  
+
   const isCloseToExpire = timeRemaining !== null && timeRemaining < 300;
-  
+
   if (isLoading) {
     return (
       <div className="text-sm text-gray-200 animate-pulse flex items-center gap-1.5">
@@ -75,7 +75,7 @@ function ZegoMeetingTimerDisplay({ roomId, onExpired }: { roomId: string; onExpi
       </div>
     );
   }
-  
+
   if (isExpired) {
     return (
       <div className="flex items-center gap-2">
@@ -86,12 +86,12 @@ function ZegoMeetingTimerDisplay({ roomId, onExpired }: { roomId: string; onExpi
       </div>
     );
   }
-  
+
   return (
     <div className={cn(
       "flex items-center gap-1.5 text-sm font-medium",
-      isCloseToExpire 
-        ? "text-red-300" 
+      isCloseToExpire
+        ? "text-red-300"
         : "text-gray-200"
     )}>
       {isCloseToExpire ? (
@@ -107,14 +107,14 @@ function ZegoMeetingTimerDisplay({ roomId, onExpired }: { roomId: string; onExpi
 export default function MeetingPage() {
   const router = useRouter();
   const { userInfo } = useSelector((state: RootState) => state.auth);
-  
+
   // Meeting states
   const [roomID, setRoomID] = React.useState("");
   const [hasJoinedRoom, setHasJoinedRoom] = React.useState(false);
   const [meetingExpired, setMeetingExpired] = React.useState(false);
   const [signLanguageVisible, setSignLanguageVisible] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement | null>(null);
-  
+
   // Speech-to-text states
   const [speechLang, setSpeechLang] = React.useState<"vi-VN" | "en-US">("vi-VN");
   const subscriptionKey = process.env.NEXT_PUBLIC_AZURE_SPEECH_KEY || "";
@@ -122,7 +122,7 @@ export default function MeetingPage() {
   const translatorKey = process.env.NEXT_PUBLIC_AZURE_TRANSLATOR_KEY || "";
   const fromLang = speechLang === "vi-VN" ? "en-US" : "vi-VN";
   const toLang = speechLang === "vi-VN" ? "vi" : "en";
-  
+
   // API hooks
   const [leaveMeeting] = useLeaveMeetingMutation();
   const [addRecording] = useAddRecordingMutation();
@@ -182,7 +182,7 @@ export default function MeetingPage() {
       const endTime = new Date(meetingData.endTime).getTime();
       const now = new Date().getTime();
       const timeLeft = Math.max(0, Math.floor((endTime - now) / 1000));
-      
+
       if (timeLeft <= 0 || meetingData.status === 'Ended') {
         setMeetingExpired(true);
       }
@@ -236,7 +236,7 @@ export default function MeetingPage() {
         ref={containerRef}
         style={{ height: "100vh", width: "100vw" }}
       />
-      
+
       {/* Main control bar */}
       {hasJoinedRoom && !meetingExpired && roomID && (
         <div className="fixed bottom-3 left-5 z-[999] flex items-center gap-4 bg-opacity-80 bg-gray-900 dark:bg-gray-800 py-2 px-4 rounded-full shadow-lg">
@@ -245,71 +245,75 @@ export default function MeetingPage() {
               <span className="font-medium">{meetingData.title}</span>
             </div>
           )}
-          
+
           <ZegoMeetingTimerDisplay
             roomId={roomID}
             onExpired={() => setMeetingExpired(true)}
           />
 
-          <div className="h-8 w-[1px] bg-gray-500 dark:bg-gray-600 mx-1" />
+          {userInfo?.vipUser && (
+            <>
+              <div className="h-8 w-[1px] bg-gray-500 dark:bg-gray-600 mx-1" />
 
-          <button
-            onClick={isRecording ? stopRecording : startRecording}
-            className={cn(
-              "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all font-medium text-sm",
-              isRecording ? "bg-red-500 text-white hover:bg-red-600" : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-            )}
-          >
-            {isRecording ? (
-              <>
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-300 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-red-400" />
-                </span>
-                <Square className="w-3.5 h-3.5" />
-                <span>Stop</span>
-              </>
-            ) : (
-              <>
-                <Mic className="w-3.5 h-3.5" />
-                <span>Record</span>
-              </>
-            )}
-          </button>
+              <button
+                onClick={isRecording ? stopRecording : startRecording}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all font-medium text-sm",
+                  isRecording ? "bg-red-500 text-white hover:bg-red-600" : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                )}
+              >
+                {isRecording ? (
+                  <>
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-300 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-400" />
+                    </span>
+                    <Square className="w-3.5 h-3.5" />
+                    <span>Stop</span>
+                  </>
+                ) : (
+                  <>
+                    <Mic className="w-3.5 h-3.5" />
+                    <span>Record</span>
+                  </>
+                )}
+              </button>
 
-          <div className="h-8 w-[1px] bg-gray-500 dark:bg-gray-600 mx-1" />
+              <div className="h-8 w-[1px] bg-gray-500 dark:bg-gray-600 mx-1" />
 
-          <button
-            onClick={signLanguageRecognition.toggleRecognition}
-            className={cn(
-              "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all font-medium text-sm",
-              signLanguageRecognition.isActive
-                ? "bg-green-500 text-white hover:bg-green-600"
-                : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-            )}
-          >
-            {signLanguageRecognition.isActive ? (
-              <>
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
-                </span>
-                <Languages className="w-3.5 h-3.5" />
-                <span>Sign AI</span>
-              </>
-            ) : (
-              <>
-                <Languages className="w-3.5 h-3.5" />
-                <span>Sign AI</span>
-              </>
-            )}
-          </button>
+              <button
+                onClick={signLanguageRecognition.toggleRecognition}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all font-medium text-sm",
+                  signLanguageRecognition.isActive
+                    ? "bg-green-500 text-white hover:bg-green-600"
+                    : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                )}
+              >
+                {signLanguageRecognition.isActive ? (
+                  <>
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
+                    </span>
+                    <Languages className="w-3.5 h-3.5" />
+                    <span>Sign AI</span>
+                  </>
+                ) : (
+                  <>
+                    <Languages className="w-3.5 h-3.5" />
+                    <span>Sign AI</span>
+                  </>
+                )}
+              </button>
+            </>
+          )}
         </div>
       )}
 
       {/* Speech-to-text control bar */}
-      {hasJoinedRoom && !meetingExpired && roomID && (
-        <div className="fixed bottom-3 right-5 z-[999] bg-opacity-80 bg-gray-900 dark:bg-gray-800 py-2 px-4 rounded-full shadow-lg flex items-center gap-2">
+      {hasJoinedRoom && !meetingExpired && roomID && userInfo?.vipUser && (
+        <div className="fixed bottom-3 right-0 mr-[220px] z-[999] bg-opacity-80 bg-gray-900 dark:bg-gray-800 py-2 px-4 rounded-full shadow-lg flex items-center gap-2">
           <select
             value={speechLang}
             onChange={e => setSpeechLang(e.target.value as "vi-VN" | "en-US")}
@@ -332,7 +336,7 @@ export default function MeetingPage() {
       )}
 
       {/* Speech-to-text transcript display */}
-      {hasJoinedRoom && !meetingExpired && roomID && transcript && (
+      {hasJoinedRoom && !meetingExpired && roomID && transcript && userInfo?.vipUser && (
         <div className="fixed bottom-20 left-5 right-5 z-[997] max-w-2xl mx-auto">
           <div className="bg-black/80 text-white p-4 rounded-lg backdrop-blur-sm">
             <div className="flex items-center gap-2 mb-2">
@@ -364,7 +368,7 @@ export default function MeetingPage() {
             isVisible={signLanguageVisible}
             onToggleVisibility={() => setSignLanguageVisible(!signLanguageVisible)}
           />
-          
+
           <SignLanguageToggleButton
             isVisible={signLanguageVisible}
             onToggle={() => setSignLanguageVisible(true)}

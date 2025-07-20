@@ -39,7 +39,6 @@ export default function LanguageSwitcher() {
         .unwrap()
         .then((res) => {
           if (res.result) {
-            //set locale to cookie
             Cookies.set(constants.LOCALE, res.result.languageCode);
             router.refresh();
           }
@@ -48,12 +47,10 @@ export default function LanguageSwitcher() {
           console.error(err);
         });
     } else {
-      // Refresh page to apply new locale
       router.refresh();
       Cookies.set(constants.LOCALE, newLocale);
     }
   };
-  //spinner
   if (isLoading) {
     return <Spinner />;
   }
@@ -68,6 +65,7 @@ export default function LanguageSwitcher() {
                 locale === "en" ? "/images/us-flag.png" : "/images/vn-flag.png"
               }
               alt={locale === "en" ? "US Flag" : "VN Flag"}
+              style={{ objectFit: "cover" }}
             />
           </Avatar>
         </Button>
@@ -85,6 +83,7 @@ export default function LanguageSwitcher() {
                   lang === "en" ? "/images/us-flag.png" : "/images/vn-flag.png"
                 }
                 alt={lang === "en" ? "US Flag" : "VN Flag"}
+                style={{ objectFit: "cover" }}
               />
             </Avatar>
             {t(`language.${lang}`)}
