@@ -59,7 +59,10 @@ export const QaAPI = baseApi.injectEndpoints({
 
 export const {
   usePostQuestionMutation,
+<<<<<<< HEAD
   useGetQuestionMutation,
   usePostAnswerMutation,
   useGetAnswerMutation
+=======
+>>>>>>> 9c5bfef731e321fcdb05c3b058b11a5d4f30295c
 } = QaAPI;
