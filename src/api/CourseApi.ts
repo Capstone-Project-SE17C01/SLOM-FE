@@ -96,7 +96,7 @@ export const courseAPI = baseApi.injectEndpoints({
 
     getListQuizByLessonId: build.mutation<APIResponse<Quiz[]>, string>({
       query: (lessonId: string) => ({
-        url: `/api/Lesson/GetListQuizLesson?lessonId=${lessonId}`,
+        url: `/api/Quiz/GetListQuizLesson?lessonId=${lessonId}`,
         method: "GET",
         flashError: false,
       }),
