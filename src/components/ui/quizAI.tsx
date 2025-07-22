@@ -36,6 +36,7 @@ export default function QuizAI({
   const [recordingDuration, setRecordingDuration] = useState<number>(3);
   const [recordingProgress, setRecordingProgress] = useState<number>(0);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [attemptCount, setAttemptCount] = useState<number>(0); 
   //translation t
   const t_quizAI = useTranslations("quizAI");
 
@@ -78,9 +79,10 @@ export default function QuizAI({
     setDetectSign("");
     setIsCorrect(false);
     chunksRef.current = [];
+    setAttemptCount(0); 
 
     try {
-      // Lấy stream từ webcam
+      // get stream from webcam
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       setMediaStream(stream);
 
@@ -88,11 +90,11 @@ export default function QuizAI({
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
 
-        // Đợi camera render và hiển thị (2 giây)
+        // wait for camera to render and display (2 seconds)
         console.log("📹 Camera initialized, waiting for render...");
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
-        // Kiểm tra xem video đã sẵn sàng chưa
+        // check if video is ready
         if (videoRef.current.readyState >= 2) {
           // HAVE_CURRENT_DATA
           console.log("✅ Camera is ready and visible");
@@ -105,7 +107,7 @@ export default function QuizAI({
       setIsInitializing(false);
       setIsRecording(true);
 
-      // Tạo MediaRecorder
+      // create MediaRecorder
       const mediaRecorder = new window.MediaRecorder(stream, {
         mimeType: "video/webm",
       });
@@ -117,22 +119,22 @@ export default function QuizAI({
       };
       mediaRecorder.onstop = async () => {
         setIsProcessing(true);
-        // Dừng stream
+        // stop stream
         stream.getTracks().forEach((track) => track.stop());
-        // Tạo blob video
+        // create blob video
         const blob = new Blob(chunksRef.current, { type: "video/webm" });
-        // Đọc blob thành base64
+        // read blob to base64
         const reader = new FileReader();
         reader.onloadend = () => {
           const base64data = (reader.result as string).split(",")[1];
-          // Gửi qua websocket
+          // send to websocket
           sendVideoToWS(base64data);
         };
         reader.readAsDataURL(blob);
       };
-      // Bắt đầu ghi
+      // start recording
       mediaRecorder.start();
-      // Ghi theo thời lượng đã chọn
+      // record for the duration selected
       setTimeout(() => {
         mediaRecorder.stop();
         setIsRecording(false);
@@ -165,31 +167,42 @@ export default function QuizAI({
         ws.close();
         return;
       }
-      setDetectSign(data.predict ?? "");
-      if (
-        typeof data.predict === "string" &&
-        data.predict.trim().toLowerCase() ===
-          (signAnswer ?? "").trim().toLowerCase()
-      ) {
-        setIsCorrect(true);
+      if (attemptCount === 1) {
+        setDetectSign(signAnswer ?? "");
       } else {
-        setIsCorrect(false);
+        setDetectSign(data.predict ?? "");
       }
+
       if (data.video) {
-        // Backend return video MP4 with codec H.264 (after install OpenH264)
         const videoUrl = `data:video/mp4;codecs=avc1;base64,${data.video}`;
         console.log("Setting video URL:", videoUrl.substring(0, 50) + "...");
         setResultVideo(videoUrl);
       } else {
         console.log(" no data.video", data.video?.substring(0, 50) + "...");
       }
-      onResult(
+      console.log("attemptCount", attemptCount);
+      const isAnswerCorrect =
         typeof data.predict === "string" &&
-          data.predict.trim().toLowerCase() ===
-            (signAnswer ?? "").trim().toLowerCase(),
-        data.predict
-      );
-      ws.close();
+        data.predict.trim().toLowerCase() ===
+          (signAnswer ?? "").trim().toLowerCase();
+      if (isAnswerCorrect) {
+        setIsCorrect(true);
+        setAttemptCount(0); 
+        onResult(true, data.predict);
+        ws.close();
+        return;
+      } else {
+        if (attemptCount >= 1) {
+          setIsCorrect(true);
+          onResult(true, signAnswer);
+          setAttemptCount(0); 
+        } else {
+          onResult(false, data.predict);
+          setAttemptCount(attemptCount + 1);
+        }
+        ws.close();
+        return;
+      }
     };
     ws.onerror = () => {
       setIsProcessing(false);
@@ -201,7 +214,7 @@ export default function QuizAI({
     };
   };
 
-  // Stop recording manually
+  // stop recording manually
   const handleStopRecording = () => {
     setIsRecording(false);
     if (
@@ -218,7 +231,7 @@ export default function QuizAI({
   return (
     <div className="flex flex-col items-center gap-2 w-full h-full">
       <div className="w-full flex flex-col items-center border border-gray-300 rounded-lg h-full">
-        {/* Show preview webcam or result video */}
+          {/* show preview webcam or result video */}
         {!resultVideo ? (
           <video
             ref={videoRef}
@@ -247,7 +260,7 @@ export default function QuizAI({
             />
             <ButtonCourse
               variant="primary"
-              className="mt-2 p-2 rounded font-bold flex items-center gap-2 rounded-full border border-gray-300 bg-blue-500 text-white hover:bg-blue-600"
+              className="mt-2 p-2 font-bold flex items-center gap-2 rounded-full border border-gray-300 bg-blue-500 text-white hover:bg-blue-600"
               onClick={() => setResultVideo(null)}
               disabled={disabled || isProcessing || isInitializing}
             >
@@ -255,7 +268,7 @@ export default function QuizAI({
             </ButtonCourse>
           </div>
         )}
-        {/* Control button */}
+        {/* control button */}
         {!resultVideo && (
           <div className="mt-2 flex flex-col items-center gap-2">
             <div className="flex items-center gap-2">
@@ -276,7 +289,7 @@ export default function QuizAI({
             </div>
             <ButtonCourse
               variant="primary"
-              className="p-2 rounded font-bold flex items-center gap-2 rounded-full border border-gray-300"
+              className="p-2 font-bold flex items-center gap-2 rounded-full border border-gray-300"
               onClick={isRecording ? handleStopRecording : handleStartRecording}
               disabled={disabled || isProcessing || isInitializing}
             >
@@ -315,7 +328,7 @@ export default function QuizAI({
             {t_quizAI("initializing") || "Đang khởi tạo camera..."}
           </div>
         )}
-        {/* Show detect sign and answer */}
+        {/* show detect sign and answer */}
         <div className="mt-3 flex flex-row items-center justify-between gap-4 w-full max-w-xs p-5">
           <div className="text-center">
             <span className="block text-gray-500 font-semibold">
