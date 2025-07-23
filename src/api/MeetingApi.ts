@@ -155,6 +155,28 @@ export const meetingApi = baseApi.injectEndpoints({
         body: request,
         flashError: true,
       }),
+    }),
+
+    getActiveMeeting: builder.query<Meeting, void>({
+      query: () => ({
+        url: 'api/meeting/MeetingActive',
+        method: 'GET',
+        flashError: false,
+      }),
+    }),
+    getScheduledMeeting: builder.query<Meeting, void>({
+      query: () => ({
+        url: 'api/meeting/MeetingScheduled',
+        method: 'GET',
+        flashError: false,
+      }),
+    }),
+    getMeetingRecord: builder.query<Meeting, void>({
+      query: () => ({
+        url: 'api/meeting/MeetingRecord',
+        method: 'GET',
+        flashError: false,
+      }),
     })
   }),
 });
@@ -170,5 +192,8 @@ export const {
   useDeleteMeetingMutation,
   useUpdateMeetingMutation,
   useSendMeetingInvitationMutation,
-  useCreateInvitationMutation
+  useCreateInvitationMutation,
+  useGetActiveMeetingQuery,
+  useGetScheduledMeetingQuery,
+  useGetMeetingRecordQuery
 } = meetingApi;

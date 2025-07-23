@@ -38,7 +38,7 @@ export const courseAPI = baseApi.injectEndpoints({
 
     getCourseById: build.mutation<APIResponse<Course>, string>({
       query: (id: string) => ({
-        url: `/api/Course/GetCourseById?id=${id}`,
+        url: `/api/Course/${id}`,
         method: "GET",
         flashError: false,
       }),
@@ -163,6 +163,23 @@ export const courseAPI = baseApi.injectEndpoints({
         flashError: false,
       }),
     }),
+
+    updateCourse: build.mutation<APIResponse<Course>, Partial<Course>>({
+      query: (courseDto) => ({
+        url: `api/course`,
+        method: "PUT",
+        body: courseDto,
+        flashError: false,
+      }),
+    }),
+
+    deleteCourse: build.mutation<APIResponse<string>, string>({
+      query: (id: string) => ({
+        url: `api/course/${id}`,
+        method: "DELETE",
+        flashError: false,
+      }),
+    }),
   }),
 });
 
@@ -183,4 +200,6 @@ export const {
   useMarkLessonAsLearnedMutation,
   useGetReminderMutation,
   useSetupReminderMutation,
+  useUpdateCourseMutation,
+  useDeleteCourseMutation,
 } = courseAPI;

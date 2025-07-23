@@ -109,7 +109,7 @@ const EntityModal: React.FC<EntityModalProps> = ({
                   required={field.required}
                   className="w-full border rounded px-3 py-2"
                 >
-                  <option value="">Chọn...</option>
+                  <option value="">Select...</option>
                   {field.options.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
@@ -121,9 +121,9 @@ const EntityModal: React.FC<EntityModalProps> = ({
           ))}
           <div className="flex justify-end space-x-2 mt-4">
             <Button type="button" variant="outline" onClick={onClose}>
-              Hủy
+              Cancel
             </Button>
-            <Button type="submit">Lưu</Button>
+            <Button type="submit">Save</Button>
           </div>
         </form>
       </div>

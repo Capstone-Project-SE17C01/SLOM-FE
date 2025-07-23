@@ -40,7 +40,6 @@ export default function ProfilePage() {
   const [historyPayment, setHistoryPayment] = useState<HistoryPaymentDTO[]>([]);
   const [activeTab, setActiveTab] = useState(t("profile.tabs.personal"));
 
-  // Thêm state cho profile
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [bio, setBio] = useState("");
@@ -52,7 +51,6 @@ export default function ProfilePage() {
   const [updateProfile] = useUpdateProfileMutation();
   const { data: profileData, refetch } = useGetUserProfileQuery(userInfo?.email, { skip: !userInfo?.email });
 
-  // Khi có profileData, tách userName thành firstName, lastName
   useEffect(() => {
     console.log("profileData", profileData);
     if (profileData?.result) {
