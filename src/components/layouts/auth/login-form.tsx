@@ -38,8 +38,10 @@ export function LoginForm() {
       .unwrap()
       .then((payload) => {
         if (payload.result) {
-          const { accessToken } = payload.result as LoginResponseDTO;
-          if (accessToken) {
+          const { accessToken, roleName } = payload.result as LoginResponseDTO;
+          if (accessToken && roleName == "ADMIN") {
+            router.push("/admin");
+          } else {
             router.push("/");
           }
         }

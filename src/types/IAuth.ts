@@ -52,6 +52,7 @@ export interface LoginResponseDTO {
   accessToken: string;
   refreshToken: string;
   userEmail?: string | null;
+  roleName?: string | null;
 }
 
 export interface MessageResponse {
