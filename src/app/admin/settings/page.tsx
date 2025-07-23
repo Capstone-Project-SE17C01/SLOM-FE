@@ -18,8 +18,7 @@ export default function SettingsPage() {
     maxFileSize: "10",
     sessionTimeout: "30",
   });
-
-  const handleSettingChange = (key: string, value: any) => {
+  const handleSettingChange = (key: string, value: string | boolean) => {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 

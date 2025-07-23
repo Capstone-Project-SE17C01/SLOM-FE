@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { cn } from "@/utils/cn";
 import { useTheme } from "@/contexts/ThemeContext";
-import AdminSidebar from "./admin-sidebar";
-import AdminHeader from "./admin-header";
+import AdminSidebar from "@/components/layouts/admin/admin-sidebar";
+import AdminHeader from "@/components/layouts/admin/admin-header";
 
 export default function AdminLayout({
   children,

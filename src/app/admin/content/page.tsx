@@ -157,29 +157,31 @@ export default function ContentPage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center">
-            <Video className="h-8 w-8 text-red-500" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Videos</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {content.filter(c => c.type === "video").length}
-              </p>
-            </div>
-          </div>
-        </div>
+                 <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+           <div className="flex items-center">
+             <Video className="h-8 w-8 text-red-500" />
+             <div className="ml-3">
+               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Videos</p>
+               <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                 {content.filter(c => c.type === "video").length}
+               </p>
+             </div>
+           </div>
+         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center">
-            <Image className="h-8 w-8 text-green-500" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Images</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {content.filter(c => c.type === "image").length}
-              </p>
-            </div>
-          </div>
-        </div>
+         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+           <div className="flex items-center">
+             <div className="h-8 w-8 bg-green-500 rounded flex items-center justify-center">
+               <span className="text-white text-xs">IMG</span>
+             </div>
+             <div className="ml-3">
+               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Images</p>
+               <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                 {content.filter(c => c.type === "image").length}
+               </p>
+             </div>
+           </div>
+         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center">
@@ -262,7 +264,9 @@ export default function ContentPage() {
 
       {/* Upload Area */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 p-8 text-center">
-        <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                 <div className="mx-auto mb-4">
+           <Upload className="h-12 w-12 text-gray-400" />
+         </div>
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
           Upload new content
         </h3>
