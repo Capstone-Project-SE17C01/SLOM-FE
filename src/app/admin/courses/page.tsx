@@ -5,13 +5,16 @@ import { Plus, Edit, Trash2, Book } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TableWithStatsCard from "@/components/layouts/admin/TableWithStatsCard";
 import { useRouter } from "next/navigation";
-import EntityModal, {
-  FieldConfig,
-} from "@/components/layouts/admin/EntityModal";
+import EntityModal, { FieldConfig } from "@/components/layouts/admin/EntityModal";
 import {
   useCreateCourseMutation,
   useGetListCourseMutation,
 } from "@/api/AdminApi";
+import {
+  useGetCourseByIdMutation,
+  useUpdateCourseMutation,
+  useDeleteCourseMutation,
+} from "@/api/CourseApi";
 import { Course } from "@/types/ICourse";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
@@ -26,18 +29,88 @@ export default function CoursePage() {
   const [modalFields, setModalFields] = useState<FieldConfig[]>([]);
   const [modalTitle, setModalTitle] = useState("");
 
-  // Config fields cho course
   const courseFields: FieldConfig[] = [
     { label: "Title", name: "title", type: "text", required: true },
     { label: "Description", name: "description", type: "textarea" },
     { label: "Thumbnail URL", name: "thumbnailUrl", type: "text" },
   ];
 
-  // API hooks
   const [getListCourse] = useGetListCourseMutation();
-  const [createCourse] = useCreateCourseMutation(); // Giả sử mutation này là createCourse
+  const [createCourse] = useCreateCourseMutation();
+  const [getCourseById] = useGetCourseByIdMutation();
+  const [updateCourse] = useUpdateCourseMutation();
+  const [deleteCourseApi] = useDeleteCourseMutation();
 
-  // Fetch courses
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [editCourse, setEditCourse] = useState<Course | null>(null);
+  const [deleteCourseId, setDeleteCourseId] = useState<string | null>(null);
+
+  const handleOpenEdit = async (courseId: string) => {
+    try {
+      const res = await getCourseById(courseId).unwrap();
+      setEditCourse(res.result);
+      setModalFields(
+        courseFields.map((f) => ({
+          ...f,
+          defaultValue: res.result?.[f.name as keyof Course] ?? "",
+        }))
+      );
+      setModalTitle("Edit Course");
+      setEditModalOpen(true);
+    } catch (error) {
+      toast.error(String(error));
+    }
+  };
+  const closeEditModal = () => setEditModalOpen(false);
+
+  const handleEditSubmit = async (values: Record<string, string>) => {
+    if (!editCourse) return;
+    await updateCourse({
+      ...editCourse,
+      title: values.title,
+      description: values.description,
+      thumbnailUrl: values.thumbnailUrl,
+      updatedAt: new Date().toISOString(),
+    })
+      .then((res) => {
+        if (res.data) {
+          toast.success("Update course successfully");
+        } else {
+          toast.error("Update course failed");
+        }
+        getAllCourse();
+      })
+      .catch(() => {
+        toast.error("Error updating course");
+      });
+    setEditModalOpen(false);
+  };
+
+  const handleOpenDelete = (courseId: string) => {
+    setDeleteCourseId(courseId);
+    setDeleteModalOpen(true);
+  };
+  const closeDeleteModal = () => setDeleteModalOpen(false);
+
+  const handleDeleteCourse = async () => {
+    if (!deleteCourseId) return;
+    await deleteCourseApi(deleteCourseId)
+      .then((res) => {
+        if (res.data) {
+          toast.success("Delete course successfully");
+        } else {
+          toast.error("Delete course failed");
+        }
+        getAllCourse();
+      })
+      .catch(() => {
+        toast.error("Error deleting course");
+      });
+    setDeleteModalOpen(false);
+    setDeleteCourseId(null);
+  };
+
   const getAllCourse = useCallback(async () => {
     await getListCourse()
       .unwrap()
@@ -49,7 +122,6 @@ export default function CoursePage() {
     getAllCourse();
   }, [getAllCourse]);
 
-  // Modal logic
   const openModal = () => {
     setModalFields(courseFields);
     setModalTitle("Add Course");
@@ -69,7 +141,7 @@ export default function CoursePage() {
     })
       .then((res) => {
         if (res.data) {
-          toast.success("Create course success");
+          toast.success("Create course successfully");
         } else {
           toast.error("Create course failed");
         }
@@ -81,14 +153,12 @@ export default function CoursePage() {
     setModalOpen(false);
   };
 
-  // Pagination logic cho courses
   const totalCoursePages = Math.ceil(courses.length / itemsPerPage);
   const paginatedCourses = courses.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
-  // Table header và renderRow cho course
   const courseTableHeaders = (
     <>
       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -142,10 +212,19 @@ export default function CoursePage() {
         <td className="px-6 py-4">{course.createdAt}</td>
         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
           <div className="flex space-x-2 justify-end">
-            <Button size="sm" variant="ghost">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => handleOpenEdit(course.id)}
+            >
               <Edit className="h-4 w-4" />
             </Button>
-            <Button size="sm" variant="ghost" className="text-red-600">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-red-600"
+              onClick={() => handleOpenDelete(course.id)}
+            >
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
@@ -154,7 +233,6 @@ export default function CoursePage() {
     );
   };
 
-  // Stats cards cho course
   const courseStats = [
     {
       icon: <Book className="h-8 w-8 text-blue-500" />,
@@ -175,7 +253,6 @@ export default function CoursePage() {
           Add Course
         </Button>
       </div>
-      {/* View Filters */}
       <div className="flex space-x-2">
         <Button variant="default" onClick={() => router.push("/admin/courses")}>
           All Courses
@@ -193,7 +270,6 @@ export default function CoursePage() {
           All Words
         </Button>
       </div>
-      {/* Table + Stats Cards */}
       <TableWithStatsCard
         tableHeaders={courseTableHeaders}
         renderRow={renderCourseRow}
@@ -206,7 +282,6 @@ export default function CoursePage() {
           onPageChange: setCurrentPage,
         }}
       />
-      {/* Modal động */}
       <EntityModal
         open={modalOpen}
         onClose={closeModal}
@@ -214,6 +289,38 @@ export default function CoursePage() {
         fields={modalFields}
         title={modalTitle}
       />
+      <EntityModal
+        open={editModalOpen}
+        onClose={closeEditModal}
+        onSubmit={handleEditSubmit}
+        fields={modalFields}
+        title={modalTitle}
+        initialValues={
+          editCourse
+            ? {
+                title: editCourse.title ?? "",
+                description: editCourse.description ?? "",
+                thumbnailUrl: editCourse.thumbnailUrl ?? "",
+              }
+            : {}
+        }
+      />
+      {deleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-sm shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">Confirm delete course</h2>
+            <p className="mb-6">Are you sure you want to delete this course?</p>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={closeDeleteModal}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleDeleteCourse}>
+                Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

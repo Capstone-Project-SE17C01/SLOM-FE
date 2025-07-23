@@ -42,6 +42,18 @@ export const profileAPI = baseApi.injectEndpoints({
         body: data
       }),
     }),
+    getAllProfiles: build.query<APIResponse<IProfile[]>, void>({
+      query: () => ({
+        url: `api/Profile/GetAll`,
+        method: "GET",
+      }),
+    }),
+    deleteProfile: build.mutation<APIResponse<void>, string>({
+      query: (id) => ({
+        url: `api/Profile/${id}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
@@ -51,4 +63,6 @@ export const {
   useGetReportTypeMutation,
   useUpdateProfileMutation,
   useGetProfileQuery,
+  useGetAllProfilesQuery,
+  useDeleteProfileMutation,
 } = profileAPI;

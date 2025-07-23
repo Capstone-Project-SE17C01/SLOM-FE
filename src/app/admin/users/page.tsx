@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, UserPlus, Edit, Trash2, MoreHorizontal } from "lucide-react";
+import { Search, Trash2, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -10,58 +10,34 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useGetAllProfilesQuery, useDeleteProfileMutation } from "@/api/ProfileApi";
+import { IProfile } from "@/types/IProfile";
 
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [deleteId, setDeleteId] = useState<string | number | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
-  // Mock data - replace with real API call
-  const users = [
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john.doe@example.com",
-      avatar: "/images/avatar-1.jpg",
-      role: "Student",
-      status: "Active",
-      lastLogin: "2024-01-15",
-      courses: 3,
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane.smith@example.com",
-      avatar: "/images/avatar-2.jpg",
-      role: "Instructor",
-      status: "Active",
-      lastLogin: "2024-01-14",
-      courses: 8,
-    },
-    {
-      id: 3,
-      name: "Mike Johnson",
-      email: "mike.johnson@example.com",
-      avatar: "",
-      role: "Student",
-      status: "Inactive",
-      lastLogin: "2024-01-10",
-      courses: 1,
-    },
-    {
-      id: 4,
-      name: "Sarah Wilson",
-      email: "sarah.wilson@example.com",
-      avatar: "",
-      role: "Admin",
-      status: "Active",
-      lastLogin: "2024-01-15",
-      courses: 0,
-    },
-  ];
+  const { data, isLoading, refetch } = useGetAllProfilesQuery();
+  const [deleteProfile, { isLoading: deleting }] = useDeleteProfileMutation();
 
-  const filteredUsers = users.filter(
+  const profiles: IProfile[] = data?.result ?? [];
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await deleteProfile(String(deleteId)).unwrap();
+      setShowModal(false);
+      setDeleteId(null);
+      refetch();
+    } catch {
+      console.error("Failed to delete profile");}
+  };
+
+  const filteredProfiles = profiles.filter(
     (user) =>
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase())
+      user.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -71,13 +47,8 @@ export default function UsersPage() {
           <h1 className="text-3xl font-bold">Users Management</h1>
           <p className="text-gray-600 dark:text-gray-400">Manage all users in the system</p>
         </div>
-        <Button className="bg-[#6947A8] hover:bg-[#5a3d8c]">
-          <UserPlus className="h-4 w-4 mr-2" />
-          Add User
-        </Button>
       </div>
 
-      {/* Search and Filters */}
       <div className="flex items-center space-x-4">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -91,103 +62,101 @@ export default function UsersPage() {
         </div>
       </div>
 
-      {/* Users Table */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  User
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  Avatar
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Role
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  Username
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Status
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  Email
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Courses
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  Bio
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Last Login
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  Location
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  VIP User
+                </th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
-              {filteredUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={user.avatar} alt={user.name} />
-                        <AvatarFallback>{user.name[0]}</AvatarFallback>
-                      </Avatar>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {user.name}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {user.email}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        user.status === "Active"
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-                          : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
-                      }`}
-                    >
-                      {user.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {user.courses}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {user.lastLogin}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </td>
-                </tr>
-              ))}
+              {isLoading ? (
+               <tr>
+                 <td colSpan={7} className="text-center py-8">
+                   Loading data...
+                 </td>
+               </tr>
+             ) : filteredProfiles.length === 0 ? (
+               <tr>
+                 <td colSpan={7} className="text-center py-8">
+                   No profiles found.
+                 </td>
+               </tr>
+             ) : (
+               filteredProfiles.map((user) => (
+                 <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                   <td className="px-4 py-4 whitespace-nowrap">
+                     <Avatar className="h-10 w-10">
+                       <AvatarImage src={user.avatarUrl || ""} alt={user.userName} />
+                       <AvatarFallback>{user.userName?.[0]}</AvatarFallback>
+                     </Avatar>
+                   </td>
+                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{user.userName}</td>
+                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{user.email}</td>
+                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{user.bio ?? "-"}</td>
+                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{user.location ?? "-"}</td>
+                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                     {user.vipUser ? (
+                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
+                         VIP
+                       </span>
+                     ) : (
+                       "-"
+                     )}
+                   </td>
+                   <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+                     <DropdownMenu>
+                       <DropdownMenuTrigger asChild>
+                         <Button variant="ghost" size="sm">
+                           <MoreHorizontal className="h-4 w-4" />
+                         </Button>
+                       </DropdownMenuTrigger>
+                       <DropdownMenuContent align="end">
+                         <DropdownMenuItem
+                           className="text-red-600"
+                           onClick={() => {
+                             setDeleteId(user.id);
+                             setShowModal(true);
+                           }}
+                         >
+                           <Trash2 className="mr-2 h-4 w-4" />
+                           Delete
+                         </DropdownMenuItem>
+                       </DropdownMenuContent>
+                     </DropdownMenu>
+                   </td>
+                 </tr>
+               ))
+             )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Pagination */}
       <div className="flex items-center justify-between">
         <div className="text-sm text-gray-700 dark:text-gray-300">
-          Showing {filteredUsers.length} of {users.length} users
+          Showing {filteredProfiles.length} profiles
         </div>
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" disabled>
@@ -198,6 +167,34 @@ export default function UsersPage() {
           </Button>
         </div>
       </div>
+
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-sm">
+            <h2 className="text-lg font-semibold mb-4">Delete Confirmation</h2>
+            <p>Are you sure you want to delete this profile?</p>
+            <div className="flex justify-end gap-2 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowModal(false);
+                  setDeleteId(null);
+                }}
+                disabled={deleting}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={handleDelete}
+                disabled={deleting}
+              >
+                {deleting ? "Deleting..." : "Delete"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-} 
+}
