@@ -14,7 +14,6 @@ export default function QAPage() {
     const [isNewQuestion, setIsNewQuestion] = useState(false);
     const [isResponseQuestion, setIsResponseQuestion] = useState(false);
     const [detailQuestion, setDetailQuestion] = useState<QuestionResponseDTO>();
-    const [responseQuestionId, setResponseQuestionId] = useState("");
     const { userInfo } = useSelector((state: RootState) => state.auth);
 
     return (
@@ -29,12 +28,12 @@ export default function QAPage() {
             {!isSpecifiedPage ? (
                 <div>
                     <NewQuestion setIsNewQuestion={setIsNewQuestion} userInfo={userInfo} />
-                    <QuestionsView setIsResponseQuestion={setIsResponseQuestion} userInfo={userInfo} setIsSpecifiedPage={setIsSpecifiedPage} setResponseQuestionId={setResponseQuestionId} setDetailQuestion={setDetailQuestion} />
+                    <QuestionsView setIsResponseQuestion={setIsResponseQuestion} userInfo={userInfo} setIsSpecifiedPage={setIsSpecifiedPage} setDetailQuestion={setDetailQuestion} />
                 </div>
             ) :
                 (
                     <div>
-                        <DetailQuestionView question={detailQuestion} setIsResponseQuestion={setIsResponseQuestion} setIsSpecifiedPage={setIsSpecifiedPage} setResponseQuestionId={setResponseQuestionId}  />
+                        <DetailQuestionView question={detailQuestion} setIsResponseQuestion={setIsResponseQuestion} setIsSpecifiedPage={setIsSpecifiedPage}  />
                     </div>
                 )
             }

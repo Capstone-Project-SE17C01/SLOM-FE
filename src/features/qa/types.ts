@@ -13,19 +13,11 @@ export interface QuestionViewProps {
     firstname?: string;
     lastname?: string;
   } | null;
-<<<<<<< HEAD
-  setResponseQuestionId: Dispatch<SetStateAction<string>>
   setDetailQuestion: Dispatch<SetStateAction<QuestionResponseDTO | undefined>>
 }
 
 export interface NewQuestionProps {
   setIsNewQuestion: Dispatch<SetStateAction<boolean>>;
-=======
-}
-
-export interface NewQuestionProps {
-setIsNewQuestion: Dispatch<SetStateAction<boolean>>;
->>>>>>> 9c5bfef731e321fcdb05c3b058b11a5d4f30295c
   userInfo: {
     id?: string;
     username?: string;
@@ -74,7 +66,6 @@ export interface NewQuestionPopupProps {
 export interface DetailQuestionViewProps {
   setIsResponseQuestion: Dispatch<SetStateAction<boolean>>
   setIsSpecifiedPage: Dispatch<SetStateAction<boolean>>
-  setResponseQuestionId: Dispatch<SetStateAction<string>>
   question: QuestionResponseDTO | undefined
 }
 
@@ -97,6 +88,7 @@ export interface QuestionResponseDTO {
   content: string;
   images: string[];
   answerAmount: number;
+  isFull: boolean;
 }
 
 export interface UploadImageDTO {

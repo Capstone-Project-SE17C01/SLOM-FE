@@ -57,7 +57,6 @@ export function MessageBox({ messages, setMessages, userId, selectedUser }: Read
       }
       getTheMessage();
     
-      // Store the current chatContainer in a variable for the cleanup function
       const chatContainer = chatContainerRef.current;
       return () => {
         if (chatContainer) {
