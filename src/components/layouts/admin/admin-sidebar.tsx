@@ -23,7 +23,10 @@ interface AdminSidebarProps {
   onToggle: () => void;
 }
 
-export default function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
+export default function AdminSidebar({
+  collapsed,
+  onToggle,
+}: AdminSidebarProps) {
   const { isDarkMode } = useTheme();
   const pathname = usePathname();
 
@@ -32,49 +35,55 @@ export default function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps)
       name: "Dashboard",
       href: "/admin",
       icon: LayoutDashboard,
-      description: "Overview & Analytics"
+      description: "Overview & Analytics",
     },
     {
       name: "Users",
       href: "/admin/users",
       icon: Users,
-      description: "Manage Users"
+      description: "Manage Users",
     },
     {
       name: "Courses",
       href: "/admin/courses",
       icon: BookOpen,
-      description: "Course Management"
+      description: "Course Management",
     },
     {
       name: "Messages",
       href: "/admin/messages",
       icon: MessageSquare,
-      description: "Communication"
+      description: "Communication",
     },
     {
       name: "Analytics",
       href: "/admin/analytics",
       icon: BarChart3,
-      description: "Reports & Stats"
+      description: "Reports & Stats",
     },
     {
       name: "Meetings",
       href: "/admin/meetings",
       icon: Calendar,
-      description: "Schedule & Rooms"
+      description: "Schedule & Rooms",
+    },
+    {
+      name: "Feedback",
+      href: "/admin/feedback",
+      icon: MessageSquare,
+      description: "Feedback Management",
     },
     {
       name: "Content",
       href: "/admin/content",
       icon: FileText,
-      description: "Content Management"
+      description: "Content Management",
     },
     {
       name: "Settings",
       href: "/admin/settings",
       icon: Settings,
-      description: "System Settings"
+      description: "System Settings",
     },
   ];
 
@@ -83,9 +92,7 @@ export default function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps)
       className={cn(
         "flex flex-col border-r transition-all duration-300 ease-in-out",
         collapsed ? "w-16" : "w-64",
-        isDarkMode
-          ? "bg-gray-800 border-gray-700"
-          : "bg-white border-gray-200"
+        isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
       )}
     >
       {/* Header */}
@@ -124,7 +131,16 @@ export default function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps)
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
           {menuItems.map((item) => {
-            const isActive = pathname === item.href;
+            // Custom active logic for Courses
+            let isActive = pathname === item.href;
+            if (
+              item.name === "Courses" &&
+              ["/admin/courses", "/admin/modules", "/admin/lessons"].some((p) =>
+                pathname.startsWith(p)
+              )
+            ) {
+              isActive = true;
+            }
             return (
               <li key={item.name}>
                 <Link
@@ -150,10 +166,14 @@ export default function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps)
                   {!collapsed && (
                     <div className="flex-1">
                       <div className="font-medium">{item.name}</div>
-                      <div className={cn(
-                        "text-xs opacity-70",
-                        isActive ? "text-white" : "text-gray-500 dark:text-gray-400"
-                      )}>
+                      <div
+                        className={cn(
+                          "text-xs opacity-70",
+                          isActive
+                            ? "text-white"
+                            : "text-gray-500 dark:text-gray-400"
+                        )}
+                      >
                         {item.description}
                       </div>
                     </div>
@@ -175,4 +195,4 @@ export default function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps)
       )}
     </div>
   );
-} 
+}

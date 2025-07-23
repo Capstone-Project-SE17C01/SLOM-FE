@@ -27,6 +27,7 @@ export interface Module {
   orderNumber: number;
   createdAt: string;
   lessons?: Lesson[] | null;
+  course?: Course | null;
 }
 export interface SummaryRequestDTO {
   courseId: string;

@@ -1,200 +1,219 @@
 "use client";
 
-import { useState } from "react";
-import { Search, Plus, Edit, Trash2, MoreHorizontal, BookOpen, Users } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { Plus, Edit, Trash2, Book } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import TableWithStatsCard from "@/components/layouts/admin/TableWithStatsCard";
+import { useRouter } from "next/navigation";
+import EntityModal, {
+  FieldConfig,
+} from "@/components/layouts/admin/EntityModal";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  useCreateCourseMutation,
+  useGetListCourseMutation,
+} from "@/api/AdminApi";
+import { Course } from "@/types/ICourse";
+import { v4 as uuidv4 } from "uuid";
+import { toast } from "sonner";
 import Image from "next/image";
 
-export default function CoursesPage() {
-  const [searchTerm, setSearchTerm] = useState("");
+export default function CoursePage() {
+  const router = useRouter();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalFields, setModalFields] = useState<FieldConfig[]>([]);
+  const [modalTitle, setModalTitle] = useState("");
 
-  // Mock data - replace with real API call
-  const courses = [
-    {
-      id: 1,
-      title: "Sign Language Basics",
-      description: "Learn fundamental sign language gestures and communication",
-      image: "/images/banner.png",
-      instructor: "John Smith",
-      students: 245,
-      modules: 12,
-      status: "Published",
-      createdDate: "2024-01-10",
-      price: "$49.99",
-    },
-    {
-      id: 2,
-      title: "Advanced Sign Language",
-      description: "Master complex sign language conversations and expressions",
-      image: "/images/banner.png",
-      instructor: "Sarah Johnson",
-      students: 156,
-      modules: 18,
-      status: "Published",
-      createdDate: "2024-01-08",
-      price: "$79.99",
-    },
-    {
-      id: 3,
-      title: "Sign Language for Kids",
-      description: "Fun and interactive sign language learning for children",
-      image: "/images/banner.png",
-      instructor: "Mike Davis",
-      students: 89,
-      modules: 8,
-      status: "Draft",
-      createdDate: "2024-01-12",
-      price: "$29.99",
-    },
-    {
-      id: 4,
-      title: "Business Sign Language",
-      description: "Professional sign language skills for workplace communication",
-      image: "/images/banner.png",
-      instructor: "Lisa Brown",
-      students: 67,
-      modules: 15,
-      status: "Published",
-      createdDate: "2024-01-05",
-      price: "$99.99",
-    },
+  // Config fields cho course
+  const courseFields: FieldConfig[] = [
+    { label: "Title", name: "title", type: "text", required: true },
+    { label: "Description", name: "description", type: "textarea" },
+    { label: "Thumbnail URL", name: "thumbnailUrl", type: "text" },
   ];
 
-  const filteredCourses = courses.filter((course) =>
-    course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    course.instructor.toLowerCase().includes(searchTerm.toLowerCase())
+  // API hooks
+  const [getListCourse] = useGetListCourseMutation();
+  const [createCourse] = useCreateCourseMutation(); // Giả sử mutation này là createCourse
+
+  // Fetch courses
+  const getAllCourse = useCallback(async () => {
+    await getListCourse()
+      .unwrap()
+      .then((res) => {
+        setCourses(Array.isArray(res.result) ? res.result : []);
+      });
+  }, [getListCourse]);
+  useEffect(() => {
+    getAllCourse();
+  }, [getAllCourse]);
+
+  // Modal logic
+  const openModal = () => {
+    setModalFields(courseFields);
+    setModalTitle("Add Course");
+    setModalOpen(true);
+  };
+  const closeModal = () => setModalOpen(false);
+
+  const handleModalSubmit = async (values: Record<string, string>) => {
+    await createCourse({
+      id: uuidv4(),
+      title: values.title,
+      description: values.description,
+      thumbnailUrl: values.thumbnailUrl,
+      isPublished: true,
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+    })
+      .then((res) => {
+        if (res.data) {
+          toast.success("Create course success");
+        } else {
+          toast.error("Create course failed");
+        }
+        getAllCourse();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    setModalOpen(false);
+  };
+
+  // Pagination logic cho courses
+  const totalCoursePages = Math.ceil(courses.length / itemsPerPage);
+  const paginatedCourses = courses.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   );
+
+  // Table header và renderRow cho course
+  const courseTableHeaders = (
+    <>
+      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+        Course Title
+      </th>
+      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+        Description
+      </th>
+      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+        Thumbnail
+      </th>
+      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+        Created At
+      </th>
+      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+        Actions
+      </th>
+    </>
+  );
+  const renderCourseRow = (course: Course) => {
+    if (!course) {
+      return (
+        <tr>
+          <td colSpan={5} className="text-center">
+            No data
+          </td>
+        </tr>
+      );
+    }
+    return (
+      <tr key={course.id}>
+        <td className="px-6 py-4 w-1/4">
+          <div className="text-sm font-medium text-gray-900 dark:text-white">
+            {course.title}
+          </div>
+        </td>
+        <td className="px-6 py-4">
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            {course.description}
+          </div>
+        </td>
+        <td className="px-6 py-4">
+          <Image
+            src={course.thumbnailUrl || ""}
+            alt={course.title}
+            width={80}
+            height={48}
+            className="w-20 h-12 object-cover rounded"
+          />
+        </td>
+        <td className="px-6 py-4">{course.createdAt}</td>
+        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+          <div className="flex space-x-2 justify-end">
+            <Button size="sm" variant="ghost">
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button size="sm" variant="ghost" className="text-red-600">
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </td>
+      </tr>
+    );
+  };
+
+  // Stats cards cho course
+  const courseStats = [
+    {
+      icon: <Book className="h-8 w-8 text-blue-500" />,
+      label: "Total Courses",
+      value: courses.length,
+    },
+  ];
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Course Management</h1>
-          <p className="text-gray-600 dark:text-gray-400">Manage all courses and content</p>
+          <p className="text-gray-600 dark:text-gray-400">Manage courses</p>
         </div>
-        <Button className="bg-[#6947A8] hover:bg-[#5a3d8c]">
+        <Button className="bg-[#6947A8] hover:bg-[#5a3d8c]" onClick={openModal}>
           <Plus className="h-4 w-4 mr-2" />
           Add Course
         </Button>
       </div>
-
-      {/* Search and Filters */}
-      <div className="flex items-center space-x-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search courses..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#6947A8] focus:border-transparent"
-          />
-        </div>
+      {/* View Filters */}
+      <div className="flex space-x-2">
+        <Button variant="default" onClick={() => router.push("/admin/courses")}>
+          All Courses
+        </Button>
+        <Button variant="outline" onClick={() => router.push("/admin/modules")}>
+          All Modules
+        </Button>
+        <Button variant="outline" onClick={() => router.push("/admin/lessons")}>
+          All Lessons
+        </Button>
+        <Button variant="outline" onClick={() => router.push("/admin/quizzes")}>
+          All Quizzes
+        </Button>
+        <Button variant="outline" onClick={() => router.push("/admin/words")}>
+          All Words
+        </Button>
       </div>
-
-      {/* Courses Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredCourses.map((course) => (
-          <div
-            key={course.id}
-            className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow"
-          >
-            <div className="relative h-48">
-              <Image
-                src={course.image}
-                alt={course.title}
-                fill
-                className="object-cover"
-              />
-              <div className="absolute top-3 right-3">
-                <span
-                  className={`px-2 py-1 text-xs font-medium rounded-full ${
-                    course.status === "Published"
-                      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-                      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
-                  }`}
-                >
-                  {course.status}
-                </span>
-              </div>
-            </div>
-
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white line-clamp-1">
-                  {course.title}
-                </h3>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-600">
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
-                {course.description}
-              </p>
-
-              <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                Instructor: <span className="font-medium">{course.instructor}</span>
-              </div>
-
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
-                  <div className="flex items-center">
-                    <Users className="h-4 w-4 mr-1" />
-                    {course.students}
-                  </div>
-                  <div className="flex items-center">
-                    <BookOpen className="h-4 w-4 mr-1" />
-                    {course.modules} modules
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-lg font-bold text-[#6947A8]">{course.price}</span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  Created: {course.createdDate}
-                </span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Pagination */}
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-gray-700 dark:text-gray-300">
-          Showing {filteredCourses.length} of {courses.length} courses
-        </div>
-        <div className="flex space-x-2">
-          <Button variant="outline" size="sm" disabled>
-            Previous
-          </Button>
-          <Button variant="outline" size="sm" disabled>
-            Next
-          </Button>
-        </div>
-      </div>
+      {/* Table + Stats Cards */}
+      <TableWithStatsCard
+        tableHeaders={courseTableHeaders}
+        renderRow={renderCourseRow}
+        data={paginatedCourses}
+        statsTitle="Course Stats"
+        statsData={courseStats}
+        pagination={{
+          currentPage,
+          totalPages: totalCoursePages,
+          onPageChange: setCurrentPage,
+        }}
+      />
+      {/* Modal động */}
+      <EntityModal
+        open={modalOpen}
+        onClose={closeModal}
+        onSubmit={handleModalSubmit}
+        fields={modalFields}
+        title={modalTitle}
+      />
     </div>
   );
-} 
+}
