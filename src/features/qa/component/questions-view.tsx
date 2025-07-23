@@ -8,55 +8,87 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
     const [getQuestionApi] = useGetQuestionMutation();
     const [questionPagination, setPagination] = useState<number>(1);
     const [allQuestion, setAllQuestion] = useState<QuestionResponseDTO[] | null | undefined>([]);
-    
-    // State to prevent multiple fetches and to know when all data is loaded
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isLoadFull, setIsLoadFull] = useState<boolean>(false);
+    const [fullScreenImageIndex, setFullScreenImageIndex] = useState<number>(0);
+    const [theElement, setTheElement] = useState<QuestionResponseDTO | undefined>();
 
-    // Effect for fetching data when pagination changes
     useEffect(() => {
-        // Don't fetch if all questions are already loaded
         if (isLoadFull) return;
 
         setIsLoading(true);
-        getQuestionApi(questionPagination).then(res => {
-            const newQuestions = res.data?.result;
-            
-            if (newQuestions && newQuestions.length > 0) {
-                // Append the newly fetched questions to the existing list
-                setAllQuestion(prevQuestions => [...(prevQuestions || []), ...newQuestions]);
-            } else {
-                // If the API returns no questions, we've reached the end
-                setIsLoadFull(true);
-            }
+        if(!isLoadFull) {
+            console.log(isLoadFull)
+            console.log()
+            getQuestionApi(questionPagination).then(res => {
+                const newQuestions = res.data?.result;
 
-            setIsLoading(false);
-        }).catch(error => {
-            console.error("Failed to fetch questions:", error);
-            setIsLoading(false);
-        });
-    }, [getQuestionApi, questionPagination]); // Dependency array ensures this runs when page number changes
+                if (newQuestions && newQuestions.length > 0) {
+                    setAllQuestion(prevQuestions => [...(prevQuestions || []), ...newQuestions]);
+                    if(newQuestions[0].isFull) {
+                        setIsLoadFull(true);
+                    }
+                } else {
+                    setIsLoadFull(true);
+                }
 
-    // Effect for handling the scroll event, similar to your example
+                setIsLoading(false);
+            }).catch(error => {
+                console.error("Failed to fetch questions:", error);
+                setIsLoading(false);
+            });
+        }
+    }, [getQuestionApi, questionPagination]);
+
     useEffect(() => {
         const handleScroll = () => {
-            // Check if user has scrolled to the bottom of the page
-            // The '- 100' provides a buffer, so the load triggers slightly before the absolute bottom
             const isAtBottom = window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 100;
-
-            // If at the bottom, not currently loading, and not all data is loaded yet, fetch the next page
+            console.log(isLoadFull)
             if (isAtBottom && !isLoading && !isLoadFull) {
                 setPagination(prevPage => prevPage + 1);
             }
         };
 
-        // Add the scroll event listener to the window
         window.addEventListener('scroll', handleScroll);
 
-        // Cleanup: Remove the event listener when the component unmounts
         return () => window.removeEventListener('scroll', handleScroll);
-    }, [isLoading, isLoadFull]); // Dependencies ensure the listener has the latest state values
+    }, [isLoading, isLoadFull]);
 
+    const handleImageClick = (imgIndex: number) => {
+        setFullScreenImageIndex(imgIndex);
+    };
+
+    const closeFullScreen = () => {
+        setFullScreenImageIndex(0);
+        setTheElement(undefined)
+    };
+
+    const goToPreviousImage = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.stopPropagation();
+        if (fullScreenImageIndex > 0) {
+            setFullScreenImageIndex(fullScreenImageIndex - 1);
+        } else {
+            if (theElement != null)
+                setFullScreenImageIndex(theElement.images.length - 1);
+        }
+    };
+
+    const goToNextImage = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.stopPropagation();
+        if (theElement != null) {
+            if (fullScreenImageIndex < theElement.images.length - 1) {
+                setFullScreenImageIndex(fullScreenImageIndex + 1);
+            } else {
+                // Optional: loop to the first image
+                setFullScreenImageIndex(0);
+            }
+        }
+
+    };
+
+    // Determine the current full screen image source
+    const currentFullScreenImageSrc =
+        fullScreenImageIndex !== null && theElement != null ? theElement.images[fullScreenImageIndex] : null;
 
     return (
         <div>
@@ -84,14 +116,22 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                                 <div className="relative w-full overflow-x-auto">
                                     <div className="flex">
                                         {element.images.map((image, imgIndex) => (
-                                            <div key={imgIndex} className="min-w-[45%] mr-2">
+                                            <div
+                                                key={imgIndex}
+                                                className="min-w-[50%] px-1 cursor-pointer"
+                                            >
                                                 <Image
                                                     src={image}
                                                     alt={`image-${imgIndex}`}
                                                     height={0}
                                                     width={0}
-                                                    objectFit="contain"
-                                                    className="w-full mr-1 rounded-xl"
+                                                    sizes="50vw"
+                                                    className="w-full h-[20vh] object-cover rounded-xl"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleImageClick(imgIndex);
+                                                        setTheElement(element)
+                                                    }}
                                                 />
                                             </div>
                                         ))}
@@ -100,6 +140,7 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                                 <button className="mt-1 flex hover:bg-gray-200 px-3 py-1 rounded-full" onClick={(e) => {
                                     e.stopPropagation();
                                     setIsResponseQuestion(true);
+                                    setDetailQuestion(element);
                                 }}>
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 0 1-.923 1.785A5.969 5.969 0 0 0 6 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337Z" />
@@ -111,9 +152,41 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                     </div>
                 )
             })}
-            {/* Optional: Show a loading indicator to the user */}
+            {currentFullScreenImageSrc && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+                    onClick={closeFullScreen}
+                >
+                    {/* Previous Button */}
+                    <button
+                        className="absolute left-4 h-10 w-10 bg-white bg-opacity-25 rounded-full text-white text-center text-2xl z-50 hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center"
+                        onClick={goToPreviousImage}
+                        aria-label="Previous image"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                        </svg>
+                    </button>
+
+                    <img
+                        src={currentFullScreenImageSrc}
+                        alt="Full screen"
+                        className="max-w-[90%] max-h-[90%] object-contain"
+                    />
+
+                    {/* Next Button */}
+                    <button
+                        className="absolute right-4 h-10 w-10 bg-white bg-opacity-25 rounded-full text-white text-2xl z-50 hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center"
+                        onClick={goToNextImage}
+                        aria-label="Next image"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </button>
+                </div>
+            )}
             {isLoading && <div className="text-center p-4">Loading more...</div>}
-            {/* Optional: Show a message when all questions have been loaded */}
             {isLoadFull && <div className="text-center p-4 text-gray-500">You`ve reached the end.</div>}
         </div>
     );
