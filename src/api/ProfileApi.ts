@@ -1,7 +1,12 @@
 "use client";
 
 import { baseApi } from "@/services";
-import { CreateReportRequestDTO, HistoryPaymentDTO, IProfile, ReportType } from "../types/IProfile";
+import {
+  CreateReportRequestDTO,
+  HistoryPaymentDTO,
+  IProfile,
+  ReportType,
+} from "../types/IProfile";
 import { APIResponse } from "../types/IAuth";
 
 export const profileAPI = baseApi.injectEndpoints({
@@ -39,9 +44,19 @@ export const profileAPI = baseApi.injectEndpoints({
       query: (data) => ({
         url: `/api/Profile`,
         method: "PUT",
-        body: data
+        body: data,
       }),
     }),
+    editUpdateAt: build.mutation<APIResponse<void>, { email: string }>(
+      {
+        query: ({ email }) => ({
+          url: `/api/Profile/EditUpdateAt?email=${encodeURIComponent(email)}`,
+          method: "PUT",
+          // KHÔNG cần body
+          flashError: false,
+        }),
+      }
+    ),
     getAllProfiles: build.query<APIResponse<IProfile[]>, void>({
       query: () => ({
         url: `api/Profile/GetAll`,
@@ -65,4 +80,5 @@ export const {
   useGetProfileQuery,
   useGetAllProfilesQuery,
   useDeleteProfileMutation,
+  useEditUpdateAtMutation,
 } = profileAPI;
