@@ -29,4 +29,5 @@ export interface IProfile {
   location?: string;
   avatarUrl?: string;
   vipUser?: boolean;
+  update_at?: string;
 }

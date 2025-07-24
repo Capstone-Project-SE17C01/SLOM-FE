@@ -113,6 +113,7 @@ export const adminAPI = baseApi.injectEndpoints({
       }),
     }),
   }),
+  overrideExisting: true,
 });
 
 export const {

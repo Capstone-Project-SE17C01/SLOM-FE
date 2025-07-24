@@ -10,11 +10,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { useLoginMutation, useLoginWithGoogleMutation } from "../../../api/AuthApi";
+import {
+  useLoginMutation,
+  useLoginWithGoogleMutation,
+} from "../../../api/AuthApi";
 import { LoginResponseDTO } from "../../../types/IAuth";
 import { toast } from "sonner";
 import constants from "@/config/constants";
 import { useTranslations } from "next-intl";
+import { useEditUpdateAtMutation } from "@/api/ProfileApi";
 
 export function LoginForm() {
   const router = useRouter();
@@ -29,16 +33,19 @@ export function LoginForm() {
 
   const [login] = useLoginMutation();
   const [signInWithGoogle] = useLoginWithGoogleMutation();
-
+  const [editUpdateAt] = useEditUpdateAtMutation();
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
+
     await login({ email, password })
       .unwrap()
-      .then((payload) => {
+      .then(async (payload) => {
         if (payload.result) {
           const { accessToken, roleName } = payload.result as LoginResponseDTO;
+          // Gọi update updateAt sau khi login thành công
+          await editUpdateAt({ email });
           if (accessToken && roleName == "ADMIN") {
             router.push("/admin");
           } else {
@@ -119,7 +126,10 @@ export function LoginForm() {
         <Card className="w-full max-w-[400px] sm:min-w-[400px] bg-white/90 dark:bg-neutral-900/95 backdrop-blur-sm max-h-screen overflow-auto">
           <CardContent className="pt-6 px-4 sm:px-6">
             <h1 className="text-center text-xl sm:text-2xl font-normal mb-6 dark:text-neutral-100">
-              {t_login("title")} <Link href="/" className="text-primary">SLOM!</Link>
+              {t_login("title")}{" "}
+              <Link href="/" className="text-primary">
+                SLOM!
+              </Link>
             </h1>
             <form onSubmit={handleEmailLogin} className="flex flex-col gap-4">
               <div className="grid gap-2">
@@ -275,7 +285,9 @@ export function LoginForm() {
           <div className="bg-black/50 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 w-screen h-screen fixed inset-0">
             <div className="flex items-center gap-2 bg-white dark:bg-neutral-900 px-4 py-2 rounded-lg">
               <Loader2 className="h-5 w-5 animate-spin text-primary" />
-              <span className="dark:text-neutral-100">{t_login("loggingIn")}</span>
+              <span className="dark:text-neutral-100">
+                {t_login("loggingIn")}
+              </span>
             </div>
           </div>
         )}
