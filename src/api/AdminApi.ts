@@ -4,9 +4,18 @@ import { baseApi } from "@/services";
 import type { Course, Lesson, Module } from "../types/ICourse";
 import { APIResponse } from "../types/IAuth";
 import { Feedback } from "./FeedbackApi";
+import { SummaryAdminDTO } from "@/types/IAdmin";
 
 export const adminAPI = baseApi.injectEndpoints({
   endpoints: (build) => ({
+    //get summary
+    getSummaryAdmin: build.mutation<APIResponse<SummaryAdminDTO>, void>({
+      query: () => ({
+        url: `/api/Admin/Summary`,
+        method: "GET",
+        flashError: false,
+      }),
+    }),
     //get all feedback
     getListFeedback: build.mutation<Feedback[], void>({
       query: () => ({
@@ -107,6 +116,7 @@ export const adminAPI = baseApi.injectEndpoints({
 });
 
 export const {
+  useGetSummaryAdminMutation,
   useGetListFeedbackMutation,
   useDeleteFeedbackMutation,
   useGetListModuleMutation,
