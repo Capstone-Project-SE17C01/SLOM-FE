@@ -1,4 +1,4 @@
-const API_SERVER = process.env.NEXT_PUBLIC_API_SERVER;
+const API_SERVER = "https://localhost:7150";
 const RETURN_URL = process.env.NEXT_PUBLIC_RETURN_URL;
 const ZEGO_APP_ID = Number(process.env.NEXT_PUBLIC_ZEGO_APP_ID);
 const ZEGO_SERVER_SECRET = process.env.NEXT_PUBLIC_ZEGO_SERVER_SECRET || "";
