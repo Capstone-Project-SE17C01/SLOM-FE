@@ -4,13 +4,16 @@ import {
   useGetActiveMeetingQuery,
   useGetScheduledMeetingQuery,
   useGetMeetingRecordQuery,
+  useGetAllMeetingsQuery
 } from "@/api/MeetingApi";
-import { Bar } from "react-chartjs-2";
+import { Bar, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   BarElement,
+  LineElement,
+  PointElement,
   Tooltip,
   Legend,
   Title,
@@ -22,6 +25,8 @@ ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
+  LineElement,
+  PointElement,
   Tooltip,
   Legend,
   Title
@@ -31,6 +36,7 @@ export default function MeetingsPage() {
   const { data: activeData, isLoading: loadingActive, error: errorActive } = useGetActiveMeetingQuery();
   const { data: scheduledData, isLoading: loadingScheduled, error: errorScheduled } = useGetScheduledMeetingQuery();
   const { data: recordData, isLoading: loadingRecord, error: errorRecord } = useGetMeetingRecordQuery();
+  const { data: allMeetings, isLoading: loadingAllMeetings, error: errorAllMeetings } = useGetAllMeetingsQuery();
 
   const activeChartData = {
     labels: ["Active"],
@@ -74,6 +80,41 @@ export default function MeetingsPage() {
     ],
   };
 
+  const processDataByDate = () => {
+    if (!allMeetings) return { labels: [], data: [] };
+
+    const meetingsByDate: Record<string, number> = allMeetings.reduce((acc, meeting) => {
+      const date = new Date(meeting.startTime).toLocaleDateString();
+      acc[date] = (acc[date] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const sortedDates = Object.keys(meetingsByDate).sort((a, b) => 
+      new Date(a).getTime() - new Date(b).getTime()
+    );
+    
+    return {
+      labels: sortedDates,
+      data: sortedDates.map(date => meetingsByDate[date])
+    };
+  };
+
+  const meetingTrendData = processDataByDate();
+
+  const trendChartData = {
+    labels: meetingTrendData.labels,
+    datasets: [
+      {
+        label: "Meetings per Day",
+        data: meetingTrendData.data,
+        borderColor: "rgba(75, 192, 192, 1)",
+        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        tension: 0.4,
+        fill: true,
+      },
+    ],
+  };
+
   const barOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -100,6 +141,48 @@ export default function MeetingsPage() {
         grid: {
           display: false,
         },
+      },
+    },
+  };
+
+  const lineOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: true },
+      title: { 
+        display: true,
+        text: "Meeting Trends Over Time",
+        font: { size: 16 }
+      },
+      tooltip: {
+        backgroundColor: "rgba(0, 0, 0, 0.7)",
+        padding: 10,
+        cornerRadius: 4,
+        titleFont: { size: 14 },
+        bodyFont: { size: 13 },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: {
+          display: true,
+          color: "rgba(0, 0, 0, 0.05)",
+        },
+        title: {
+          display: true,
+          text: "Number of Meetings"
+        }
+      },
+      x: {
+        grid: {
+          display: false,
+        },
+        title: {
+          display: true,
+          text: "Date"
+        }
       },
     },
   };
@@ -131,8 +214,28 @@ export default function MeetingsPage() {
       </header>
 
       <div className="max-w-7xl mx-auto w-full">
+        {/* Meeting Trend Chart */}
+        <div className="mb-6 bg-white dark:bg-[#232946] rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+          <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              Meeting Trends
+            </h2>
+          </div>
+          <div className="p-6 h-96">
+            {loadingAllMeetings ? (
+              renderSkeleton()
+            ) : errorAllMeetings ? (
+              renderError()
+            ) : (
+              <Line data={trendChartData} options={lineOptions} />
+            )}
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Active Meetings Card */}
           <div className="bg-white dark:bg-[#232946] rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
             <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
               <h2 className="text-xl font-semibold text-[#6947A8] dark:text-white flex items-center">
@@ -158,7 +261,6 @@ export default function MeetingsPage() {
             </div>
           </div>
 
-          {/* Scheduled Meetings Card */}
           <div className="bg-white dark:bg-[#232946] rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
             <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
               <h2 className="text-xl font-semibold text-[#36A2EB] dark:text-white flex items-center">
@@ -184,7 +286,6 @@ export default function MeetingsPage() {
             </div>
           </div>
 
-          {/* Meeting Records Card */}
           <div className="bg-white dark:bg-[#232946] rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
             <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
               <h2 className="text-xl font-semibold text-[#43B97F] dark:text-white flex items-center">

@@ -13,7 +13,7 @@ import { MoreVertical, Share2, Edit, Trash2, ClipboardCopy, Check, AlertTriangle
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/contexts/ThemeContext";
 import { RoomCreationModal } from "@/components/layouts/meeting/room-creation-form";
-import { RootState, store } from "@/middleware/store";
+import { RootState, store } from "@/redux/store";
 import { JoinMeetingModal } from "@/components/layouts/meeting/join-meeting-form";
 import { ScheduleMeetingModal } from "@/components/layouts/meeting/schedule-meeting-form";
 import { MeetingEditModal } from "@/components/layouts/meeting/edit-meeting-form";

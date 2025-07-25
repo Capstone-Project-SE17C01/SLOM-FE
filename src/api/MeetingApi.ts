@@ -5,6 +5,13 @@ import { AddRecordingRequest, CreateMeetingRequest, CreateMeetingResponse, Leave
 
 export const meetingApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    getAllMeetings: builder.query<Meeting[], void>({
+      query: () => ({
+        url: '/api/meeting',
+        method: 'GET',
+        flashError: false,
+      }),
+    }),
     getActiveMeetings: builder.query<Meeting[], string | void>({
       query: (userId) => ({
         url: userId ? `/api/meeting/active?userId=${userId}` : '/api/meeting/active',
@@ -181,6 +188,7 @@ export const meetingApi = baseApi.injectEndpoints({
   }),
 });
 export const {
+  useGetAllMeetingsQuery,
   useGetActiveMeetingsQuery,
   useGetMeetingQuery,
   useCreateMeetingMutation,

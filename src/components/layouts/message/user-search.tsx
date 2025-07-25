@@ -6,7 +6,7 @@ import type {
   User
 } from "../../../types/IMessage";
 import { useSelector } from "react-redux";
-import { RootState } from "@/middleware/store";
+import { RootState } from "@/redux/store";
 
 export function SearchUser({ isSearch, setIsSearch, setListSearchUser }: Readonly<SearchUserProps>) {
     const [getProfileByName] = useGetProfileByNameMutation();

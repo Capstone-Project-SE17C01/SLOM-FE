@@ -11,7 +11,7 @@ import {
   useAddNewUserProgressMutation,
 } from "@/api/CourseApi";
 import WordPractice from "../course/word-practice";
-import { RootState } from "@/middleware/store";
+import { RootState } from "@/redux/store";
 import QuizPractice from "../course/quiz-practice";
 import { useSelector } from "react-redux";
 export default function ApprenderLearnPractice() {

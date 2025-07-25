@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTranslations } from "next-intl";
 import { initSignalRConnection } from "@/services/signalR/config";
-import { RootState } from "@/middleware/store";
+import { RootState } from "@/redux/store";
 import { MessageBox } from "@/components/layouts/message/user-message-box";
 import { SearchUserMessage } from "@/components/layouts/message/user-bar";
 import { Message, User } from "@/types/IMessage";

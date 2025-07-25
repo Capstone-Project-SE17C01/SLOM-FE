@@ -17,7 +17,7 @@ import { Lesson } from "../../../types/ICourse";
 import LearningPathSection from "@/components/ui/learningPathSection";
 import { CardReview } from "@/components/ui/cardCourse";
 import { useSelector } from "react-redux";
-import { RootState } from "@/middleware/store";
+import { RootState } from "@/redux/store";
 import { useRouter } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
 

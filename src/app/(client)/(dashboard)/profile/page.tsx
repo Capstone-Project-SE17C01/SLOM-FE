@@ -21,7 +21,7 @@ import { toast } from "sonner";
 import Cookies from "js-cookie";
 import { Eye, EyeOff, Lock } from "lucide-react";
 import Spinner from "@/components/ui/spinner";
-import { RootState } from "@/middleware/store";
+import { RootState } from "@/redux/store";
 import { useUpdatePasswordMutation } from "@/api/AuthApi";
 import constants from "@/config/constants";
 import { useGetHistoryPaymentMutation } from "@/api/ProfileApi";

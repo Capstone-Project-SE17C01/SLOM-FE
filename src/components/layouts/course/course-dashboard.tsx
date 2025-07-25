@@ -6,7 +6,7 @@ import {
   useGetReminderMutation,
 } from "../../../api/CourseApi";
 import { useSelector } from "react-redux";
-import { RootState } from "@/middleware/store";
+import { RootState } from "@/redux/store";
 import { SummaryResponse } from "../../../types/ICourse";
 import { APIResponse } from "@/types/IAuth";
 import { useRouter } from "next/navigation";

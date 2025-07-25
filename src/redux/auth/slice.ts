@@ -22,6 +22,7 @@ interface AuthSliceInterface {
     languageCode?: string;
     courseTitle?: string;
     vipUser?: boolean;
+    roleName?: string;
   } | null;
   access_token: string | null;
 }
@@ -31,7 +32,8 @@ const initialState: AuthSliceInterface = {
     try {
       const userInfo = getClientCookie(constants.USER_INFO);
       return userInfo ? JSON.parse(userInfo) : null;
-    } catch {
+    } catch (error) {
+      console.error("Error parsing userInfo cookie:", error);
       return null;
     }
   })(),

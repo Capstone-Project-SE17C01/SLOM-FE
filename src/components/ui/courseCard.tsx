@@ -6,7 +6,7 @@ import { Course } from "@/types/ICourse";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "@/middleware/store";
+import { RootState } from "@/redux/store";
 import { authSlice } from "@/redux/auth/slice";
 
 export interface CourseCardProps {

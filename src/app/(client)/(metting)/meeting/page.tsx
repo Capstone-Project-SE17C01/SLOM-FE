@@ -11,7 +11,7 @@ import { generateZegoToken } from "@/services/zego/config";
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 import { SignLanguageOverlay, SignLanguageToggleButton } from "@/components/ui/signLanguageOverlay";
 import { cn } from "@/utils/cn";
-import { RootState } from "@/middleware/store";
+import { RootState } from "@/redux/store";
 import { useAddRecordingMutation, useGetMeetingQuery, useLeaveMeetingMutation } from "@/api/MeetingApi";
 import { FolderSelectionModal } from "@/components/layouts/meeting/folder-selection-form";
 

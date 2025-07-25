@@ -11,7 +11,7 @@ import { RoomCreationModalProps } from '../../../types/IMeeting';
 import { useSelector } from "react-redux";
 import { useGetScheduledMeetingsByDateQuery } from "@/api/MeetingApi";
 import dayjs from "dayjs";
-import { RootState } from '@/middleware/store';
+import { RootState } from '@/redux/store';
 
 export const RoomCreationModal: React.FC<RoomCreationModalProps> = ({
   show,

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { FaPlay, FaSearch } from "react-icons/fa";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { RootState } from "@/middleware/store";
+import { RootState } from "@/redux/store";
 import { useGetVideoSuggestMutation } from "../../../api/CourseApi";
 import { useSelector } from "react-redux";
 import { ListVideoSuggestResult, VideoHeaderInput, VideoSuggest, VideoTabsInput } from "../../../types/ICourse";

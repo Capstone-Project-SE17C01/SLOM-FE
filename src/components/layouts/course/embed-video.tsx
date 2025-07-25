@@ -4,7 +4,7 @@ import { useSearchParams } from 'next/navigation'
 import { useGetVideoSuggestMutation } from "../../../api/CourseApi";
 import { useSelector } from "react-redux";
 import { ListVideoSuggestResult, VideoSuggest } from "../../../types/ICourse";
-import { RootState } from "@/middleware/store";
+import { RootState } from "@/redux/store";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 
 function SideBarVideo(card: Readonly<ListVideoSuggestResult>) {

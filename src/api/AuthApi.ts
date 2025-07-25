@@ -80,6 +80,7 @@ export const authAPI = baseApi.injectEndpoints({
 
             if (profileResult?.result) {
               const user = profileResult.result;
+              const roleName = loginData.result.roleName || '';
               dispatch(
                 authSlice.actions.setCredentials({
                   userInfo: {
@@ -88,6 +89,7 @@ export const authAPI = baseApi.injectEndpoints({
                     username: user.username,
                     avatarUrl: user.avatarUrl || "",
                     role: user.roleId,
+                    roleName: roleName,
                     preferredLanguageId: user.preferredLanguageId,
                     languageCode: user.languageCode,
                     courseTitle: "chooseCourse",

@@ -44,7 +44,6 @@ export function LoginForm() {
       .then(async (payload) => {
         if (payload.result) {
           const { accessToken, roleName } = payload.result as LoginResponseDTO;
-          // Gọi update updateAt sau khi login thành công
           await editUpdateAt({ email });
           if (accessToken && roleName == "ADMIN") {
             router.push("/admin");
