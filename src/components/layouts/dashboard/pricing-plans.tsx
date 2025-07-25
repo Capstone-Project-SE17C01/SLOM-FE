@@ -26,7 +26,7 @@ import {
 } from "@/types/IAuth";
 import { useTranslations } from "next-intl";
 import { useSelector } from "react-redux";
-import { RootState } from "@/middleware/store";
+import { RootState } from "@/redux/store";
 
 export default function PricingPlans() {
   const { isDarkMode } = useTheme();

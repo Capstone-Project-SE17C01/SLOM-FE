@@ -8,7 +8,7 @@ import { Word } from "../../../types/ICourse";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useMarkLessonAsLearnedMutation } from "../../../api/CourseApi";
-import { RootState } from "@/middleware/store";
+import { RootState } from "@/redux/store";
 import { useSelector } from "react-redux";
 import Spinner from "@/components/ui/spinner";
 export default function WordPractice({

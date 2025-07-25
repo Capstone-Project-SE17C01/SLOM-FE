@@ -4,7 +4,7 @@ import CourseCard from "@/components/ui/courseCard";
 import { useGetCoursesMutation } from "../../../api/CourseApi";
 import { Course } from "../../../types/ICourse";
 import { useSelector } from "react-redux";
-import { RootState } from "@/middleware/store";
+import { RootState } from "@/redux/store";
 import { useTranslations } from "next-intl";
 
 export default function ListCoursePage() {

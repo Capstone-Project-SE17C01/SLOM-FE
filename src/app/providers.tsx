@@ -6,7 +6,7 @@ import { AppProgressBar } from "next-nprogress-bar";
 import { Toaster } from "sonner";
 import { NextIntlClientProvider } from "next-intl";
 import { Messages } from "next-intl";
-import { store } from "@/middleware/store";
+import { store } from "@/redux/store";
 export interface ProvidersProps {
   children: React.ReactNode;
   locale: string;

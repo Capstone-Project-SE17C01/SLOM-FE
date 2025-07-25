@@ -14,7 +14,7 @@ import Cookies from "js-cookie";
 import constants from "@/config/constants";
 import { useChangeLanguageMutation } from "@/api/AuthApi";
 import Spinner from "@/components/ui/spinner";
-import { RootState } from "@/middleware/store";
+import { RootState } from "@/redux/store";
 import { useSelector } from "react-redux";
 
 export default function LanguageSwitcher() {

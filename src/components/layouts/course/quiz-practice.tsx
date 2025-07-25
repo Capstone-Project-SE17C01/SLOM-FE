@@ -10,7 +10,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useMarkLessonAsCompletedMutation } from "../../../api/CourseApi";
 import { useSelector } from "react-redux";
-import { RootState } from "@/middleware/store";
+import { RootState } from "@/redux/store";
 import Spinner from "@/components/ui/spinner";
 export default function QuizPractice({
   quizList,
