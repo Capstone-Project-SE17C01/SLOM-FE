@@ -30,4 +30,5 @@ export interface IProfile {
   avatarUrl?: string;
   vipUser?: boolean;
   update_at?: string;
+  createdAt?: string;
 }

@@ -5,13 +5,15 @@ import type { Course, Lesson, Module } from "../types/ICourse";
 import { APIResponse } from "../types/IAuth";
 import { Feedback } from "./FeedbackApi";
 import { SummaryAdminDTO } from "@/types/IAdmin";
+import { Payment } from "@/types/IPayment";
+import { IProfile } from "@/types/IProfile";
 
 export const adminAPI = baseApi.injectEndpoints({
   endpoints: (build) => ({
     //get summary
-    getSummaryAdmin: build.mutation<APIResponse<SummaryAdminDTO>, void>({
+    getSummaryAdmin: build.mutation<{ result: SummaryAdminDTO }, void>({
       query: () => ({
-        url: `/api/Admin/Summary`,
+        url: "/api/admin/summary",
         method: "GET",
         flashError: false,
       }),
@@ -112,10 +114,25 @@ export const adminAPI = baseApi.injectEndpoints({
         flashError: false,
       }),
     }),
+
+    getAllPayments: build.query<APIResponse<Payment[]>, void>({
+      query: () => ({
+        url: "/api/payment",
+        method: "GET",
+        flashError: false,
+      }),
+    }),
+
+    getAllProfiles: build.query<APIResponse<IProfile[]>, void>({
+      query: () => ({
+        url: "/api/profile/getall",
+        method: "GET",
+        flashError: false,
+      }),
+    }),
   }),
   overrideExisting: true,
 });
-
 export const {
   useGetSummaryAdminMutation,
   useGetListFeedbackMutation,
@@ -130,4 +147,7 @@ export const {
   useUpdateLessonMutation,
   useDeleteModuleMutation,
   useDeleteLessonMutation,
+  useGetAllPaymentsQuery,
+  useGetAllProfilesQuery,
 } = adminAPI;
+
