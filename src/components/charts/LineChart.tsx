@@ -31,12 +31,16 @@ interface LineChartProps {
   data: DataPoint[];
   label: string;
   color?: string;
+  fillColor?: string;
+  showGrid?: boolean;
 }
 
 export default function LineChart({
   data,
   label,
   color = "rgba(59,130,246,1)",
+  fillColor,
+  showGrid = false,
 }: LineChartProps) {
   const chartData = {
     labels:
@@ -52,9 +56,14 @@ export default function LineChart({
         label,
         data: data?.map((d) => d.value) || [],
         borderColor: color,
-        backgroundColor: color,
+        backgroundColor: fillColor || color,
         tension: 0.4,
-        fill: false,
+        fill: !!fillColor,
+        pointBackgroundColor: color,
+        pointBorderColor: "#fff",
+        pointBorderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
       },
     ],
   };
@@ -62,7 +71,36 @@ export default function LineChart({
   return (
     <Line
       data={chartData}
-      options={{ responsive: true, plugins: { legend: { display: false } } }}
+      options={{ 
+        responsive: true, 
+        plugins: { 
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "rgba(0, 0, 0, 0.75)",
+            padding: 10,
+            cornerRadius: 4,
+            titleFont: { size: 14, weight: 'bold' },
+            bodyFont: { size: 13 },
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              display: showGrid,
+              color: "rgba(0, 0, 0, 0.05)",
+            },
+            ticks: {
+              precision: 0,
+            }
+          },
+          x: {
+            grid: {
+              display: false,
+            },
+          },
+        },
+      }}
     />
   );
 }

@@ -9,23 +9,43 @@ interface DoughnutChartProps {
   value: number;
   total: number;
   label: string;
+  colors?: [string, string];
 }
 
 export default function DoughnutChart({
   value,
   total,
   label,
+  colors = ["#10b981", "#e5e7eb"],
 }: DoughnutChartProps) {
   const chartData = {
     labels: [label, "Others"],
     datasets: [
       {
         data: [value, total - value],
-        backgroundColor: ["#10b981", "#e5e7eb"],
+        backgroundColor: colors,
         borderWidth: 1,
+        borderColor: ["transparent", "transparent"],
       },
     ],
   };
 
-  return <Doughnut data={chartData} options={{ cutout: "70%" }} />;
+  return <Doughnut 
+    data={chartData} 
+    options={{ 
+      cutout: "70%",
+      plugins: {
+        legend: {
+          display: false,
+        },
+        tooltip: {
+          backgroundColor: "rgba(0, 0, 0, 0.75)",
+          padding: 10,
+          cornerRadius: 4,
+          titleFont: { size: 14, weight: 'bold' },
+          bodyFont: { size: 13 },
+        },
+      },
+    }} 
+  />;
 }
