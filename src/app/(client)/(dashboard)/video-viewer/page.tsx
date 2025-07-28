@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Play, Pause, Volume2, VolumeX, Maximize2, Minimize2, FileText, Loader2 } from "lucide-react";
 import { OpenRouterService } from "@/services/openrouter/config";
 import { useTheme } from "@/contexts/ThemeContext";
-import { VideoTranscriptionService } from "@/services/video/config";
+import { useExtractTextMutation } from "@/api/TranscriptApi";
 
 export default function VideoViewerPage() {
   const searchParams = useSearchParams();
@@ -25,6 +25,8 @@ export default function VideoViewerPage() {
   
   const videoUrl = searchParams.get('url');
   const title = searchParams.get('title') || 'Recorded Session';
+
+  const [extractText] = useExtractTextMutation();
 
   const getVideo = () => document.getElementById('main-video') as HTMLVideoElement;
 
@@ -87,21 +89,15 @@ export default function VideoViewerPage() {
     try {
       const openRouterApiKey = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
       if (!openRouterApiKey) throw new Error('OpenRouter API key not configured');
+      if (!videoUrl) throw new Error('Video URL not found');
 
-      const videoElement = getVideo();
-      if (!videoElement) throw new Error('Video element not found');
-
-      const transcriptionService = new VideoTranscriptionService();
-      let transcriptText = transcriptionService.extractSubtitlesFromVideo(videoElement);
+      const transcriptResult = await extractText({ videoUrl }).unwrap();
       
-      if (!transcriptText || transcriptText.length < 10) {
-        const transcriptionResult = await transcriptionService.transcribeVideo(videoElement);
-        transcriptText = (transcriptionResult as {text?: string})?.text || '';
+      if (!transcriptResult?.result?.text) {
+        throw new Error('Failed to extract text from video');
       }
 
-      if (!transcriptText || transcriptText.length < 10) {
-        throw new Error('Unable to extract content from video');
-      }
+      const transcriptText = transcriptResult.result.text;
 
       const openRouterService = new OpenRouterService(openRouterApiKey);
       const summaryText = await openRouterService.summarizeText({ content: transcriptText, maxWords: 100 });
@@ -112,7 +108,7 @@ export default function VideoViewerPage() {
       setHasSummary(true);
     } catch (error) {
       console.error('Failed to generate summary:', error);
-      setSummary(`## Error\n\nFailed to generate summary: ${error instanceof Error ? error.message : 'Unknown error'}\n\nPlease try again or check if the video has subtitles/captions.`);
+      setSummary(`## Error\n\nFailed to generate summary. Please make sure the video URL is valid and try again.`);
       setHasSummary(true);
     } finally {
       setIsGeneratingSummary(false);
