@@ -1,12 +1,23 @@
 import Cookies from "js-cookie";
 
+interface CookieOptions {
+  expires?: number; // days
+  secure?: boolean;
+  sameSite?: 'strict' | 'lax' | 'none';
+}
+
 /**
- * Set a cookie.
+ * Set a cookie with options.
  * @param name - The name of the cookie.
  * @param value - The value of the cookie.
+ * @param options - Cookie options (expires in days, secure, sameSite)
  */
-export const setClientCookie = (name: string, value: string): void => {
-  Cookies.set(name, value);
+export const setClientCookie = (name: string, value: string, options?: CookieOptions): void => {
+  Cookies.set(name, value, {
+    expires: options?.expires || 1, // Default 1 day
+    secure: options?.secure || true, // Default true
+    sameSite: options?.sameSite || 'strict' // Default strict
+  });
 };
 
 /**

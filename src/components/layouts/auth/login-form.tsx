@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import constants from "@/config/constants";
 import { useTranslations } from "next-intl";
 import { useEditUpdateAtMutation } from "@/api/ProfileApi";
+import { setClientCookie } from "@/utils/jsCookies";
 
 export function LoginForm() {
   const router = useRouter();
@@ -45,6 +46,12 @@ export function LoginForm() {
         if (payload.result) {
           const { accessToken, roleName } = payload.result as LoginResponseDTO;
           await editUpdateAt({ email });
+          // Set token with expiry
+          setClientCookie('accessToken', accessToken, {
+            expires: rememberMe ? 30 : 1, // 30 days if remember me, 1 day if not
+            secure: true,
+            sameSite: 'strict'
+          });
           if (accessToken && roleName == "ADMIN") {
             router.push("/admin");
           } else {
