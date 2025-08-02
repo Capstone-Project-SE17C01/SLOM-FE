@@ -337,15 +337,6 @@ export default function RealTimeTranslator({
               )}
             </div>
             
-            {/* Subtitle Display */}
-            {translator.state.isActive && translator.state.fullTranscript && (
-              <div className="mt-4 p-3 bg-black/70 rounded-lg text-center">
-                <p className="text-white font-medium text-lg leading-relaxed">
-                  {translator.state.fullTranscript}
-                </p>
-              </div>
-            )}
-
             {/* Control buttons */}
             <div className="flex items-center justify-center gap-4 pt-4">
               {!translator.state.isActive && !cameraActive ? (
@@ -412,6 +403,20 @@ export default function RealTimeTranslator({
             timestamp={translator.state.lastUpdate}
             showConfidence={showConfidence}
           />
+
+          {/* Full Transcript Subtitle */}
+          {translator.state.isActive && translator.state.fullTranscript && (
+            <div className="space-y-2 pt-4">
+               <h4 className={cn("text-md font-semibold", isDarkMode ? "text-gray-300" : "text-gray-700")}>
+                Full Transcript
+              </h4>
+              <div className="p-4 bg-gray-100 dark:bg-gray-900 rounded-lg min-h-[60px]">
+                <p className="text-gray-800 dark:text-gray-200 leading-relaxed">
+                  {translator.state.fullTranscript}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Connection Status */}
           <ConnectionStatus
