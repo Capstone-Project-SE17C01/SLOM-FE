@@ -29,6 +29,7 @@ export const useRealTimeTranslator = (options: UseFakeTranslatorOptions = {}): U
     isProcessing: false,
     connectionStatus: 'Disconnected',
     currentPrediction: '...',
+    fullTranscript: '',
     confidence: 0,
     lastUpdate: '',
     recentPredictions: []
@@ -55,7 +56,7 @@ export const useRealTimeTranslator = (options: UseFakeTranslatorOptions = {}): U
     if (timerRef.current) clearInterval(timerRef.current);
     wordIndexRef.current = 0;
     
-    setState(prev => ({ ...prev, isActive: true, recentPredictions: [], currentPrediction: 'Starting recognition...' }));
+    setState(prev => ({ ...prev, isActive: true, recentPredictions: [], currentPrediction: 'Starting recognition...', fullTranscript: '' }));
 
     setTimeout(() => {
       timerRef.current = setInterval(() => {
@@ -71,6 +72,7 @@ export const useRealTimeTranslator = (options: UseFakeTranslatorOptions = {}): U
             ...prev,
             isProcessing: true,
             currentPrediction: newWord,
+            fullTranscript: prev.fullTranscript ? `${prev.fullTranscript} ${newWord}` : newWord,
             confidence: newResult.confidence,
             lastUpdate: newResult.timestamp,
             recentPredictions: [newResult, ...prev.recentPredictions]
@@ -117,6 +119,7 @@ export const useRealTimeTranslator = (options: UseFakeTranslatorOptions = {}): U
       ...prev,
       recentPredictions: [],
       currentPrediction: 'History cleared',
+      fullTranscript: '',
       confidence: 0,
       lastUpdate: ''
     }));

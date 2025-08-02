@@ -28,6 +28,7 @@ export interface RealTimeTranslationState {
   isProcessing: boolean;
   connectionStatus: 'Disconnected' | 'Connecting...' | 'Connected' | 'Recognizing...' | 'Error' | 'Demo Mode (Server Unavailable)' | 'Camera Only Mode (WebSocket Disabled)' | 'Connected (auto)';
   currentPrediction: string;
+  fullTranscript?: string;
   confidence: number;
   lastUpdate: string;
   recentPredictions: PredictionResult[];

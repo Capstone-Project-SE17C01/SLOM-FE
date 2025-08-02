@@ -416,8 +416,17 @@ export default function RealTimeTranslator({
               )}
             </div>
             
+            {/* Subtitle Display */}
+            {translator.state.isActive && translator.state.fullTranscript && (
+              <div className="mt-4 p-3 bg-black/70 rounded-lg text-center">
+                <p className="text-white font-medium text-lg leading-relaxed">
+                  {translator.state.fullTranscript}
+                </p>
+              </div>
+            )}
+
             {/* Control buttons */}
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex items-center justify-center gap-4 pt-4">
               {!translator.state.isActive && !cameraActive ? (
                 <Button 
                   size="lg" 
