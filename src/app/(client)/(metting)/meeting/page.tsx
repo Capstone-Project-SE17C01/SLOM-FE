@@ -139,7 +139,7 @@ export default function MeetingPage() {
 
   // --- Configuration for FAKE Sign Language Recognition ---
   const FAKE_SIGN_LANGUAGE_WORDS = [
-    "Xin", "chào", "mọi", "người", "mình", "tên", "là", "Long",
+    "Xin", "chào", "mọi", "người", "mình", "tên", "là", "L", "o", "n", "g",
     "Hiện", "mình", "đang", "làm", "việc", "ở", "quán", "cà", "phê", "A", "n", "g", "e", "l",
     "Mình", "rất", "vui", "được", "gặp", "các", "bạn", "hôm", "nay",
     "Mình", "là", "người", "khiếm", "thính", "nhưng", "mình", "có", "thể", "giao", "tiếp", "tốt", "nhờ", "ký", "hiệu", "và", "công", "nghệ",
@@ -148,7 +148,7 @@ export default function MeetingPage() {
     "Và", "nếu", "rảnh", "ghé", "chi", "nhánh", "mình", "làm", "uống", "cà", "phê", "nha"
   ];
   const FAKE_INITIAL_DELAY_MS = 3000; // 3 seconds
-  const FAKE_WORD_INTERVAL_MS = Number((Math.random() + 1).toFixed(1)) * 1000; // Random delay like 1.2s, 1.7s
+  const FAKE_WORD_INTERVAL_MS = (Math.random() * 0.3 + 0.2) * 1000; // Random delay between 0.2s and 0.5s
 
   // Sign Language Recognition hook
   const signLanguageRecognition = useSignLanguageRecognition({
