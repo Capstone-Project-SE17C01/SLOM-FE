@@ -34,6 +34,7 @@ export const useSignLanguageRecognition = (options: UseSignLanguageRecognitionOp
         setConnectionStatus("Connected");
       };
       newSocket.onmessage = (event) => {
+        console.log("RAW MESSAGE FROM SERVER:", event.data);
         try {
           const data = JSON.parse(event.data);
           let prediction = "No sign detected";
