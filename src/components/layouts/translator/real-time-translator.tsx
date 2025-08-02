@@ -86,6 +86,11 @@ export default function RealTimeTranslator({
       setCameraError(null);
       
       console.log("🎥 Starting camera...");
+
+      // Ensure video element exists first
+      if (!videoRef.current) {
+        throw new Error("Video element not found - Please try again");
+      }
       
       // Check if getUserMedia is supported
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -98,9 +103,10 @@ export default function RealTimeTranslator({
         // Try with ideal resolution first
         stream = await navigator.mediaDevices.getUserMedia({
           video: {
-            width: { ideal: 640, min: 320 },
-            height: { ideal: 480, min: 240 },
-            facingMode: 'user'
+            width: { ideal: 1280, max: 1920 },
+            height: { ideal: 720, max: 1080 },
+            facingMode: 'user',
+            frameRate: { ideal: 30, min: 15 }
           },
           audio: false
         });
@@ -114,54 +120,49 @@ export default function RealTimeTranslator({
       }
 
       console.log("✅ Camera stream obtained:", stream);
-      console.log("📹 Video tracks:", stream.getVideoTracks());
+      const videoTracks = stream.getVideoTracks();
+      console.log("📹 Video tracks:", videoTracks);
+      
+      if (videoTracks.length === 0) {
+        throw new Error("No video track found in media stream");
+      }
 
+      // Set up video element
+      const video = videoRef.current;
+      video.srcObject = stream;
+      video.muted = true;
+      video.playsInline = true;
+
+      // Set stream to state
       setMediaStream(stream);
 
-      // Wait for video element to be ready
-      if (videoRef.current) {
-        console.log("🔗 Setting video source...");
-        videoRef.current.srcObject = stream;
-        
-        // Wait for video to load
-        await new Promise<void>((resolve, reject) => {
-          if (!videoRef.current) {
-            reject(new Error("Video element not found"));
-            return;
-          }
+      // Wait for video to be ready
+      await new Promise<void>((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+          reject(new Error("Video loading timeout"));
+        }, 10000);
 
-          const video = videoRef.current;
-          
-          const handleLoadedMetadata = () => {
-            console.log("📊 Video metadata loaded:", {
-              videoWidth: video.videoWidth,
-              videoHeight: video.videoHeight,
-              readyState: video.readyState
-            });
-            video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-            video.removeEventListener('error', handleError);
-            resolve();
-          };
+        const handleCanPlay = () => {
+          clearTimeout(timeoutId);
+          video.removeEventListener('canplay', handleCanPlay);
+          video.removeEventListener('error', handleError);
+          resolve();
+        };
 
-          const handleError = (e: Event) => {
-            console.error("❌ Video error:", e);
-            video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-            video.removeEventListener('error', handleError);
-            reject(new Error("Failed to load video"));
-          };
+        const handleError = (e: Event) => {
+          clearTimeout(timeoutId);
+          video.removeEventListener('canplay', handleCanPlay);
+          video.removeEventListener('error', handleError);
+          reject(new Error(`Video error: ${e.type}`));
+        };
 
-          video.addEventListener('loadedmetadata', handleLoadedMetadata);
-          video.addEventListener('error', handleError);
-          
-          // Start playing
-          video.play().catch(playError => {
-            console.error("Play error:", playError);
-            reject(playError);
-          });
-        });
+        video.addEventListener('canplay', handleCanPlay);
+        video.addEventListener('error', handleError);
+      });
 
-        console.log("🎬 Video playing successfully!");
-      }
+      // Start playing video
+      await video.play();
+      console.log("🎬 Video playing successfully!");
 
       setCameraActive(true);
       setCameraLoading(false);
@@ -296,33 +297,33 @@ export default function RealTimeTranslator({
               "aspect-video rounded-xl overflow-hidden border-2 relative",
               isDarkMode ? "bg-gray-700 border-gray-600" : "bg-gray-100 border-gray-300"
             )}>
-              {cameraActive ? (
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  muted
-                  playsInline
-                  className="w-full h-full object-cover"
-                  style={{ 
-                    transform: 'scaleX(-1)', // Mirror effect for natural feel
-                    backgroundColor: '#000000', // Ensure black background
-                    minHeight: '100%',
-                    minWidth: '100%'
-                  }}
-                  onLoadedMetadata={() => {
-                    console.log("📊 Video metadata loaded in component");
-                  }}
-                  onCanPlay={() => {
-                    console.log("✅ Video can play");
-                  }}
-                  onPlay={() => {
-                    console.log("▶️ Video started playing");
-                  }}
-                  onError={(e) => {
-                    console.error("❌ Video element error:", e);
-                  }}
-                />
-              ) : cameraLoading ? (
+              <video
+                ref={videoRef}
+                autoPlay
+                muted
+                playsInline
+                className="w-full h-full object-cover"
+                style={{ 
+                  transform: 'scaleX(-1)', // Mirror effect for natural feel
+                  backgroundColor: '#000000', // Ensure black background
+                  minHeight: '100%',
+                  minWidth: '100%',
+                  display: cameraActive ? 'block' : 'none'
+                }}
+                onLoadedMetadata={() => {
+                  console.log("📊 Video metadata loaded in component");
+                }}
+                onCanPlay={() => {
+                  console.log("✅ Video can play");
+                }}
+                onPlay={() => {
+                  console.log("▶️ Video started playing");
+                }}
+                onError={(e) => {
+                  console.error("❌ Video element error:", e);
+                }}
+              />
+              {!cameraActive && cameraLoading ? (
                 <div className="w-full h-full flex items-center justify-center">
                   <div className="text-center">
                     <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mx-auto mb-4"></div>
@@ -340,7 +341,7 @@ export default function RealTimeTranslator({
                     </p>
                   </div>
                 </div>
-              ) : cameraError ? (
+              ) : !cameraActive && cameraError ? (
                 <div className="w-full h-full flex items-center justify-center">
                   <div className="text-center max-w-md px-4">
                     <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center">
@@ -371,7 +372,7 @@ export default function RealTimeTranslator({
                     </Button>
                   </div>
                 </div>
-              ) : (
+              ) : !cameraActive && (
                 <div className="w-full h-full flex items-center justify-center">
                   <div className="text-center">
                     <Camera className={cn(
