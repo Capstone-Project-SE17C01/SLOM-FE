@@ -139,10 +139,12 @@ export default function MeetingPage() {
 
   // --- Configuration for FAKE Sign Language Recognition ---
   const FAKE_SIGN_LANGUAGE_WORDS = [
-    "Hello", "teacher", "and", "my", "friends", 
-    "This", "is", "our", "final", "project",
-    "A", "system", "to", "help", "people", "learn", "sign", "language",
-    "We", "are", "very", "excited", "to", "show", "it", "to", "you"
+    "Mời", "Anh/chị", "giới", "thiệu", "bản", "thân",
+    "Xin", "chào", "mọi", "người", "mình", "tên", "là", "Tên",
+    "Hiện", "mình", "đang", "làm", "việc", "ở", "quán", "cà", "phê", "tại", "Angel", "Coffee",
+    "Mình", "rất", "vui", "được", "gặp", "các", "bạn", "hôm", "nay",
+    "Mình", "là", "người", "khiếm", "thính", "nhưng", "mình", "có", "thể", "giao", "tiếp", "tốt", "nhờ", "ký", "hiệu", "và", "công", "nghệ",
+    "Nếu", "có", "gì", "cần", "hỗ", "trợ", "cứ", "nhắn", "hoặc", "ra", "dấu", "nhé"
   ];
   const FAKE_INITIAL_DELAY_MS = 3000; // 3 seconds
   const FAKE_WORD_INTERVAL_MS = 500;   // 0.5 seconds

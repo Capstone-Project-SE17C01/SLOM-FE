@@ -2,10 +2,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 // Default list of words to simulate recognition
 const DEFAULT_WORDS = [
-  "Hello", "teacher", "and", "friends", "Today", "we", "will", "present",
-  "about", "our", "graduation", "project", "It", "is", "a", "system",
-  "to", "support", "sign", "language", "learning", "We", "hope",
-  "you", "will", "enjoy", "it", "Thank", "you"
+  "Xin", "chào", "mọi", "người", "mình", "tên", "là", "[Tên]",
+  "Hiện", "mình", "đang", "làm", "việc", "ở", "quán", "cà", "phê", "tại", "Angel", "Coffee",
+  "Mình", "rất", "vui", "được", "gặp", "các", "bạn", "hôm", "nay",
+  "Mình", "là", "người", "khiếm", "thính", "nhưng", "mình", "có", "thể", "giao", "tiếp", "tốt", "nhờ", "ký", "hiệu", "và", "công", "nghệ",
+  "Nếu", "có", "gì", "cần", "hỗ", "trợ", "cứ", "nhắn", "hoặc", "ra", "dấu", "nhé"
 ];
 const DEFAULT_INITIAL_DELAY = 3000;
 const DEFAULT_WORD_INTERVAL = 500;

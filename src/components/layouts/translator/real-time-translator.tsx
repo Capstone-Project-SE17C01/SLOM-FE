@@ -96,10 +96,10 @@ export default function RealTimeTranslator({
   const startTranslation = async () => {
     // --- Start Fake Translation Immediately ---
     // This ensures the demo subtitle works even if the camera fails.
-    if (!translator.state.isConnected) {
-      translator.connect();
+    // We use toggleRecognition as it correctly handles the connect -> start sequence.
+    if (!translator.state.isActive) {
+      translator.toggleRecognition();
     }
-    translator.startRecognition();
 
     // --- Try to Start Camera for Visuals ---
     setCameraActive(true); // Optimistically show the video view
