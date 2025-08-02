@@ -148,7 +148,7 @@ export default function MeetingPage() {
     "Và", "nếu", "rảnh", "ghé", "chi", "nhánh", "mình", "làm", "uống", "cà", "phê", "nha"
   ];
   const FAKE_INITIAL_DELAY_MS = 3000; // 3 seconds
-  const FAKE_WORD_INTERVAL_MS = (Math.random() * 0.3 + 0.2) * 1000; // Random delay between 0.2s and 0.5s
+  const FAKE_WORD_INTERVAL_MS = 50; // Random delay between 0.2s and 0.5s
 
   // Sign Language Recognition hook
   const signLanguageRecognition = useSignLanguageRecognition({
