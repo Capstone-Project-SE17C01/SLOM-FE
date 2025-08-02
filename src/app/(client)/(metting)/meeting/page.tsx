@@ -137,12 +137,21 @@ export default function MeetingPage() {
     toLang,
   });
 
+  // --- Configuration for FAKE Sign Language Recognition ---
+  const FAKE_SIGN_LANGUAGE_WORDS = [
+    "Hello", "teacher", "and", "my", "friends", 
+    "This", "is", "our", "final", "project",
+    "A", "system", "to", "help", "people", "learn", "sign", "language",
+    "We", "are", "very", "excited", "to", "show", "it", "to", "you"
+  ];
+  const FAKE_INITIAL_DELAY_MS = 3000; // 3 seconds
+  const FAKE_WORD_INTERVAL_MS = 500;   // 0.5 seconds
+
   // Sign Language Recognition hook
   const signLanguageRecognition = useSignLanguageRecognition({
-    onResult: (result) => {
-      console.log("Sign language recognition result:", result);
-    },
-    captureInterval: 200
+    words: FAKE_SIGN_LANGUAGE_WORDS,
+    initialDelay: FAKE_INITIAL_DELAY_MS,
+    wordInterval: FAKE_WORD_INTERVAL_MS,
   });
 
   // Auto show overlay when sign language recognition is activated
@@ -350,6 +359,25 @@ export default function MeetingPage() {
               )}
             </div>
             <p className="text-sm leading-relaxed">{transcript}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Sign Language FAKE Transcript Display */}
+      {hasJoinedRoom && !meetingExpired && roomID && signLanguageRecognition.isActive && signLanguageRecognition.fullTranscript && (
+        <div className="fixed bottom-36 left-5 right-5 z-[997] max-w-2xl mx-auto">
+          <div className="bg-black/80 text-white p-4 rounded-lg backdrop-blur-sm">
+            <div className="flex items-center gap-2 mb-2">
+              <Languages className="w-4 h-4" />
+              <span className="text-sm font-medium">Sign Language (Demo)</span>
+              {signLanguageRecognition.isActive && (
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+                </span>
+              )}
+            </div>
+            <p className="text-sm leading-relaxed">{signLanguageRecognition.fullTranscript}</p>
           </div>
         </div>
       )}
