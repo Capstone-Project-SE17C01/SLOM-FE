@@ -15,11 +15,11 @@ import {
   useLoginWithGoogleMutation,
 } from "../../../api/AuthApi";
 import { LoginResponseDTO } from "../../../types/IAuth";
-import { toast } from "sonner";
 import constants from "@/config/constants";
 import { useTranslations } from "next-intl";
 import { useEditUpdateAtMutation } from "@/api/ProfileApi";
 import { setClientCookie } from "@/utils/jsCookies";
+import { updateAuthToken } from "@/services";
 
 export function LoginForm() {
   const router = useRouter();
@@ -29,46 +29,42 @@ export function LoginForm() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
-  const t_error_auth = useTranslations("errorMessages.authError");
   const t_login = useTranslations("loginPage");
 
   const [login] = useLoginMutation();
   const [signInWithGoogle] = useLoginWithGoogleMutation();
   const [editUpdateAt] = useEditUpdateAtMutation();
+
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
-    await login({ email, password })
-      .unwrap()
-      .then(async (payload) => {
-        if (payload.result) {
-          const { accessToken, roleName } = payload.result as LoginResponseDTO;
-          await editUpdateAt({ email });
-          // Set token with expiry
-          setClientCookie('accessToken', accessToken, {
-            expires: rememberMe ? 30 : 1, // 30 days if remember me, 1 day if not
-            secure: true,
-            sameSite: 'strict'
-          });
-          if (accessToken && roleName == "ADMIN") {
-            router.push("/admin");
-          } else {
-            router.push("/");
-          }
+    try {
+      const payload = await login({ email, password }).unwrap();
+      
+      if (payload.result) {
+        const { accessToken, roleName } = payload.result as LoginResponseDTO;
+        
+        setClientCookie('accessToken', accessToken, {
+          expires: rememberMe ? 30 : 1,
+          secure: true,
+          sameSite: 'strict'
+        });
+        
+        updateAuthToken(accessToken);
+        
+        await editUpdateAt({ email });
+        
+        if (accessToken && roleName === "ADMIN") {
+          router.push("/admin");
+        } else {
+          router.push("/");
         }
-      })
-      .catch((error) => {
-        console.log("Error Login Email\n", error);
-        const errorMessage = Array.isArray(error.data.errorMessages)
-          ? error.data.errorMessages[0]
-          : error.data.errorMessages;
-        setError(t_error_auth(errorMessage));
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      }
+    } catch (error) {
+      console.error("Error Login Email\n", error);
+    }
   };
 
   const handleGoogleLogin = useCallback(async () => {
@@ -77,34 +73,34 @@ export function LoginForm() {
 
     if (code) {
       setIsLoading(true);
-      await signInWithGoogle({
-        code,
-        redirectUri: constants.REDIRECT_URL_GOOGLE,
-        role: "USER",
-        languageCode: "en",
-      })
-        .unwrap()
-        .then((payload) => {
-          if (payload.result) {
-            const { accessToken } = payload.result as LoginResponseDTO;
-            if (accessToken) {
-              router.push("/");
-            }
+      try {
+        const payload = await signInWithGoogle({
+          code,
+          redirectUri: constants.REDIRECT_URL_GOOGLE,
+          role: "USER",
+          languageCode: "en",
+        }).unwrap();
+
+        if (payload.result) {
+          const { accessToken } = payload.result as LoginResponseDTO;
+          
+          if (accessToken) {
+            setClientCookie('accessToken', accessToken, {
+              expires: rememberMe ? 30 : 1,
+              secure: true,
+              sameSite: 'strict'
+            });
+            
+            updateAuthToken(accessToken);
+            
+            router.push("/");
           }
-        })
-        .catch((error) => {
-          console.log("Error Login Email\n", error);
-          const errorMessage = Array.isArray(error.data.errorMessages)
-            ? error.data.errorMessages[0]
-            : error.data.errorMessages;
-          setError(t_error_auth(errorMessage));
-          toast.error(t_error_auth(errorMessage));
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
+        }
+      } catch (error) {
+        console.error("Error Login Google\n", error);
+      }
     }
-  }, [router, setError, setIsLoading, signInWithGoogle, t_error_auth]);
+  }, [router, setIsLoading, signInWithGoogle, rememberMe]);
 
   useEffect(() => {
     handleGoogleLogin();
