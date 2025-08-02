@@ -1,90 +1,133 @@
-import { useCallback, useEffect, useState } from "react";
-import { 
-  RealTimeTranslationState, 
-  UseRealTimeTranslatorReturn
+import { useCallback, useEffect, useState, useRef } from "react";
+import {
+  RealTimeTranslationState,
+  UseRealTimeTranslatorReturn,
+  PredictionResult,
+  UseFakeTranslatorOptions
 } from "@/types/ITranslator";
-export const useRealTimeTranslator = (): UseRealTimeTranslatorReturn => {
+
+const FAKE_WORDS = [
+  "This", "is", "a", "real-time", "sign", "language", "translator",
+  "It", "can", "recognize", "various", "signs", "and", "convert", "them",
+  "into", "text", "for", "easier", "communication"
+];
+
+const DEFAULT_INITIAL_DELAY = 2000;
+const DEFAULT_TRANSLATION_INTERVAL = 1500;
+
+export const useRealTimeTranslator = (options: UseFakeTranslatorOptions = {}): UseRealTimeTranslatorReturn => {
+  const {
+    words = FAKE_WORDS,
+    initialDelay = DEFAULT_INITIAL_DELAY,
+    translationInterval = DEFAULT_TRANSLATION_INTERVAL,
+  } = options;
+
   const [state, setState] = useState<RealTimeTranslationState>({
     isConnected: false,
     isActive: false,
     isRecording: false,
     isProcessing: false,
     connectionStatus: 'Disconnected',
-    currentPrediction: 'No sign detected',
+    currentPrediction: '...',
     confidence: 0,
     lastUpdate: '',
     recentPredictions: []
   });
+
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const wordIndexRef = useRef(0);
+
   const connect = useCallback(() => {
-    console.log("📹 Camera-only mode (WebSocket disabled temporarily)");
-    setState(prev => ({
-      ...prev,
-      isConnected: true,
-      connectionStatus: 'Camera Only Mode (WebSocket Disabled)'
-    }));
+    setState(prev => ({ ...prev, isConnected: true, connectionStatus: 'Connected' }));
   }, []);
+
   const disconnect = useCallback(() => {
-    console.log("📹 Disconnecting camera-only mode");
-    setState(prev => ({
-      ...prev,
-      isConnected: false,
-      isActive: false,
-      connectionStatus: 'Disconnected'
-    }));
+    if (timerRef.current) clearInterval(timerRef.current);
+    setState(prev => ({ ...prev, isConnected: false, isActive: false, connectionStatus: 'Disconnected' }));
   }, []);
+
   const startRecognition = useCallback(() => {
     if (!state.isConnected) {
       console.error("Not connected");
       return false;
     }
-    setState(prev => ({
-      ...prev,
-      isActive: true,
-      connectionStatus: 'Camera Only Mode (WebSocket Disabled)',
-      currentPrediction: 'Camera preview active (WebSocket disabled)',
-      confidence: 0,
-      lastUpdate: new Date().toLocaleTimeString()
-    }));
+    
+    if (timerRef.current) clearInterval(timerRef.current);
+    wordIndexRef.current = 0;
+    
+    setState(prev => ({ ...prev, isActive: true, recentPredictions: [], currentPrediction: 'Starting recognition...' }));
+
+    setTimeout(() => {
+      timerRef.current = setInterval(() => {
+        if (wordIndexRef.current < words.length) {
+          const newWord = words[wordIndexRef.current];
+          const newResult: PredictionResult = {
+            prediction: newWord,
+            confidence: Math.floor(Math.random() * 11) + 90, // Random confidence 90-100
+            timestamp: new Date().toLocaleTimeString()
+          };
+
+          setState(prev => ({
+            ...prev,
+            isProcessing: true,
+            currentPrediction: newWord,
+            confidence: newResult.confidence,
+            lastUpdate: newResult.timestamp,
+            recentPredictions: [newResult, ...prev.recentPredictions]
+          }));
+
+          setTimeout(() => setState(prev => ({ ...prev, isProcessing: false })), 500);
+
+          wordIndexRef.current += 1;
+        } else {
+          if (timerRef.current) clearInterval(timerRef.current);
+          setState(prev => ({ ...prev, isActive: false, currentPrediction: "Recognition finished." }));
+        }
+      }, translationInterval);
+    }, initialDelay);
+
     return true;
-  }, [state.isConnected]);
+  }, [state.isConnected, words, initialDelay, translationInterval]);
+
   const stopRecognition = useCallback(() => {
-    console.log("📹 Stopping camera-only mode");
+    if (timerRef.current) clearInterval(timerRef.current);
     setState(prev => ({
       ...prev,
       isActive: false,
-      currentPrediction: 'Camera stopped',
-      confidence: 0,
-      connectionStatus: 'Camera Only Mode (WebSocket Disabled)'
+      isProcessing: false,
+      currentPrediction: 'Stopped'
     }));
   }, []);
+
   const toggleRecognition = useCallback(() => {
     if (state.isActive) {
       stopRecognition();
     } else {
       if (!state.isConnected) {
         connect();
-        setTimeout(() => {
-          startRecognition();
-        }, 100);
+        setTimeout(() => startRecognition(), 100);
       } else {
         startRecognition();
       }
     }
   }, [state.isActive, state.isConnected, connect, startRecognition, stopRecognition]);
+
   const clearHistory = useCallback(() => {
     setState(prev => ({
       ...prev,
       recentPredictions: [],
-      currentPrediction: 'No sign detected',
+      currentPrediction: 'History cleared',
       confidence: 0,
       lastUpdate: ''
     }));
   }, []);
+
   useEffect(() => {
     return () => {
-      console.log("📹 Cleaning up camera-only mode");
+      if (timerRef.current) clearInterval(timerRef.current);
     };
   }, []);
+
   return {
     state,
     connect,

@@ -97,7 +97,7 @@ export const useSignLanguageRecognition = (options: UseFakeSignLanguageRecogniti
     
     // --- Mock data to prevent breaking the UI ---
     isConnected: isActive,
-    connectionStatus: isActive ? "Recognizing (Fake)" : "Disconnected",
+    connectionStatus: isActive ? "Recognizing" : "Disconnected",
     confidence: isActive ? 100 : 0,
     lastUpdate: new Date().toLocaleTimeString(),
     recentPredictions: [],

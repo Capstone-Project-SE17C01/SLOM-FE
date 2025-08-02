@@ -32,8 +32,21 @@ export default function RealTimeTranslator({
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
 
-  // Initialize real-time translator (Camera only mode - WebSocket disabled)
-  const translator = useRealTimeTranslator();
+  // --- Configuration for FAKE Real-Time Sign Language Translator ---
+  const FAKE_RECOGNITION_WORDS = [
+    "I", "need", "help", "with", "my", "computer", "It", "is", "not",
+    "working", "Can", "you", "please", "assist", "me"
+  ];
+  const FAKE_TRANSLATOR_INITIAL_DELAY_MS = 2500;
+  const FAKE_TRANSLATOR_INTERVAL_MS = 2000;
+
+  // Initialize real-time translator
+  const translator = useRealTimeTranslator({
+    words: FAKE_RECOGNITION_WORDS,
+    initialDelay: FAKE_TRANSLATOR_INITIAL_DELAY_MS,
+    translationInterval: FAKE_TRANSLATOR_INTERVAL_MS,
+  });
+  
   // destructure các giá trị primitive cần thiết từ translator cho useEffect
   const { state: { isConnected }, connect } = translator;
 

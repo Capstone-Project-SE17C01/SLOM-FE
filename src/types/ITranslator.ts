@@ -26,11 +26,11 @@ export interface RealTimeTranslationState {
   isActive: boolean;
   isRecording: boolean;
   isProcessing: boolean;
-  connectionStatus: 'Disconnected' | 'Connecting...' | 'Connected' | 'Recognizing...' | 'Error' | 'Demo Mode (Server Unavailable)' | 'Camera Only Mode (WebSocket Disabled)';
+  connectionStatus: 'Disconnected' | 'Connecting...' | 'Connected' | 'Recognizing...' | 'Error' | 'Demo Mode (Server Unavailable)' | 'Camera Only Mode (WebSocket Disabled)' | 'Connected (auto)';
   currentPrediction: string;
   confidence: number;
   lastUpdate: string;
-  recentPredictions: RealTimeTranslationResult[];
+  recentPredictions: PredictionResult[];
 }
 
 // Upload video translation types
@@ -171,6 +171,18 @@ export interface UseVideoUploadReturn {
   processVideo: (videoId: string) => Promise<void>;
   clearState: () => void;
   removeFile: () => void;
+}
+
+export interface PredictionResult {
+  prediction: string;
+  confidence: number;
+  timestamp: string;
+}
+
+export interface UseFakeTranslatorOptions {
+  words?: string[];
+  initialDelay?: number;
+  translationInterval?: number;
 }
 
 // Component props types
