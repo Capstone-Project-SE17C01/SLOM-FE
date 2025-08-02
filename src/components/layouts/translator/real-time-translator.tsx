@@ -94,131 +94,52 @@ export default function RealTimeTranslator({
 
   // Start camera and WebSocket connection
   const startTranslation = async () => {
+    // --- Start Fake Translation Immediately ---
+    // This ensures the demo subtitle works even if the camera fails.
+    if (!translator.state.isConnected) {
+      translator.connect();
+    }
+    translator.startRecognition();
+
+    // --- Try to Start Camera for Visuals ---
+    setCameraActive(true); // Optimistically show the video view
+    setCameraLoading(true);
+    setCameraError(null);
+
     try {
-      setCameraLoading(true);
-      setCameraError(null);
+      console.log("🎥 Trying to start camera (for visual effect)...");
+
+      if (!videoRef.current) throw new Error("Video element not found");
+      if (!navigator.mediaDevices?.getUserMedia) throw new Error("Camera access not supported by this browser");
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          facingMode: 'user'
+        },
+        audio: false
+      });
       
-      console.log("🎥 Starting camera...");
-
-      // Ensure video element exists first
-      if (!videoRef.current) {
-        throw new Error("Video element not found - Please try again");
-      }
-      
-      // Check if getUserMedia is supported
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error("Camera access is not supported in this browser");
-      }
-
-      // Request camera access with fallback options
-      let stream: MediaStream;
-      try {
-        // Try with ideal resolution first
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            width: { ideal: 1280, max: 1920 },
-            height: { ideal: 720, max: 1080 },
-            facingMode: 'user',
-            frameRate: { ideal: 30, min: 15 }
-          },
-          audio: false
-        });
-      } catch (err) {
-        console.warn("Failed with ideal settings, trying basic:", err);
-        // Fallback to basic video constraints
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: false
-        });
-      }
-
-      console.log("✅ Camera stream obtained:", stream);
-      const videoTracks = stream.getVideoTracks();
-      console.log("📹 Video tracks:", videoTracks);
-      
-      if (videoTracks.length === 0) {
-        throw new Error("No video track found in media stream");
-      }
-
-      // Set up video element
+      console.log("✅ Camera stream obtained");
       const video = videoRef.current;
       video.srcObject = stream;
-      video.muted = true;
-      video.playsInline = true;
-
-      // Set stream to state
-      setMediaStream(stream);
-
-      // Wait for video to be ready
-      await new Promise<void>((resolve, reject) => {
-        const timeoutId = setTimeout(() => {
-          reject(new Error("Video loading timeout"));
-        }, 10000);
-
-        const handleCanPlay = () => {
-          clearTimeout(timeoutId);
-          video.removeEventListener('canplay', handleCanPlay);
-          video.removeEventListener('error', handleError);
-          resolve();
-        };
-
-        const handleError = (e: Event) => {
-          clearTimeout(timeoutId);
-          video.removeEventListener('canplay', handleCanPlay);
-          video.removeEventListener('error', handleError);
-          reject(new Error(`Video error: ${e.type}`));
-        };
-
-        video.addEventListener('canplay', handleCanPlay);
-        video.addEventListener('error', handleError);
-      });
-
-      // Start playing video
       await video.play();
-      console.log("🎬 Video playing successfully!");
-
-      setCameraActive(true);
+      
+      setMediaStream(stream);
       setCameraLoading(false);
-
-      // Connect to WebSocket if not connected
-      if (!translator.state.isConnected) {
-        console.log("🔌 Connecting to WebSocket...");
-        translator.connect();
-        
-        // Wait for connection then start recognition
-        setTimeout(() => {
-          if (translator.state.isConnected) {
-            console.log("🔍 Starting recognition...");
-            translator.startRecognition();
-          }
-        }, 1000);
-      } else {
-        console.log("🔍 Starting recognition...");
-        translator.startRecognition();
-      }
 
     } catch (error) {
-      console.error("❌ Error starting translation:", error);
+      console.error("❌ Camera failed, but fake subtitles will continue:", error);
       setCameraLoading(false);
-      setCameraActive(false);
       
       let errorMessage = "Could not access camera. ";
       if (error instanceof Error) {
-        if (error.name === 'NotAllowedError') {
-          errorMessage += "Please allow camera permissions and try again.";
-        } else if (error.name === 'NotFoundError') {
-          errorMessage += "No camera found. Please connect a camera and try again.";
-        } else if (error.name === 'NotReadableError') {
-          errorMessage += "Camera is already in use by another application.";
-        } else {
-          errorMessage += error.message;
-        }
-      } else {
-        errorMessage += "Unknown error occurred.";
+        if (error.name === 'NotAllowedError') errorMessage += "Permissions denied.";
+        else if (error.name === 'NotFoundError') errorMessage += "No camera found.";
+        else errorMessage = error.message;
       }
-      
       setCameraError(errorMessage);
-      alert(errorMessage);
     }
   };
 
