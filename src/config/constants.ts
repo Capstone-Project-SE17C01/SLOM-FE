@@ -1,7 +1,9 @@
 const API_SERVER = process.env.NEXT_PUBLIC_API_SERVER;
 const RETURN_URL = process.env.NEXT_PUBLIC_RETURN_URL;
-const ZEGO_APP_ID = Number(process.env.NEXT_PUBLIC_ZEGO_APP_ID);
-const ZEGO_SERVER_SECRET = process.env.NEXT_PUBLIC_ZEGO_SERVER_SECRET || "";
+// const ZEGO_APP_ID = Number(process.env.NEXT_PUBLIC_ZEGO_APP_ID);
+// const ZEGO_SERVER_SECRET = process.env.NEXT_PUBLIC_ZEGO_SERVER_SECRET || "";
+const ZEGO_APP_ID = 787154921;
+const ZEGO_SERVER_SECRET = "44e0fcd296ad5880785ab50df9c455d6";
 
 const USER_INFO = "_user_info";
 const ACCESS_TOKEN = "_access_token";
