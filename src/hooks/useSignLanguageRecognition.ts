@@ -99,7 +99,11 @@ export const useSignLanguageRecognition = (options: UseSignLanguageRecognitionOp
     ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
     try {
       const imageData = canvas.toDataURL('image/jpeg', 0.7);
-      socket.send(imageData);
+      // The AI server expects a JSON object with an action and the image data.
+      socket.send(JSON.stringify({
+        action: "predict",
+        image: imageData
+      }));
     } catch (error) {
       console.error('Error sending frame for sign language recognition:', error);
     }
