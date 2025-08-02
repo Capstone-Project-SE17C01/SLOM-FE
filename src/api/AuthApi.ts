@@ -1,6 +1,6 @@
 "use client";
 
-import { baseApi } from "@/services";
+import { baseApi, updateAuthToken } from "@/services";
 import type {
   LoginRequestDTO,
   ConfirmRegisterationRequestDTO,
@@ -17,6 +17,7 @@ import type {
   ChangeLanguageResponseDTO,
 } from "../types/IAuth";
 import { authSlice } from "../redux/auth/slice";
+import { setClientCookie } from "@/utils/jsCookies";
 
 export const authAPI = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -30,7 +31,15 @@ export const authAPI = baseApi.injectEndpoints({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data: loginData } = await queryFulfilled;
-          if (loginData?.result?.userEmail) {
+          if (loginData?.result?.userEmail && loginData?.result?.accessToken) {
+            updateAuthToken(loginData.result.accessToken);
+            
+            setClientCookie('accessToken', loginData.result.accessToken, {
+              expires: 1,
+              secure: true,
+              sameSite: 'strict'
+            });
+
             const profileResult = await dispatch(
               authAPI.endpoints.getUserProfile.initiate(
                 loginData.result.userEmail
@@ -71,7 +80,15 @@ export const authAPI = baseApi.injectEndpoints({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data: loginData } = await queryFulfilled;
-          if (loginData?.result?.userEmail) {
+          if (loginData?.result?.userEmail && loginData?.result?.accessToken) {
+            updateAuthToken(loginData.result.accessToken);
+            
+            setClientCookie('accessToken', loginData.result.accessToken, {
+              expires: 1,
+              secure: true,
+              sameSite: 'strict'
+            });
+
             const profileResult = await dispatch(
               authAPI.endpoints.getUserProfile.initiate(
                 loginData.result.userEmail

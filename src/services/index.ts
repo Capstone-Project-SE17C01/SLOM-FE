@@ -3,6 +3,8 @@ import constants from "@/config/constants";
 import { createApi, fetchBaseQuery, BaseQueryFn } from "@reduxjs/toolkit/query/react";
 import { Mutex } from 'async-mutex';
 
+let inMemoryToken: string | null = null;
+
 interface RefreshResponse {
   accessToken: string;
   refreshToken: string;
@@ -10,10 +12,27 @@ interface RefreshResponse {
 
 const mutex = new Mutex();
 
+const getAuthToken = (): string | undefined => {
+  if (inMemoryToken) {
+    return inMemoryToken;
+  }
+  
+  const tokenFromCookie = getClientCookie("accessToken");
+  if (tokenFromCookie) {
+    inMemoryToken = tokenFromCookie;
+  }
+  
+  return tokenFromCookie;
+};
+
+export const updateAuthToken = (token: string | null): void => {
+  inMemoryToken = token;
+};
+
 const baseQuery = fetchBaseQuery({
   baseUrl: constants.API_SERVER,
   prepareHeaders: (headers) => {
-    const accessToken = getClientCookie("accessToken");
+    const accessToken = getAuthToken();
 
     headers.set("Content-Type", "application/json");
 
@@ -37,6 +56,7 @@ const baseQueryWithReauth: BaseQueryFn = async (args, api, extraOptions) => {
         if (!refreshToken) {
           deleteClientCookie("accessToken");
           deleteClientCookie("refreshToken");
+          updateAuthToken(null);
           window.location.href = "/login";
           return result;
         }
@@ -55,10 +75,13 @@ const baseQueryWithReauth: BaseQueryFn = async (args, api, extraOptions) => {
           const { accessToken, refreshToken: newRefreshToken } = refreshResult.data as RefreshResponse;
           setClientCookie("accessToken", accessToken, { expires: 1 });
           setClientCookie("refreshToken", newRefreshToken, { expires: 30 });
+          updateAuthToken(accessToken);
+          
           result = await baseQuery(args, api, extraOptions);
         } else {
           deleteClientCookie("accessToken");
           deleteClientCookie("refreshToken");
+          updateAuthToken(null);
           window.location.href = "/login";
         }
       } finally {
