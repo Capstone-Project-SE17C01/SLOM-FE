@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-import { authAPI } from "../../api/AuthApi";
 import {
   deleteClientCookie,
   getClientCookie,
@@ -48,46 +47,35 @@ export const authSlice = createSlice({
       const { userInfo, accessToken } = action.payload;
       state.userInfo = userInfo;
       state.access_token = accessToken;
-      if (userInfo.languageCode) {
+      if (userInfo) {
+        setClientCookie(constants.USER_INFO, JSON.stringify(userInfo));
+      }
+      if (accessToken) {
+        setClientCookie(constants.ACCESS_TOKEN, accessToken);
+      }
+      if (userInfo?.languageCode) {
         setClientCookie(constants.LOCALE, userInfo.languageCode);
       }
-      setClientCookie(constants.ACCESS_TOKEN, accessToken);
-      setClientCookie(constants.USER_INFO, JSON.stringify(userInfo));
     },
     logout: (state) => {
       state.userInfo = null;
       state.access_token = null;
-      document.cookie = `${constants.USER_INFO}=; path=/; max-age=0`;
-      document.cookie = `${constants.ACCESS_TOKEN}=; path=/; max-age=0`;
-      document.cookie = `idToken=; path=/; max-age=0`;
-      document.cookie = `refreshToken=; path=/; max-age=0`;
-      document.cookie = `userEmail=; path=/; max-age=0`;
       deleteClientCookie(constants.USER_INFO);
       deleteClientCookie(constants.ACCESS_TOKEN);
+      deleteClientCookie(constants.LOCALE);
+      // Clean up any other potential cookies if necessary
+      deleteClientCookie("idToken");
+      deleteClientCookie("refreshToken");
+      deleteClientCookie("userEmail");
     },
   },
-  extraReducers: (builder) => {
-    builder
-      .addMatcher(authAPI.endpoints.login.matchFulfilled, (state, action) => {
-        const { accessToken } = action.payload;
-
-        if (action.payload.userInfo) {
-          state.userInfo = action.payload.userInfo;
-        }
-        state.access_token = accessToken;
-      })
-      .addMatcher(
-        authAPI.endpoints.loginWithGoogle.matchFulfilled,
-        (state, action) => {
-          if (action.payload.userInfo) {
-            state.userInfo = action.payload.userInfo;
-          }
-          state.access_token = action.payload.accessToken;
-        }
-      );
+  extraReducers: () => {
+    // Extra reducers can be kept for other purposes if needed,
+    // but login logic is handled by setCredentials
   },
 });
 
 export const { setCredentials, logout } = authSlice.actions;
 
 export default authSlice.reducer;
+

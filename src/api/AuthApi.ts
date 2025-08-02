@@ -129,7 +129,7 @@ export const authAPI = baseApi.injectEndpoints({
         url: "/api/auth/resendConfirmationCode",
         method: "POST",
         body: data,
-        responseHandler: async (response) => ({
+        responseHandler: async (response: Response) => ({
           data: await response.text(),
           status: response.status,
         }),

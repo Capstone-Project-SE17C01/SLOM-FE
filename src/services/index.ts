@@ -1,6 +1,14 @@
-import { getClientCookie } from "@/utils/jsCookies";
+import { getClientCookie, setClientCookie, deleteClientCookie } from "@/utils/jsCookies";
 import constants from "@/config/constants";
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi, fetchBaseQuery, BaseQueryFn } from "@reduxjs/toolkit/query/react";
+import { Mutex } from 'async-mutex';
+
+interface RefreshResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
+const mutex = new Mutex();
 
 const baseQuery = fetchBaseQuery({
   baseUrl: constants.API_SERVER,
@@ -17,8 +25,56 @@ const baseQuery = fetchBaseQuery({
   },
 });
 
+const baseQueryWithReauth: BaseQueryFn = async (args, api, extraOptions) => {
+  await mutex.waitForUnlock();
+  let result = await baseQuery(args, api, extraOptions);
+
+  if (result.error && result.error.status === 401) {
+    if (!mutex.isLocked()) {
+      const release = await mutex.acquire();
+      try {
+        const refreshToken = getClientCookie("refreshToken");
+        if (!refreshToken) {
+          deleteClientCookie("accessToken");
+          deleteClientCookie("refreshToken");
+          window.location.href = "/login";
+          return result;
+        }
+
+        const refreshResult = await baseQuery(
+          {
+            url: "/api/auth/refresh-token",
+            method: "POST",
+            body: { refreshToken },
+          },
+          api,
+          extraOptions
+        );
+
+        if (refreshResult.data) {
+          const { accessToken, refreshToken: newRefreshToken } = refreshResult.data as RefreshResponse;
+          setClientCookie("accessToken", accessToken, { expires: 1 });
+          setClientCookie("refreshToken", newRefreshToken, { expires: 30 });
+          result = await baseQuery(args, api, extraOptions);
+        } else {
+          deleteClientCookie("accessToken");
+          deleteClientCookie("refreshToken");
+          window.location.href = "/login";
+        }
+      } finally {
+        release();
+      }
+    } else {
+      await mutex.waitForUnlock();
+      result = await baseQuery(args, api, extraOptions);
+    }
+  }
+
+  return result;
+};
+
 export const baseApi = createApi({
-  baseQuery: baseQuery,
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['Meeting', 'Recording', 'Translation'],
   endpoints: () => ({}),
 });
