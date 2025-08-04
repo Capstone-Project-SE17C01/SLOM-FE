@@ -15,6 +15,7 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
+  HelpCircle,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -54,6 +55,12 @@ export default function AdminSidebar({
       href: "/admin/messages",
       icon: MessageSquare,
       description: "Communication",
+    },
+    {
+      name: "QA",
+      href: "/admin/qa",
+      icon: HelpCircle,
+      description: "Question & Answer",
     },
     {
       name: "Analytics",

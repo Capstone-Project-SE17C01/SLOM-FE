@@ -40,7 +40,8 @@
     "video": "Video",
     "conversation": "Conversation",
     "meeting": "Meeting Room",
-    "translator": "Translator"
+    "translator": "Translator",
+    "qa": "Q&A"
   },
   "language": {
     "en": "English",

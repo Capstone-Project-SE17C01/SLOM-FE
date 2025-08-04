@@ -11,6 +11,7 @@
   "dependencies": {
     "@cloudinary/react": "^1.14.1",
     "@cloudinary/url-gen": "^1.21.0",
+    "@headlessui/react": "^2.2.7",
     "@microsoft/signalr": "^8.0.7",
     "@radix-ui/react-accordion": "^1.2.1",
     "@radix-ui/react-avatar": "^1.1.4",
@@ -29,6 +30,7 @@
     "@twilio/conversations": "^2.6.2",
     "@types/uuid": "^10.0.0",
     "@zegocloud/zego-uikit-prebuilt": "^2.14.3-beta",
+    "async-mutex": "^0.4.1",
     "axios": "^1.8.4",
     "babel-plugin-react-compiler": "^19.0.0-beta-df7b47d-20241124",
     "bufferutil": "^4.0.9",
@@ -66,8 +68,7 @@
     "utf-8-validate": "^5.0.10",
     "uuid": "^11.1.0",
     "yarn": "^1.22.22",
-    "zod": "^3.23.8",
-    "async-mutex": "^0.4.1"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/js-cookie": "^3.0.6",
