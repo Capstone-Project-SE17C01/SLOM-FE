@@ -17,29 +17,33 @@ export default function QALayout({
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { isDarkMode, toggleDarkMode } = useTheme();
-
   const toggleMenu = () => setMenuOpen(!menuOpen);
-
-  const navItems = [
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+  
+  let navItems = [
     { name: "home", href: "/home" },
     { name: "features", href: "/features" },
     { name: "about", href: "/about" },
     { name: "contact", href: "/contact" },
   ];
-
-  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+  
   if (userInfo) {
-    navItems.push({ name: "message", href: "/chat" });
-    navItems.push({ name: "course", href: "/list-course" });
-    navItems.push({ name: "meeting", href: "/meeting-room" });
-    navItems.push({ name: "qa", href: "/qa" });
+    navItems = [
+      { name: "home", href: "/home" },
+      { name: "message", href: "/chat" },
+      { name: "course", href: "/list-course" },
+      { name: "meeting", href: "/meeting-room" },
+      { name: "translator", href: "/translator" },
+      { name: "qa", href: "/qa" },
+      { name: "contact", href: "/contact" }
+    ];
   }
 
   return (
     <div
       className={cn(
-        "min-h-screen flex flex-col",
-        isDarkMode ? "text-white" : "text-black"
+        "min-h-screen antialiased",
+        isDarkMode ? "bg-black text-white" : "bg-white text-black"
       )}
     >
       <Header
@@ -55,14 +59,14 @@ export default function QALayout({
         setMenuOpen={setMenuOpen}
       />
 
-      <main className="flex-1 bg-gray-50 min-h-screen pt-12">
-        <div className="w-[85vw] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div
             className={cn(
-              "rounded-xl shadow-sm border min-h-[calc(100vh-200px)]",
+              "rounded-xl p-8 shadow-sm border",
               isDarkMode
                 ? "bg-gray-800 border-gray-700 text-white"
-                : "bg-white border-gray-200 text-black"
+                : "bg-white border-gray-100 text-black"
             )}
           >
             {children}

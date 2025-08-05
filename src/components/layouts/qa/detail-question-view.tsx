@@ -4,6 +4,7 @@ import AnswerDetailQuestionView from "./answer-detail-question-view";
 import { AnswerRequestDTO, DetailQuestionViewProps } from "@/types/IQa";
 import { useGetAnswerMutation } from "../../../api/QaApi";
 import { useEffect, useState } from "react";
+import { ArrowLeft, MessageCircle } from "lucide-react";
 
 export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifiedPage, question, answersOfQuestion, setAnswerOfQuestion, newAnswerAmount }: Readonly<DetailQuestionViewProps>) {
     const [getAnswerApi] = useGetAnswerMutation();
@@ -39,7 +40,7 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
             setIsLoading(false);
         });
 
-    }, []);
+    }, [question?.questionId, pagination, getAnswerApi, setAnswerOfQuestion, isLoadFull]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -47,7 +48,6 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
 
             if (isAtBottom && !isLoading && !isLoadFull) {
                 setIsLoading(true);
-                console.log(isLoadFull)
                 if (isLoadFull || !question?.questionId) return;
 
                 const getAnswerRequest: AnswerRequestDTO = {
@@ -76,20 +76,32 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
         window.addEventListener('scroll', handleScroll);
 
         return () => window.removeEventListener('scroll', handleScroll);
-    }, [answersOfQuestion, isLoadFull, isLoading]);
+    }, [answersOfQuestion, isLoadFull, isLoading, question?.questionId, pagination, getAnswerApi, setAnswerOfQuestion]);
+
+    const totalAnswers = (question?.answerAmount ?? 0) + (newAnswerAmount ? newAnswerAmount.findLast(val => val.questionId == question?.questionId)?.amount ?? 0 : 0);
+
+    const handleBackToQuestions = () => {
+        setIsSpecifiedPage(false);
+    };
 
     return (
-        <div>
-            <button className="ml-4 mt-3 border rounded-full px-2 py-2 hover:bg-gray-900 hover:text-white" onClick={() => { setIsSpecifiedPage(false) }}>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
-                </svg>
-            </button>
-            <div className="border-b py-4 px-4 w-full">
+        <div className="pb-8">
+            <div className="sticky top-0 z-10 bg-white border-b px-4 py-3 flex items-center justify-between shadow-sm">
+                <button 
+                    className="flex items-center text-gray-600 hover:text-gray-900 transition-colors" 
+                    onClick={handleBackToQuestions}
+                >
+                    <ArrowLeft className="h-5 w-5 mr-1" />
+                    <span className="font-medium">Back to</span>
+                </button>
+                <h2 className="text-lg font-semibold">Question Details</h2>
+            </div>
+
+            <div className="py-6 px-6 border-b">
                 {question && (
                     <div className="flex w-full">
-                        <div className="mr-2">
-                            <Avatar>
+                        <div className="mr-4 flex-shrink-0">
+                            <Avatar className="h-12 w-12">
                                 <AvatarImage
                                     src={question.author.profileImage}
                                     alt={`${question.author.username}`}
@@ -97,45 +109,96 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
                                 <AvatarFallback>{question.author.username}</AvatarFallback>
                             </Avatar>
                         </div>
-                        <div className="w-[93%]">
-                            <div className="font-bold">
-                                {question.author.username}
-                            </div>
-                            <div>{question.content}</div>
-                            <div className="relative w-full overflow-x-auto">
-                                <div className="flex">
-                                    {question.images.map((image, index) => (
-                                        <div key={index} className="min-w-[45%] mr-2">
-                                            <Image
-                                                src={image}
-                                                alt={`image-${index}`}
-                                                height={0}
-                                                width={0}
-                                                objectFit="contain"
-                                                className="w-full mr-1 rounded-xl"
-                                            />
-                                        </div>
-                                    ))}
+                        <div className="flex-1">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="font-bold text-lg">{question.author.username}</div>
+                                <div className="text-sm text-gray-500">
+                                    {new Date(question.createdAt).toLocaleDateString()}
                                 </div>
                             </div>
-                            <button onClick={() => { setIsResponseQuestion(true); }} className="mt-1 flex hover:bg-gray-200 px-3 py-1 rounded-full">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 0 1-.923 1.785A5.969 5.969 0 0 0 6 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337Z" />
-                                </svg>
-                                {question.answerAmount + (newAnswerAmount ? newAnswerAmount.findLast(val => val.questionId == question.questionId)?.amount ?? 0 : 0)}
+                            <div className="text-base mb-6">{question.content}</div>
+                            
+                            {question.tags && question.tags.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mb-6">
+                                    {question.tags.map((tag, tagIndex) => (
+                                        <span 
+                                            key={tagIndex} 
+                                            className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                                        >
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                            
+                            {question.images.length > 0 && (
+                                <div className="relative w-full overflow-x-auto mb-6">
+                                    <div className="flex space-x-4">
+                                        {question.images.map((image, index) => (
+                                            <div key={index} className="min-w-[200px] max-w-[320px]">
+                                                <div className="relative aspect-video overflow-hidden rounded-lg border">
+                                                    <Image
+                                                        src={image}
+                                                        alt={`image-${index}`}
+                                                        fill
+                                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                                        className="object-cover"
+                                                    />
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            
+                            <button 
+                                onClick={() => setIsResponseQuestion(true)} 
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors text-gray-700"
+                            >
+                                <MessageCircle className="h-5 w-5" />
+                                <span>Reply ({totalAnswers})</span>
                             </button>
                         </div>
                     </div>
                 )}
             </div>
 
-            <div>
+            {totalAnswers > 0 && (
+                <div className="border-b px-6 py-4 bg-gray-50">
+                    <h3 className="font-medium text-gray-700">
+                        {totalAnswers} {totalAnswers === 1 ? 'Answer' : 'Answers'}
+                    </h3>
+                </div>
+            )}
+
+            <div className="divide-y">
                 {question?.questionId && (
-                    <AnswerDetailQuestionView specificThread={answersOfQuestion}></AnswerDetailQuestionView>
+                    <AnswerDetailQuestionView specificThread={answersOfQuestion} />
                 )}
             </div>
-            {isLoading && <div className="text-center p-4">Loading more answers...</div>}
-            {isLoadFull && <div className="text-center p-4 text-gray-500">No more answers.</div>}
+            
+            {isLoading && (
+                <div className="text-center py-6">
+                    <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-solid border-primary border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+                    <p className="mt-2 text-sm text-gray-500">Loading answers...</p>
+                </div>
+            )}
+            
+            {isLoadFull && totalAnswers > 0 && (
+                <div className="text-center py-8 text-gray-500 border-t">No more answers.</div>
+            )}
+
+            {isLoadFull && totalAnswers === 0 && (
+                <div className="text-center py-16">
+                    <p className="text-gray-500 mb-2">No answers yet</p>
+                    <button 
+                        onClick={() => setIsResponseQuestion(true)}
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors"
+                    >
+                        Be the first to answer
+                    </button>
+                </div>
+            )}
         </div>
-    )
+    );
 }
