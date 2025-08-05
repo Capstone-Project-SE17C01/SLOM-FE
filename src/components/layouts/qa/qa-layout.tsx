@@ -4,13 +4,13 @@ import { useState } from "react";
 import { cn } from "@/utils/cn";
 import { useTheme } from "@/contexts/ThemeContext";
 
-import Header from "./header-breadcrumb";
-import MobileMenu from "./mobile-menu";
-import Footer from "./footer";
+import Header from "../dashboard/header-breadcrumb";
+import MobileMenu from "../dashboard/mobile-menu";
+import Footer from "../dashboard/footer";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 
-export default function DashboardLayout({
+export default function QALayout({
   children,
 }: {
   children: React.ReactNode;
@@ -19,12 +19,14 @@ export default function DashboardLayout({
   const { isDarkMode, toggleDarkMode } = useTheme();
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+  
   let navItems = [
     { name: "home", href: "/home" },
     { name: "features", href: "/features" },
     { name: "about", href: "/about" },
     { name: "contact", href: "/contact" },
   ];
+  
   if (userInfo) {
     navItems = [
       { name: "home", href: "/home" },

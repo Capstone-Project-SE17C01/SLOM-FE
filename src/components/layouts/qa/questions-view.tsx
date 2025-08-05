@@ -1,0 +1,517 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Image from "next/image";
+import { GetQuestionRequest, QuestionResponseDTO, QuestionViewProps, ScrollPosition } from "@/types/IQa";
+import { useGetQuestionMutation, useDeleteQuestionMutation, useGetTagsQuery, useGetQuestionByTagMutation } from "../../../api/QaApi";
+import { useEffect, useState, useCallback } from "react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { CircleEllipsis, MessageSquare, OctagonX, SquarePen, X, Tag as TagIcon, Search } from "lucide-react";
+import { cn } from "@/utils/cn";
+import { format } from "date-fns";
+
+export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage, setDetailQuestion, userInfo,
+    isCurrentUser, setIsNewQuestion, setIsUpdateQuestion, setQuestion, isAdmin }: Readonly<QuestionViewProps>) {
+
+    const [getQuestionApi] = useGetQuestionMutation();
+    const [getQuestionByTagApi] = useGetQuestionByTagMutation();
+    const [deleteQuestionAPI] = useDeleteQuestionMutation();
+    const [questionPagination, setPagination] = useState<number>(1);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [fullScreenImageIndex, setFullScreenImageIndex] = useState<number>(0);
+    const [theElement, setTheElement] = useState<QuestionResponseDTO | undefined>();
+    const [lastIsCurrentUser, setLastIsCurrentUser] = useState<boolean | undefined>(false);
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [tagSearchQuery, setTagSearchQuery] = useState<string>('');
+
+    const [allQuestion, setAllQuestion] = useState<QuestionResponseDTO[] | null | undefined>([]);
+    const [isLoadFull, setIsLoadFull] = useState<boolean>(false);
+    const [savedScrollPosition, setSavedScrollPosition] = useState<ScrollPosition | null>(null);
+
+    // Get all available tags
+    const { data: tagsData } = useGetTagsQuery();
+    const availableTags = tagsData?.result || [];
+    
+    // Filter tags based on search query
+    const filteredTags = tagSearchQuery
+        ? availableTags.filter(tag => 
+            tag.toLowerCase().includes(tagSearchQuery.toLowerCase()) && 
+            !selectedTags.includes(tag)
+        )
+        : availableTags.filter(tag => !selectedTags.includes(tag));
+
+    useEffect(() => {
+        if (savedScrollPosition != null)
+            window.scrollTo(savedScrollPosition.x, savedScrollPosition.y);
+    }, [savedScrollPosition]);
+
+    // Reset state when filter conditions change
+    useEffect(() => {
+        if (isCurrentUser !== lastIsCurrentUser) {
+            setIsLoadFull(false);
+            setAllQuestion([]);
+            setPagination(1);
+            setLastIsCurrentUser(isCurrentUser);
+        }
+    }, [isCurrentUser, lastIsCurrentUser]);
+
+    // Separate effect for handling selected tags changes
+    useEffect(() => {
+        setIsLoadFull(false);
+        setAllQuestion([]);
+        setPagination(1);
+    }, [selectedTags]);
+
+    // Fetch questions based on current state
+    const fetchQuestions = useCallback(async () => {
+        if (isLoadFull) return;
+        
+        setIsLoading(true);
+        try {
+            if (selectedTags.length > 0) {
+                try {
+                    const res = await getQuestionByTagApi({
+                        tags: selectedTags,
+                        pageNumber: questionPagination,
+                        userId: userInfo?.id ?? "",
+                        isCurrentUser,
+                        isAdmin
+                    });
+                    
+                    const newQuestions = res.data?.result;
+                    if (newQuestions && newQuestions.length > 0) {
+                        setAllQuestion(prevQuestions => [...(prevQuestions || []), ...newQuestions]);
+                        if (newQuestions[0].isFull) {
+                            setIsLoadFull(true);
+                        }
+                    } else {
+                        setIsLoadFull(true);
+                    }
+                } catch (tagError) {
+                    console.error("Error fetching questions by tags:", tagError);
+                    setIsLoadFull(true);
+                }
+            } else {
+                try {
+                    const request: GetQuestionRequest = {
+                        pageNumber: questionPagination,
+                        userId: userInfo?.id ?? "",
+                        isCurrentUser,
+                        isAdmin
+                    };
+                    
+                    const res = await getQuestionApi(request);
+                    const newQuestions = res.data?.result;
+                    if (newQuestions && newQuestions.length > 0) {
+                        setAllQuestion(prevQuestions => [...(prevQuestions || []), ...newQuestions]);
+                        if (newQuestions[0].isFull) {
+                            setIsLoadFull(true);
+                        }
+                    } else {
+                        setIsLoadFull(true);
+                    }
+                } catch (error) {
+                    console.error("Error fetching all questions:", error);
+                    setIsLoadFull(true);
+                }
+            }
+        } catch (error) {
+            console.error("Failed to fetch questions:", error);
+            setIsLoadFull(true);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [getQuestionApi, getQuestionByTagApi, questionPagination, isCurrentUser, isAdmin, userInfo, isLoadFull, selectedTags]);
+
+    useEffect(() => {
+        fetchQuestions();
+    }, [fetchQuestions]);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const isAtBottom = window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 100;
+            if (isAtBottom && !isLoading && !isLoadFull) {
+                setPagination(prevPage => prevPage + 1);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [isLoading, isLoadFull]);
+
+    const handleImageClick = (imgIndex: number) => {
+        setFullScreenImageIndex(imgIndex);
+    };
+
+    const closeFullScreen = () => {
+        setFullScreenImageIndex(0);
+        setTheElement(undefined)
+    };
+
+    const goToPreviousImage = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.stopPropagation();
+        if (fullScreenImageIndex > 0) {
+            setFullScreenImageIndex(fullScreenImageIndex - 1);
+        } else {
+            if (theElement != null)
+                setFullScreenImageIndex(theElement.images.length - 1);
+        }
+    };
+
+    const goToNextImage = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.stopPropagation();
+        if (theElement != null) {
+            if (fullScreenImageIndex < theElement.images.length - 1) {
+                setFullScreenImageIndex(fullScreenImageIndex + 1);
+            } else {
+                setFullScreenImageIndex(0);
+            }
+        }
+    };
+
+    const currentFullScreenImageSrc =
+        fullScreenImageIndex !== null && theElement != null ? theElement.images[fullScreenImageIndex] : null;
+
+    const handleDeleteQuestion = async (questionId: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        try {
+            await deleteQuestionAPI(questionId);
+            // Remove the deleted question from the local state
+            setAllQuestion(prevQuestions =>
+                prevQuestions?.filter(q => q.questionId !== questionId) || []
+            );
+        } catch (error) {
+            console.error("Failed to delete question:", error);
+        }
+    };
+
+    const handleTagClick = (tag: string) => {
+        if (selectedTags.includes(tag)) {
+            setSelectedTags(selectedTags.filter(t => t !== tag));
+        } else {
+            setSelectedTags([...selectedTags, tag]);
+        }
+    };
+    
+    const clearTagFilters = () => {
+        setSelectedTags([]);
+    };
+
+    return (
+        <div>
+            {/* Tag filter section with improved UI */}
+            <div className="mb-6 p-4 bg-white rounded-xl shadow-sm border">
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium text-gray-800 flex items-center">
+                        <TagIcon className="h-5 w-5 mr-2 text-blue-600" />
+                        Filter by Topics
+                    </h3>
+                    {selectedTags.length > 0 && (
+                        <button 
+                            onClick={clearTagFilters}
+                            className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm rounded-lg flex items-center"
+                        >
+                            Clear All Filters
+                            <X className="h-4 w-4 ml-1" />
+                        </button>
+                    )}
+                </div>
+                
+                {/* Search tags input */}
+                <div className="relative mb-4">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Search className="h-4 w-4 text-gray-400" />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Search topics..."
+                        value={tagSearchQuery}
+                        onChange={(e) => setTagSearchQuery(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+                
+                {/* Selected tags section */}
+                {selectedTags.length > 0 && (
+                    <div className="mb-4 p-2 bg-gray-50 border border-gray-200 rounded-lg">
+                        <div className="flex items-center mb-2">
+                            <span className="text-sm text-gray-600 mr-2">Selected:</span>
+                            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                                {selectedTags.length} {selectedTags.length === 1 ? 'topic' : 'topics'}
+                            </span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            {selectedTags.map((tag, index) => (
+                                <div 
+                                    key={index} 
+                                    className="bg-blue-600 text-white px-2.5 py-1 rounded-md text-sm flex items-center gap-1.5"
+                                >
+                                    {tag}
+                                    <button 
+                                        onClick={() => handleTagClick(tag)}
+                                        className="hover:bg-white hover:bg-opacity-20 rounded-full p-0.5"
+                                    >
+                                        <X className="h-3.5 w-3.5" />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+                
+                {/* Tags list with improved UI */}
+                <div className="flex flex-wrap gap-2">
+                    {filteredTags.length > 0 ? (
+                        filteredTags.map((tag, index) => (
+                            <button 
+                                key={index} 
+                                onClick={() => handleTagClick(tag)}
+                                className="px-3 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all"
+                            >
+                                {tag}
+                            </button>
+                        ))
+                    ) : (
+                        tagSearchQuery ? (
+                            <div className="text-sm text-gray-500 py-2">No topics match your search</div>
+                        ) : (
+                            selectedTags.length > 0 ? (
+                                <div className="text-sm text-gray-500 py-2">All available topics selected</div>
+                            ) : (
+                                <div className="text-sm text-gray-500 py-2">No topics available</div>
+                            )
+                        )
+                    )}
+                </div>
+            </div>
+            
+            <div className="divide-y divide-gray-200 bg-white rounded-xl shadow-sm border">
+                {allQuestion && allQuestion.length > 0 ? (
+                    allQuestion.map((element, index) => (
+                        <div 
+                            key={`${element.questionId}-${index}`} 
+                            className="hover:bg-gray-50 transition-colors duration-150"
+                        >
+                            <div 
+                                role="button" 
+                                onClick={() => {
+                                    setIsSpecifiedPage(true);
+                                    setDetailQuestion(element);
+                                    setSavedScrollPosition({
+                                        x: window.scrollX,
+                                        y: window.scrollY,
+                                    });
+                                }} 
+                                className="p-6 cursor-pointer" 
+                                tabIndex={0}
+                            >
+                                <div className="flex items-start">
+                                    <div className="mr-4 flex-shrink-0">
+                                        <Avatar className="h-10 w-10">
+                                            <AvatarImage
+                                                src={element.author.profileImage}
+                                                alt={`${element.author.username}`}
+                                            />
+                                            <AvatarFallback>{element.author.username}</AvatarFallback>
+                                        </Avatar>
+                                    </div>
+                                    
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div className="flex items-center">
+                                                <span className="font-medium text-gray-900 mr-2">
+                                                    {element.author.username}
+                                                </span>
+                                                <span className="text-sm text-gray-500">
+                                                    {format(new Date(element.createdAt), 'MMM d, yyyy')}
+                                                </span>
+                                            </div>
+                                            
+                                            {userInfo?.username === element.author.username && (
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <button
+                                                            className={cn(
+                                                                "flex items-center justify-center rounded-full overflow-hidden",
+                                                                "h-8 w-8 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary"
+                                                            )}
+                                                            onClick={(e) => e.stopPropagation()}
+                                                        >
+                                                            <CircleEllipsis className="h-5 w-5" />
+                                                        </button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end" className="w-48">
+                                                        <button className="w-full" onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            if (setIsNewQuestion && setIsUpdateQuestion && setQuestion) {
+                                                                setIsNewQuestion(true);
+                                                                setIsUpdateQuestion(true);
+                                                                setQuestion(element)
+                                                            }
+                                                        }}>
+                                                            <DropdownMenuItem className="cursor-pointer">
+                                                                <SquarePen className="mr-2 h-4 w-4" />
+                                                                <span>Edit Question</span>
+                                                            </DropdownMenuItem>
+                                                        </button>
+                                                        <button 
+                                                            className="w-full" 
+                                                            onClick={(e) => handleDeleteQuestion(element.questionId, e)}
+                                                        >
+                                                            <DropdownMenuItem className="cursor-pointer text-red-600 hover:text-red-700 focus:text-red-700">
+                                                                <OctagonX className="mr-2 h-4 w-4" />
+                                                                <span>Delete Question</span>
+                                                            </DropdownMenuItem>
+                                                        </button>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            )}
+                                        </div>
+
+                                        <div className="text-gray-800 mb-3">{element.content}</div>
+
+                                        {element.tags && element.tags.length > 0 && (
+                                            <div className="flex flex-wrap gap-2 mb-3">
+                                                {element.tags.map((tag, tagIndex) => (
+                                                    <span 
+                                                        key={tagIndex} 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleTagClick(tag);
+                                                        }}
+                                                        className={cn(
+                                                            "px-2.5 py-1 rounded-md text-xs cursor-pointer transition-colors",
+                                                            selectedTags.includes(tag) 
+                                                                ? "bg-blue-600 text-white" 
+                                                                : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                                                        )}
+                                                    >
+                                                        {tag}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {element.images.length > 0 && (
+                                            <div className="relative overflow-x-auto mb-4">
+                                                <div className="flex space-x-3">
+                                                    {element.images.map((image, imgIndex) => (
+                                                        <div
+                                                            key={imgIndex}
+                                                            className="relative min-w-[150px] max-w-[250px] aspect-video rounded-lg overflow-hidden border border-gray-200"
+                                                        >
+                                                            <Image
+                                                                src={image}
+                                                                alt={`image-${imgIndex}`}
+                                                                fill
+                                                                sizes="(max-width: 640px) 150px, 250px"
+                                                                className="object-cover"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleImageClick(imgIndex);
+                                                                    setTheElement(element)
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <button 
+                                            className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors" 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setIsResponseQuestion(true);
+                                                setDetailQuestion(element);
+                                            }}
+                                        >
+                                            <MessageSquare className="h-4 w-4" />
+                                            <span>
+                                                {element.answerAmount} {element.answerAmount === 1 ? 'reply' : 'replies'}
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    !isLoading && (
+                        <div className="py-16 text-center">
+                            {selectedTags.length > 0 ? (
+                                <>
+                                    <p className="text-gray-500 mb-2">No questions found with the selected topics</p>
+                                    <button 
+                                        onClick={clearTagFilters}
+                                        className="px-4 py-2 mb-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                    >
+                                        Show All Questions
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <p className="text-gray-500 mb-2">No questions found</p>
+                                    {!isAdmin && (
+                                        <button 
+                                            onClick={() => setIsNewQuestion && setIsNewQuestion(true)}
+                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                        >
+                                            Ask a Question
+                                        </button>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    )
+                )}
+
+                {currentFullScreenImageSrc && (
+                    <div
+                        className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
+                        onClick={closeFullScreen}
+                    >
+                        <button
+                            className="absolute left-4 h-10 w-10 bg-white bg-opacity-25 rounded-full text-white z-50 hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center"
+                            onClick={goToPreviousImage}
+                            aria-label="Previous image"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                            </svg>
+                        </button>
+
+                        <div className="relative w-[85%] h-[85%]">
+                            <Image
+                                src={currentFullScreenImageSrc}
+                                alt="Full screen"
+                                fill
+                                sizes="85vw"
+                                className="object-contain"
+                            />
+                        </div>
+
+                        <button
+                            className="absolute right-4 h-10 w-10 bg-white bg-opacity-25 rounded-full text-white z-50 hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center"
+                            onClick={goToNextImage}
+                            aria-label="Next image"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                            </svg>
+                        </button>
+                    </div>
+                )}
+
+                {isLoading && (
+                    <div className="text-center py-6">
+                        <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-solid border-primary border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+                        <p className="mt-2 text-sm text-gray-500">Loading questions...</p>
+                    </div>
+                )}
+                
+                {isLoadFull && allQuestion && allQuestion.length > 0 && (
+                    <div className="text-center py-8 text-gray-500">You&apos;ve reached the end.</div>
+                )}
+            </div>
+        </div>
+    );
+}

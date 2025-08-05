@@ -14,6 +14,8 @@ cp .env.example .env
    - **Firebase Configuration**: For authentication and storage
    - **Cloudinary Configuration**: For video recording storage
    - **Zego Configuration**: For video call functionality
+   - **OpenRouter Configuration**: For AI-powered tag generation in Q&A section
+     - `NEXT_PUBLIC_OPENROUTER_API_KEY`: Your OpenRouter API key
 
 3. Ensure all required variables are set before running the application.
 
