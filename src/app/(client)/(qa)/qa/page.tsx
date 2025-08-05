@@ -17,39 +17,71 @@ export default function QAPage() {
     const [detailQuestion, setDetailQuestion] = useState<QuestionResponseDTO>();
     const { userInfo } = useSelector((state: RootState) => state.auth);
     const [answersOfQuestion, setAnswerOfQuestion] = useState<AnswerResponseDTO[] | undefined | null>([]);
-    const [newAnswerAmount, setNewAnswerAmount] = useState<NewAnswerAmount[]>([])
-    const [isUpdateQuestion, setIsUpdateQuestion] = useState<boolean>(false)
-    const [question, setQuestion] = useState<QuestionResponseDTO | undefined>()
+    const [newAnswerAmount, setNewAnswerAmount] = useState<NewAnswerAmount[]>([]);
+    const [isUpdateQuestion, setIsUpdateQuestion] = useState<boolean>(false);
+    const [question, setQuestion] = useState<QuestionResponseDTO | undefined>();
     const [showCurrentUserQuestions, setShowCurrentUserQuestions] = useState<boolean>(false);
 
     return (
-        <div className="relative">
-            <QuestionTypeToggle isCurrentUser={showCurrentUserQuestions}
-                onToggle={(isCurrentUser) => {setShowCurrentUserQuestions(isCurrentUser); console.log(showCurrentUserQuestions)}} />
-            {isNewQuestion ? <NewQuestionPopup userInfo={userInfo} setIsNewQuestion={setIsNewQuestion} isUpdateQuestion={isUpdateQuestion} question={question} setIsUpdateQuestion={setIsUpdateQuestion} setQuestion={setQuestion} /> : <div></div>}
+        <>
+            <div className="mb-6">
+                <h1 className="text-2xl font-bold mb-2">Community Q&A</h1>
+                <p className="text-gray-600 mb-6">
+                    Ask questions, get answers, and share knowledge with the community
+                </p>
+                
+                <QuestionTypeToggle 
+                    isCurrentUser={showCurrentUserQuestions}
+                    onToggle={(isCurrentUser) => setShowCurrentUserQuestions(isCurrentUser)}
+                />
+            </div>
 
-            {isResponseQuestion ?
-                <div>
-                    <NewAnswer userInfo={userInfo} setIsResponseQuestion={setIsResponseQuestion} question={detailQuestion} setAnswerOfQuestion={setAnswerOfQuestion} setNewAnswerAmount={setNewAnswerAmount} newAnswerAmount={newAnswerAmount} />
-                </div> : <div></div>}
+            {isNewQuestion && (
+                <NewQuestionPopup 
+                    userInfo={userInfo} 
+                    setIsNewQuestion={setIsNewQuestion} 
+                    isUpdateQuestion={isUpdateQuestion} 
+                    question={question} 
+                    setIsUpdateQuestion={setIsUpdateQuestion} 
+                    setQuestion={setQuestion}
+                />
+            )}
+
+            {isResponseQuestion && (
+                <NewAnswer 
+                    userInfo={userInfo} 
+                    setIsResponseQuestion={setIsResponseQuestion} 
+                    question={detailQuestion} 
+                    setAnswerOfQuestion={setAnswerOfQuestion} 
+                    setNewAnswerAmount={setNewAnswerAmount} 
+                    newAnswerAmount={newAnswerAmount}
+                />
+            )}
 
             {!isSpecifiedPage ? (
-                <div>
+                <>
                     <NewQuestion setIsNewQuestion={setIsNewQuestion} userInfo={userInfo} />
-                    <QuestionsView setIsResponseQuestion={setIsResponseQuestion} userInfo={userInfo}
-                        setIsSpecifiedPage={setIsSpecifiedPage} setDetailQuestion={setDetailQuestion}
-                        isCurrentUser={showCurrentUserQuestions} setIsNewQuestion={setIsNewQuestion} 
-                        setIsUpdateQuestion={setIsUpdateQuestion} setQuestion={setQuestion} />
-                </div>
-            ) :
-                (
-                    <div>
-                        <DetailQuestionView question={detailQuestion} setIsResponseQuestion={setIsResponseQuestion}
-                            setIsSpecifiedPage={setIsSpecifiedPage} answersOfQuestion={answersOfQuestion}
-                            setAnswerOfQuestion={setAnswerOfQuestion} newAnswerAmount={newAnswerAmount} />
-                    </div>
-                )
-            }
-        </div >
-    )
+                    <QuestionsView 
+                        setIsResponseQuestion={setIsResponseQuestion} 
+                        userInfo={userInfo}
+                        setIsSpecifiedPage={setIsSpecifiedPage} 
+                        setDetailQuestion={setDetailQuestion}
+                        isCurrentUser={showCurrentUserQuestions} 
+                        setIsNewQuestion={setIsNewQuestion} 
+                        setIsUpdateQuestion={setIsUpdateQuestion} 
+                        setQuestion={setQuestion}
+                    />
+                </>
+            ) : (
+                <DetailQuestionView 
+                    question={detailQuestion} 
+                    setIsResponseQuestion={setIsResponseQuestion}
+                    setIsSpecifiedPage={setIsSpecifiedPage} 
+                    answersOfQuestion={answersOfQuestion}
+                    setAnswerOfQuestion={setAnswerOfQuestion} 
+                    newAnswerAmount={newAnswerAmount}
+                />
+            )}
+        </>
+    );
 }

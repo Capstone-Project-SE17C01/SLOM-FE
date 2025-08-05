@@ -58,6 +58,7 @@ export interface PostQuestionRequestDTO {
   content: string | undefined;
   images?: string[];
   privacy?: string;
+  tags?: string[];
 }
 
 export interface QuestionResponseDTO {
@@ -68,6 +69,7 @@ export interface QuestionResponseDTO {
   images: string[];
   answerAmount: number;
   isFull: boolean;
+  tags?: string[];
 }
 
 export interface UploadImageDTO {
@@ -125,6 +127,7 @@ export interface UpdateQuestionRequestDTO {
   content: string;
   images?: string[];
   privacy: string;
+  tags?: string[];
 }
 
 export interface UserInfo {

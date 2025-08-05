@@ -27,8 +27,8 @@ export default function CourseLayout({
     { name: "course", href: "/list-course" },
     { name: "meeting", href: "/meeting-room" },
     { name: "translator", href: "/translator" },
-    { name: "contact", href: "/contact" },
-    { name: "Q&A", href: "/qa" }
+    { name: "qa", href: "/qa" },
+    { name: "contact", href: "/contact" }
   ];
 
   const courseNavItems = [

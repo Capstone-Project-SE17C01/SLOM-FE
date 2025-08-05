@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
-import { Menu, X, LogOut, UserCircle, MessageCircleQuestionIcon } from "lucide-react";
+import { Menu, X, LogOut, UserCircle } from "lucide-react";
 import { cn } from "@/utils/cn";
 import ThemeSwitcher from "./theme-switcher";
 import LanguageSwitcher from "./language-switcher";
@@ -136,12 +136,6 @@ export default function Header({
                     <DropdownMenuItem>
                       <UserCircle className="mr-2 h-4 w-4" />
                       <span>Profile</span>
-                    </DropdownMenuItem>
-                  </Link>
-                  <Link href="/my-qa">
-                    <DropdownMenuItem>
-                      <MessageCircleQuestionIcon className="mr-2 h-4 w-4" />
-                      <span>My Q&A</span>
                     </DropdownMenuItem>
                   </Link>
                   <DropdownMenuSeparator />

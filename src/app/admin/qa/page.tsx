@@ -14,36 +14,61 @@ export default function QAPage() {
     const [detailQuestion, setDetailQuestion] = useState<QuestionResponseDTO>();
     const { userInfo } = useSelector((state: RootState) => state.auth);
     const [answersOfQuestion, setAnswerOfQuestion] = useState<AnswerResponseDTO[] | undefined | null>([]);
-    const [newAnswerAmount, setNewAnswerAmount] = useState<NewAnswerAmount[]>([])
+    const [newAnswerAmount, setNewAnswerAmount] = useState<NewAnswerAmount[]>([]);
     const [showCurrentUserQuestions, setShowCurrentUserQuestions] = useState<boolean>(false);
-    // const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
     return (
-        <div className="relative mt-16">
-            <QuestionTypeToggle isCurrentUser={showCurrentUserQuestions}
-                onToggle={(isCurrentUser) => setShowCurrentUserQuestions(isCurrentUser)}
-                isAdmin={true} />
+        <div className="relative max-w-6xl mx-auto px-6 py-8">
+            <div className="mb-10 flex justify-center">
+                <QuestionTypeToggle 
+                    isCurrentUser={showCurrentUserQuestions}
+                    onToggle={(isCurrentUser) => setShowCurrentUserQuestions(isCurrentUser)}
+                    isAdmin={true}
+                    className="shadow-lg"
+                />
+            </div>
 
-            {isResponseQuestion ?
-                <div>
-                    <NewAnswer userInfo={userInfo} setIsResponseQuestion={setIsResponseQuestion} question={detailQuestion} setAnswerOfQuestion={setAnswerOfQuestion} setNewAnswerAmount={setNewAnswerAmount} newAnswerAmount={newAnswerAmount} />
-                </div> : <div></div>}
-
-            {!isSpecifiedPage ? (
-                <div>
-                    <QuestionsView setIsResponseQuestion={setIsResponseQuestion} userInfo={userInfo}
-                        setIsSpecifiedPage={setIsSpecifiedPage} setDetailQuestion={setDetailQuestion}
-                        isCurrentUser={showCurrentUserQuestions} isAdmin={true} />
+            {isResponseQuestion && (
+                <div className="mb-8">
+                    <NewAnswer 
+                        userInfo={userInfo} 
+                        setIsResponseQuestion={setIsResponseQuestion} 
+                        question={detailQuestion} 
+                        setAnswerOfQuestion={setAnswerOfQuestion} 
+                        setNewAnswerAmount={setNewAnswerAmount} 
+                        newAnswerAmount={newAnswerAmount} 
+                    />
                 </div>
-            ) :
-                (
+            )}
+
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+                {!isSpecifiedPage ? (
                     <div>
-                        <DetailQuestionView question={detailQuestion} setIsResponseQuestion={setIsResponseQuestion}
-                            setIsSpecifiedPage={setIsSpecifiedPage} answersOfQuestion={answersOfQuestion}
-                            setAnswerOfQuestion={setAnswerOfQuestion} newAnswerAmount={newAnswerAmount} />
+                        <div className="px-4 py-5 border-b border-gray-100 bg-gray-50">
+                            <h2 className="text-xl font-semibold text-gray-800">
+                                {showCurrentUserQuestions ? "Unanswered Questions" : "All Questions"}
+                            </h2>
+                        </div>
+                        <QuestionsView 
+                            setIsResponseQuestion={setIsResponseQuestion} 
+                            userInfo={userInfo}
+                            setIsSpecifiedPage={setIsSpecifiedPage} 
+                            setDetailQuestion={setDetailQuestion}
+                            isCurrentUser={showCurrentUserQuestions} 
+                            isAdmin={true} 
+                        />
                     </div>
-                )
-            }
+                ) : (
+                    <DetailQuestionView 
+                        question={detailQuestion} 
+                        setIsResponseQuestion={setIsResponseQuestion}
+                        setIsSpecifiedPage={setIsSpecifiedPage} 
+                        answersOfQuestion={answersOfQuestion}
+                        setAnswerOfQuestion={setAnswerOfQuestion} 
+                        newAnswerAmount={newAnswerAmount} 
+                    />
+                )}
+            </div>
         </div>
-    )
+    );
 }

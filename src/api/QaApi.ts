@@ -16,7 +16,8 @@ export const QaAPI = baseApi.injectEndpoints({
             creatorId: request.creatorId,
             content: request.content,
             images: request.images,
-            privacy: request.privacy
+            privacy: request.privacy,
+            tags: request.tags
           }
         }),
       }
@@ -63,7 +64,8 @@ export const QaAPI = baseApi.injectEndpoints({
           questionId: request.questionId,
           content: request.content,
           images: request.images,
-          privacy: request.privacy
+          privacy: request.privacy,
+          tags: request.tags
         }
       }),
     }),
@@ -74,6 +76,34 @@ export const QaAPI = baseApi.injectEndpoints({
         flashError: false,
       }),
     }),
+    getTags: build.query<APIResponse<string[]>, void>({
+      query: () => ({
+        url: `/api/QA/GetTags`,
+        method: "GET",
+        flashError: false,
+      }),
+    }),
+    getQuestionByTag: build.mutation<APIResponse<QuestionResponseDTO[]>, {tags: string[], pageNumber: number, userId: string, isCurrentUser: boolean, isAdmin?: boolean}>({
+      query: (request) => {
+        // Ensure tags is always an array, even if empty
+        const tags = Array.isArray(request.tags) ? request.tags : [];
+        
+        // Build URL with all parameters except tags
+        const queryParams = new URLSearchParams();
+        queryParams.append('pageNumber', request.pageNumber.toString());
+        queryParams.append('userId', request.userId);
+        queryParams.append('isCurrentUser', request.isCurrentUser.toString());
+        queryParams.append('isAdmin', (request.isAdmin ?? false).toString());
+        
+        return {
+          url: `/api/QA/GetQuestionByTag?${queryParams.toString()}`,
+          method: "POST",
+          flashError: false,
+          // Send tags array directly as the body, not as a property in an object
+          body: tags.length > 0 ? tags : ["placeholder"]
+        };
+      },
+    }),
   }),
 });
 
@@ -83,5 +113,7 @@ export const {
   usePostAnswerMutation,
   useGetAnswerMutation,
   useUpdateQuestionMutation,
-  useDeleteQuestionMutation
+  useDeleteQuestionMutation,
+  useGetTagsQuery,
+  useGetQuestionByTagMutation
 } = QaAPI;
