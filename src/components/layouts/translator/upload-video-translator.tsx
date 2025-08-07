@@ -284,12 +284,32 @@ export default function UploadVideoTranslator({
                       </Button>
                     )}
                   </div>
+
+                  {/* Selected File Info */}
+                  {translator.state.file && !translator.state.isUploading && !translator.state.isProcessing && (
+                    <div className={cn(
+                      "p-3 rounded-lg border text-left",
+                      isDarkMode ? "bg-gray-700 border-gray-600" : "bg-gray-100 border-gray-200"
+                    )}>
+                      <div className="flex items-center gap-3">
+                        <FileVideo className="w-5 h-5 text-gray-500" />
+                        <div className="truncate">
+                          <p className="text-sm font-medium truncate" title={translator.state.file.name}>
+                            {translator.state.file.name}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {(translator.state.file.size / (1024 * 1024)).toFixed(2)} MB
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
             {/* Video Preview */}
-            <div className="space-y-4">
+            <div className="relative w-full h-full min-h-[250px] space-y-4">
               {showPreview && (
                 <VideoPreview
                   file={translator.state.file}
