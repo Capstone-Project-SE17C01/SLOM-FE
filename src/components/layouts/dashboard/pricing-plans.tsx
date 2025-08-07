@@ -116,84 +116,90 @@ export default function PricingPlans() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
-          {apiPlans
-            .map((plan) => {
-              const parsedFeatures: string[] = plan.features
-                ? JSON.parse(plan.features)?.features
-                : [];
+          {apiPlans.map((plan) => {
+            const parsedFeatures: string[] = plan.features
+              ? JSON.parse(plan.features)?.features
+              : [];
 
-              return (
-                <Card
-                  key={plan.id}
-                  className={cn(
-                    "relative overflow-hidden flex flex-col",
-                    (plan.name === "Pro User" || plan.name === "pro")
-                      ? "border-2 border-primary shadow-lg"
-                      : "",
-                    isDarkMode ? "bg-gray-800" : "bg-white"
-                  )}
-                >
+            return (
+              <Card
+                key={plan.id}
+                className={cn(
+                  "relative overflow-hidden flex flex-col",
+                  plan.name === "Pro User" || plan.name === "pro"
+                    ? "border-2 border-primary shadow-lg"
+                    : "",
+                  isDarkMode ? "bg-gray-800" : "bg-white"
+                )}
+              >
+                {(plan.name === "Pro User" || plan.name === "pro") && (
+                  <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 text-xs font-medium">
+                    {t_pricing("mostPopular")}
+                  </div>
+                )}
+                <CardHeader>
+                  <CardTitle> {t_pricing(`${plan.name}.title`)}</CardTitle>
+                  <CardDescription>
+                    {t_pricing(`${plan.name}.descriptionPlan`)}
+                  </CardDescription>
                   {(plan.name === "Pro User" || plan.name === "pro") && (
-                    <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 text-xs font-medium">
-                      {t_pricing("mostPopular")}
+                    <div className="mt-4">
+                      <span className="text-3xl font-bold">
+                        ₫
+                        {Math.round(
+                          plan.price * durationPlan * (1 - discount / 100)
+                        )}
+                      </span>
+                      <span className="text-muted-foreground ml-2">
+                        {annual ? t_pricing("year") : t_pricing("month")}
+                      </span>
+                      {discount > 0 && (
+                        <span className="text-sm text-green-500 ml-2">
+                          ({t_pricing("save")} {discount}&#37;)
+                        </span>
+                      )}
                     </div>
                   )}
-                  <CardHeader>
-                    <CardTitle> {t_pricing(`${plan.name}.title`)}</CardTitle>
-                    <CardDescription>
-                      {t_pricing(`${plan.name}.descriptionPlan`)}
-                    </CardDescription>
-                    {(plan.name === "Pro User" || plan.name === "pro") && (
-                      <div className="mt-4">
-                        <span className="text-3xl font-bold">
-                          ₫
-                          {Math.round(
-                            plan.price * durationPlan * (1 - discount / 100)
-                          )}
+                </CardHeader>
+                <CardContent className="flex-grow">
+                  <ul className="space-y-3">
+                    {parsedFeatures.map((feature, i) => (
+                      <li key={i} className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-primary" />
+                        <span>
+                          {t_pricing(`${plan.name}.features.${feature}`)}
                         </span>
-                        <span className="text-muted-foreground ml-2">
-                          {annual ? t_pricing("year") : t_pricing("month")}
-                        </span>
-                        {discount > 0 && (
-                          <span className="text-sm text-green-500 ml-2">
-                            ({t_pricing("save")} {discount}&#37;)
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </CardHeader>
-                  <CardContent className="flex-grow">
-                    <ul className="space-y-3">
-                      {parsedFeatures.map((feature, i) => (
-                        <li key={i} className="flex items-center gap-2">
-                          <Check className="h-4 w-4 text-primary" />
-                          <span>
-                            {t_pricing(`${plan.name}.features.${feature}`)}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                  <CardFooter className="mt-auto">
-                    {(plan.name === "Free User" || plan.name === "free") ? (
-                      <Button className="w-full" variant="outline" disabled>
-                        {t_pricing("currentPlan")}
-                      </Button>
-                    ) : (
-                      <Button
-                        className="w-full bg-primary hover:bg-primary/90"
-                        variant="default"
-                        onClick={(e) =>
-                          handlePayment(e, plan.id, plan.price, plan.name)
-                        }
-                      >
-                        {t_pricing("buttonText")}
-                      </Button>
-                    )}
-                  </CardFooter>
-                </Card>
-              );
-            })}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+                <CardFooter className="mt-auto">
+                  {plan.name === "Free User" || plan.name === "free" ? (
+                    <Button className="w-full" variant="outline" disabled>
+                      {t_pricing("currentPlan")}
+                    </Button>
+                  ) : (
+                    <Button
+                      className="w-full bg-primary hover:bg-primary/90"
+                      variant="default"
+                      onClick={(e) =>
+                        handlePayment(
+                          e,
+                          plan.id,
+                          plan.price * (1 - discount / 100) == 0
+                            ? 0
+                            : plan.price * (1 - discount / 100),
+                          plan.name
+                        )
+                      }
+                    >
+                      {t_pricing("buttonText")}
+                    </Button>
+                  )}
+                </CardFooter>
+              </Card>
+            );
+          })}
         </div>
 
         <div className="text-center mt-12">
