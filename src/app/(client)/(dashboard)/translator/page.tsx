@@ -13,6 +13,8 @@ import { Camera, Upload } from "lucide-react";
 export default function TranslatorPage() {
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const isVipUser = true;
+  console.log(userInfo);
+  // TODO: get userInfo from backend
 
   const [isRealtimeMode, setIsRealtimeMode] = useState(isVipUser);
 
