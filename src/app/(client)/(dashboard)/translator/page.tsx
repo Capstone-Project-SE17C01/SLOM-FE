@@ -5,17 +5,21 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import RealTimeTranslator from "@/components/layouts/translator/real-time-translator";
 import UploadVideoTranslator from "@/components/layouts/translator/upload-video-translator";
-import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/utils/cn";
 import { Camera, Upload } from "lucide-react";
 
 export default function TranslatorPage() {
-  const [activeTranslator, setActiveTranslator] = useState("realtime");
   const { userInfo } = useSelector((state: RootState) => state.auth);
-  const isVipUser = userInfo?.roleName?.includes("VIP") ?? false;
+  const isVipUser = true;
 
-  const handleToggle = (translator: string) => {
-    setActiveTranslator(translator);
+  const [isRealtimeMode, setIsRealtimeMode] = useState(isVipUser);
+
+  const handleModeChange = (isChecked: boolean) => {
+    if (isVipUser) {
+      setIsRealtimeMode(isChecked);
+    }
   };
 
   return (
@@ -25,50 +29,66 @@ export default function TranslatorPage() {
           Sign Language Translator
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Real-time translation and video analysis for sign language
+          {isVipUser
+            ? "Switch between real-time translation and video analysis"
+            : "Upload a video for sign language analysis"}
         </p>
       </div>
 
-      <div className="flex justify-center gap-4 mb-8">
-        {isVipUser && (
-          <Button
-            onClick={() => handleToggle("realtime")}
+      {isVipUser && (
+        <div className="flex items-center justify-center space-x-4">
+          <Label
+            htmlFor="translator-mode-switch"
             className={cn(
-              "flex items-center gap-2 px-6 py-3 rounded-full transition-all",
-              activeTranslator === "realtime"
-                ? "bg-blue-500 text-white shadow-lg"
-                : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+              "font-medium cursor-pointer",
+              !isRealtimeMode
+                ? "text-green-600 dark:text-green-400"
+                : "text-gray-500"
             )}
           >
-            <Camera className="w-5 h-5" />
-            <span>Real-time</span>
-          </Button>
-        )}
-        <Button
-          onClick={() => handleToggle("upload")}
-          className={cn(
-            "flex items-center gap-2 px-6 py-3 rounded-full transition-all",
-            activeTranslator === "upload"
-              ? "bg-green-500 text-white shadow-lg"
-              : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-          )}
-        >
-          <Upload className="w-5 h-5" />
-          <span>Upload Video</span>
-        </Button>
-      </div>
+            <div className="flex items-center gap-2">
+              <Upload className="w-5 h-5" />
+              <span>Upload Video</span>
+            </div>
+          </Label>
+          <Switch
+            id="translator-mode-switch"
+            checked={isRealtimeMode}
+            onCheckedChange={handleModeChange}
+          />
+          <Label
+            htmlFor="translator-mode-switch"
+            className={cn(
+              "font-medium cursor-pointer",
+              isRealtimeMode
+                ? "text-blue-600 dark:text-blue-400"
+                : "text-gray-500"
+            )}
+          >
+            <div className="flex items-center gap-2">
+              <Camera className="w-5 h-5" />
+              <span>Real-time</span>
+            </div>
+          </Label>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-8">
-        <div className={cn(
-          "transition-all duration-500",
-          (activeTranslator === "realtime" && isVipUser) ? "block" : "hidden"
-        )}>
+        <div
+          className={cn(
+            "transition-opacity duration-300",
+            isVipUser && isRealtimeMode ? "block opacity-100" : "hidden opacity-0"
+          )}
+        >
           <RealTimeTranslator />
         </div>
-        <div className={cn(
-          "transition-all duration-500",
-          activeTranslator === "upload" ? "block" : "hidden"
-        )}>
+
+        <div
+          className={cn(
+            "transition-opacity duration-300",
+            !isRealtimeMode ? "block opacity-100" : "hidden opacity-0"
+          )}
+        >
           <UploadVideoTranslator />
         </div>
       </div>
