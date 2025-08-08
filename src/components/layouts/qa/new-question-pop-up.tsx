@@ -310,26 +310,47 @@ export default function NewQuestionPopup({ userInfo, setIsNewQuestion, isUpdateQ
 
                 {/* Footer */}
                 <div className="px-6 py-4 bg-gray-50 border-t flex justify-between items-center">
-                    <div>
+                    <div className="relative z-50">
                         <Listbox value={privacy} onChange={setPrivacy}>
                             <div className="relative">
-                                <ListboxButton className="px-4 py-2 text-sm border border-gray-300 rounded-lg bg-white text-gray-700 flex items-center">
-                                    {privacy}
+                                <ListboxButton className="px-4 py-2 text-sm border border-gray-300 rounded-lg bg-white text-gray-700 flex items-center min-w-[280px] hover:bg-gray-50 transition-colors">
+                                    <span className="block truncate pr-8">{privacy}</span>
+                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                                        <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </span>
                                 </ListboxButton>
-                                <ListboxOptions className="absolute mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                                    <ListboxOption value="All can view and answer your question" className="px-4 py-2 text-sm cursor-pointer hover:bg-gray-100">
-                                        All can view and answer your question
-                                    </ListboxOption>
-                                    <ListboxOption value="Only admin can view and answer" className="px-4 py-2 text-sm cursor-pointer hover:bg-gray-100">
-                                        Only admin can view and answer
-                                    </ListboxOption>
-                                </ListboxOptions>
+                                <div className="relative mt-2">
+                                    <ListboxOptions className="absolute bottom-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                                        <div className="py-1">
+                                            <ListboxOption 
+                                                value="All can view and answer your question" 
+                                                className="px-4 py-2.5 text-sm cursor-pointer hover:bg-blue-50 text-gray-700 hover:text-blue-700 transition-colors ui-selected:bg-blue-50 ui-selected:text-blue-700 flex items-center justify-between"
+                                            >
+                                                <span>All can view and answer your question</span>
+                                                <svg className="h-4 w-4 text-blue-600 opacity-0 ui-selected:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            </ListboxOption>
+                                            <ListboxOption 
+                                                value="Only admin can view and answer" 
+                                                className="px-4 py-2.5 text-sm cursor-pointer hover:bg-blue-50 text-gray-700 hover:text-blue-700 transition-colors ui-selected:bg-blue-50 ui-selected:text-blue-700 flex items-center justify-between"
+                                            >
+                                                <span>Only admin can view and answer</span>
+                                                <svg className="h-4 w-4 text-blue-600 opacity-0 ui-selected:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            </ListboxOption>
+                                        </div>
+                                    </ListboxOptions>
+                                </div>
                             </div>
                         </Listbox>
                     </div>
                     
                     <button 
-                        className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
                         onClick={async () => { 
                             if (isUpdateQuestion) { 
                                 await updateQuestion(existImages);
@@ -337,6 +358,7 @@ export default function NewQuestionPopup({ userInfo, setIsNewQuestion, isUpdateQ
                                 await postQuestion();
                             }
                         }}
+                        disabled={!newQuestion?.trim()}
                     >
                         {isUpdateQuestion ? "Update Question" : "Post Question"}
                     </button>

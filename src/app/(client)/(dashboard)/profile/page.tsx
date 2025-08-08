@@ -19,7 +19,7 @@ import { Label } from "@/components/ui/label";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
-import { Eye, EyeOff, Lock } from "lucide-react";
+import { Eye, EyeOff, Lock, Loader2 } from "lucide-react";
 import Spinner from "@/components/ui/spinner";
 import { RootState } from "@/redux/store";
 import { useUpdatePasswordMutation } from "@/api/AuthApi";
@@ -27,6 +27,7 @@ import constants from "@/config/constants";
 import { useGetHistoryPaymentMutation } from "@/api/ProfileApi";
 import { HistoryPaymentDTO } from "@/types/IProfile";
 import TableTransaction from "@/components/layouts/profile/table-transaction";
+import { uploadImageToCloudinary } from "@/services/cloudinary/config";
 
 export default function ProfilePage() {
   const { userInfo } = useSelector((state: RootState) => state.auth);
@@ -50,6 +51,7 @@ export default function ProfilePage() {
 
   const [updateProfile] = useUpdateProfileMutation();
   const { data: profileData, refetch } = useGetUserProfileQuery(userInfo?.email, { skip: !userInfo?.email });
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   useEffect(() => {
     console.log("profileData", profileData);
@@ -87,6 +89,27 @@ export default function ProfilePage() {
       toast.error(t("profile.personalInfo.updateFail"));
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingAvatar(true);
+    try {
+      const result = await uploadImageToCloudinary(file, "avatars");
+      const newAvatarUrl = result.secure_url;
+
+      setAvatarUrl(newAvatarUrl);
+      toast.success(t("profile.personalInfo.updateSuccess"));
+      refetch();
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      }
+    } finally {
+      setIsUploadingAvatar(false);
     }
   };
 
@@ -190,18 +213,19 @@ export default function ProfilePage() {
         <div>
           <Card>
             <CardHeader className="text-center">
-              <div className="flex justify-center mb-4">
-                <Avatar className="h-32 w-32">
+                <div className="flex justify-center mb-4">
+                <Avatar className="h-32 w-32 rounded-full overflow-hidden border-4 border-primary/10">
                   <AvatarImage
-                    src={userInfo.avatarUrl}
-                    alt={`${userInfo.firstname} ${userInfo.lastname}`}
+                  src={avatarUrl || userInfo.avatarUrl}
+                  alt={`${userInfo.firstname} ${userInfo.lastname}`}
+                  className="object-cover"
                   />
                   <AvatarFallback className="text-4xl">
-                    {userInfo.firstname?.[0]}
-                    {userInfo.lastname?.[0]}
+                  {userInfo.firstname?.[0]}
+                  {userInfo.lastname?.[0]}
                   </AvatarFallback>
                 </Avatar>
-              </div>
+                </div>
               <CardTitle className="text-2xl">
                 {userInfo.firstname} {userInfo.lastname}
               </CardTitle>
@@ -209,9 +233,31 @@ export default function ProfilePage() {
             </CardHeader>
             <CardContent>
               <div className="flex flex-col space-y-4">
-                <Button variant="outline" className="w-full">
-                  {t("profile.updateProfilePicture")}
-                </Button>
+                <div className="relative">
+                  <input
+                    type="file"
+                    id="avatar-upload"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleAvatarUpload}
+                    disabled={isUploadingAvatar}
+                  />
+                  <Button 
+                    variant="outline" 
+                    className="w-full" 
+                    onClick={() => document.getElementById('avatar-upload')?.click()}
+                    disabled={isUploadingAvatar}
+                  >
+                    {isUploadingAvatar ? (
+                      <div className="flex items-center justify-center">
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <span>{t("profile.updateProfilePicture")}</span>
+                      </div>
+                    ) : (
+                      t("profile.updateProfilePicture")
+                    )}
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -228,7 +274,7 @@ export default function ProfilePage() {
                   <span className="text-sm font-medium text-muted-foreground">
                     {t("profile.memberSince")}
                   </span>
-                  <p>April 2023</p>
+                  <p>{new Date(profileData?.result?.createdAt).toLocaleDateString()}</p>
                 </div>
                 <div>
                   <span className="text-sm font-medium text-muted-foreground">

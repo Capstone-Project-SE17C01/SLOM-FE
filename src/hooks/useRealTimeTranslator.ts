@@ -37,6 +37,11 @@ export const useRealTimeTranslator = (options: UseFakeTranslatorOptions = {}): U
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const wordIndexRef = useRef(0);
+  const isConnectedRef = useRef(false);
+
+  useEffect(() => {
+    isConnectedRef.current = state.isConnected;
+  }, [state.isConnected]);
 
   const connect = useCallback(() => {
     setState(prev => ({ ...prev, isConnected: true, connectionStatus: 'Connected' }));
@@ -48,7 +53,7 @@ export const useRealTimeTranslator = (options: UseFakeTranslatorOptions = {}): U
   }, []);
 
   const startRecognition = useCallback(() => {
-    if (!state.isConnected) {
+    if (!isConnectedRef.current) {
       console.error("Not connected");
       return false;
     }
@@ -89,7 +94,7 @@ export const useRealTimeTranslator = (options: UseFakeTranslatorOptions = {}): U
     }, initialDelay);
 
     return true;
-  }, [state.isConnected, words, initialDelay, translationInterval]);
+  }, [words, initialDelay, translationInterval]);
 
   const stopRecognition = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);

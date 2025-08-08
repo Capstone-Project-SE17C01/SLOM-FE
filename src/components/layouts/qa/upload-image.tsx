@@ -32,7 +32,7 @@ export default function UploadImage({ setFiles, images, setExistImages, existIma
         if(setExistImages != undefined)
             setExistImages(images)
         console.log(existImage)
-    }, [])
+    }, [existImage, images, setExistImages])
 
     return (
         <div className="flex flex-col items-start">

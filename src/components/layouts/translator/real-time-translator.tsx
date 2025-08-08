@@ -209,13 +209,13 @@ export default function RealTimeTranslator({
   }, [mediaStream, disconnect]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-full">
       {/* Camera Section */}
       <Card className={cn(
-        "border-2 shadow-lg",
+        "border shadow-md",
         isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
       )}>
-        <CardHeader className="pb-4">
+        <CardHeader className="pb-3">
           <CardTitle className={cn(
             "flex items-center gap-3 text-xl",
             isDarkMode ? "text-white" : "text-gray-900"
@@ -338,11 +338,11 @@ export default function RealTimeTranslator({
             </div>
             
             {/* Control buttons */}
-            <div className="flex items-center justify-center gap-4 pt-4">
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               {!translator.state.isActive && !cameraActive ? (
                 <Button 
                   size="lg" 
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-8"
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-6"
                   onClick={startTranslation}
                   disabled={cameraLoading || translator.state.connectionStatus === 'Connecting...'}
                 >
@@ -362,7 +362,7 @@ export default function RealTimeTranslator({
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="border-red-500 text-red-500 hover:bg-red-50 px-8"
+                  className="border-red-500 text-red-500 hover:bg-red-50 px-6"
                   onClick={stopTranslation}
                 >
                   <Pause className="w-5 h-5 mr-2" />
@@ -387,7 +387,7 @@ export default function RealTimeTranslator({
       </Card>
 
       {/* Translation Results Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Current Translation */}
         <div className="space-y-4">
           <h3 className={cn(
@@ -406,7 +406,7 @@ export default function RealTimeTranslator({
 
           {/* Full Transcript Subtitle */}
           {translator.state.isActive && translator.state.fullTranscript && (
-            <div className="space-y-2 pt-4">
+            <div className="space-y-2 pt-2">
                <h4 className={cn("text-md font-semibold", isDarkMode ? "text-gray-300" : "text-gray-700")}>
                 Full Transcript
               </h4>
@@ -443,7 +443,7 @@ export default function RealTimeTranslator({
           </div>
 
           <div className={cn(
-            "max-h-96 overflow-y-auto space-y-3 p-4 rounded-lg border",
+            "max-h-80 overflow-y-auto space-y-3 p-10 rounded-lg border",
             isDarkMode ? "bg-gray-800 border-gray-700" : "bg-gray-50 border-gray-200"
           )}>
             {translator.state.recentPredictions.length > 0 ? (
