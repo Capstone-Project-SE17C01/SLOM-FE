@@ -283,7 +283,15 @@
       "invalidGrantCode": "Incorrect grant code",
       "invalidCodeProvided": "Invalid code provided, please request a code again",
       "invalidCodepattern": "Invalid code pattern",
-      "failGetplan": "Error server pricing plans"
+      "failGetplan": "Error server pricing plans",
+      "invalidParameter": "Invalid parameter",
+      "invalidLambdaResponse": "Invalid Lambda response",
+      "resourceNotFound": "Resource not found",
+      "tooManyRequests": "Too many requests, please try again later",
+      "userLambdaValidation": "User validation error",
+      "aliasExists": "Alias already exists",
+      "internalError": "Internal server error",
+      "passwordHistoryPolicyViolationException": "Password violates history policy"
     },
     "paymentError": {
       "errorCreatePaymentLink": "Create payment link failed",
