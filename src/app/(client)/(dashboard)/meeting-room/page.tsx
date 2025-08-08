@@ -49,6 +49,7 @@ export default function MeetingRoomPage() {
   const [updateMeeting, { isLoading: isUpdating }] = useUpdateMeetingMutation();
 
   const todayStr = new Date().toISOString().split("T")[0];
+  const upcomingMeetings = monthMeetings.filter((meeting) => meeting.isDeleted == false && new Date(meeting.startTime).getTime() > new Date().getTime());
   const meetingsToday = monthMeetings.filter(
     (meeting) => new Date(meeting.startTime).toISOString().split("T")[0] === todayStr
   );
@@ -57,13 +58,15 @@ export default function MeetingRoomPage() {
   const isFreeUserLimitReached = !isVip && meetingCountToday >= 3;
   const freeUserLimitReason = "Free accounts can create up to 3 rooms per day, each room up to 30 minutes. Upgrade for unlimited usage.";
 
-  const formattedActiveMeetings = activeMeetings.map((meeting) => ({
-    id: meeting.id,
-    name: meeting.title,
-    participantCount: meeting.participantCount,
-    description: meeting.description,
-    duration: meeting.endTime ? Math.round((new Date(meeting.endTime).getTime() - new Date(meeting.startTime).getTime()) / 60000) : 60,
-  }));
+  const formattedActiveMeetings = activeMeetings
+    .filter((meeting) => meeting.isDeleted == false)
+    .map((meeting) => ({
+      id: meeting.id,
+      name: meeting.title,
+      participantCount: meeting.participantCount,
+      description: meeting.description,
+      duration: meeting.endTime ? Math.round((new Date(meeting.endTime).getTime() - new Date(meeting.startTime).getTime()) / 60000) : 60,
+    }));
 
   const handleCreateRoom = async (roomName: string, description: string, duration: number) => {
     try {
@@ -272,18 +275,23 @@ export default function MeetingRoomPage() {
               {renderCalendar()}
               {selectedDate && dateMeetings.length > 0 ? (
                 <div className="mt-3 text-xs p-2 border-t">
-                  {dateMeetings.map((meeting) => (
-                    <div key={meeting.id} className="mb-1 last:mb-0 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium">{new Date(meeting.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} • {meeting.endTime ? Math.round((new Date(meeting.endTime).getTime() - new Date(meeting.startTime).getTime()) / 60000) : 60}min</span>
-                        <div className="flex items-center">
-                          <span className="text-gray-500 truncate max-w-[100px] mr-1">{meeting.title}</span>
-                          {renderDropdownActions({ id: meeting.id, title: meeting.title })}
+                  {dateMeetings.map((meeting) => {
+                    const meetingStartTime = new Date(meeting.startTime);
+                    const isPastMeeting = meetingStartTime < new Date();
+
+                    return (
+                      <div key={meeting.id} className="mb-1 last:mb-0 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium">{meetingStartTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} • {meeting.endTime ? Math.round((new Date(meeting.endTime).getTime() - meetingStartTime.getTime()) / 60000) : 60}min</span>
+                          <div className="flex items-center">
+                            <span className="text-gray-500 truncate max-w-[100px] mr-1">{meeting.title}</span>
+                            {!isPastMeeting && renderDropdownActions({ id: meeting.id, title: meeting.title })}
+                          </div>
                         </div>
+                        {meeting.description && <div className="text-gray-500 truncate mt-0.5">{meeting.description}</div>}
                       </div>
-                      {meeting.description && <div className="text-gray-500 truncate mt-0.5">{meeting.description}</div>}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : selectedDate ? (
                 <div className="text-xs p-2 border-t text-center text-gray-500">No meetings scheduled for this date</div>
@@ -318,9 +326,9 @@ export default function MeetingRoomPage() {
               )}
             </TabsContent>
             <TabsContent value="upcoming">
-              {monthMeetings.length > 0 ? (
+              {upcomingMeetings.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {monthMeetings.map((meeting) => (
+                  {upcomingMeetings.map((meeting) => (
                     <div key={meeting.id} className={cn("p-4 rounded-lg border transition-all", isDarkMode ? "bg-gray-800 border-gray-700 hover:border-[#6947A8]" : "bg-white border-gray-200 hover:border-[#6947A8]")}>
                       <div className="mb-2 flex justify-between items-center">
                         <h3 className="font-medium truncate">{meeting.title}</h3>

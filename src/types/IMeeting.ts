@@ -43,6 +43,7 @@ export interface MeetingEditModalProps {
 }
 
 export interface Meeting {
+  isDeleted: boolean;
   id: string;
   title: string;
   description: string;
@@ -58,6 +59,7 @@ export interface Meeting {
 }
 
 export interface ScheduledMeeting {
+  isDeleted: boolean;
   id: string;
   title: string;
   description: string;

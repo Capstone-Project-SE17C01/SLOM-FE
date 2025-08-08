@@ -9,6 +9,8 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScheduleMeetingModalProps } from '../../../types/IMeeting';
 import { useCreateInvitationMutation, useSendMeetingInvitationMutation } from "../../../api/MeetingApi";
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
 
 
 export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
@@ -31,6 +33,8 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
   const [createInvitation] = useCreateInvitationMutation();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const { userInfo } = useSelector((state: RootState) => state.auth);
+  const isVip = userInfo?.vipUser === true;
 
   if (!show) return null;
 
@@ -56,6 +60,10 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
   
   const handleDateSelect = (day: number) => {
     const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+    // Check if selected date is in the past
+    if (newDate < new Date(new Date().setHours(0, 0, 0, 0))) {
+      return;
+    }
     setSelectedDate(newDate);
     setDate(newDate.toISOString().split('T')[0]);
   };
@@ -63,6 +71,13 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!date || !time) return;
+
+    // Validate if selected date and time is in the past
+    const selectedDateTime = new Date(`${date}T${time}`);
+    if (selectedDateTime < new Date()) {
+      alert('Cannot schedule meeting in the past');
+      return;
+    }
 
     onScheduleMeeting({
       name,
@@ -219,7 +234,7 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                       id="duration"
                       type="number"
                       min={5}
-                      max={240}
+                      max={isVip ? 480 : 30}
                       value={duration}
                       onChange={(e) => setDuration(Number(e.target.value))}
                     />

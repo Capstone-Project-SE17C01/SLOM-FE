@@ -129,21 +129,21 @@ export const RoomCreationModal: React.FC<RoomCreationModalProps> = ({
                   )}
                   disabled={isFreeUserLimitReached}
                 >
-                  <option value="15">15 phút</option>
-                  <option value="30">30 phút</option>
-                  <option value="45" disabled={!isVip}>45 phút</option>
-                  <option value="60" disabled={!isVip}>1 giờ</option>
-                  <option value="90" disabled={!isVip}>1.5 giờ</option>
-                  <option value="120" disabled={!isVip}>2 giờ</option>
-                  <option value="180" disabled={!isVip}>3 giờ</option>
-                  <option value="240" disabled={!isVip}>4 giờ</option>
-                  <option value="480" disabled={!isVip}>8 giờ</option>
+                  <option value="15">15 minutes</option>
+                  <option value="30">30 minutes</option>
+                  <option value="45" disabled={!isVip}>45 minutes</option>
+                  <option value="60" disabled={!isVip}>1 hour</option>
+                  <option value="90" disabled={!isVip}>1.5 hours</option>
+                  <option value="120" disabled={!isVip}>2 hours</option>
+                  <option value="180" disabled={!isVip}>3 hours</option>
+                  <option value="240" disabled={!isVip}>4 hours</option>
+                  <option value="480" disabled={!isVip}>8 hours</option>
                 </select>
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 {isVip
-                  ? "Phòng họp sẽ tự động kết thúc sau thời lượng đã chọn."
-                  : "Tài khoản miễn phí chỉ được tạo phòng tối đa 30 phút/lần, tối đa 3 lần/ngày."}
+                  ? "The meeting will automatically end after the selected duration."
+                  : "Free accounts can only create rooms up to 30 minutes/time, up to 3 times/day."}
               </p>
             </div>
             <div className="pt-4">
@@ -158,10 +158,10 @@ export const RoomCreationModal: React.FC<RoomCreationModalProps> = ({
                 disabled={isLoading || isFreeUserLimitReached}
               >
                 {isLoading
-                  ? 'Đang tạo...'
+                  ? 'Creating...'
                   : isFreeUserLimitReached
-                    ? 'Đã đạt giới hạn/ngày'
-                    : 'Tạo phòng'}
+                    ? 'Reached limit/day'
+                    : 'Create room'}
               </Button>
             </div>
           </form>
