@@ -6,7 +6,6 @@ import { APIResponse } from "../types/IAuth";
 import { Feedback } from "./FeedbackApi";
 import { SummaryAdminDTO } from "@/types/IAdmin";
 import { Payment } from "@/types/IPayment";
-import { IProfile } from "@/types/IProfile";
 
 export const adminAPI = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -122,16 +121,7 @@ export const adminAPI = baseApi.injectEndpoints({
         flashError: false,
       }),
     }),
-
-    getAllProfiles: build.query<APIResponse<IProfile[]>, void>({
-      query: () => ({
-        url: "/api/profile/getall",
-        method: "GET",
-        flashError: false,
-      }),
-    }),
   }),
-  overrideExisting: true,
 });
 export const {
   useGetSummaryAdminMutation,
@@ -148,6 +138,5 @@ export const {
   useDeleteModuleMutation,
   useDeleteLessonMutation,
   useGetAllPaymentsQuery,
-  useGetAllProfilesQuery,
 } = adminAPI;
 

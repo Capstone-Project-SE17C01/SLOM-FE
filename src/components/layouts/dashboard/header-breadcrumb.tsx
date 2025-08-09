@@ -120,6 +120,7 @@ export default function Header({
                       <AvatarImage
                         src={userInfo.avatarUrl}
                         alt={`${userInfo.username}`}
+                        className="object-cover"
                       />
                       <AvatarFallback>{userInfo.username}</AvatarFallback>
                     </Avatar>

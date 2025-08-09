@@ -122,6 +122,7 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
                   <AvatarImage
                     src={userInfo.avatarUrl}
                     alt={userInfo.username}
+                    className="object-cover"
                   />
                   <AvatarFallback>{userInfo.username?.[0]?.toUpperCase()}</AvatarFallback>
                 </Avatar>

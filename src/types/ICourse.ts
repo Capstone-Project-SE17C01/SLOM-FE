@@ -3,7 +3,7 @@ export interface Course {
   title: string;
   description?: string;
   difficultyLevel?: string;
-  thumbnailUrl?: string;
+  thumbnailUrl?: string | null;
   languageId?: string;
   categoryId?: string;
   creatorId?: string;
