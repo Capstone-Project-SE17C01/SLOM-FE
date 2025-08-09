@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export interface FieldConfig {
   label: string;
@@ -16,6 +23,7 @@ interface EntityModalProps {
   fields: FieldConfig[];
   title: string;
   initialValues?: Record<string, string>;
+  children?: React.ReactNode;
 }
 
 const EntityModal: React.FC<EntityModalProps> = ({
@@ -25,14 +33,13 @@ const EntityModal: React.FC<EntityModalProps> = ({
   fields,
   title,
   initialValues = {},
+  children,
 }) => {
   const [form, setForm] = useState<Record<string, string>>(initialValues);
 
   useEffect(() => {
     setForm(initialValues || {});
   }, [initialValues, open]);
-
-  if (!open) return null;
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -48,86 +55,96 @@ const EntityModal: React.FC<EntityModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg w-full max-w-lg p-6 relative">
-        <button
-          className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
-          onClick={onClose}
-        >
-          &times;
-        </button>
-        <h2 className="text-xl font-bold mb-4">{title}</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {fields.map((field) => (
-            <div key={field.name}>
-              <label
-                className="block text-sm font-medium mb-1"
-                htmlFor={field.name}
-              >
-                {field.label}
-                {field.required && <span className="text-red-500 ml-1">*</span>}
-              </label>
-              {field.type === "text" && (
-                <input
-                  type="text"
-                  id={field.name}
-                  name={field.name}
-                  value={form[field.name] || ""}
-                  onChange={handleChange}
-                  required={field.required}
-                  className="w-full border rounded px-3 py-2"
-                />
-              )}
-              {field.type === "number" && (
-                <input
-                  type="number"
-                  id={field.name}
-                  name={field.name}
-                  value={form[field.name] || ""}
-                  onChange={handleChange}
-                  required={field.required}
-                  className="w-full border rounded px-3 py-2"
-                />
-              )}
-              {field.type === "textarea" && (
-                <textarea
-                  id={field.name}
-                  name={field.name}
-                  value={form[field.name] || ""}
-                  onChange={handleChange}
-                  required={field.required}
-                  className="w-full border rounded px-3 py-2"
-                  rows={3}
-                />
-              )}
-              {field.type === "select" && field.options && (
-                <select
-                  id={field.name}
-                  name={field.name}
-                  value={form[field.name] || ""}
-                  onChange={handleChange}
-                  required={field.required}
-                  className="w-full border rounded px-3 py-2"
-                >
-                  <option value="">Select...</option>
-                  {field.options.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
-          ))}
-          <div className="flex justify-end space-x-2 mt-4">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit">Save</Button>
+    <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="text-xl">{title}</DialogTitle>
+        </DialogHeader>
+        
+        {children ? (
+          <div className="py-2">
+            {children}
+            <DialogFooter className="pt-4">
+              <Button type="button" variant="outline" onClick={onClose} className="mr-2">
+                Cancel
+              </Button>
+              <Button onClick={() => onSubmit(form)}>Confirm</Button>
+            </DialogFooter>
           </div>
-        </form>
-      </div>
-    </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4 py-2">
+            {fields.map((field) => (
+              <div key={field.name}>
+                <label
+                  className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300"
+                  htmlFor={field.name}
+                >
+                  {field.label}
+                  {field.required && <span className="text-red-500 ml-1">*</span>}
+                </label>
+                {field.type === "text" && (
+                  <input
+                    type="text"
+                    id={field.name}
+                    name={field.name}
+                    value={form[field.name] || ""}
+                    onChange={handleChange}
+                    required={field.required}
+                    className="w-full border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
+                  />
+                )}
+                {field.type === "number" && (
+                  <input
+                    type="number"
+                    id={field.name}
+                    name={field.name}
+                    value={form[field.name] || ""}
+                    onChange={handleChange}
+                    required={field.required}
+                    className="w-full border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
+                  />
+                )}
+                {field.type === "textarea" && (
+                  <textarea
+                    id={field.name}
+                    name={field.name}
+                    value={form[field.name] || ""}
+                    onChange={handleChange}
+                    required={field.required}
+                    className="w-full border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
+                    rows={3}
+                  />
+                )}
+                {field.type === "select" && field.options && (
+                  <select
+                    id={field.name}
+                    name={field.name}
+                    value={form[field.name] || ""}
+                    onChange={handleChange}
+                    required={field.required}
+                    className="w-full border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
+                  >
+                    <option value="">Select...</option>
+                    {field.options.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+            ))}
+            
+            <DialogFooter className="pt-4">
+              <Button type="button" variant="outline" onClick={onClose} className="mr-2">
+                Cancel
+              </Button>
+              <Button type="submit">Save</Button>
+            </DialogFooter>
+          </form>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 };
 

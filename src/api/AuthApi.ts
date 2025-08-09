@@ -1,20 +1,17 @@
 "use client";
 
 import { baseApi, updateAuthToken } from "@/services";
-import type {
-  LoginRequestDTO,
-  ConfirmRegisterationRequestDTO,
-  RegisterationRequestDTO,
-  ResendConfirmationCodeDTO,
-  ForgotPasswordRequestDTO,
-  ReturnUrlQueryDTO,
-  CreatePaymentRequestDTO,
+import {
   APIResponse,
-  SubscriptionPlanDTO,
-  LoginWithGoogleRequestDTO,
-  UpdatePasswordRequestDTO,
   ChangeLanguageRequestDTO,
   ChangeLanguageResponseDTO,
+  ConfirmRegisterationRequestDTO,
+  ForgotPasswordRequestDTO,
+  LoginRequestDTO,
+  LoginWithGoogleRequestDTO,
+  RegisterationRequestDTO,
+  ResendConfirmationCodeDTO,
+  UpdatePasswordRequestDTO,
 } from "../types/IAuth";
 import { authSlice } from "../redux/auth/slice";
 import { setClientCookie } from "@/utils/jsCookies";
@@ -167,29 +164,6 @@ export const authAPI = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
-    getAllPlan: build.query<APIResponse<SubscriptionPlanDTO>, void>({
-      query: () => ({
-        url: "/api/Payment/GetAllPlan",
-        method: "GET",
-        flashError: false,
-      }),
-    }),
-    createPaymentLink: build.mutation({
-      query: (data: CreatePaymentRequestDTO) => ({
-        url: "/api/Payment/CreatePaymentLink",
-        method: "POST",
-        body: data,
-        flashError: false,
-      }),
-    }),
-    updatePlan: build.mutation({
-      query: (data: ReturnUrlQueryDTO) => ({
-        url: "/api/Payment/UpdatePlan",
-        method: "POST",
-        body: data,
-        flashError: false,
-      }),
-    }),
     updatePassword: build.mutation({
       query: (data: UpdatePasswordRequestDTO) => ({
         url: "/api/auth/updatePassword",
@@ -220,9 +194,6 @@ export const {
   useResendConfirmationCodeMutation,
   useForgotPasswordMutation,
   useGetUserProfileQuery,
-  useCreatePaymentLinkMutation,
-  useUpdatePlanMutation,
-  useGetAllPlanQuery,
   useUpdatePasswordMutation,
   useChangeLanguageMutation,
 } = authAPI;

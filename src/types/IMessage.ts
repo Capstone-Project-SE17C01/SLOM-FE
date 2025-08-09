@@ -33,12 +33,15 @@ export interface MessageBoxProps {
   readonly setMessages: Dispatch<SetStateAction<Message[]>>;
   readonly userId: string;
   readonly selectedUser: User | undefined;
+  currentPage: number;
+  setCurrentPage: Dispatch<SetStateAction<number>>;
 }
 
 export interface Message {
   id: number;
   content: string;
-  isSender: boolean
+  isSender: boolean;
+  images?: string[] | undefined;
 };
 
 export interface MessageRequest {
@@ -50,6 +53,7 @@ export interface MessageRequest {
 export interface MessageResponse {
   isLoadFullPage: boolean;
   data: Message[];
+  images?: string[] | undefined;
 }
 
 export interface InitSignalROptions {
@@ -66,4 +70,13 @@ export interface InitSignalROptions {
   selectedUser: User | undefined;
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   onConnectionCreated?: (connection: HubConnection) => void;
+}
+
+export interface MessageUploadImageDTO {
+  setFiles: Dispatch<SetStateAction<File[]>>
+  images: string[]
+  setExistImages: Dispatch<SetStateAction<string[] | undefined>> | undefined
+  existImage: string[] | undefined
+  previews: string[] | undefined
+  setPreviews: Dispatch<SetStateAction<string[] | undefined>>
 }

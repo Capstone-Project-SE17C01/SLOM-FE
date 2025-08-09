@@ -11,6 +11,10 @@ import { MessageBox } from "@/components/layouts/message/user-message-box";
 import { SearchUserMessage } from "@/components/layouts/message/user-bar";
 import { Message, User } from "@/types/IMessage";
 import { SearchUser } from "@/components/layouts/message/user-search";
+import UploadImage from "@/components/layouts/message/upload-image";
+import Image from "next/image";
+import { cn } from "@/utils/cn";
+import { uploadImageToCloudinary } from "@/services/cloudinary/config";
 
 function Page() {
   const t = useTranslations("unAuthenMessage");
@@ -19,8 +23,20 @@ function Page() {
   const [connection, setConnection] = useState<HubConnection | null>(null);
   const [isSearch, setIsSearch] = useState(false);
   const [listSearchedUser, setListSearchedUser] = useState<User[]>([]);
-
+  const [files, setFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[] | undefined>([]);
+  const [existImages, setExistImages] = useState<string[] | undefined>([]);
   const { userInfo } = useSelector((state: RootState) => state.auth);
+  const [currentPage, setCurrentPage] = useState(1);
+  const uploadImage = async (_callback: (urls: string[]) => void): Promise<string[]> => {
+    if (!files?.length) return [];
+    const promises = files.map(async f =>
+      await uploadImageToCloudinary(f).then(res => res.url)
+    );
+    const urls = await Promise.all(promises);
+    _callback(urls);
+    return urls;
+  }
 
   useEffect(() => {
     initSignalRConnection({
@@ -39,15 +55,36 @@ function Page() {
     );
   }
 
-  const sendMessage = async (message: string) => {
-    if (connection && message.trim()) {
-      await connection.send(
-        "PostMessage",
-        message,
-        userInfo.email,
-        selectedUser?.email
-      );
+  const sendMessage = async (message: string, messageFiles: File[] = []) => {
+    console.log("================================")
+    console.log(message)
+    let sentImages: string[] = []
+    if (connection && (message.trim() || messageFiles.length > 0)) {
+      if (messageFiles.length > 0) {
+        
+        console.log("================================")
+        console.log("hrhrhrhrhr")
+        sentImages = await uploadImage(async (res : string[]) => {
+          await connection.send(
+            "PostMessage",
+            message,
+            userInfo.email,
+            selectedUser?.email,
+            res
+          );
+        })
+      } else {
+        const emptyString : string[] = [];
+        await connection.send(
+          "PostMessage",
+          message,
+          userInfo.email,
+          selectedUser?.email,
+          emptyString
+        );
+      }
     }
+
     let biggest = 0;
     messages.forEach((value) => {
       if (value.id > biggest) biggest = value.id;
@@ -55,18 +92,31 @@ function Page() {
 
     setMessages((prev) => [
       ...prev,
-      { id: biggest + 1, content: message, isSender: true },
+      { id: biggest + 1, content: message, isSender: true, images: sentImages },
     ]);
+
+    setFiles([]);
+    setPreviews([]);
+    setExistImages([]);
   };
 
   const handleUserSelect = (user: User) => {
+    setCurrentPage(1)
     setMessages([]);
     setSelectedUser(user);
   };
 
+  const removeItem = (index: number, src: string) => {
+    if (src.includes('cloudinary') && setExistImages != undefined) {
+      setExistImages(() => existImages?.filter(val => val != src))
+    } else {
+      setPreviews(prev => prev != undefined ? prev.filter((_, i) => i !== index) : prev)
+      setFiles(prev => prev?.filter((_, i) => i !== index))
+    }
+  }
+
   return (
     <div className="h-[70vh] flex">
-      {/* User list on the left */}
       <div className="bg-white dark:bg-[#23272f] rounded-xl w-[20vw] pl-2.5 pr-2.5 pt-2.5 mr-5 shadow-md flex flex-col border border-1">
         <div className="pr-4 h-[80px] mb-[3%]">
           <h3 className="h-[50%] text-3xl font-bold dark:text-white">Chat</h3>
@@ -105,7 +155,6 @@ function Page() {
                     <AvatarFallback>{user.name}</AvatarFallback>
                   </Avatar>
 
-                  {/* User Name and Last Message */}
                   <div className="">
                     <div className="text-lg text-gray-900 dark:text-white text-left font-bold">
                       {user.name}
@@ -118,7 +167,6 @@ function Page() {
         )}
       </div>
 
-      {/* Chat area on the right */}
       {selectedUser == null || selectedUser == undefined ? (
         <div className="bg-white dark:bg-[#23272f] rounded-xl shadow-md p-6 flex items-center justify-center flex-1 border border-1">
           <div className="text-center">
@@ -150,56 +198,90 @@ function Page() {
             setMessages={setMessages}
             userId={userInfo.id ?? ""}
             selectedUser={selectedUser}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
           />
 
-          {/* Input to send messages */}
           {selectedUser && (
-            <div className="h-[60px] flex items-center">
-              <div className="w-[5%] flex justify-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="size-7"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                  />
-                </svg>
-              </div>
-              <input
-                type="text"
-                placeholder="Aa"
-                className="h-[60%] rounded-full w-[90%] p-2.5 border border-[#ccc] dark:border-[#444] m-0 bg-[#f3f3f5] dark:bg-[#353945] text-black dark:text-white"
-                onKeyDown={(e) => {
-                  const target = e.target as HTMLInputElement; // Type assertion here
-                  if (e.key === "Enter" && target.value.trim() !== "") {
-                    sendMessage(target.value); // Use the value from the input field
-                    target.value = ""; // Clear input after sending
-                  }
-                }}
-              />
+            <div className="flex flex-col">
 
-              <div className="h-full flex justify-center items-center w-[5%]">
-                <div className="h-[85%] w-[85%] rounded-full hover:bg-[#f5f5f5] dark:hover:bg-[#353945] bg-white dark:bg-[#23272f] shadow-none p-0 flex justify-center items-center cursor-pointer">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="size-6 text-black dark:text-white"
+              <div className="min-h-[60px] flex items-center">
+              <UploadImage
+                  setFiles={setFiles}
+                  images={[]}
+                  setExistImages={setExistImages}
+                  existImage={existImages}
+                  previews={previews}
+                  setPreviews={setPreviews}
+                />
+
+                <div className="w-[90%]">
+                  {previews != undefined && previews.length != 0 ?
+                    <div className="flex w-full bg-[#f3f3f5] p-2 rounded-t-xl border border-[#ccc] border-b-0">
+                      {previews.map((src, i) => (
+                        <div key={src} className="relative w-24 h-24 mr-2">
+                          <button
+                            onClick={() => removeItem(i, src)}
+                            className="absolute -top-2 -right-2 bg-white rounded-full hover:bg-gray-200 transition z-10"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                          </button>
+
+                          <Image
+                            src={src}
+                            alt={`preview-${i}`}
+                            fill
+                            className="object-cover rounded-xl"
+                          />
+                        </div>
+                      ))}
+                    </div> : <></>
+                  }
+
+                  <input
+                    type="text"
+                    placeholder="Aa"
+                    className={cn("h-[60%] w-full p-2.5 border border-[#ccc] dark:border-[#444] m-0 bg-[#f3f3f5] dark:bg-[#353945] text-black dark:text-white",
+                      previews != undefined && previews.length != 0 ? "rounded-b-xl border-t-0 mb-1" : "rounded-xl"
+                    )}
+                    onKeyDown={(e) => {
+                      const target = e.target as HTMLInputElement;
+                      if (e.key === "Enter" && (target.value.trim() !== "" || files.length > 0)) {
+                        sendMessage(target.value, files);
+                        target.value = "";
+                      }
+                    }}
+                  />
+                </div>
+
+                <div className="flex justify-center items-center w-[5%] mx-2">
+                  <div
+                    className="h-10 w-10 rounded-full hover:bg-[#f5f5f5] dark:hover:bg-[#353945] bg-white dark:bg-[#23272f] shadow-none p-0 flex justify-center items-center cursor-pointer"
+                    onClick={() => {
+                      const input = document.querySelector('input[placeholder="Aa"]') as HTMLInputElement;
+                      if (input && (input.value.trim() !== "" || files.length > 0)) {
+                        sendMessage(input.value, files);
+                        input.value = "";
+                      }
+                    }}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
-                    />
-                  </svg>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="size-6 text-black dark:text-white"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
+                      />
+                    </svg>
+                  </div>
                 </div>
               </div>
             </div>

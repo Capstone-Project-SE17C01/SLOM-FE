@@ -14,10 +14,9 @@ import {
 } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Check } from "lucide-react";
-import { useGetAllPlanQuery } from "@/api/AuthApi";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { useCreatePaymentLinkMutation } from "@/api/AuthApi";
+import { useCreatePaymentLinkMutation, useGetAllPlanQuery } from "@/api/PaymentApi";
 import constants from "@/config/constants";
 import {
   APIResponse,

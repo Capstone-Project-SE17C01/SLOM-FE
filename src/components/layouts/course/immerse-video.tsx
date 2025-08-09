@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { RootState } from "@/redux/store";
 import { useGetVideoSuggestMutation } from "../../../api/CourseApi";
 import { useSelector } from "react-redux";
-import { ListVideoSuggestResult, VideoHeaderInput, VideoSuggest, VideoTabsInput } from "../../../types/ICourse";
+import { ListVideoSuggestResult, VideoHeaderInput, VideoSuggest } from "../../../types/ICourse";
 
 function VideoHeader(input: Readonly<VideoHeaderInput>) {
   return (
@@ -20,34 +20,6 @@ function VideoHeader(input: Readonly<VideoHeaderInput>) {
         </div>
         <div className="text-primary dark:text-primary text-base mt-1">{input.headerDesc}</div>
       </div>
-    </div>
-  );
-}
-
-function VideoTabs(input: Readonly<VideoTabsInput>) {
-  const t = useTranslations("immersePage");
-  const videoTabs = [
-    { label: t("tabAll") },
-    { label: t("tabReady") },
-    { label: t("tabWatched") },
-    { label: t("tabPractice") },
-  ];
-  return (
-    <div className="flex gap-2 mb-6">
-      {videoTabs.map((tab, i) => (
-        <button
-          key={tab.label}
-          onClick={() => input.setActive(i)}
-          className={`px-5 py-1.5 rounded-full font-semibold text-base border transition-all
-              ${input.active === i
-              ? "border-primary text-[#0a2233] dark:text-gray-200 bg-white dark:bg-gray-800 shadow"
-              : "border-gray-200 dark:border-gray-700 text-[#0a2233] dark:text-gray-200 bg-gray-50 dark:bg-gray-900 hover:border-primary"
-            }
-            `}
-        >
-          {tab.label}
-        </button>
-      ))}
     </div>
   );
 }
@@ -77,7 +49,6 @@ function VideoCard(card: Readonly<ListVideoSuggestResult>) {
 
 export default function ImmerseVideo() {
   const t = useTranslations("immersePage");
-  const [activeTab, setActiveTab] = useState(0);
   const [search, setSearch] = useState("");
   const [getVideoSuggestion] = useGetVideoSuggestMutation();
   const { userInfo } = useSelector((state: RootState) => state.auth);
@@ -168,7 +139,6 @@ export default function ImmerseVideo() {
     <div className="p-8 pt-4 max-h-[90vh] overflow-scroll" ref={chatContainerRef}>
       <VideoHeader headerTitle={t("headerTitle")} headerDesc={t("headerDesc")} />
       <div className="flex items-center justify-between mb-2">
-        <VideoTabs active={activeTab} setActive={setActiveTab} />
         <div className="relative w-[260px]">
           <input
             type="text"

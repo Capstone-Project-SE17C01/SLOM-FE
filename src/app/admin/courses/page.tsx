@@ -305,22 +305,18 @@ export default function CoursePage() {
             : {}
         }
       />
-      {deleteModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-sm shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Confirm delete course</h2>
-            <p className="mb-6">Are you sure you want to delete this course?</p>
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={closeDeleteModal}>
-                Cancel
-              </Button>
-              <Button variant="destructive" onClick={handleDeleteCourse}>
-                Delete
-              </Button>
-            </div>
-          </div>
+      <EntityModal
+        open={deleteModalOpen}
+        onClose={closeDeleteModal}
+        onSubmit={handleDeleteCourse}
+        fields={[]}
+        title="Confirm delete course"
+      >
+        <div className="py-4 text-center">
+          <p className="text-lg">Are you sure you want to delete this course?</p>
+          <p className="text-sm text-gray-500 mt-2">This action cannot be undone.</p>
         </div>
-      )}
+      </EntityModal>
     </div>
   );
 }
