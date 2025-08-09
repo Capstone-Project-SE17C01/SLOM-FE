@@ -30,6 +30,7 @@ export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const t_login = useTranslations("loginPage");
+  const t_error_auth = useTranslations("errorMessages.authError");
 
   const [login] = useLoginMutation();
   const [signInWithGoogle] = useLoginWithGoogleMutation();
@@ -42,28 +43,36 @@ export function LoginForm() {
 
     try {
       const payload = await login({ email, password }).unwrap();
-      
+
       if (payload.result) {
         const { accessToken, roleName } = payload.result as LoginResponseDTO;
-        
+
         setClientCookie('accessToken', accessToken, {
           expires: rememberMe ? 30 : 1,
           secure: true,
           sameSite: 'strict'
         });
-        
+
         updateAuthToken(accessToken);
-        
+
         await editUpdateAt({ email });
-        
+
         if (accessToken && roleName === "ADMIN") {
           router.push("/admin");
         } else {
           router.push("/");
         }
       }
-    } catch (error) {
-      console.error("Error Login Email\n", error);
+    } catch (error: unknown) {
+      const err = error as { data?: { errorMessages?: string | string[] } };
+      const errorMessage = err?.data?.errorMessages
+        ? Array.isArray(err.data.errorMessages)
+          ? err.data.errorMessages[0]
+          : err.data.errorMessages
+        : 'Unknown error';
+      setError(t_error_auth(errorMessage));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -83,16 +92,16 @@ export function LoginForm() {
 
         if (payload.result) {
           const { accessToken } = payload.result as LoginResponseDTO;
-          
+
           if (accessToken) {
             setClientCookie('accessToken', accessToken, {
               expires: rememberMe ? 30 : 1,
               secure: true,
               sameSite: 'strict'
             });
-            
+
             updateAuthToken(accessToken);
-            
+
             router.push("/");
           }
         }

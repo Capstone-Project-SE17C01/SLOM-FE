@@ -167,32 +167,38 @@ export default function MeetingRoomPage() {
     }
   };
 
-  const renderDropdownActions = (meeting: { id: string; title: string }, showJoin = false) => (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full focus:outline-none">
-          <MoreVertical size={14} />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-40">
-        {showJoin && (
-          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleRoomClick(meeting.id); }} className="flex items-center gap-1" disabled={isDeleting || isUpdating}>
-            <Share2 size={14} /> Join
+  const renderDropdownActions = (meeting: { id: string; title: string; startTime?: string }) => {
+    const meetingStartTime = meeting.startTime ? new Date(meeting.startTime) : null;
+    const isPastMeeting = meetingStartTime ? meetingStartTime < new Date() : false;
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full focus:outline-none">
+            <MoreVertical size={14} />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-40">
+          {!isPastMeeting && (
+            <>
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleRoomClick(meeting.id); }} className="flex items-center gap-1" disabled={isDeleting || isUpdating}>
+                <Share2 size={14} /> Join
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEditMeeting(meeting.id); }} className="flex items-center gap-1" disabled={isDeleting || isUpdating}>
+                <Edit size={14} /> Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); const meetingLink = `${window.location.origin}/meeting?roomID=${meeting.id}`; copyToClipboard(meetingLink, "Meeting link copied to clipboard"); }} className="flex items-center gap-1" disabled={isCopying || isDeleting || isUpdating}>
+                <ClipboardCopy size={14} className={isCopying ? "animate-pulse" : ""} />
+                {isCopying ? "Copying..." : "Copy Link"}
+              </DropdownMenuItem>
+            </>
+          )}
+          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setMeetingToDelete(meeting); setShowDeleteDialog(true); }} className="flex items-center gap-1 text-red-500 focus:bg-red-50 dark:focus:bg-red-900/20" disabled={isDeleting || isUpdating}>
+            <Trash2 size={14} /> {isDeleting ? "Deleting..." : "Delete"}
           </DropdownMenuItem>
-        )}
-        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEditMeeting(meeting.id); }} className="flex items-center gap-1" disabled={isDeleting || isUpdating}>
-          <Edit size={14} /> Edit
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setMeetingToDelete(meeting); setShowDeleteDialog(true); }} className="flex items-center gap-1 text-red-500 focus:bg-red-50 dark:focus:bg-red-900/20" disabled={isDeleting || isUpdating}>
-          <Trash2 size={14} /> {isDeleting ? "Deleting..." : "Delete"}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); const meetingLink = `${window.location.origin}/meeting?roomID=${meeting.id}`; copyToClipboard(meetingLink, "Meeting link copied to clipboard"); }} className="flex items-center gap-1" disabled={isCopying || isDeleting || isUpdating}>
-          <ClipboardCopy size={14} className={isCopying ? "animate-pulse" : ""} />
-          {isCopying ? "Copying..." : "Copy Link"}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+        </DropdownMenuContent>
+      </DropdownMenu>
+    )
+  };
 
   const renderCalendar = () => {
     const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
@@ -210,7 +216,7 @@ export default function MeetingRoomPage() {
         {calendarDays.map((day, index) => {
           if (day === null) return <div key={`empty-${index}`} className="h-8"></div>;
           const formattedDate = day.toISOString().split("T")[0];
-          const hasMeetings = monthMeetings.some((meeting) => new Date(meeting.startTime).toISOString().split("T")[0] === formattedDate);
+          const hasMeetings = monthMeetings.some((meeting) => meeting.isDeleted == false && new Date(meeting.startTime).toISOString().split("T")[0] === formattedDate);
           const isSelected = selectedDate?.toDateString() === day.toDateString();
           const isToday = new Date().toDateString() === day.toDateString();
 
@@ -275,17 +281,14 @@ export default function MeetingRoomPage() {
               {renderCalendar()}
               {selectedDate && dateMeetings.length > 0 ? (
                 <div className="mt-3 text-xs p-2 border-t">
-                  {dateMeetings.map((meeting) => {
-                    const meetingStartTime = new Date(meeting.startTime);
-                    const isPastMeeting = meetingStartTime < new Date();
-
+                  {dateMeetings.filter(meeting => meeting.isDeleted == false).map((meeting) => {
                     return (
                       <div key={meeting.id} className="mb-1 last:mb-0 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
                         <div className="flex justify-between items-center">
-                          <span className="font-medium">{meetingStartTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} • {meeting.endTime ? Math.round((new Date(meeting.endTime).getTime() - meetingStartTime.getTime()) / 60000) : 60}min</span>
+                          <span className="font-medium">{new Date(meeting.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} • {meeting.endTime ? Math.round((new Date(meeting.endTime).getTime() - new Date(meeting.startTime).getTime()) / 60000) : 60}min</span>
                           <div className="flex items-center">
                             <span className="text-gray-500 truncate max-w-[100px] mr-1">{meeting.title}</span>
-                            {!isPastMeeting && renderDropdownActions({ id: meeting.id, title: meeting.title })}
+                            {renderDropdownActions({ id: meeting.id, title: meeting.title, startTime: meeting.startTime })}
                           </div>
                         </div>
                         {meeting.description && <div className="text-gray-500 truncate mt-0.5">{meeting.description}</div>}
@@ -334,7 +337,7 @@ export default function MeetingRoomPage() {
                         <h3 className="font-medium truncate">{meeting.title}</h3>
                         <div className="flex items-center gap-2">
                           <span className={cn("text-xs px-2 py-0.5 rounded-full", meeting.status === "Active" ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300")}>{meeting.status}</span>
-                          {renderDropdownActions({ id: meeting.id, title: meeting.title }, true)}
+                          {renderDropdownActions({ id: meeting.id, title: meeting.title })}
                         </div>
                       </div>
                       <div className="space-y-1 mb-2">

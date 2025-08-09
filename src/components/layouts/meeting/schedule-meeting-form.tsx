@@ -72,13 +72,6 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
     e.preventDefault();
     if (!date || !time) return;
 
-    // Validate if selected date and time is in the past
-    const selectedDateTime = new Date(`${date}T${time}`);
-    if (selectedDateTime < new Date()) {
-      alert('Cannot schedule meeting in the past');
-      return;
-    }
-
     onScheduleMeeting({
       name,
       description,

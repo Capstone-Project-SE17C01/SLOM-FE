@@ -28,11 +28,13 @@ export default function UploadImage({ setFiles, images, setExistImages, existIma
     }
 
     useEffect(() => {
-        setPreviews(images);
-        if(setExistImages != undefined)
-            setExistImages(images)
-        console.log(existImage)
-    }, [existImage, images, setExistImages])
+        if (images?.length) {
+            setPreviews(images);
+            if (setExistImages) {
+                setExistImages(images);
+            }
+        }
+    }, [images, setExistImages])
 
     return (
         <div className="flex flex-col items-start">
