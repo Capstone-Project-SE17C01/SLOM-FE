@@ -6,7 +6,7 @@ import { useGetAnswerMutation } from "../../../api/QaApi";
 import { useEffect, useState } from "react";
 import { ArrowLeft, MessageCircle } from "lucide-react";
 
-export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifiedPage, question, answersOfQuestion, setAnswerOfQuestion, newAnswerAmount }: Readonly<DetailQuestionViewProps>) {
+export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifiedPage, question, answersOfQuestion, setAnswerOfQuestion, newAnswerAmount, userInfo, setIsUpdateAnswer, setAnswer }: Readonly<DetailQuestionViewProps>) {
     const [getAnswerApi] = useGetAnswerMutation();
     const [pagination, setPagination] = useState<number>(1);
 
@@ -24,6 +24,10 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
         };
 
         getAnswerApi(getAnswerRequest).then(res => {
+            console.log("res", res)
+            if(pagination == 1) {
+                setAnswerOfQuestion([]);
+            }
             const newAnswers = res.data?.result;
             if (newAnswers && newAnswers.length > 0) {
                 setAnswerOfQuestion(newAnswers);
@@ -31,8 +35,6 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
                     setIsLoadFull(true);
                 }
                 setPagination(2);
-            } else {
-                setIsLoadFull(true);
             }
             setIsLoading(false);
         }).catch(error => {
@@ -173,7 +175,14 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
 
             <div className="divide-y">
                 {question?.questionId && (
-                    <AnswerDetailQuestionView specificThread={answersOfQuestion} />
+                    <AnswerDetailQuestionView 
+                        specificThread={answersOfQuestion} 
+                        userInfo={userInfo} 
+                        questionOwner={question.author.username}
+                        setIsResponseQuestion={setIsResponseQuestion}
+                        setIsUpdateAnswer={setIsUpdateAnswer}
+                        setAnswer={setAnswer}
+                    />
                 )}
             </div>
             

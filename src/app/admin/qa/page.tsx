@@ -16,6 +16,8 @@ export default function QAPage() {
     const [answersOfQuestion, setAnswerOfQuestion] = useState<AnswerResponseDTO[] | undefined | null>([]);
     const [newAnswerAmount, setNewAnswerAmount] = useState<NewAnswerAmount[]>([]);
     const [showCurrentUserQuestions, setShowCurrentUserQuestions] = useState<boolean>(false);
+    const [isUpdateAnswer, setIsUpdateAnswer] = useState<boolean>(false);
+    const [answer, setAnswer] = useState<AnswerResponseDTO>();
 
     return (
         <div className="relative max-w-6xl mx-auto px-6 py-8">
@@ -31,13 +33,17 @@ export default function QAPage() {
             {isResponseQuestion && (
                 <div className="mb-8">
                     <NewAnswer 
-                        userInfo={userInfo} 
-                        setIsResponseQuestion={setIsResponseQuestion} 
-                        question={detailQuestion} 
-                        setAnswerOfQuestion={setAnswerOfQuestion} 
-                        setNewAnswerAmount={setNewAnswerAmount} 
-                        newAnswerAmount={newAnswerAmount} 
-                    />
+                    userInfo={userInfo} 
+                    setIsResponseQuestion={setIsResponseQuestion} 
+                    question={detailQuestion} 
+                    setAnswerOfQuestion={setAnswerOfQuestion} 
+                    setNewAnswerAmount={setNewAnswerAmount} 
+                    newAnswerAmount={newAnswerAmount}
+                    isUpdateAnswer={isUpdateAnswer}
+                    answer={answer}
+                    setIsUpdateAnswer={setIsUpdateAnswer}
+                    setAnswer={setAnswer}
+                />
                 </div>
             )}
 
@@ -65,7 +71,8 @@ export default function QAPage() {
                         setIsSpecifiedPage={setIsSpecifiedPage} 
                         answersOfQuestion={answersOfQuestion}
                         setAnswerOfQuestion={setAnswerOfQuestion} 
-                        newAnswerAmount={newAnswerAmount} 
+                        newAnswerAmount={newAnswerAmount}
+                        userInfo={userInfo}
                     />
                 )}
             </div>

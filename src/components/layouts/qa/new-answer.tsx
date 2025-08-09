@@ -1,17 +1,19 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AnswerResponseDTO, NewAnswerAmount, NewAnswerProps, PostAnswerRequestDTO } from "@/types/IQa";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import QuestionNewAnswer from "./question-new-answer";
 import UploadImage from "./upload-image";
 import { uploadImageToCloudinary } from "@/services/cloudinary/config";
-import { usePostAnswerMutation } from "../../../api/QaApi";
+import { usePostAnswerMutation, useUpdateAnswerMutation } from "../../../api/QaApi";
 import { Send, X } from "lucide-react";
 
-export default function NewAnswer({ userInfo, setIsResponseQuestion, question, setAnswerOfQuestion, setNewAnswerAmount, newAnswerAmount }: Readonly<NewAnswerProps>) {
-    const [newAnswer, setNewAnswer] = useState("");
+export default function NewAnswer({ userInfo, setIsResponseQuestion, question, setAnswerOfQuestion, setNewAnswerAmount, newAnswerAmount, isUpdateAnswer = false, answer, setIsUpdateAnswer, setAnswer }: Readonly<NewAnswerProps>) {
+    const [newAnswer, setNewAnswer] = useState(isUpdateAnswer ? (answer?.content || "") : "");
     const [files, setFiles] = useState<File[]>([])
+    const [existImages, setExistImages] = useState<string[] | undefined>(isUpdateAnswer ? answer?.images : undefined);
     const textareaRef = useRef<HTMLTextAreaElement | null>(null)
     const [postAnswerAPI] = usePostAnswerMutation();
+    const [updateAnswerAPI] = useUpdateAnswerMutation();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -23,27 +25,57 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
     }
 
     const uploadImage = async (): Promise<string[]> => {
-        if (!files?.length) return [];
+        if (!files?.length) return existImages || [];
         const promises = files.map(f =>
             uploadImageToCloudinary(f).then(res => res.url)
         );
         const urls = await Promise.all(promises);
-        return urls;
+        return [...(existImages || []), ...urls];
     }
 
     const postAnswer = async () => {
-        if (!newAnswer.trim() && !files.length) return;
+        if (!newAnswer.trim() && !files.length && !existImages?.length) return;
         
         setIsSubmitting(true);
-        
-        const request: PostAnswerRequestDTO = {
-            creatorId: userInfo?.id,
-            content: newAnswer,
-            questionId: question?.questionId
-        };
 
         try {
-            if (!files?.length) {
+            if (isUpdateAnswer && answer) {
+                // Update existing answer
+                const finalImages = await uploadImage();
+                await updateAnswerAPI({
+                    answerId: answer.answerId,
+                    content: newAnswer,
+                    images: finalImages
+                }).unwrap();
+                
+                // Update the answer in the list
+                setAnswerOfQuestion((prev) => 
+                    prev?.map(ans => 
+                        ans.answerId === answer.answerId 
+                            ? { ...ans, content: newAnswer, images: finalImages }
+                            : ans
+                    ) || []
+                );
+                
+                // Close popup and reset states
+                setIsResponseQuestion(false);
+                if (setIsUpdateAnswer && setAnswer) {
+                    setIsUpdateAnswer(false);
+                    setAnswer(undefined);
+                }
+            } else {
+                // Create new answer
+                const request: PostAnswerRequestDTO = {
+                    creatorId: userInfo?.id,
+                    content: newAnswer,
+                    questionId: question?.questionId
+                };
+
+                if (files?.length || existImages?.length) {
+                    const resUrls = await uploadImage();
+                    request.images = resUrls;
+                }
+
                 await postAnswerAPI(request).then(
                     (res) => {
                         const incomingResult = res.data?.result;
@@ -66,49 +98,45 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
                     }
                 );
                 setIsResponseQuestion(false);
-                return;
             }
-
-            const resUrls = await uploadImage();
-            request.images = resUrls;
-            await postAnswerAPI(request).then(
-                (res) => {
-                    const incomingResult = res.data?.result;
-                    if (incomingResult != null) {
-                        const newItems: AnswerResponseDTO[] = [incomingResult];
-                        setAnswerOfQuestion((prev) => [...(newItems), ...(prev ?? [])])
-                        const lastQuestionId = newItems[0].questionId ?? ""
-                        const lastAnswerAmount = newAnswerAmount?.findLast(val => val.questionId == lastQuestionId)
-                        const newAnswerQuantity: NewAnswerAmount = lastAnswerAmount ?
-                            {
-                                questionId: lastAnswerAmount.questionId,
-                                amount: lastAnswerAmount.amount + 1
-                            } :
-                            {
-                                questionId: lastQuestionId,
-                                amount: 1
-                            }
-                        setNewAnswerAmount((prev) => [...(prev ?? []).filter(val => val.questionId != lastQuestionId), newAnswerQuantity])
-                    }
-                }
-            );
-            setIsResponseQuestion(false);
         } catch (error) {
-            console.error("Error posting answer:", error);
+            console.error("Error posting/updating answer:", error);
         } finally {
             setIsSubmitting(false);
         }
     };
 
+    useEffect(() => {
+        if (isUpdateAnswer && answer != undefined) {
+            setNewAnswer(answer.content);
+            setExistImages(answer.images);
+        }
+        console.log("answerImage", existImages);
+    }, [answer, isUpdateAnswer]); 
+
     return (
         <div>
-            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" onClick={() => setIsResponseQuestion(false)}></div>
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" onClick={() => {
+                setIsResponseQuestion(false);
+                if (isUpdateAnswer && setIsUpdateAnswer && setAnswer) {
+                    setIsUpdateAnswer(false);
+                    setAnswer(undefined);
+                }
+            }}></div>
             
             <div className="fixed inset-x-0 z-50 mx-auto w-full max-w-2xl px-4 py-6 bg-white rounded-xl shadow-xl max-h-[85vh] top-[7.5vh] overflow-y-auto">
                 <div className="flex items-center justify-between pb-4 mb-4 border-b">
-                    <h2 className="text-lg font-semibold text-gray-900">Reply to Question</h2>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                        {isUpdateAnswer ? "Edit Answer" : "Reply to Question"}
+                    </h2>
                     <button 
-                        onClick={() => setIsResponseQuestion(false)}
+                        onClick={() => {
+                            setIsResponseQuestion(false);
+                            if (isUpdateAnswer && setIsUpdateAnswer && setAnswer) {
+                                setIsUpdateAnswer(false);
+                                setAnswer(undefined);
+                            }
+                        }}
                         className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
                     >
                         <X className="h-5 w-5" />
@@ -146,9 +174,9 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
                                 <div className="border-t bg-gray-50 p-3">
                                     <UploadImage 
                                         setFiles={setFiles} 
-                                        images={[]} 
-                                        setExistImages={undefined} 
-                                        existImage={undefined}
+                                        images={existImages || []} 
+                                        setExistImages={setExistImages} 
+                                        existImage={existImages}
                                     />
                                 </div>
                             </div>
@@ -159,9 +187,9 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
                         <button 
                             className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                             onClick={postAnswer}
-                            disabled={isSubmitting || (!newAnswer.trim() && !files.length)}
+                            disabled={isSubmitting || (!newAnswer.trim() && !files.length && !existImages?.length)}
                         >
-                            <span>Post Reply</span>
+                            <span>{isUpdateAnswer ? "Update Answer" : "Post Reply"}</span>
                             <Send className="h-4 w-4" />
                         </button>
                     </div>

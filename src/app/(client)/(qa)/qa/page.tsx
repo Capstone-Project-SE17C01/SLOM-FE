@@ -21,6 +21,8 @@ export default function QAPage() {
     const [isUpdateQuestion, setIsUpdateQuestion] = useState<boolean>(false);
     const [question, setQuestion] = useState<QuestionResponseDTO | undefined>();
     const [showCurrentUserQuestions, setShowCurrentUserQuestions] = useState<boolean>(false);
+    const [isUpdateAnswer, setIsUpdateAnswer] = useState<boolean>(false);
+    const [answer, setAnswer] = useState<AnswerResponseDTO | undefined>();
 
     return (
         <>
@@ -47,7 +49,7 @@ export default function QAPage() {
                 />
             )}
 
-            {isResponseQuestion && (
+            {(isResponseQuestion || isUpdateAnswer) && (
                 <NewAnswer 
                     userInfo={userInfo} 
                     setIsResponseQuestion={setIsResponseQuestion} 
@@ -55,6 +57,10 @@ export default function QAPage() {
                     setAnswerOfQuestion={setAnswerOfQuestion} 
                     setNewAnswerAmount={setNewAnswerAmount} 
                     newAnswerAmount={newAnswerAmount}
+                    isUpdateAnswer={isUpdateAnswer}
+                    answer={answer}
+                    setIsUpdateAnswer={setIsUpdateAnswer}
+                    setAnswer={setAnswer}
                 />
             )}
 
@@ -80,6 +86,9 @@ export default function QAPage() {
                     answersOfQuestion={answersOfQuestion}
                     setAnswerOfQuestion={setAnswerOfQuestion} 
                     newAnswerAmount={newAnswerAmount}
+                    userInfo={userInfo}
+                    setIsUpdateAnswer={setIsUpdateAnswer}
+                    setAnswer={setAnswer}
                 />
             )}
         </>
