@@ -142,6 +142,17 @@ export interface Recording {
   createdAt: string;
 }
 
+export interface MeetingRecording {
+  id: string;
+  meetingId: string;
+  meetingTitle?: string;
+  storagePath: string;
+  duration?: number;
+  processed: boolean;
+  transcription?: string;
+  createdAt: string;
+}
+
 export interface SendMeetingEmailDto {
   recipientEmails: string[];
   senderName: string;

@@ -184,7 +184,14 @@ export const meetingApi = baseApi.injectEndpoints({
         method: 'GET',
         flashError: false,
       }),
-    })
+    }),
+    deleteRecording: builder.mutation<void, { recordingId: string, meetingId: string }>({
+      query: ({ recordingId }) => ({
+        url: `/api/meeting/record/${recordingId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: [{ type: "Meeting", id: "RECORDINGS" }],
+    }),
   }),
 });
 export const {
@@ -203,5 +210,6 @@ export const {
   useCreateInvitationMutation,
   useGetActiveMeetingQuery,
   useGetScheduledMeetingQuery,
-  useGetMeetingRecordQuery
+  useGetMeetingRecordQuery,
+  useDeleteRecordingMutation
 } = meetingApi;
