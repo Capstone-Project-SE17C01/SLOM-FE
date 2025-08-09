@@ -8,7 +8,8 @@ import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import ReportDialog from "./report-dialog";
-import { useGetReportTypeMutation, useReportPaymentMutation } from "../../../api/ProfileApi";
+import { useReportPaymentMutation } from "@/api/PaymentApi";
+import { useGetReportTypeMutation } from "@/api/ProfileApi";
 import { toast } from "sonner";
 
 interface TableTransactionProps {

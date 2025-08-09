@@ -1,16 +1,21 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Plus, Edit, Trash2, Book, Play, X } from "lucide-react";
+import { Plus, Edit, Trash2, Book, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TableWithStatsCard from "@/components/layouts/admin/TableWithStatsCard";
 import { useRouter } from "next/navigation";
 import EntityModal, {
   FieldConfig,
 } from "@/components/layouts/admin/EntityModal";
-import { useGetAllWordsQuery, useCreateWordMutation, useUpdateWordMutation, useDeleteWordMutation, useGetAllLessonsQuery } from "@/api/WordApi";
+import { useGetAllWordsQuery, useCreateWordMutation, useUpdateWordMutation, useDeleteWordMutation } from "@/api/WordApi";
 import { Word } from "@/types/IWord";
 import { toast } from "sonner";
+import { useGetAllLessonsQuery } from "@/api/QuizApi";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 
 export default function AdminWord() {
   const router = useRouter();
@@ -292,17 +297,9 @@ export default function AdminWord() {
       />
       
       {/* Video Modal */}
-      {videoModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="relative w-4/5 h-4/5 max-w-4xl">
-            <Button
-              onClick={closeVideoModal}
-              className="absolute -top-10 right-0 text-white hover:text-gray-300 z-10"
-              variant="ghost"
-              size="sm"
-            >
-              <X className="h-6 w-6" />
-            </Button>
+      <Dialog open={videoModalOpen} onOpenChange={(open) => !open && closeVideoModal()}>
+        <DialogContent className="sm:max-w-4xl w-[90vw] h-[80vh] p-0 border-0">
+          <div className="relative w-full h-full">
             <iframe
               src={selectedVideo.replace('watch?v=', 'embed/')}
               className="w-full h-full rounded-lg"
@@ -312,8 +309,8 @@ export default function AdminWord() {
               allowFullScreen
             />
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

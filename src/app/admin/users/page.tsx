@@ -17,6 +17,8 @@ export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteId, setDeleteId] = useState<string | number | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const { data, isLoading, refetch } = useGetAllProfilesQuery();
   const [deleteProfile, { isLoading: deleting }] = useDeleteProfileMutation();
@@ -38,6 +40,13 @@ export default function UsersPage() {
     (user) =>
       user.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Pagination
+  const totalPages = Math.ceil(filteredProfiles.length / itemsPerPage);
+  const paginatedProfiles = filteredProfiles.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
   return (
@@ -62,7 +71,7 @@ export default function UsersPage() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden max-w-[1400px] mx-auto">
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 dark:bg-gray-700">
@@ -97,14 +106,14 @@ export default function UsersPage() {
                    Loading data...
                  </td>
                </tr>
-             ) : filteredProfiles.length === 0 ? (
+             ) : paginatedProfiles.length === 0 ? (
                <tr>
                  <td colSpan={7} className="text-center py-8">
                    No profiles found.
                  </td>
                </tr>
              ) : (
-               filteredProfiles.map((user) => (
+               paginatedProfiles.map((user) => (
                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                    <td className="px-4 py-4 whitespace-nowrap">
                      <Avatar className="h-10 w-10">
@@ -154,15 +163,25 @@ export default function UsersPage() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between items-center">
         <div className="text-sm text-gray-700 dark:text-gray-300">
-          Showing {filteredProfiles.length} profiles
+          Showing {paginatedProfiles.length} of {filteredProfiles.length} profiles
         </div>
         <div className="flex space-x-2">
-          <Button variant="outline" size="sm" disabled>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+          >
             Previous
           </Button>
-          <Button variant="outline" size="sm" disabled>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages || totalPages === 0}
+          >
             Next
           </Button>
         </div>

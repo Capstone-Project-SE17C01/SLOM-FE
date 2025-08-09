@@ -24,7 +24,7 @@ import Spinner from "@/components/ui/spinner";
 import { RootState } from "@/redux/store";
 import { useUpdatePasswordMutation } from "@/api/AuthApi";
 import constants from "@/config/constants";
-import { useGetHistoryPaymentMutation } from "@/api/ProfileApi";
+import { useGetHistoryPaymentMutation } from "@/api/PaymentApi";
 import { HistoryPaymentDTO } from "@/types/IProfile";
 import TableTransaction from "@/components/layouts/profile/table-transaction";
 import { uploadImageToCloudinary } from "@/services/cloudinary/config";

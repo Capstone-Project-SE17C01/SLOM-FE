@@ -51,12 +51,6 @@ export default function AdminSidebar({
       description: "Course Management",
     },
     {
-      name: "Messages",
-      href: "/admin/messages",
-      icon: MessageSquare,
-      description: "Communication",
-    },
-    {
       name: "QA",
       href: "/admin/qa",
       icon: HelpCircle,

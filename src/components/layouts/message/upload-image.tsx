@@ -18,16 +18,17 @@ export default function UploadImage({ setFiles, images, setExistImages, existIma
     }
 
     useEffect(() => {
-        setPreviews(images);
-        if(setExistImages != undefined)
-            setExistImages(images)
-        console.log(existImage)
-    }, [])
+        if (images.length) {
+            setPreviews(images);
+            if (setExistImages != undefined)
+                setExistImages(images)
+        }
+    }, [existImage, images, setExistImages, setPreviews])
 
     return (
         <div className="flex flex-col items-start">
             <div className="flex flex-wrap gap-2">
-                
+
             </div>
 
             <label

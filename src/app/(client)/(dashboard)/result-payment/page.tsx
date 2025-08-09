@@ -8,9 +8,9 @@ import { toast } from "sonner";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { useTranslations } from "next-intl";
-import { useUpdatePlanMutation } from "@/api/AuthApi";
 import constants from "@/config/constants";
 import { ReturnUrlQueryDTO } from "@/types/IAuth";
+import { useUpdatePlanMutation } from "@/api/PaymentApi";
 
 type Status = "loading" | "success" | "error" | "cancelled";
 

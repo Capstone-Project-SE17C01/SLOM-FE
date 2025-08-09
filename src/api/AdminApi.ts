@@ -1,11 +1,10 @@
 "use client";
 
 import { baseApi } from "@/services";
-import type { Course, Lesson, Module } from "../types/ICourse";
-import { APIResponse } from "../types/IAuth";
-import { Feedback } from "./FeedbackApi";
+import { APIResponse } from "@/types/IAuth";
+import { Feedback } from "@/types/IFeedback";
+import { Module, Course, Lesson } from "@/types/ICourse";
 import { SummaryAdminDTO } from "@/types/IAdmin";
-import { Payment } from "@/types/IPayment";
 
 export const adminAPI = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -113,14 +112,6 @@ export const adminAPI = baseApi.injectEndpoints({
         flashError: false,
       }),
     }),
-
-    getAllPayments: build.query<APIResponse<Payment[]>, void>({
-      query: () => ({
-        url: "/api/payment",
-        method: "GET",
-        flashError: false,
-      }),
-    }),
   }),
 });
 export const {
@@ -137,6 +128,5 @@ export const {
   useUpdateLessonMutation,
   useDeleteModuleMutation,
   useDeleteLessonMutation,
-  useGetAllPaymentsQuery,
 } = adminAPI;
 

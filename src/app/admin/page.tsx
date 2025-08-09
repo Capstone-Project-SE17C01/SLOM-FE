@@ -13,7 +13,8 @@ import {
   Legend,
   ArcElement,
 } from "chart.js";
-import { useGetSummaryAdminMutation, useGetAllPaymentsQuery } from "@/api/AdminApi";
+import { useGetSummaryAdminMutation } from "@/api/AdminApi";
+import { useGetAllPaymentsQuery } from "@/api/PaymentApi";
 import { useEffect, useState } from "react";
 import { SummaryAdminDTO } from "@/types/IAdmin";
 import { TooltipItem } from "chart.js";

@@ -3,7 +3,6 @@
 import { baseApi } from "@/services";
 import { APIResponse } from "../types/IAuth";
 import { WordRequestDTO, WordResponseDTO, GetWordByLessonRequest, Word } from "@/types/IWord";
-import { Lesson } from "../types/ICourse";
 
 export const WordAPI = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -66,13 +65,6 @@ export const WordAPI = baseApi.injectEndpoints({
         flashError: false,
       }),
     }),
-    getAllLessons: build.query<APIResponse<Lesson[]>, void>({
-      query: () => ({
-        url: `/api/Lesson`,
-        method: "GET",
-        flashError: false,
-      }),
-    }),
   }),
 });
 
@@ -83,5 +75,4 @@ export const {
   useCreateWordMutation,
   useUpdateWordMutation,
   useDeleteWordMutation,
-  useGetAllLessonsQuery
 } = WordAPI;

@@ -46,7 +46,7 @@ export function MessageBox({ messages, setMessages, userId, selectedUser, curren
         setMessages(data);
       }
     }
-  }, [getMessage, selectedUser?.email, setMessages]);
+  }, [getMessage, selectedUser?.email, setMessages, setCurrentPage]);
 
   useEffect(() => {
     const getTheMessage = async () => {
@@ -64,7 +64,7 @@ export function MessageBox({ messages, setMessages, userId, selectedUser, curren
         chatContainer.scrollTop = chatContainer.scrollHeight;
       }
     };
-  }, [selectedUser, getMessage, setMessages])
+  }, [selectedUser, getMessage, setMessages, setCurrentPage])
 
   useLayoutEffect(() => {
     if (chatContainerRef.current) {
