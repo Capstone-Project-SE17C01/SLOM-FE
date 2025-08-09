@@ -134,7 +134,7 @@ export default function CoursePage() {
       id: uuidv4(),
       title: values.title,
       description: values.description,
-      thumbnailUrl: values.thumbnailUrl,
+      thumbnailUrl: values.thumbnailUrl || "/images/banner.png",
       isPublished: true,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),

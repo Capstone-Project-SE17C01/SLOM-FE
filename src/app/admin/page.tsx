@@ -13,10 +13,11 @@ import {
   Legend,
   ArcElement,
 } from "chart.js";
-import { useGetSummaryAdminMutation, useGetAllPaymentsQuery, useGetAllProfilesQuery } from "@/api/AdminApi";
+import { useGetSummaryAdminMutation, useGetAllPaymentsQuery } from "@/api/AdminApi";
 import { useEffect, useState } from "react";
 import { SummaryAdminDTO } from "@/types/IAdmin";
 import { TooltipItem } from "chart.js";
+import { useGetAllProfilesQuery } from "@/api/ProfileApi";
 
 ChartJS.register(
   CategoryScale,

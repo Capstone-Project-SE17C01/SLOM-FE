@@ -1,5 +1,5 @@
 "use client";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { useUpdateProfileMutation } from "@/api/ProfileApi";
 import { useGetUserProfileQuery } from "@/api/AuthApi";
@@ -28,9 +28,11 @@ import { useGetHistoryPaymentMutation } from "@/api/ProfileApi";
 import { HistoryPaymentDTO } from "@/types/IProfile";
 import TableTransaction from "@/components/layouts/profile/table-transaction";
 import { uploadImageToCloudinary } from "@/services/cloudinary/config";
+import { setCredentials } from "@/redux/auth/slice";
 
 export default function ProfilePage() {
   const { userInfo } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch();
   const t = useTranslations();
   const [updatePassword] = useUpdatePasswordMutation();
   const [getHistoryPayment, { isLoading: isLoadingHistoryPayment }] =
@@ -102,6 +104,25 @@ export default function ProfilePage() {
       const newAvatarUrl = result.secure_url;
 
       setAvatarUrl(newAvatarUrl);
+      
+      // Cập nhật thông tin profile sau khi upload avatar thành công
+      await updateProfile({
+        id: profileId,
+        userName: `${firstName} ${lastName}`.trim(),
+        email,
+        avatarUrl: newAvatarUrl,
+        bio,
+        location,
+      }).unwrap();
+      
+      // Cập nhật Redux store để đồng bộ avatarUrl mới
+      if (userInfo) {
+        dispatch(setCredentials({
+          userInfo: { ...userInfo, avatarUrl: newAvatarUrl },
+          accessToken: undefined
+        }));
+      }
+      
       toast.success(t("profile.personalInfo.updateSuccess"));
       refetch();
     } catch (error: unknown) {
@@ -216,7 +237,7 @@ export default function ProfilePage() {
                 <div className="flex justify-center mb-4">
                 <Avatar className="h-32 w-32 rounded-full overflow-hidden border-4 border-primary/10">
                   <AvatarImage
-                  src={avatarUrl || userInfo.avatarUrl}
+                  src={avatarUrl}
                   alt={`${userInfo.firstname} ${userInfo.lastname}`}
                   className="object-cover"
                   />

@@ -70,6 +70,7 @@ export const profileAPI = baseApi.injectEndpoints({
       }),
     }),
   }),
+  overrideExisting: true,
 });
 
 export const {
