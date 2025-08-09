@@ -130,6 +130,12 @@ export interface UpdateQuestionRequestDTO {
   tags?: string[];
 }
 
+export interface UpdateAnswerRequestDTO {
+  answerId: string;
+  content: string;
+  images?: string[];
+}
+
 export interface UserInfo {
   id?: string;
   username?: string;

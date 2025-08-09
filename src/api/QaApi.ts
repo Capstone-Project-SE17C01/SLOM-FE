@@ -2,7 +2,7 @@
 
 import { baseApi } from "@/services";
 import { APIResponse } from "../types/IAuth";
-import { AnswerRequestDTO, AnswerResponseDTO, GetQuestionRequest, PostAnswerRequestDTO, PostQuestionRequestDTO, QuestionResponseDTO, UpdateQuestionRequestDTO } from "../types/IQa";
+import { AnswerRequestDTO, AnswerResponseDTO, GetQuestionRequest, PostAnswerRequestDTO, PostQuestionRequestDTO, QuestionResponseDTO, UpdateQuestionRequestDTO, UpdateAnswerRequestDTO } from "../types/IQa";
 
 export const QaAPI = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -76,6 +76,25 @@ export const QaAPI = baseApi.injectEndpoints({
         flashError: false,
       }),
     }),
+    updateAnswer: build.mutation<APIResponse<AnswerResponseDTO>, UpdateAnswerRequestDTO>({
+      query: (request: UpdateAnswerRequestDTO) => ({
+        url: `/api/QA/UpdateAnswer`,
+        method: "PUT",
+        flashError: false,
+        body: {
+          answerId: request.answerId,
+          content: request.content,
+          images: request.images
+        }
+      }),
+    }),
+    deleteAnswer: build.mutation<APIResponse<string>, string>({
+      query: (answerId: string) => ({
+        url: `/api/QA/DeleteAnswer/${answerId}`,
+        method: "DELETE",
+        flashError: false,
+      }),
+    }),
     getTags: build.query<APIResponse<string[]>, void>({
       query: () => ({
         url: `/api/QA/GetTags`,
@@ -114,6 +133,8 @@ export const {
   useGetAnswerMutation,
   useUpdateQuestionMutation,
   useDeleteQuestionMutation,
+  useUpdateAnswerMutation,
+  useDeleteAnswerMutation,
   useGetTagsQuery,
   useGetQuestionByTagMutation
 } = QaAPI;

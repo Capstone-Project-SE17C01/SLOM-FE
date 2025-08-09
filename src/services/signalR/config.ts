@@ -27,23 +27,22 @@ export function initSignalRConnection({
       console.error("Error while connecting to SignalR Hub:", err);
     });
 
-  connection.on(connectionName, (id, name, content) => {
+  connection.on(connectionName, (id, name, content, dateTime, images) => {
     if (!listId.includes(id) && name === selectedUser?.email) {
       setMessages((prev) => [
         ...prev,
-        { id, content, isSender: false },
+        { id, content, isSender: false, images },
       ]);
       listId.push(id);
     }
   });
 
-  // Let parent set connection reference if needed
   if (onConnectionCreated) {
     onConnectionCreated(connection);
   }
 
   return () => {
     connection.off(connectionName);
-    connection.stop(); // clean up
+    connection.stop();
   };
 }

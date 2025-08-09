@@ -126,14 +126,14 @@ export default function EmbedVideo() {
     ]);
 
     return (
-        <div className="flex w-full h-[calc(100vh-200px)] justify-between">
-            <div className="w-[70%] h-[calc(100vh-200px)]">
+        <div className="flex w-full h-[calc(100vh-200px)] justify-between rounded-xl">
+            <div className="w-[70%] h-[calc(100vh-200px)] p-4 mr-4 border rounded-xl">
                 <iframe src={`https://www.youtube.com/embed/${videoId}`}
                     allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
                     title="Video: Rickroll" allowFullScreen
                     className="rounded-xl w-[100%] h-full"></iframe>
             </div>
-            <div className="w-[28%] overflow-scroll px-3" ref={chatContainerRef}>
+            <div className="w-[28%] overflow-y-auto p-4 border rounded-xl p-white" ref={chatContainerRef}>
                 {videoList?.videoSuggest != null ? videoList.videoSuggest.map((card) => (
                     <SideBarVideo key={card.id}
                         videoThumbnail={card.videoThumbnail}
