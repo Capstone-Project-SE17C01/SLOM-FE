@@ -325,7 +325,7 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                                                 </span>
                                             </div>
                                             
-                                            {userInfo?.username === element.author.username && (
+                                            {(userInfo?.username === element.author.username || isAdmin) && (
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
                                                         <button
@@ -339,7 +339,7 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                                                         </button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end" className="w-48">
-                                                        <button className="w-full" onClick={(e) => {
+                                                        {!isAdmin && <button className="w-full" onClick={(e) => {
                                                             e.stopPropagation();
                                                             if (setIsNewQuestion && setIsUpdateQuestion && setQuestion) {
                                                                 setIsNewQuestion(true);
@@ -351,7 +351,7 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                                                                 <SquarePen className="mr-2 h-4 w-4" />
                                                                 <span>Edit Question</span>
                                                             </DropdownMenuItem>
-                                                        </button>
+                                                        </button>}
                                                         <button 
                                                             className="w-full" 
                                                             onClick={(e) => handleDeleteQuestion(element.questionId, e)}

@@ -17,8 +17,8 @@ import { RootState, store } from "@/redux/store";
 import { JoinMeetingModal } from "@/components/layouts/meeting/join-meeting-form";
 import { ScheduleMeetingModal } from "@/components/layouts/meeting/schedule-meeting-form";
 import { MeetingEditModal } from "@/components/layouts/meeting/edit-meeting-form";
-import { CreateMeetingRequest, MeetingDetail, UpdateMeetingRequest } from "@/types/IMeeting";
-import { meetingApi, useCreateMeetingMutation, useDeleteMeetingMutation, useGetActiveMeetingsQuery, useGetScheduledMeetingsByDateQuery, useGetScheduledMeetingsByMonthQuery, useGetUserRecordingsQuery, useUpdateMeetingMutation } from "@/api/MeetingApi";
+import { CreateMeetingRequest, MeetingDetail, MeetingRecording, UpdateMeetingRequest } from "@/types/IMeeting";
+import { meetingApi, useCreateMeetingMutation, useDeleteMeetingMutation, useDeleteRecordingMutation, useGetActiveMeetingsQuery, useGetScheduledMeetingsByDateQuery, useGetScheduledMeetingsByMonthQuery, useGetUserRecordingsQuery, useUpdateMeetingMutation } from "@/api/MeetingApi";
 
 export default function MeetingRoomPage() {
   const { isDarkMode } = useTheme();
@@ -40,6 +40,19 @@ export default function MeetingRoomPage() {
   const [selectedMeeting, setSelectedMeeting] = useState<MeetingDetail | undefined>(undefined);
   const [meetingId, setMeetingId] = useState<string | null>(null);
 
+  // Thêm state cho dialog xóa recording
+  const [showDeleteRecordingDialog, setShowDeleteRecordingDialog] = useState(false);
+  const [recordingToDelete, setRecordingToDelete] = useState<MeetingRecording | null>(null);
+
+  // Thêm state để lưu trữ recordings đã được nhóm theo folder
+  const [groupedRecordings, setGroupedRecordings] = useState<{
+    [key: string]: {
+      folderName: string;
+      subFolders?: { [key: string]: MeetingRecording[] };
+      recordings: MeetingRecording[];
+    }
+  }>({});
+
   const { data: activeMeetings = [], isLoading: isLoadingMeetings } = useGetActiveMeetingsQuery(userInfo?.id);
   const { data: monthMeetings = [] } = useGetScheduledMeetingsByMonthQuery({ year, month, userId: userInfo?.id });
   const { data: dateMeetings = [] } = useGetScheduledMeetingsByDateQuery({ date: selectedDateString || "", userId: userInfo?.id }, { skip: !selectedDateString });
@@ -47,6 +60,7 @@ export default function MeetingRoomPage() {
   const [createMeeting] = useCreateMeetingMutation();
   const [deleteMeeting, { isLoading: isDeleting }] = useDeleteMeetingMutation();
   const [updateMeeting, { isLoading: isUpdating }] = useUpdateMeetingMutation();
+  const [deleteRecording, { isLoading: isDeletingRecording }] = useDeleteRecordingMutation();
 
   const todayStr = new Date().toISOString().split("T")[0];
   const upcomingMeetings = monthMeetings.filter((meeting) => meeting.isDeleted == false && new Date(meeting.startTime).getTime() > new Date().getTime());
@@ -67,6 +81,31 @@ export default function MeetingRoomPage() {
       description: meeting.description,
       duration: meeting.endTime ? Math.round((new Date(meeting.endTime).getTime() - new Date(meeting.startTime).getTime()) / 60000) : 60,
     }));
+
+  // Thêm hàm để xử lý folder từ URL Cloudinary
+  const extractFolderInfo = (storagePath: string): { folderType: string, subFolder?: string } => {
+    try {
+      const url = new URL(storagePath);
+      const pathParts = url.pathname.split('/');
+      // Đường dẫn thường có dạng: /video/upload/v1234567890/folderType/[subFolder/]filename.webm
+      // Tìm vị trí của "upload" và lấy folder sau đó
+      const uploadIndex = pathParts.findIndex(part => part === "upload");
+      if (uploadIndex !== -1 && pathParts.length > uploadIndex + 2) {
+        const folderType = pathParts[uploadIndex + 2]; // general hoặc custom
+        
+        // Nếu là custom thì có thể có subfolder
+        if (folderType === "custom" && pathParts.length > uploadIndex + 3) {
+          return { folderType, subFolder: pathParts[uploadIndex + 3] };
+        }
+        
+        return { folderType };
+      }
+      return { folderType: "unknown" };
+    } catch (error) {
+      console.error("Failed to parse URL:", error);
+      return { folderType: "unknown" };
+    }
+  };
 
   const handleCreateRoom = async (roomName: string, description: string, duration: number) => {
     try {
@@ -167,6 +206,29 @@ export default function MeetingRoomPage() {
     }
   };
 
+  const handleDeleteRecording = async (recordingId: string, meetingId: string) => {
+    try {
+      const recording = recordedSessions.find(r => r.id === recordingId);
+      if (!recording || !recording.storagePath) {
+        throw new Error("Recording not found or missing storage path");
+      }
+
+      const folderInfo = extractFolderInfo(recording.storagePath);
+      console.log(`Deleting recording from ${folderInfo.folderType} folder${folderInfo.subFolder ? ` (subfolder: ${folderInfo.subFolder})` : ''}`);
+
+      const loadingToast = toast.loading("Deleting recording...");
+      await deleteRecording({ recordingId, meetingId }).unwrap();
+      toast.dismiss(loadingToast);
+      toast.success("Recording deleted successfully", { icon: <Check className="h-4 w-4 text-green-500" /> });
+      
+      store.dispatch(meetingApi.util.invalidateTags([{ type: "Meeting", id: "RECORDINGS" }]));
+    } catch (error) {
+      console.error("Failed to delete recording:", error);
+      const errorMessage = error && typeof error === "object" && "data" in error ? (error.data as { message?: string })?.message || "Failed to delete recording" : "Failed to delete recording";
+      toast.error(errorMessage, { icon: <AlertTriangle className="h-4 w-4 text-red-500" />, description: "Please try again or contact support if the problem persists." });
+    }
+  };
+
   const renderDropdownActions = (meeting: { id: string; title: string; startTime?: string }) => {
     const meetingStartTime = meeting.startTime ? new Date(meeting.startTime) : null;
     const isPastMeeting = meetingStartTime ? meetingStartTime < new Date() : false;
@@ -198,6 +260,32 @@ export default function MeetingRoomPage() {
         </DropdownMenuContent>
       </DropdownMenu>
     )
+  };
+
+  // Thêm renderRecordingDropdownActions
+  const renderRecordingDropdownActions = (recording: MeetingRecording) => {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+          <button className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full focus:outline-none">
+            <MoreVertical size={14} />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-40">
+          <DropdownMenuItem 
+            onClick={(e) => { 
+              e.stopPropagation(); 
+              setRecordingToDelete(recording);
+              setShowDeleteRecordingDialog(true);
+            }} 
+            className="flex items-center gap-1 text-red-500 focus:bg-red-50 dark:focus:bg-red-900/20" 
+            disabled={isDeletingRecording}
+          >
+            <Trash2 size={14} /> {isDeletingRecording ? "Deleting..." : "Delete"}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
   };
 
   const renderCalendar = () => {
@@ -237,6 +325,48 @@ export default function MeetingRoomPage() {
       setMonth(currentMonth.getMonth() + 1);
     }
   }, [currentMonth]);
+
+  // Cập nhật useEffect để nhóm recordings theo folder khi dữ liệu thay đổi
+  useEffect(() => {
+    if (recordedSessions.length > 0) {
+      const grouped: {
+        [key: string]: {
+          folderName: string;
+          subFolders?: { [key: string]: MeetingRecording[] };
+          recordings: MeetingRecording[];
+        }
+      } = {};
+
+      recordedSessions.forEach(recording => {
+        if (recording.storagePath) {
+          const folderInfo = extractFolderInfo(recording.storagePath);
+          const folderType = folderInfo.folderType;
+          
+          if (!grouped[folderType]) {
+            grouped[folderType] = {
+              folderName: folderType,
+              recordings: [],
+            };
+            
+            if (folderType === 'custom') {
+              grouped[folderType].subFolders = {};
+            }
+          }
+          
+          if (folderType === 'custom' && folderInfo.subFolder) {
+            if (!grouped[folderType].subFolders![folderInfo.subFolder]) {
+              grouped[folderType].subFolders![folderInfo.subFolder] = [];
+            }
+            grouped[folderType].subFolders![folderInfo.subFolder].push(recording);
+          } else {
+            grouped[folderType].recordings.push(recording);
+          }
+        }
+      });
+      
+      setGroupedRecordings(grouped);
+    }
+  }, [recordedSessions]);
 
   return (
     <>
@@ -361,36 +491,106 @@ export default function MeetingRoomPage() {
                 <div className="p-6 text-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50">
                   <p className={cn("text-lg", isDarkMode ? "text-gray-400" : "text-gray-500")}>Loading recorded sessions...</p>
                 </div>
-              ) : recordedSessions.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {recordedSessions.map((recording) => (
-                    <div key={recording.id} onClick={() => { if (recording.storagePath) { const params = new URLSearchParams({ url: recording.storagePath, title: recording.meetingTitle || "Untitled Recording" }); router.push(`/video-viewer?${params.toString()}`); } }} className={cn("p-4 rounded-lg border transition-all cursor-pointer hover:shadow-lg transform hover:scale-[1.02]", isDarkMode ? "bg-gray-800 border-gray-700 hover:border-[#6947A8]" : "bg-white border-gray-200 hover:border-[#6947A8]")}>
-                      <div className="mb-2 flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#6947A8] text-white"><Play className="h-4 w-4 ml-0.5" /></div>
-                          <h3 className="font-medium truncate">{recording.meetingTitle || "Untitled Recording"}</h3>
-                        </div>
-                        <span className={cn("text-xs px-2 py-0.5 rounded-full", recording.processed ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300")}>{recording.processed ? "Processed" : "Processing"}</span>
-                      </div>
-                      <div className="space-y-1 mb-2">
-                        <div className="text-sm text-gray-500 dark:text-gray-400"><span className="inline-block min-w-[100px]">Date:</span><span className="font-medium">{new Date(recording.createdAt).toLocaleDateString()}</span></div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400"><span className="inline-block min-w-[100px]">Duration:</span><span className="font-medium">{recording.duration ? `${recording.duration} minutes` : "Unknown"}</span></div>
-                      </div>
-                      {recording.transcription && (
-                        <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                          <span className="font-medium">Transcription:</span>
-                          <p className="line-clamp-2 mt-1">{recording.transcription}</p>
-                        </div>
-                      )}
-                      <div className="mt-3 pt-2 border-t border-gray-200 dark:border-gray-600">
-                        <p className="text-xs text-[#6947A8] dark:text-[#8B6CC7] flex items-center gap-1"><Play className="h-3 w-3" />Click to watch recording</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
+              ) : Object.keys(groupedRecordings).length === 0 ? (
                 <div className="p-6 text-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50">
                   <p className={cn("text-lg", isDarkMode ? "text-gray-400" : "text-gray-500")}>No recorded sessions available</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Object.entries(groupedRecordings).map(([folderKey, folderData]) => (
+                    <div key={folderKey} className={cn("p-4 rounded-lg border", isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200")}>
+                      <h3 className="font-medium mb-3 text-lg capitalize">{folderData.folderName} Recordings</h3>
+                      
+                      {/* Hiển thị recordings trực tiếp trong folder (không thuộc subfolder) */}
+                      {folderData.recordings.length > 0 && (
+                        <div className="mb-4">
+                          {folderData.recordings.map((recording) => (
+                            <div key={recording.id} className={cn("p-3 rounded-md mb-2", isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-50 hover:bg-gray-100")}>
+                              <div className="flex justify-between items-center">
+                                <div className="flex items-center gap-2 cursor-pointer" onClick={() => { 
+                                  if (recording.storagePath) { 
+                                    const params = new URLSearchParams({ 
+                                      url: recording.storagePath, 
+                                      title: recording.meetingTitle || "Untitled Recording" 
+                                    }); 
+                                    router.push(`/video-viewer?${params.toString()}`); 
+                                  } 
+                                }}>
+                                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#6947A8] text-white">
+                                    <Play className="h-4 w-4 ml-0.5" />
+                                  </div>
+                                  <div>
+                                    <h4 className="font-medium">{recording.meetingTitle || "Untitled Recording"}</h4>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                      {new Date(recording.createdAt).toLocaleDateString()} • 
+                                      {recording.duration ? ` ${recording.duration} min` : " Unknown duration"}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className={cn("text-xs px-2 py-0.5 rounded-full", 
+                                    recording.processed 
+                                      ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" 
+                                      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+                                  )}>
+                                    {recording.processed ? "Processed" : "Processing"}
+                                  </span>
+                                  {renderRecordingDropdownActions(recording)}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {/* Hiển thị subfolders nếu có */}
+                      {folderData.subFolders && Object.entries(folderData.subFolders).length > 0 && (
+                        <>
+                          {Object.entries(folderData.subFolders).map(([subFolderName, subFolderRecordings]) => (
+                            <div key={subFolderName} className="mb-4">
+                              <h4 className="font-medium mb-2 text-md capitalize border-l-4 border-[#6947A8] pl-2">{subFolderName}</h4>
+                              {subFolderRecordings.map((recording) => (
+                                <div key={recording.id} className={cn("p-3 rounded-md mb-2", isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-50 hover:bg-gray-100")}>
+                                  <div className="flex justify-between items-center">
+                                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => { 
+                                      if (recording.storagePath) { 
+                                        const params = new URLSearchParams({ 
+                                          url: recording.storagePath, 
+                                          title: recording.meetingTitle || "Untitled Recording" 
+                                        }); 
+                                        router.push(`/video-viewer?${params.toString()}`); 
+                                      } 
+                                    }}>
+                                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#6947A8] text-white">
+                                        <Play className="h-4 w-4 ml-0.5" />
+                                      </div>
+                                      <div>
+                                        <h4 className="font-medium">{recording.meetingTitle || "Untitled Recording"}</h4>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                          {new Date(recording.createdAt).toLocaleDateString()} • 
+                                          {recording.duration ? ` ${recording.duration} min` : " Unknown duration"}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <span className={cn("text-xs px-2 py-0.5 rounded-full", 
+                                        recording.processed 
+                                          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" 
+                                          : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+                                      )}>
+                                        {recording.processed ? "Processed" : "Processing"}
+                                      </span>
+                                      {renderRecordingDropdownActions(recording)}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ))}
+                        </>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
             </TabsContent>
@@ -414,6 +614,23 @@ export default function MeetingRoomPage() {
             <Button className="bg-red-500 hover:bg-red-600 text-white relative" onClick={() => { if (meetingToDelete) { handleDeleteMeeting(meetingToDelete.id, userInfo?.id || ""); setShowDeleteDialog(false); setMeetingToDelete(null); } }} disabled={isDeleting}>
               <span className={cn("flex items-center gap-2", isDeleting && "opacity-0")}><Trash2 size={16} /> Delete</span>
               {isDeleting && <div className="absolute inset-0 flex items-center justify-center"><div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" /></div>}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={showDeleteRecordingDialog} onOpenChange={setShowDeleteRecordingDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-red-500">Delete Recording</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete the recording <span className="font-medium">{recordingToDelete?.meetingTitle}</span>? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setShowDeleteRecordingDialog(false)} disabled={isDeletingRecording}>Cancel</Button>
+            <Button className="bg-red-500 hover:bg-red-600 text-white relative" onClick={() => { if (recordingToDelete) { handleDeleteRecording(recordingToDelete.id, recordingToDelete.meetingId || ""); setShowDeleteRecordingDialog(false); setRecordingToDelete(null); } }} disabled={isDeletingRecording}>
+              <span className={cn("flex items-center gap-2", isDeletingRecording && "opacity-0")}><Trash2 size={16} /> Delete</span>
+              {isDeletingRecording && <div className="absolute inset-0 flex items-center justify-center"><div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" /></div>}
             </Button>
           </DialogFooter>
         </DialogContent>

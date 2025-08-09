@@ -18,7 +18,12 @@ export interface NewQuestionProps {
 }
 
 export interface AnswerDetailQuestionViewProps {
-  specificThread: AnswerResponseDTO[] | undefined | null
+  specificThread: AnswerResponseDTO[] | undefined | null;
+  userInfo?: UserInfo | null;
+  questionOwner: string;
+  setIsResponseQuestion?: Dispatch<SetStateAction<boolean>>;
+  setIsUpdateAnswer?: Dispatch<SetStateAction<boolean>>;
+  setAnswer?: Dispatch<SetStateAction<AnswerResponseDTO | undefined>>;
 }
 
 export interface NewAnswerProps {
@@ -28,6 +33,10 @@ export interface NewAnswerProps {
   setAnswerOfQuestion: Dispatch<SetStateAction<AnswerResponseDTO[] | null | undefined>>
   setNewAnswerAmount: Dispatch<SetStateAction<NewAnswerAmount[]>>
   newAnswerAmount: NewAnswerAmount[] | undefined
+  isUpdateAnswer?: boolean;
+  answer?: AnswerResponseDTO | undefined;
+  setIsUpdateAnswer?: Dispatch<SetStateAction<boolean>>;
+  setAnswer?: Dispatch<SetStateAction<AnswerResponseDTO | undefined>>;
 }
 
 export interface NewQuestionPopupProps {
@@ -46,6 +55,9 @@ export interface DetailQuestionViewProps {
   setAnswerOfQuestion: Dispatch<SetStateAction<AnswerResponseDTO[] | null | undefined>>
   answersOfQuestion: AnswerResponseDTO[] | null | undefined
   newAnswerAmount: NewAnswerAmount[] | undefined
+  userInfo: UserInfo | null
+  setIsUpdateAnswer?: Dispatch<SetStateAction<boolean>>;
+  setAnswer?: Dispatch<SetStateAction<AnswerResponseDTO | undefined>>;
 }
 
 export interface Author {
