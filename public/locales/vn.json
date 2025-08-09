@@ -38,27 +38,27 @@
     "save": "Tiết kiệm",
     "currentPlan": "Gói hiện tại",
     "free": {
-       "title": "Miễn phí",
-       "descriptionPlan": "Truy cập cơ bản cho cá nhân muốn trải nghiệm dịch vụ.",
-       "features": {
-         "feature1": "Thời lượng họp: 30 phút/lượt",
-         "feature2": "Tạo phòng: 3 lượt/ngày",
-         "feature3": "Được ghi hình, lưu trữ và tóm tắt cuộc họp",
-         "feature4": "Dịch thuật: Tải lên tối đa 5 file/ngày",
-         "feature5": "Dịch thuật: Không dùng camera thời gian thực"
-       }
-     },
-     "pro": {
-       "title": "Pro",
-       "descriptionPlan": "Truy cập không giới hạn cho chuyên gia và nhóm.",
-       "features": {
-         "feature1": "Thời lượng họp: Không giới hạn",
-         "feature2": "Tạo phòng: Không giới hạn",
-         "feature3": "Không được ghi hình, lưu trữ và tóm tắt cuộc họp",
-         "feature4": "Dịch thuật: Tải lên không giới hạn",
-         "feature5": "Dịch thuật: Dùng được camera thời gian thực"
-       }
-     }
+      "title": "Miễn phí",
+      "descriptionPlan": "Truy cập cơ bản cho cá nhân muốn trải nghiệm dịch vụ.",
+      "features": {
+        "feature1": "Thời lượng họp: 30 phút/lượt",
+        "feature2": "Tạo phòng: 3 lượt/ngày",
+        "feature3": "Được ghi hình, lưu trữ và tóm tắt cuộc họp",
+        "feature4": "Dịch thuật: Tải lên tối đa 5 file/ngày",
+        "feature5": "Dịch thuật: Không dùng camera thời gian thực"
+      }
+    },
+    "pro": {
+      "title": "Pro",
+      "descriptionPlan": "Truy cập không giới hạn cho chuyên gia và nhóm.",
+      "features": {
+        "feature1": "Thời lượng họp: Không giới hạn",
+        "feature2": "Tạo phòng: Không giới hạn",
+        "feature3": "Không được ghi hình, lưu trữ và tóm tắt cuộc họp",
+        "feature4": "Dịch thuật: Tải lên không giới hạn",
+        "feature5": "Dịch thuật: Dùng được camera thời gian thực"
+      }
+    }
   },
   "home": {
     "hero": {
@@ -260,7 +260,14 @@
       "invalidCodeProvided": "Mã xác nhận không hợp lệ, vui lòng yêu cầu lại mã",
       "invalidCodepattern": "Mã sai định dạng",
       "failGetplan": "Lỗi máy chủ tải gói dịch vụ",
-      "errorCreatePaymentLink": "Tạo link thanh toán thất bại"
+      "invalidParameter": "Tham số không hợp lệ",
+      "invalidLambdaResponse": "Phản hồi Lambda không hợp lệ",
+      "resourceNotFound": "Không tìm thấy tài nguyên",
+      "tooManyRequests": "Quá nhiều yêu cầu, vui lòng thử lại sau",
+      "userLambdaValidation": "Lỗi xác thực người dùng",
+      "aliasExists": "Bí danh đã tồn tại",
+      "internalError": "Lỗi nội bộ máy chủ",
+      "passwordHistoryPolicyViolationException": "Mật khẩu vi phạm chính sách lịch sử"
     },
     "paymentError": {
       "errorCreatePaymentLink": "Tạo link thanh toán thất bại",
