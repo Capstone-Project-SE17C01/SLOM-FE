@@ -9,7 +9,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
-import { MoreVertical, Share2, Edit, Trash2, ClipboardCopy, Check, AlertTriangle, Play } from "lucide-react";
+import { 
+  MoreVertical, Share2, Edit, Trash2, ClipboardCopy, Check, AlertTriangle,
+  Folder, FolderOpen, Calendar, Clock, FileVideo, Library
+} from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/contexts/ThemeContext";
 import { RoomCreationModal } from "@/components/layouts/meeting/room-creation-form";
@@ -82,18 +85,14 @@ export default function MeetingRoomPage() {
       duration: meeting.endTime ? Math.round((new Date(meeting.endTime).getTime() - new Date(meeting.startTime).getTime()) / 60000) : 60,
     }));
 
-  // Thêm hàm để xử lý folder từ URL Cloudinary
   const extractFolderInfo = (storagePath: string): { folderType: string, subFolder?: string } => {
     try {
       const url = new URL(storagePath);
       const pathParts = url.pathname.split('/');
-      // Đường dẫn thường có dạng: /video/upload/v1234567890/folderType/[subFolder/]filename.webm
-      // Tìm vị trí của "upload" và lấy folder sau đó
       const uploadIndex = pathParts.findIndex(part => part === "upload");
       if (uploadIndex !== -1 && pathParts.length > uploadIndex + 2) {
-        const folderType = pathParts[uploadIndex + 2]; // general hoặc custom
+        const folderType = pathParts[uploadIndex + 2];
         
-        // Nếu là custom thì có thể có subfolder
         if (folderType === "custom" && pathParts.length > uploadIndex + 3) {
           return { folderType, subFolder: pathParts[uploadIndex + 3] };
         }
@@ -221,6 +220,22 @@ export default function MeetingRoomPage() {
       toast.dismiss(loadingToast);
       toast.success("Recording deleted successfully", { icon: <Check className="h-4 w-4 text-green-500" /> });
       
+      const newGroupedRecordings = { ...groupedRecordings };
+      
+      Object.keys(newGroupedRecordings).forEach(folderKey => {
+        const folder = newGroupedRecordings[folderKey];
+        
+        folder.recordings = folder.recordings.filter(r => r.id !== recordingId);
+        
+        if (folder.subFolders) {
+          Object.keys(folder.subFolders).forEach(subFolderKey => {
+            folder.subFolders![subFolderKey] = folder.subFolders![subFolderKey].filter(r => r.id !== recordingId);
+          });
+        }
+      });
+      
+      setGroupedRecordings(newGroupedRecordings);
+      
       store.dispatch(meetingApi.util.invalidateTags([{ type: "Meeting", id: "RECORDINGS" }]));
     } catch (error) {
       console.error("Failed to delete recording:", error);
@@ -326,7 +341,6 @@ export default function MeetingRoomPage() {
     }
   }, [currentMonth]);
 
-  // Cập nhật useEffect để nhóm recordings theo folder khi dữ liệu thay đổi
   useEffect(() => {
     if (recordedSessions.length > 0) {
       const grouped: {
@@ -496,80 +510,82 @@ export default function MeetingRoomPage() {
                   <p className={cn("text-lg", isDarkMode ? "text-gray-400" : "text-gray-500")}>No recorded sessions available</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 gap-6">
                   {Object.entries(groupedRecordings).map(([folderKey, folderData]) => (
-                    <div key={folderKey} className={cn("p-4 rounded-lg border", isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200")}>
-                      <h3 className="font-medium mb-3 text-lg capitalize">{folderData.folderName} Recordings</h3>
+                    <div key={folderKey} className={cn("overflow-hidden rounded-xl border shadow-sm", isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200")}>
+                      <div className="p-5 border-b border-gray-200 dark:border-gray-700">
+                        <div className="flex items-center gap-3">
+                          {folderKey === 'general' ? (
+                            <div className="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                              <Library className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                            </div>
+                          ) : folderKey === 'custom' ? (
+                            <div className="h-10 w-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                              <FolderOpen className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                            </div>
+                          ) : (
+                            <div className="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                              <Folder className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                            </div>
+                          )}
+                          <div>
+                            <h3 className="text-lg font-semibold capitalize">
+                              {folderData.folderName === 'general' ? 'General Recordings' : 
+                               folderData.folderName === 'custom' ? 'Custom Folders' : 
+                               `${folderData.folderName} Recordings`}
+                            </h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {folderData.recordings.length} recordings
+                              {folderData.subFolders && Object.keys(folderData.subFolders).length > 0 && 
+                                ` in ${Object.keys(folderData.subFolders).length} folders`}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                       
                       {/* Hiển thị recordings trực tiếp trong folder (không thuộc subfolder) */}
                       {folderData.recordings.length > 0 && (
-                        <div className="mb-4">
-                          {folderData.recordings.map((recording) => (
-                            <div key={recording.id} className={cn("p-3 rounded-md mb-2", isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-50 hover:bg-gray-100")}>
-                              <div className="flex justify-between items-center">
-                                <div className="flex items-center gap-2 cursor-pointer" onClick={() => { 
-                                  if (recording.storagePath) { 
-                                    const params = new URLSearchParams({ 
-                                      url: recording.storagePath, 
-                                      title: recording.meetingTitle || "Untitled Recording" 
-                                    }); 
-                                    router.push(`/video-viewer?${params.toString()}`); 
-                                  } 
-                                }}>
-                                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#6947A8] text-white">
-                                    <Play className="h-4 w-4 ml-0.5" />
-                                  </div>
-                                  <div>
-                                    <h4 className="font-medium">{recording.meetingTitle || "Untitled Recording"}</h4>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                                      {new Date(recording.createdAt).toLocaleDateString()} • 
-                                      {recording.duration ? ` ${recording.duration} min` : " Unknown duration"}
-                                    </p>
-                                  </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className={cn("text-xs px-2 py-0.5 rounded-full", 
-                                    recording.processed 
-                                      ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" 
-                                      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
-                                  )}>
-                                    {recording.processed ? "Processed" : "Processing"}
-                                  </span>
-                                  {renderRecordingDropdownActions(recording)}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      
-                      {/* Hiển thị subfolders nếu có */}
-                      {folderData.subFolders && Object.entries(folderData.subFolders).length > 0 && (
-                        <>
-                          {Object.entries(folderData.subFolders).map(([subFolderName, subFolderRecordings]) => (
-                            <div key={subFolderName} className="mb-4">
-                              <h4 className="font-medium mb-2 text-md capitalize border-l-4 border-[#6947A8] pl-2">{subFolderName}</h4>
-                              {subFolderRecordings.map((recording) => (
-                                <div key={recording.id} className={cn("p-3 rounded-md mb-2", isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-50 hover:bg-gray-100")}>
-                                  <div className="flex justify-between items-center">
-                                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => { 
-                                      if (recording.storagePath) { 
-                                        const params = new URLSearchParams({ 
-                                          url: recording.storagePath, 
-                                          title: recording.meetingTitle || "Untitled Recording" 
-                                        }); 
-                                        router.push(`/video-viewer?${params.toString()}`); 
-                                      } 
-                                    }}>
-                                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#6947A8] text-white">
-                                        <Play className="h-4 w-4 ml-0.5" />
-                                      </div>
-                                      <div>
-                                        <h4 className="font-medium">{recording.meetingTitle || "Untitled Recording"}</h4>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                                          {new Date(recording.createdAt).toLocaleDateString()} • 
-                                          {recording.duration ? ` ${recording.duration} min` : " Unknown duration"}
-                                        </p>
+                        <div className="p-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {folderData.recordings.map((recording) => (
+                              <div 
+                                key={recording.id} 
+                                className={cn(
+                                  "relative overflow-hidden rounded-lg border transition-all",
+                                  isDarkMode 
+                                    ? "bg-gray-700 border-gray-600 hover:border-purple-500" 
+                                    : "bg-gray-50 border-gray-200 hover:border-purple-500"
+                                )}
+                              >
+                                <div 
+                                  className="p-4 cursor-pointer" 
+                                  onClick={() => { 
+                                    if (recording.storagePath) { 
+                                      const params = new URLSearchParams({ 
+                                        url: recording.storagePath, 
+                                        title: recording.meetingTitle || "Untitled Recording" 
+                                      }); 
+                                      router.push(`/video-viewer?${params.toString()}`); 
+                                    } 
+                                  }}
+                                >
+                                  <div className="flex items-center gap-4">
+                                    <div className="flex-shrink-0 h-12 w-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                                      <FileVideo className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                                    </div>
+                                    <div className="flex-grow min-w-0">
+                                      <h4 className="font-medium text-base truncate">{recording.meetingTitle || "Untitled Recording"}</h4>
+                                      <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                        <div className="flex items-center gap-1">
+                                          <Calendar className="h-3 w-3" />
+                                          <span>{new Date(recording.createdAt).toLocaleDateString()}</span>
+                                        </div>
+                                        {recording.duration && (
+                                          <div className="flex items-center gap-1">
+                                            <Clock className="h-3 w-3" />
+                                            <span>{recording.duration} min</span>
+                                          </div>
+                                        )}
                                       </div>
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -584,10 +600,86 @@ export default function MeetingRoomPage() {
                                     </div>
                                   </div>
                                 </div>
-                              ))}
+                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-blue-500"></div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Hiển thị subfolders nếu có */}
+                      {folderData.subFolders && Object.entries(folderData.subFolders).length > 0 && (
+                        <div className="p-4 pt-0">
+                          {Object.entries(folderData.subFolders).map(([subFolderName, subFolderRecordings]) => (
+                            <div key={subFolderName} className="mt-6 first:mt-0">
+                              <div className="flex items-center gap-2 mb-3">
+                                <Folder className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                                <h4 className="font-medium text-md capitalize">{subFolderName}</h4>
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                  {subFolderRecordings.length} {subFolderRecordings.length === 1 ? 'recording' : 'recordings'}
+                                </span>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {subFolderRecordings.map((recording) => (
+                                  <div 
+                                    key={recording.id} 
+                                    className={cn(
+                                      "relative overflow-hidden rounded-lg border transition-all",
+                                      isDarkMode 
+                                        ? "bg-gray-700 border-gray-600 hover:border-purple-500" 
+                                        : "bg-gray-50 border-gray-200 hover:border-purple-500"
+                                    )}
+                                  >
+                                    <div 
+                                      className="p-4 cursor-pointer" 
+                                      onClick={() => { 
+                                        if (recording.storagePath) { 
+                                          const params = new URLSearchParams({ 
+                                            url: recording.storagePath, 
+                                            title: recording.meetingTitle || "Untitled Recording" 
+                                          }); 
+                                          router.push(`/video-viewer?${params.toString()}`); 
+                                        } 
+                                      }}
+                                    >
+                                      <div className="flex items-center gap-4">
+                                        <div className="flex-shrink-0 h-12 w-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                                          <FileVideo className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                                        </div>
+                                        <div className="flex-grow min-w-0">
+                                          <h4 className="font-medium text-base truncate">{recording.meetingTitle || "Untitled Recording"}</h4>
+                                          <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                            <div className="flex items-center gap-1">
+                                              <Calendar className="h-3 w-3" />
+                                              <span>{new Date(recording.createdAt).toLocaleDateString()}</span>
+                                            </div>
+                                            {recording.duration && (
+                                              <div className="flex items-center gap-1">
+                                                <Clock className="h-3 w-3" />
+                                                <span>{recording.duration} min</span>
+                                              </div>
+                                            )}
+                                          </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                          <span className={cn("text-xs px-2 py-0.5 rounded-full", 
+                                            recording.processed 
+                                              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" 
+                                              : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+                                          )}>
+                                            {recording.processed ? "Processed" : "Processing"}
+                                          </span>
+                                          {renderRecordingDropdownActions(recording)}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-blue-500"></div>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                           ))}
-                        </>
+                        </div>
                       )}
                     </div>
                   ))}

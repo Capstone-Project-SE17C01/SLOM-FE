@@ -7,11 +7,13 @@ import type {
 } from "../../../types/IMessage";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
-
+import { useTheme } from "@/contexts/ThemeContext";
+import { cn } from "@/utils/cn";
+  
 export function SearchUser({ isSearch, setIsSearch, setListSearchUser }: Readonly<SearchUserProps>) {
     const [getProfileByName] = useGetProfileByNameMutation();
     const { userInfo } = useSelector((state: RootState) => state.auth);
-
+    const { isDarkMode } = useTheme();
     const findUser = async (userInput: string) => {
       try {
         const response = await getProfileByName({ currentUserEmail: userInfo?.email, input: userInput }).unwrap();
@@ -41,7 +43,7 @@ export function SearchUser({ isSearch, setIsSearch, setListSearchUser }: Readonl
                 </svg>
             </Button>
             <input type="text" name="" id="" onChange={handleChange} onBlur={() => {setTimeout(function(){setIsSearch(false)},300);}} onFocus={() => setIsSearch(true)} 
-            placeholder="Search..." className={"bg-[#f4f4f4]  h-full rounded-full pl-9 " + (isSearch ? " flex-1" : " w-[100%]")}/>
+            placeholder="Search..." className={cn("bg-[#f4f4f4]  h-full rounded-full pl-9 " + (isSearch ? " flex-1" : " w-[100%]"), isDarkMode ? "bg-gray-800 border-gray-700 text-white placeholder-gray-400" : "bg-white border-gray-300 text-gray-800")}/>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={"size-5 absolute top-1/2 text-[#888889] transform -translate-y-1/2" + (isSearch ? " left-12" : " left-2")}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
             </svg>

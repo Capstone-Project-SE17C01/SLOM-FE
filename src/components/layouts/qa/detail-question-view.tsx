@@ -5,10 +5,13 @@ import { AnswerRequestDTO, DetailQuestionViewProps } from "@/types/IQa";
 import { useGetAnswerMutation } from "../../../api/QaApi";
 import { useEffect, useState } from "react";
 import { ArrowLeft, MessageCircle } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
+import { cn } from "@/utils/cn";
 
 export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifiedPage, question, answersOfQuestion, setAnswerOfQuestion, newAnswerAmount, userInfo, setIsUpdateAnswer, setAnswer }: Readonly<DetailQuestionViewProps>) {
     const [getAnswerApi] = useGetAnswerMutation();
     const [pagination, setPagination] = useState<number>(1);
+    const { isDarkMode } = useTheme();
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isLoadFull, setIsLoadFull] = useState<boolean>(false);
@@ -88,9 +91,15 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
 
     return (
         <div className="pb-8">
-            <div className="sticky top-0 z-10 bg-white border-b px-4 py-3 flex items-center justify-between shadow-sm">
+            <div className={cn(
+                "sticky top-0 z-10 border-b px-4 py-3 flex items-center justify-between shadow-sm",
+                isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+            )}>
                 <button 
-                    className="flex items-center text-gray-600 hover:text-gray-900 transition-colors" 
+                    className={cn(
+                        "flex items-center transition-colors",
+                        isDarkMode ? "text-gray-400 hover:text-gray-200" : "text-gray-600 hover:text-gray-900"
+                    )}
                     onClick={handleBackToQuestions}
                 >
                     <ArrowLeft className="h-5 w-5 mr-1" />
@@ -99,7 +108,10 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
                 <h2 className="text-lg font-semibold">Question Details</h2>
             </div>
 
-            <div className="py-6 px-6 border-b">
+            <div className={cn(
+                "py-6 px-6 border-b",
+                isDarkMode ? "border-gray-700" : "border-gray-200"
+            )}>
                 {question && (
                     <div className="flex w-full">
                         <div className="mr-4 flex-shrink-0">
@@ -114,7 +126,10 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
                         <div className="flex-1">
                             <div className="flex items-center justify-between mb-2">
                                 <div className="font-bold text-lg">{question.author.username}</div>
-                                <div className="text-sm text-gray-500">
+                                <div className={cn(
+                                    "text-sm",
+                                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                                )}>
                                     {new Date(question.createdAt).toLocaleDateString()}
                                 </div>
                             </div>
@@ -138,7 +153,10 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
                                     <div className="flex space-x-4">
                                         {question.images.map((image, index) => (
                                             <div key={index} className="min-w-[200px] max-w-[320px]">
-                                                <div className="relative aspect-video overflow-hidden rounded-lg border">
+                                                <div className={cn(
+                                                    "relative aspect-video overflow-hidden rounded-lg border",
+                                                    isDarkMode ? "border-gray-700" : "border-gray-200"
+                                                )}>
                                                     <Image
                                                         src={image}
                                                         alt={`image-${index}`}
@@ -155,7 +173,12 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
                             
                             <button 
                                 onClick={() => setIsResponseQuestion(true)} 
-                                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors text-gray-700"
+                                className={cn(
+                                    "inline-flex items-center gap-2 px-4 py-2 rounded-full transition-colors",
+                                    isDarkMode 
+                                        ? "bg-gray-700 hover:bg-gray-600 text-gray-200" 
+                                        : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                                )}
                             >
                                 <MessageCircle className="h-5 w-5" />
                                 <span>Reply ({totalAnswers})</span>
@@ -166,14 +189,23 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
             </div>
 
             {totalAnswers > 0 && (
-                <div className="border-b px-6 py-4 bg-gray-50">
-                    <h3 className="font-medium text-gray-700">
+                <div className={cn(
+                    "border-b px-6 py-4",
+                    isDarkMode ? "bg-gray-700 border-gray-700" : "bg-gray-50 border-gray-200"
+                )}>
+                    <h3 className={cn(
+                        "font-medium",
+                        isDarkMode ? "text-gray-200" : "text-gray-700"
+                    )}>
                         {totalAnswers} {totalAnswers === 1 ? 'Answer' : 'Answers'}
                     </h3>
                 </div>
             )}
 
-            <div className="divide-y">
+            <div className={cn(
+                "divide-y", 
+                isDarkMode ? "divide-gray-700" : "divide-gray-200"
+            )}>
                 {question?.questionId && (
                     <AnswerDetailQuestionView 
                         specificThread={answersOfQuestion} 
@@ -189,17 +221,26 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
             {isLoading && (
                 <div className="text-center py-6">
                     <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-solid border-primary border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-                    <p className="mt-2 text-sm text-gray-500">Loading answers...</p>
+                    <p className={cn(
+                        "mt-2 text-sm",
+                        isDarkMode ? "text-gray-400" : "text-gray-500"
+                    )}>Loading answers...</p>
                 </div>
             )}
             
             {isLoadFull && totalAnswers > 0 && (
-                <div className="text-center py-8 text-gray-500 border-t">No more answers.</div>
+                <div className={cn(
+                    "text-center py-8 border-t",
+                    isDarkMode ? "text-gray-400 border-gray-700" : "text-gray-500 border-gray-200"
+                )}>No more answers.</div>
             )}
 
             {isLoadFull && totalAnswers === 0 && (
                 <div className="text-center py-16">
-                    <p className="text-gray-500 mb-2">No answers yet</p>
+                    <p className={cn(
+                        "mb-2",
+                        isDarkMode ? "text-gray-400" : "text-gray-500"
+                    )}>No answers yet</p>
                     <button 
                         onClick={() => setIsResponseQuestion(true)}
                         className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors"

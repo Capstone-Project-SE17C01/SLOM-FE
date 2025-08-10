@@ -4,10 +4,15 @@ import UploadVideoTranslator from "@/components/layouts/translator/upload-video-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RootState } from "@/redux/store";
 import { useSelector } from "react-redux";
+import { useEffect } from "react";
 
 export default function TranslatorPage() {
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const isVip = userInfo?.vipUser === true;
+  useEffect(() => { 
+    console.log(userInfo);
+    console.log(isVip);
+  }, [isVip, userInfo]);
   return (
     <div className="container mx-auto max-w-6xl px-4 py-6 space-y-8">
       <div>

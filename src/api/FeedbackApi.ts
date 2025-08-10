@@ -1,4 +1,5 @@
 import { baseApi } from "@/services";
+import { APIResponse } from "@/types/IAuth";
 
 export interface Feedback {
   id?: number;
@@ -40,9 +41,9 @@ export const feedbackAPI = baseApi.injectEndpoints({
         flashError: false,
       }),
     }),
-    deleteFeedback: build.mutation<{ success: boolean }, number>({
+    deleteFeedback: build.mutation<APIResponse<void>, string>({
       query: (id) => ({
-        url: `/api/feedback/${id}`,
+        url: `/api/Feedback/${id}`,
         method: "DELETE",
         flashError: false,
       }),

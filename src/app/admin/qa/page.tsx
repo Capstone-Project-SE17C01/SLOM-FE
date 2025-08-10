@@ -7,6 +7,8 @@ import { RootState } from "@/redux/store";
 import { AnswerResponseDTO, NewAnswerAmount, QuestionResponseDTO } from "@/types/IQa";
 import { useState } from "react";
 import { useSelector } from "react-redux";
+import { useTheme } from "@/contexts/ThemeContext";
+import { cn } from "@/utils/cn";
 
 export default function QAPage() {
     const [isSpecifiedPage, setIsSpecifiedPage] = useState(false);
@@ -18,7 +20,7 @@ export default function QAPage() {
     const [showCurrentUserQuestions, setShowCurrentUserQuestions] = useState<boolean>(false);
     const [isUpdateAnswer, setIsUpdateAnswer] = useState<boolean>(false);
     const [answer, setAnswer] = useState<AnswerResponseDTO>();
-
+    const { isDarkMode } = useTheme();
     return (
         <div className="relative max-w-6xl mx-auto px-6 py-8">
             <div className="mb-10 flex justify-center">
@@ -47,11 +49,11 @@ export default function QAPage() {
                 </div>
             )}
 
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+            <div className={cn("rounded-xl shadow-lg overflow-hidden border border-gray-100", isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200")}>
                 {!isSpecifiedPage ? (
                     <div>
-                        <div className="px-4 py-5 border-b border-gray-100 bg-gray-50">
-                            <h2 className="text-xl font-semibold text-gray-800">
+                        <div className={cn("px-4 py-5 border-b border-gray-100", isDarkMode ? "bg-gray-800 border-gray-700" : "bg-gray-50 border-gray-200")}>
+                            <h2 className={cn("text-xl font-semibold", isDarkMode ? "text-white" : "text-gray-800")}>
                                 {showCurrentUserQuestions ? "Unanswered Questions" : "All Questions"}
                             </h2>
                         </div>

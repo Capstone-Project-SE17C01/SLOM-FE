@@ -1,12 +1,18 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 import { QuestionNewAnswerProps } from "@/types/IQa";
+import { useTheme } from "@/contexts/ThemeContext";
+import { cn } from "@/utils/cn";
 
 export default function QuestionNewAnswer({question} : QuestionNewAnswerProps) {
+    const { isDarkMode } = useTheme();
 
     return (
         question != undefined && 
-        <div key={question.questionId} className="border-b py-4 px-4 w-full">
+        <div key={question.questionId} className={cn(
+            "border-b py-4 px-4 w-full",
+            isDarkMode ? "border-gray-700" : "border-gray-200"
+        )}>
             <div className="flex w-full cursor-pointer">
                 <div className="mr-2">
                     <Avatar>

@@ -24,14 +24,6 @@ export const adminAPI = baseApi.injectEndpoints({
         flashError: false,
       }),
     }),
-    //delete feedback
-    deleteFeedback: build.mutation<APIResponse<void>, string>({
-      query: (id) => ({
-        url: `/api/Feedback/${id}`,
-        method: "DELETE",
-        flashError: false,
-      }),
-    }),
     //get all module
     getListModule: build.mutation<APIResponse<Module[]>, void>({
       query: () => ({
@@ -117,7 +109,6 @@ export const adminAPI = baseApi.injectEndpoints({
 export const {
   useGetSummaryAdminMutation,
   useGetListFeedbackMutation,
-  useDeleteFeedbackMutation,
   useGetListModuleMutation,
   useCreateModuleMutation,
   useCreateCourseMutation,
