@@ -4,11 +4,11 @@ import { Clock, Users, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import {
-  useDeleteFeedbackMutation,
   useGetListFeedbackMutation,
 } from "@/api/AdminApi";
 import { Feedback } from "@/types/IFeedback";
 import { toast } from "sonner";
+import { useDeleteFeedbackMutation } from "@/api/FeedbackApi";
 
 export default function AdminFeedback() {
   const [getFeedbacks, { isLoading: isLoadingFeedbacks }] =

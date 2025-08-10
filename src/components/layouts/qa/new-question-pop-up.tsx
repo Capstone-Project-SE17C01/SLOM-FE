@@ -7,6 +7,8 @@ import { usePostQuestionMutation, useUpdateQuestionMutation, useGetTagsQuery } f
 import UploadImage from "./upload-image";
 import { OpenRouterService, TagGenerationRequest } from "@/services/openrouter/config";
 import { X, Tag, Loader2, Plus } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
+import { cn } from "@/utils/cn";
 
 // You should replace this with your actual OpenRouter API key
 const OPENROUTER_API_KEY = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || "";
@@ -24,6 +26,7 @@ export default function NewQuestionPopup({ userInfo, setIsNewQuestion, isUpdateQ
     const [isGeneratingTags, setIsGeneratingTags] = useState(false);
     const [showTagDropdown, setShowTagDropdown] = useState(false);
     const tagInputRef = useRef<HTMLInputElement>(null);
+    const { isDarkMode } = useTheme();
     
     // Get existing tags from API
     const { data: tagsData } = useGetTagsQuery();
@@ -155,10 +158,16 @@ export default function NewQuestionPopup({ userInfo, setIsNewQuestion, isUpdateQ
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden">
+            <div className={cn(
+                "w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden",
+                isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
+            )}>
                 {/* Header */}
-                <div className="px-6 py-4 border-b flex justify-between items-center">
-                    <h2 className="text-xl font-semibold text-gray-800">
+                <div className={cn(
+                    "px-6 py-4 border-b flex justify-between items-center",
+                    isDarkMode ? "border-gray-700" : "border-gray-200"
+                )}>
+                    <h2 className="text-xl font-semibold">
                         {isUpdateQuestion ? "Edit Question" : "New Question"}
                     </h2>
                     <button 
@@ -167,7 +176,10 @@ export default function NewQuestionPopup({ userInfo, setIsNewQuestion, isUpdateQ
                             setIsUpdateQuestion(false); 
                             setQuestion(undefined); 
                         }} 
-                        className="text-gray-500 hover:text-gray-800 transition-colors"
+                        className={cn(
+                            "transition-colors",
+                            isDarkMode ? "text-gray-400 hover:text-gray-200" : "text-gray-500 hover:text-gray-800"
+                        )}
                     >
                         <X className="h-6 w-6" />
                     </button>
@@ -190,7 +202,12 @@ export default function NewQuestionPopup({ userInfo, setIsNewQuestion, isUpdateQ
                             <textarea
                                 onChange={handleChange}
                                 placeholder="What would you like to ask?"
-                                className="w-full min-h-[120px] p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                className={cn(
+                                    "w-full min-h-[120px] p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none",
+                                    isDarkMode 
+                                        ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400" 
+                                        : "bg-white border-gray-300 text-gray-800"
+                                )}
                                 value={newQuestion}
                                 onBlur={() => {
                                     if (newQuestion && newQuestion.length > 10 && tags.length === 0) {
@@ -202,7 +219,10 @@ export default function NewQuestionPopup({ userInfo, setIsNewQuestion, isUpdateQ
                             {/* Tags Section */}
                             <div className="space-y-3">
                                 <div className="flex justify-between items-center">
-                                    <label className="text-sm font-medium text-gray-700 flex items-center">
+                                    <label className={cn(
+                                        "text-sm font-medium flex items-center",
+                                        isDarkMode ? "text-gray-300" : "text-gray-700"
+                                    )}>
                                         <Tag className="h-4 w-4 mr-1.5 text-blue-600" />
                                         Topics
                                     </label>
@@ -241,17 +261,37 @@ export default function NewQuestionPopup({ userInfo, setIsNewQuestion, isUpdateQ
                                                 }}
                                                 onKeyDown={handleKeyDown}
                                                 placeholder="Enter or select topics..."
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className={cn(
+                                                    "w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500",
+                                                    isDarkMode 
+                                                        ? "bg-gray-700 border-gray-600 text-white" 
+                                                        : "bg-white border-gray-300 text-gray-800"
+                                                )}
                                             />
                                             {showTagDropdown && filteredTags.length > 0 && (
-                                                <div className="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
-                                                    <div className="p-2 text-xs text-gray-500 border-b bg-gray-50">
+                                                <div className={cn(
+                                                    "absolute z-20 mt-1 w-full border rounded-lg shadow-lg max-h-60 overflow-auto",
+                                                    isDarkMode 
+                                                        ? "bg-gray-800 border-gray-700" 
+                                                        : "bg-white border-gray-200"
+                                                )}>
+                                                    <div className={cn(
+                                                        "p-2 text-xs border-b",
+                                                        isDarkMode 
+                                                            ? "text-gray-400 border-gray-700 bg-gray-700" 
+                                                            : "text-gray-500 border-gray-200 bg-gray-50"
+                                                    )}>
                                                         Select from existing topics or create new ones
                                                     </div>
                                                     {filteredTags.map((tag, index) => (
                                                         <div
                                                             key={index}
-                                                            className="px-3 py-2 cursor-pointer hover:bg-blue-50 flex items-center"
+                                                            className={cn(
+                                                                "px-3 py-2 cursor-pointer flex items-center",
+                                                                isDarkMode 
+                                                                    ? "hover:bg-gray-700 text-gray-200" 
+                                                                    : "hover:bg-blue-50 text-gray-800"
+                                                            )}
                                                             onClick={() => handleExistingTagClick(tag)}
                                                         >
                                                             <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
@@ -272,30 +312,53 @@ export default function NewQuestionPopup({ userInfo, setIsNewQuestion, isUpdateQ
                                     </div>
                                 </div>
 
-                                <div className="flex flex-wrap gap-2 mb-2 min-h-[40px] p-2 bg-gray-50 rounded-lg border border-gray-200">
+                                <div className={cn(
+                                    "flex flex-wrap gap-2 mb-2 min-h-[40px] p-2 rounded-lg border",
+                                    isDarkMode 
+                                        ? "bg-gray-700 border-gray-600" 
+                                        : "bg-gray-50 border-gray-200"
+                                )}>
                                     {tags.length > 0 ? (
                                         tags.map((tag, index) => (
                                             <div 
                                                 key={index} 
-                                                className="bg-white border border-gray-300 shadow-sm text-gray-800 px-2.5 py-1.5 rounded-md text-sm flex items-center gap-2 group"
+                                                className={cn(
+                                                    "border px-2.5 py-1.5 rounded-md text-sm flex items-center gap-2 group",
+                                                    isDarkMode 
+                                                        ? "bg-gray-800 border-gray-600 text-gray-200" 
+                                                        : "bg-white border-gray-300 shadow-sm text-gray-800"
+                                                )}
                                             >
                                                 {tag}
                                                 <button 
                                                     type="button"
                                                     onClick={() => removeTag(tag)}
-                                                    className="text-gray-400 hover:text-red-600 group-hover:bg-gray-100 rounded-full p-0.5"
+                                                    className={cn(
+                                                        "rounded-full p-0.5",
+                                                        isDarkMode 
+                                                            ? "text-gray-400 hover:text-red-400 group-hover:bg-gray-700" 
+                                                            : "text-gray-400 hover:text-red-600 group-hover:bg-gray-100"
+                                                    )}
                                                 >
                                                     <X className="h-3.5 w-3.5" />
                                                 </button>
                                             </div>
                                         ))
                                     ) : (
-                                        <div className="text-sm text-gray-400 flex items-center justify-center w-full h-full">
+                                        <div className={cn(
+                                            "text-sm flex items-center justify-center w-full h-full",
+                                            isDarkMode ? "text-gray-400" : "text-gray-400"
+                                        )}>
                                             No topics selected
                                         </div>
                                     )}
                                 </div>
-                                <p className="text-xs text-gray-500">Topics help others find your question and connect with relevant content</p>
+                                <p className={cn(
+                                    "text-xs",
+                                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                                )}>
+                                    Topics help others find your question and connect with relevant content
+                                </p>
                             </div>
 
                             <UploadImage 
@@ -309,24 +372,41 @@ export default function NewQuestionPopup({ userInfo, setIsNewQuestion, isUpdateQ
                 </div>
 
                 {/* Footer */}
-                <div className="px-6 py-4 bg-gray-50 border-t flex justify-between items-center">
+                <div className={cn(
+                    "px-6 py-4 border-t flex justify-between items-center",
+                    isDarkMode ? "bg-gray-700 border-gray-700" : "bg-gray-50 border-gray-200"
+                )}>
                     <div className="relative z-50">
                         <Listbox value={privacy} onChange={setPrivacy}>
                             <div className="relative">
-                                <ListboxButton className="px-4 py-2 text-sm border border-gray-300 rounded-lg bg-white text-gray-700 flex items-center min-w-[280px] hover:bg-gray-50 transition-colors">
+                                <ListboxButton className={cn(
+                                    "px-4 py-2 text-sm border rounded-lg flex items-center min-w-[280px] hover:bg-opacity-80 transition-colors",
+                                    isDarkMode 
+                                        ? "bg-gray-800 border-gray-600 text-gray-200" 
+                                        : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+                                )}>
                                     <span className="block truncate pr-8">{privacy}</span>
                                     <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                        <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className={cn(
+                                            "h-4 w-4",
+                                            isDarkMode ? "text-gray-400" : "text-gray-400"
+                                        )} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                         </svg>
                                     </span>
                                 </ListboxButton>
                                 <div className="relative mt-2">
-                                    <ListboxOptions className="absolute bottom-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                                    <ListboxOptions className={cn(
+                                        "absolute bottom-2 w-full border rounded-lg shadow-lg overflow-hidden",
+                                        isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+                                    )}>
                                         <div className="py-1">
                                             <ListboxOption 
                                                 value="All can view and answer your question" 
-                                                className="px-4 py-2.5 text-sm cursor-pointer hover:bg-blue-50 text-gray-700 hover:text-blue-700 transition-colors ui-selected:bg-blue-50 ui-selected:text-blue-700 flex items-center justify-between"
+                                                className={cn(
+                                                    "px-4 py-2.5 text-sm cursor-pointer hover:bg-blue-50 hover:text-blue-700 transition-colors ui-selected:bg-blue-50 ui-selected:text-blue-700 flex items-center justify-between",
+                                                    isDarkMode ? "text-gray-200" : "text-gray-700"
+                                                )}
                                             >
                                                 <span>All can view and answer your question</span>
                                                 <svg className="h-4 w-4 text-blue-600 opacity-0 ui-selected:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -335,7 +415,10 @@ export default function NewQuestionPopup({ userInfo, setIsNewQuestion, isUpdateQ
                                             </ListboxOption>
                                             <ListboxOption 
                                                 value="Only admin can view and answer" 
-                                                className="px-4 py-2.5 text-sm cursor-pointer hover:bg-blue-50 text-gray-700 hover:text-blue-700 transition-colors ui-selected:bg-blue-50 ui-selected:text-blue-700 flex items-center justify-between"
+                                                className={cn(
+                                                    "px-4 py-2.5 text-sm cursor-pointer hover:bg-blue-50 hover:text-blue-700 transition-colors ui-selected:bg-blue-50 ui-selected:text-blue-700 flex items-center justify-between",
+                                                    isDarkMode ? "text-gray-200" : "text-gray-700"
+                                                )}
                                             >
                                                 <span>Only admin can view and answer</span>
                                                 <svg className="h-4 w-4 text-blue-600 opacity-0 ui-selected:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">

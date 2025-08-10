@@ -7,6 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { CircleEllipsis, MessageSquare, OctagonX, SquarePen, X, Tag as TagIcon, Search } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { format } from "date-fns";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage, setDetailQuestion, userInfo,
     isCurrentUser, setIsNewQuestion, setIsUpdateQuestion, setQuestion, isAdmin }: Readonly<QuestionViewProps>) {
@@ -21,6 +22,7 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
     const [lastIsCurrentUser, setLastIsCurrentUser] = useState<boolean | undefined>(false);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [tagSearchQuery, setTagSearchQuery] = useState<string>('');
+    const { isDarkMode } = useTheme();
 
     const [allQuestion, setAllQuestion] = useState<QuestionResponseDTO[] | null | undefined>([]);
     const [isLoadFull, setIsLoadFull] = useState<boolean>(false);
@@ -197,17 +199,27 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
 
     return (
         <div>
-            {/* Tag filter section with improved UI */}
-            <div className="mb-6 p-4 bg-white rounded-xl shadow-sm border">
+            <div className={cn(
+                "mb-6 p-4 rounded-xl shadow-sm border",
+                isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+            )}>
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-medium text-gray-800 flex items-center">
+                    <h3 className={cn(
+                        "text-lg font-medium flex items-center",
+                        isDarkMode ? "text-gray-200" : "text-gray-800"
+                    )}>
                         <TagIcon className="h-5 w-5 mr-2 text-blue-600" />
                         Filter by Topics
                     </h3>
                     {selectedTags.length > 0 && (
                         <button 
                             onClick={clearTagFilters}
-                            className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm rounded-lg flex items-center"
+                            className={cn(
+                                "px-3 py-1.5 text-sm rounded-lg flex items-center",
+                                isDarkMode 
+                                    ? "bg-gray-700 hover:bg-gray-600 text-gray-300" 
+                                    : "bg-gray-100 hover:bg-gray-200 text-gray-600"
+                            )}
                         >
                             Clear All Filters
                             <X className="h-4 w-4 ml-1" />
@@ -218,22 +230,36 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                 {/* Search tags input */}
                 <div className="relative mb-4">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Search className="h-4 w-4 text-gray-400" />
+                        <Search className={cn(
+                            "h-4 w-4",
+                            isDarkMode ? "text-gray-500" : "text-gray-400"
+                        )} />
                     </div>
                     <input
                         type="text"
                         placeholder="Search topics..."
                         value={tagSearchQuery}
                         onChange={(e) => setTagSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={cn(
+                            "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500",
+                            isDarkMode 
+                                ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400" 
+                                : "bg-white border-gray-300 text-gray-800"
+                        )}
                     />
                 </div>
                 
                 {/* Selected tags section */}
                 {selectedTags.length > 0 && (
-                    <div className="mb-4 p-2 bg-gray-50 border border-gray-200 rounded-lg">
+                    <div className={cn(
+                        "mb-4 p-2 border rounded-lg",
+                        isDarkMode ? "bg-gray-700 border-gray-600" : "bg-gray-50 border-gray-200"
+                    )}>
                         <div className="flex items-center mb-2">
-                            <span className="text-sm text-gray-600 mr-2">Selected:</span>
+                            <span className={cn(
+                                "text-sm mr-2",
+                                isDarkMode ? "text-gray-300" : "text-gray-600"
+                            )}>Selected:</span>
                             <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
                                 {selectedTags.length} {selectedTags.length === 1 ? 'topic' : 'topics'}
                             </span>
@@ -264,31 +290,53 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                             <button 
                                 key={index} 
                                 onClick={() => handleTagClick(tag)}
-                                className="px-3 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all"
+                                className={cn(
+                                    "px-3 py-2 rounded-lg font-medium text-sm transition-all",
+                                    isDarkMode 
+                                        ? "bg-gray-700 text-gray-200 hover:bg-gray-600" 
+                                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                                )}
                             >
                                 {tag}
                             </button>
                         ))
                     ) : (
                         tagSearchQuery ? (
-                            <div className="text-sm text-gray-500 py-2">No topics match your search</div>
+                            <div className={cn(
+                                "text-sm py-2",
+                                isDarkMode ? "text-gray-400" : "text-gray-500"
+                            )}>No topics match your search</div>
                         ) : (
                             selectedTags.length > 0 ? (
-                                <div className="text-sm text-gray-500 py-2">All available topics selected</div>
+                                <div className={cn(
+                                    "text-sm py-2",
+                                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                                )}>All available topics selected</div>
                             ) : (
-                                <div className="text-sm text-gray-500 py-2">No topics available</div>
+                                <div className={cn(
+                                    "text-sm py-2",
+                                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                                )}>No topics available</div>
                             )
                         )
                     )}
                 </div>
             </div>
             
-            <div className="divide-y divide-gray-200 bg-white rounded-xl shadow-sm border">
+            <div className={cn(
+                "divide-y rounded-xl shadow-sm border",
+                isDarkMode 
+                    ? "divide-gray-700 bg-gray-800 border-gray-700" 
+                    : "divide-gray-200 bg-white border-gray-200"
+            )}>
                 {allQuestion && allQuestion.length > 0 ? (
                     allQuestion.map((element, index) => (
                         <div 
                             key={`${element.questionId}-${index}`} 
-                            className="hover:bg-gray-50 transition-colors duration-150"
+                            className={cn(
+                                "transition-colors duration-150",
+                                isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
+                            )}
                         >
                             <div 
                                 role="button" 
@@ -317,10 +365,16 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center justify-between mb-2">
                                             <div className="flex items-center">
-                                                <span className="font-medium text-gray-900 mr-2">
+                                                <span className={cn(
+                                                    "font-medium mr-2",
+                                                    isDarkMode ? "text-white" : "text-gray-900"
+                                                )}>
                                                     {element.author.username}
                                                 </span>
-                                                <span className="text-sm text-gray-500">
+                                                <span className={cn(
+                                                    "text-sm",
+                                                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                                                )}>
                                                     {format(new Date(element.createdAt), 'MMM d, yyyy')}
                                                 </span>
                                             </div>
@@ -331,14 +385,20 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                                                         <button
                                                             className={cn(
                                                                 "flex items-center justify-center rounded-full overflow-hidden",
-                                                                "h-8 w-8 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary"
+                                                                "h-8 w-8 focus:outline-none focus:ring-2 focus:ring-primary",
+                                                                isDarkMode 
+                                                                    ? "text-gray-400 hover:bg-gray-700 hover:text-gray-200" 
+                                                                    : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
                                                             )}
                                                             onClick={(e) => e.stopPropagation()}
                                                         >
                                                             <CircleEllipsis className="h-5 w-5" />
                                                         </button>
                                                     </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end" className="w-48">
+                                                    <DropdownMenuContent align="end" className={cn(
+                                                        "w-48",
+                                                        isDarkMode ? "bg-gray-800 border-gray-700" : ""
+                                                    )}>
                                                         {!isAdmin && <button className="w-full" onClick={(e) => {
                                                             e.stopPropagation();
                                                             if (setIsNewQuestion && setIsUpdateQuestion && setQuestion) {
@@ -347,7 +407,10 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                                                                 setQuestion(element)
                                                             }
                                                         }}>
-                                                            <DropdownMenuItem className="cursor-pointer">
+                                                            <DropdownMenuItem className={cn(
+                                                                "cursor-pointer",
+                                                                isDarkMode ? "text-gray-200 hover:bg-gray-700" : ""
+                                                            )}>
                                                                 <SquarePen className="mr-2 h-4 w-4" />
                                                                 <span>Edit Question</span>
                                                             </DropdownMenuItem>
@@ -366,7 +429,10 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                                             )}
                                         </div>
 
-                                        <div className="text-gray-800 mb-3">{element.content}</div>
+                                        <div className={cn(
+                                            "mb-3",
+                                            isDarkMode ? "text-gray-200" : "text-gray-800"
+                                        )}>{element.content}</div>
 
                                         {element.tags && element.tags.length > 0 && (
                                             <div className="flex flex-wrap gap-2 mb-3">
@@ -381,7 +447,9 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                                                             "px-2.5 py-1 rounded-md text-xs cursor-pointer transition-colors",
                                                             selectedTags.includes(tag) 
                                                                 ? "bg-blue-600 text-white" 
-                                                                : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                                                                : isDarkMode 
+                                                                    ? "bg-gray-700 text-gray-200 hover:bg-gray-600" 
+                                                                    : "bg-gray-100 text-gray-800 hover:bg-gray-200"
                                                         )}
                                                     >
                                                         {tag}
@@ -396,7 +464,10 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                                                     {element.images.map((image, imgIndex) => (
                                                         <div
                                                             key={imgIndex}
-                                                            className="relative min-w-[150px] max-w-[250px] aspect-video rounded-lg overflow-hidden border border-gray-200"
+                                                            className={cn(
+                                                                "relative min-w-[150px] max-w-[250px] aspect-video rounded-lg overflow-hidden border",
+                                                                isDarkMode ? "border-gray-700" : "border-gray-200"
+                                                            )}
                                                         >
                                                             <Image
                                                                 src={image}
@@ -417,7 +488,10 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                                         )}
 
                                         <button 
-                                            className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors" 
+                                            className={cn(
+                                                "inline-flex items-center gap-1.5 text-sm transition-colors",
+                                                isDarkMode ? "text-gray-400 hover:text-gray-200" : "text-gray-600 hover:text-gray-900"
+                                            )}
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setIsResponseQuestion(true);
@@ -439,7 +513,10 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                         <div className="py-16 text-center">
                             {selectedTags.length > 0 ? (
                                 <>
-                                    <p className="text-gray-500 mb-2">No questions found with the selected topics</p>
+                                    <p className={cn(
+                                        "mb-2",
+                                        isDarkMode ? "text-gray-400" : "text-gray-500"
+                                    )}>No questions found with the selected topics</p>
                                     <button 
                                         onClick={clearTagFilters}
                                         className="px-4 py-2 mb-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -449,7 +526,10 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                                 </>
                             ) : (
                                 <>
-                                    <p className="text-gray-500 mb-2">No questions found</p>
+                                    <p className={cn(
+                                        "mb-2",
+                                        isDarkMode ? "text-gray-400" : "text-gray-500"
+                                    )}>No questions found</p>
                                     {!isAdmin && (
                                         <button 
                                             onClick={() => setIsNewQuestion && setIsNewQuestion(true)}
@@ -504,12 +584,18 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                 {isLoading && (
                     <div className="text-center py-6">
                         <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-solid border-primary border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-                        <p className="mt-2 text-sm text-gray-500">Loading questions...</p>
+                        <p className={cn(
+                            "mt-2 text-sm",
+                            isDarkMode ? "text-gray-400" : "text-gray-500"
+                        )}>Loading questions...</p>
                     </div>
                 )}
                 
                 {isLoadFull && allQuestion && allQuestion.length > 0 && (
-                    <div className="text-center py-8 text-gray-500">You&apos;ve reached the end.</div>
+                    <div className={cn(
+                        "text-center py-8",
+                        isDarkMode ? "text-gray-400" : "text-gray-500"
+                    )}>You&apos;ve reached the end.</div>
                 )}
             </div>
         </div>

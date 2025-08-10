@@ -6,12 +6,14 @@ import { useDeleteAnswerMutation } from "@/api/QaApi";
 import { cn } from "@/utils/cn";
 import Image from "next/image";
 import { useState } from "react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 
 export default function AnswerDetailQuestionView({ specificThread, userInfo, questionOwner, setIsResponseQuestion, setIsUpdateAnswer, setAnswer }: Readonly<AnswerDetailQuestionViewProps>) {
     const [fullScreenImageIndex, setFullScreenImageIndex] = useState<number>(0);
     const [theElement, setTheElement] = useState<AnswerResponseDTO | undefined>();
     const [deleteAnswer] = useDeleteAnswerMutation();
+    const { isDarkMode } = useTheme();
 
     const handleImageClick = (imgIndex: number) => {
         setFullScreenImageIndex(imgIndex);
@@ -77,7 +79,10 @@ export default function AnswerDetailQuestionView({ specificThread, userInfo, que
         <div>
             {(specificThread != null && specificThread != undefined) && specificThread.map((ele, index, array) => {
                 return (
-                    <div key={ele.answerId} className={(index === array.length - 1 ? '' : 'border-b') + ` py-4 px-4 w-full`}>
+                    <div key={ele.answerId} className={cn(
+                        "py-4 px-4 w-full",
+                        index === array.length - 1 ? '' : (isDarkMode ? 'border-b border-gray-700' : 'border-b border-gray-200')
+                    )}>
                         <div className="flex w-full">
                             <div className="mr-2">
                                 <Avatar>
@@ -99,20 +104,29 @@ export default function AnswerDetailQuestionView({ specificThread, userInfo, que
                                                 <button
                                                     className={cn(
                                                         "flex items-center justify-center rounded-full overflow-hidden",
-                                                        "h-8 w-8 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary"
+                                                        "h-8 w-8 focus:outline-none focus:ring-2 focus:ring-primary",
+                                                        isDarkMode 
+                                                            ? "text-gray-400 hover:bg-gray-700 hover:text-gray-200" 
+                                                            : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
                                                     )}
                                                     onClick={(e) => e.stopPropagation()}
                                                 >
                                                     <CircleEllipsis className="h-5 w-5" />
                                                 </button>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-48">
+                                            <DropdownMenuContent align="end" className={cn(
+                                                "w-48",
+                                                isDarkMode ? "bg-gray-800 border-gray-700" : ""
+                                            )}>
                                                 {userInfo?.role == "1803f630-a383-48fb-9a95-c192eba772db" &&
                                                     (<button className="w-full" onClick={(e) => {
                                                         e.stopPropagation();
                                                         handleEditAnswer(ele);
                                                     }}>
-                                                        <DropdownMenuItem className="cursor-pointer">
+                                                        <DropdownMenuItem className={cn(
+                                                            "cursor-pointer",
+                                                            isDarkMode ? "text-gray-200 hover:bg-gray-700" : ""
+                                                        )}>
                                                             <SquarePen className="mr-2 h-4 w-4" />
                                                             <span>Edit Answer</span>
                                                         </DropdownMenuItem>
@@ -131,7 +145,9 @@ export default function AnswerDetailQuestionView({ specificThread, userInfo, que
                                         </DropdownMenu>
                                     )}
                                 </div>
-                                <div>{ele.content}</div>
+                                <div className={cn(
+                                    isDarkMode ? "text-gray-200" : "text-gray-800"
+                                )}>{ele.content}</div>
                                 <div className="relative w-full overflow-x-auto">
                                     <div className="flex">
                                         {ele.images.map((image, imgIndex) => (

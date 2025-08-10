@@ -1,10 +1,13 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { NewQuestionProps } from "@/types/IQa";
 import { PlusCircle } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
+import { cn } from "@/utils/cn";    
 
 export default function NewQuestion({ userInfo, setIsNewQuestion }: Readonly<NewQuestionProps>) {
+    const { isDarkMode } = useTheme();
     return (
-        <div className="px-6 py-5 flex items-center justify-between border-b border-gray-100">
+        <div className="px-6 py-5 flex items-center justify-between">
             <div className="flex items-center flex-1 max-w-3xl">
                 <div className="mr-3">
                     <Avatar className="h-10 w-10">
@@ -16,7 +19,10 @@ export default function NewQuestion({ userInfo, setIsNewQuestion }: Readonly<New
                     </Avatar>
                 </div>
                 <button 
-                    className="flex-1 text-left px-4 py-2.5 bg-gray-50 hover:bg-gray-100 transition-colors rounded-full text-gray-500"
+                    className={cn(
+                        "flex-1 text-left px-4 py-2.5 transition-colors rounded-full text-gray-500",
+                        isDarkMode ? "bg-gray-800 hover:bg-gray-700 text-white placeholder-gray-400 border border-gray-700" : "bg-gray-50 hover:bg-gray-100 text-gray-500 placeholder-gray-400 border border-gray-300"
+                    )}
                     onClick={() => setIsNewQuestion(true)}
                 >
                     What&apos;s your question?

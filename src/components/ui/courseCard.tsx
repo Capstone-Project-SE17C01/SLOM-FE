@@ -8,6 +8,8 @@ import Image from "next/image";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store";
 import { authSlice } from "@/redux/auth/slice";
+import { useTheme } from "@/contexts/ThemeContext";
+import { cn } from "@/utils/cn";
 
 export interface CourseCardProps {
   course: Course;
@@ -22,7 +24,7 @@ export default function CourseCard({ course }: CourseCardProps) {
     (state: RootState) => state.auth.access_token
   );
   const dispatch = useDispatch();
-
+  const { isDarkMode } = useTheme();
   const handleStartLearning = () => {
     setCourseTitle(course.title);
     if (userInfo) {
@@ -42,7 +44,7 @@ export default function CourseCard({ course }: CourseCardProps) {
   };
 
   return (
-    <div className="max-md:flex-col min-w-[300px] max-md:items-start border-b-4 max-w-[400px] border-primary hover:bg-primary/10 flex items-center bg-white border border-gray-200 rounded-3xl shadow-sm px-6 py-4 min-h-[120px] transition hover:shadow-md">
+    <div className={cn("max-md:flex-col min-w-[300px] max-md:items-start border-b-4 max-w-[400px] border-primary hover:bg-primary/10 flex items-center bg-white border border-gray-200 rounded-3xl shadow-sm px-6 py-4 min-h-[120px] transition hover:shadow-md", isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200")}>
       <div className="relative h-28 mr-6 flex-shrink-0 max-md:hidden">
         <Image
           src={course.thumbnailUrl || ""}
@@ -58,18 +60,18 @@ export default function CourseCard({ course }: CourseCardProps) {
         )}
       </div>
       <div className="flex-1 flex flex-col justify-between h-full w-full">
-        <div className="font-bold text-xl text-[#1a2a32] mb-1">
+        <div className={cn("font-bold text-xl mb-1", isDarkMode ? "text-white" : "text-[#1a2a32]")}>
           {course.title}
         </div>
         {course.courseCategory?.name && (
-          <div className="text-gray-500 text-sm mb-2">
+          <div className={cn("text-sm mb-2", isDarkMode ? "text-gray-400" : "text-gray-500")}>
             {course.courseCategory?.name}
           </div>
         )}
         <div className="flex items-center">
           <button
             onClick={handleStartLearning}
-            className="ml-auto font-bold text-[#1a2a32] hover:text-primary transition text-base"
+            className={cn("ml-auto font-bold hover:text-primary transition text-base", isDarkMode ? "text-white" : "text-[#1a2a32]")}
           >
             {tCourseDashBoard("startLearning")} <span className="ml-1">›</span>
           </button>

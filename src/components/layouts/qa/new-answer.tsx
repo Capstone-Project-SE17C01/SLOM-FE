@@ -6,6 +6,8 @@ import UploadImage from "./upload-image";
 import { uploadImageToCloudinary } from "@/services/cloudinary/config";
 import { usePostAnswerMutation, useUpdateAnswerMutation } from "../../../api/QaApi";
 import { Send, X } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
+import { cn } from "@/utils/cn";
 
 export default function NewAnswer({ userInfo, setIsResponseQuestion, question, setAnswerOfQuestion, setNewAnswerAmount, newAnswerAmount, isUpdateAnswer = false, answer, setIsUpdateAnswer, setAnswer }: Readonly<NewAnswerProps>) {
     const [newAnswer, setNewAnswer] = useState(isUpdateAnswer ? (answer?.content || "") : "");
@@ -15,6 +17,7 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
     const [postAnswerAPI] = usePostAnswerMutation();
     const [updateAnswerAPI] = useUpdateAnswerMutation();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { isDarkMode } = useTheme();
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setNewAnswer(e.target.value)
@@ -124,9 +127,18 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
                 }
             }}></div>
             
-            <div className="fixed inset-x-0 z-50 mx-auto w-full max-w-2xl px-4 py-6 bg-white rounded-xl shadow-xl max-h-[85vh] top-[7.5vh] overflow-y-auto">
-                <div className="flex items-center justify-between pb-4 mb-4 border-b">
-                    <h2 className="text-lg font-semibold text-gray-900">
+            <div className={cn(
+                "fixed inset-x-0 z-50 mx-auto w-full max-w-2xl px-4 py-6 rounded-xl shadow-xl max-h-[85vh] top-[7.5vh] overflow-y-auto",
+                isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+            )}>
+                <div className={cn(
+                    "flex items-center justify-between pb-4 mb-4 border-b",
+                    isDarkMode ? "border-gray-700" : "border-gray-200"
+                )}>
+                    <h2 className={cn(
+                        "text-lg font-semibold",
+                        isDarkMode ? "text-white" : "text-gray-900"
+                    )}>
                         {isUpdateAnswer ? "Edit Answer" : "Reply to Question"}
                     </h2>
                     <button 
@@ -137,13 +149,21 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
                                 setAnswer(undefined);
                             }
                         }}
-                        className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
+                        className={cn(
+                            "p-1.5 rounded-full transition-colors",
+                            isDarkMode 
+                                ? "hover:bg-gray-700 text-gray-400 hover:text-gray-200" 
+                                : "hover:bg-gray-100 text-gray-500 hover:text-gray-700"
+                        )}
                     >
                         <X className="h-5 w-5" />
                     </button>
                 </div>
 
-                <div className="mb-6 bg-gray-50 rounded-lg p-4">
+                <div className={cn(
+                    "mb-6 rounded-lg p-4",
+                    isDarkMode ? "bg-gray-700" : "bg-gray-50"
+                )}>
                     <QuestionNewAnswer question={question} />
                 </div>
 
@@ -160,18 +180,32 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
                         </div>
                         
                         <div className="flex-1">
-                            <div className="font-medium text-gray-900 mb-2">{userInfo?.username}</div>
-                            <div className="border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent">
+                            <div className={cn(
+                                "font-medium mb-2",
+                                isDarkMode ? "text-white" : "text-gray-900"
+                            )}>
+                                {userInfo?.username}
+                            </div>
+                            <div className={cn(
+                                "border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent",
+                                isDarkMode ? "border-gray-600" : "border-gray-300"
+                            )}>
                                 <textarea
                                     ref={textareaRef}
                                     value={newAnswer}
                                     rows={3}
                                     onChange={handleChange}
                                     placeholder="Write your reply here..."
-                                    className="w-full p-3 border-none focus:ring-0 text-gray-800 resize-none"
+                                    className={cn(
+                                        "w-full p-3 border-none focus:ring-0 resize-none",
+                                        isDarkMode ? "bg-gray-700 text-white placeholder-gray-400" : "bg-white text-gray-800"
+                                    )}
                                 />
                                 
-                                <div className="border-t bg-gray-50 p-3">
+                                <div className={cn(
+                                    "border-t p-3",
+                                    isDarkMode ? "bg-gray-700 border-gray-600" : "bg-gray-50 border-gray-200"
+                                )}>
                                     <UploadImage 
                                         setFiles={setFiles} 
                                         images={existImages || []} 
