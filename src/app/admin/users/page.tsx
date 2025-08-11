@@ -38,7 +38,7 @@ export default function UsersPage() {
 
   const filteredProfiles = profiles.filter(
     (user) =>
-      user.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -117,11 +117,11 @@ export default function UsersPage() {
                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                    <td className="px-4 py-4 whitespace-nowrap">
                      <Avatar className="h-10 w-10">
-                       <AvatarImage src={user.avatarUrl || ""} alt={user.userName} />
-                       <AvatarFallback>{user.userName?.[0]}</AvatarFallback>
+                       <AvatarImage src={user.avatarUrl || ""} alt={user.username} />
+                       <AvatarFallback>{user.username?.[0]}</AvatarFallback>
                      </Avatar>
                    </td>
-                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{user.userName}</td>
+                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{user.username}</td>
                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{user.email}</td>
                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{user.bio ?? "-"}</td>
                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{user.location ?? "-"}</td>

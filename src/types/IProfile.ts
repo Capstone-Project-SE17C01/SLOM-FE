@@ -23,7 +23,7 @@ export interface ReportType {
 
 export interface IProfile {
   id: string;
-  userName: string;
+  username: string;
   email: string;
   bio?: string;
   location?: string;
