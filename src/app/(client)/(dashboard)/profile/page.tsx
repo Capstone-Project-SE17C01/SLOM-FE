@@ -79,7 +79,7 @@ export default function ProfilePage() {
     try {
       await updateProfile({
         id: profileId,
-        userName: safeUserName,
+        username: safeUserName,
         email,
         avatarUrl,
         bio,
@@ -108,7 +108,7 @@ export default function ProfilePage() {
       // Cập nhật thông tin profile sau khi upload avatar thành công
       await updateProfile({
         id: profileId,
-        userName: `${firstName} ${lastName}`.trim(),
+        username: `${firstName} ${lastName}`.trim(),
         email,
         avatarUrl: newAvatarUrl,
         bio,
