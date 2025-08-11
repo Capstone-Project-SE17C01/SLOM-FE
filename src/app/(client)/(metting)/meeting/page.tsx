@@ -3,20 +3,43 @@ import * as React from "react";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { useRecording } from "@/hooks/useRecording";
-import { useSignLanguageRecognition } from "@/hooks/useSignLanguageRecognition";
+import { useRealSignLanguageRecognition } from "@/hooks/useRealSignLanguageRecognition";
+import SignLanguageDetector from "@/components/SignLanguageDetector/SignLanguageDetector";
 import { useEffect } from "react";
 import { useSpeechToText } from "@/hooks/useSpeechToText";
-import { Mic, Square, Clock, AlarmClock, Languages, MessageCircle } from "lucide-react";
+import {
+  Mic,
+  Square,
+  Clock,
+  AlarmClock,
+  Languages,
+  MessageCircle,
+} from "lucide-react";
 import { generateZegoToken } from "@/services/zego/config";
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
-import { SignLanguageOverlay, SignLanguageToggleButton } from "@/components/ui/signLanguageOverlay";
+import {
+  SignLanguageOverlay,
+  SignLanguageToggleButton,
+} from "@/components/ui/signLanguageOverlay";
 import { cn } from "@/utils/cn";
 import { RootState } from "@/redux/store";
-import { useAddRecordingMutation, useGetMeetingQuery, useLeaveMeetingMutation } from "@/api/MeetingApi";
+import {
+  useAddRecordingMutation,
+  useGetMeetingQuery,
+  useLeaveMeetingMutation,
+} from "@/api/MeetingApi";
 import { FolderSelectionModal } from "@/components/layouts/meeting/folder-selection-form";
 
-function ZegoMeetingTimerDisplay({ roomId, onExpired }: { roomId: string; onExpired?: () => void }) {
-  const { data: meeting } = useGetMeetingQuery(roomId, { pollingInterval: 30000 });
+function ZegoMeetingTimerDisplay({
+  roomId,
+  onExpired,
+}: {
+  roomId: string;
+  onExpired?: () => void;
+}) {
+  const { data: meeting } = useGetMeetingQuery(roomId, {
+    pollingInterval: 30000,
+  });
   const [timeRemaining, setTimeRemaining] = React.useState<number | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isExpired, setIsExpired] = React.useState(false);
@@ -30,7 +53,7 @@ function ZegoMeetingTimerDisplay({ roomId, onExpired }: { roomId: string; onExpi
       setTimeRemaining(timeLeft);
       setIsLoading(false);
 
-      if (timeLeft <= 0 || meeting.status === 'Ended') {
+      if (timeLeft <= 0 || meeting.status === "Ended") {
         setIsExpired(true);
         if (onExpired) onExpired();
       }
@@ -62,7 +85,9 @@ function ZegoMeetingTimerDisplay({ roomId, onExpired }: { roomId: string; onExpi
     const minutes = Math.floor((timeRemaining % 3600) / 60);
     const seconds = timeRemaining % 60;
 
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    return `${hours.toString().padStart(2, "0")}:${minutes
+      .toString()
+      .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   };
 
   const isCloseToExpire = timeRemaining !== null && timeRemaining < 300;
@@ -88,12 +113,12 @@ function ZegoMeetingTimerDisplay({ roomId, onExpired }: { roomId: string; onExpi
   }
 
   return (
-    <div className={cn(
-      "flex items-center gap-1.5 text-sm font-medium",
-      isCloseToExpire
-        ? "text-red-300"
-        : "text-gray-200"
-    )}>
+    <div
+      className={cn(
+        "flex items-center gap-1.5 text-sm font-medium",
+        isCloseToExpire ? "text-red-300" : "text-gray-200"
+      )}
+    >
       {isCloseToExpire ? (
         <AlarmClock className="w-3.5 h-3.5" />
       ) : (
@@ -116,7 +141,9 @@ export default function MeetingPage() {
   const containerRef = React.useRef<HTMLDivElement | null>(null);
 
   // Speech-to-text states
-  const [speechLang, setSpeechLang] = React.useState<"vi-VN" | "en-US">("vi-VN");
+  const [speechLang, setSpeechLang] = React.useState<"vi-VN" | "en-US">(
+    "vi-VN"
+  );
   const subscriptionKey = process.env.NEXT_PUBLIC_AZURE_SPEECH_KEY || "";
   const region = process.env.NEXT_PUBLIC_AZURE_REGION || "";
   const translatorKey = process.env.NEXT_PUBLIC_AZURE_TRANSLATOR_KEY || "";
@@ -126,10 +153,19 @@ export default function MeetingPage() {
   // API hooks
   const [leaveMeeting] = useLeaveMeetingMutation();
   const [addRecording] = useAddRecordingMutation();
-  const { data: meetingData } = useGetMeetingQuery(roomID, { skip: !roomID, pollingInterval: 30000 });
+  const { data: meetingData } = useGetMeetingQuery(roomID, {
+    skip: !roomID,
+    pollingInterval: 30000,
+  });
 
   // Speech-to-text hook
-  const { transcript, isListening, startListening, stopListening, resetTranscript } = useSpeechToText({
+  const {
+    transcript,
+    isListening,
+    startListening,
+    stopListening,
+    resetTranscript,
+  } = useSpeechToText({
     subscriptionKey,
     region,
     translatorKey,
@@ -137,24 +173,10 @@ export default function MeetingPage() {
     toLang,
   });
 
-  // --- Configuration for FAKE Sign Language Recognition ---
-  const FAKE_SIGN_LANGUAGE_WORDS = [
-    "Xin", "chào", "mọi", "người", "mình", "tên", "là", "L", "o", "n", "g",
-    "Hiện", "mình", "đang", "làm", "việc", "ở", "quán", "cà", "phê", "A", "n", "g", "e", "l",
-    "Mình", "rất", "vui", "được", "gặp", "các", "bạn", "hôm", "nay",
-    "Mình", "là", "người", "khiếm", "thính", "nhưng", "mình", "có", "thể", "giao", "tiếp", "tốt", "nhờ", "ký", "hiệu", "và", "công", "nghệ",
-    "Nếu", "có", "gì", "cần", "hỗ", "trợ", "cứ", "nhắn", "hoặc", "ra", "dấu", "nhé",
-    "Mong", "được", "học", "hỏi", "từ", "mọi", "người", "trong", "quá", "trình", "làm", "việc",
-    "Và", "nếu", "rảnh", "ghé", "chi", "nhánh", "mình", "làm", "uống", "cà", "phê", "nha"
-  ];
-  const FAKE_INITIAL_DELAY_MS = 3000; // 3 seconds
-  const FAKE_WORD_INTERVAL_MS = Math.floor(Math.random() * 100) + 200; // Random delay between 0.2s and 0.3s
-
-  // Sign Language Recognition hook
-  const signLanguageRecognition = useSignLanguageRecognition({
-    words: FAKE_SIGN_LANGUAGE_WORDS,
-    initialDelay: FAKE_INITIAL_DELAY_MS,
-    wordInterval: FAKE_WORD_INTERVAL_MS,
+  // Real AI Sign Language Recognition hook
+  const signLanguageRecognition = useRealSignLanguageRecognition({
+    confidenceThreshold: 70, // Only accept gestures with >70% confidence
+    maxRecentPredictions: 20, // Keep last 20 predictions
   });
 
   // Auto show overlay when sign language recognition is activated
@@ -164,21 +186,36 @@ export default function MeetingPage() {
     }
   }, [signLanguageRecognition.isActive, signLanguageVisible]);
 
-  const handleRecordingSave = React.useCallback(async (recordingPath: string, duration: number) => {
-    if (!roomID || !userInfo?.id) return;
-    try {
-      await addRecording({
-        id: roomID,
-        request: { storagePath: recordingPath, duration, userId: userInfo.id }
-      }).unwrap();
-    } catch (error) {
-      console.error("Failed to save recording:", error);
-    }
-  }, [addRecording, roomID, userInfo]);
+  const handleRecordingSave = React.useCallback(
+    async (recordingPath: string, duration: number) => {
+      if (!roomID || !userInfo?.id) return;
+      try {
+        await addRecording({
+          id: roomID,
+          request: {
+            storagePath: recordingPath,
+            duration,
+            userId: userInfo.id,
+          },
+        }).unwrap();
+      } catch (error) {
+        console.error("Failed to save recording:", error);
+      }
+    },
+    [addRecording, roomID, userInfo]
+  );
 
   const {
-    isRecording, startRecording, stopRecording, showFolderModal, setShowFolderModal,
-    folderName, customFolderName, setCustomFolderName, handleFolderSelect, handleCustomFolderSubmit
+    isRecording,
+    startRecording,
+    stopRecording,
+    showFolderModal,
+    setShowFolderModal,
+    folderName,
+    customFolderName,
+    setCustomFolderName,
+    handleFolderSelect,
+    handleCustomFolderSubmit,
   } = useRecording({ roomID, onStopRecording: handleRecordingSave });
 
   React.useEffect(() => {
@@ -195,7 +232,7 @@ export default function MeetingPage() {
       const now = new Date().getTime();
       const timeLeft = Math.max(0, Math.floor((endTime - now) / 1000));
 
-      if (timeLeft <= 0 || meetingData.status === 'Ended') {
+      if (timeLeft <= 0 || meetingData.status === "Ended") {
         setMeetingExpired(true);
       }
     }
@@ -209,31 +246,46 @@ export default function MeetingPage() {
         leaveMeeting({ id: roomID, request: { userId: userInfo.id } });
       }
     };
-  }, [leaveMeeting, roomID, userInfo, isListening, stopListening, resetTranscript]);
+  }, [
+    leaveMeeting,
+    roomID,
+    userInfo,
+    isListening,
+    stopListening,
+    resetTranscript,
+  ]);
 
-  const joinZegoRoom = React.useCallback(async (element: HTMLDivElement) => {
-    if (!element || !roomID || !userInfo?.id) return;
-    try {
-      const kitToken = generateZegoToken(roomID);
-      const zp = ZegoUIKitPrebuilt.create(kitToken);
-      zp.joinRoom({
-        container: element,
-        sharedLinks: [{
-          name: "Personal link",
-          url: typeof window !== "undefined" ? `${window.location.protocol}//${window.location.host}${window.location.pathname}?roomID=${roomID}` : "",
-        }],
-        scenario: { mode: ZegoUIKitPrebuilt.GroupCall },
-        onJoinRoom: () => setHasJoinedRoom(true),
-        onLeaveRoom: () => {
-          setHasJoinedRoom(false);
-          if (isListening) stopListening();
-          resetTranscript();
-        }
-      });
-    } catch (error) {
-      console.error("Failed to join meeting:", error);
-    }
-  }, [roomID, userInfo, isListening, stopListening, resetTranscript]);
+  const joinZegoRoom = React.useCallback(
+    async (element: HTMLDivElement) => {
+      if (!element || !roomID || !userInfo?.id) return;
+      try {
+        const kitToken = generateZegoToken(roomID);
+        const zp = ZegoUIKitPrebuilt.create(kitToken);
+        zp.joinRoom({
+          container: element,
+          sharedLinks: [
+            {
+              name: "Personal link",
+              url:
+                typeof window !== "undefined"
+                  ? `${window.location.protocol}//${window.location.host}${window.location.pathname}?roomID=${roomID}`
+                  : "",
+            },
+          ],
+          scenario: { mode: ZegoUIKitPrebuilt.GroupCall },
+          onJoinRoom: () => setHasJoinedRoom(true),
+          onLeaveRoom: () => {
+            setHasJoinedRoom(false);
+            if (isListening) stopListening();
+            resetTranscript();
+          },
+        });
+      } catch (error) {
+        console.error("Failed to join meeting:", error);
+      }
+    },
+    [roomID, userInfo, isListening, stopListening, resetTranscript]
+  );
 
   useEffect(() => {
     if (containerRef.current && roomID && userInfo?.id) {
@@ -271,7 +323,9 @@ export default function MeetingPage() {
                 onClick={isRecording ? stopRecording : startRecording}
                 className={cn(
                   "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all font-medium text-sm",
-                  isRecording ? "bg-red-500 text-white hover:bg-red-600" : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                  isRecording
+                    ? "bg-red-500 text-white hover:bg-red-600"
+                    : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
                 )}
               >
                 {isRecording ? (
@@ -328,17 +382,19 @@ export default function MeetingPage() {
         <div className="fixed bottom-3 right-0 mr-[220px] z-[999] bg-opacity-80 bg-gray-900 dark:bg-gray-800 py-2 px-4 rounded-full shadow-lg flex items-center gap-2">
           <select
             value={speechLang}
-            onChange={e => setSpeechLang(e.target.value as "vi-VN" | "en-US")}
+            onChange={(e) => setSpeechLang(e.target.value as "vi-VN" | "en-US")}
             className="h-8 rounded-full bg-gray-200 text-gray-800 text-sm font-medium px-3"
           >
             <option value="vi-VN">Tiếng Việt</option>
             <option value="en-US">English</option>
           </select>
           <button
-            onClick={() => isListening ? stopListening() : startListening()}
+            onClick={() => (isListening ? stopListening() : startListening())}
             className={cn(
               "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all font-medium text-sm",
-              isListening ? "bg-blue-500 text-white hover:bg-blue-600" : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+              isListening
+                ? "bg-blue-500 text-white hover:bg-blue-600"
+                : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
             )}
           >
             <MessageCircle className="w-3.5 h-3.5" />
@@ -348,42 +404,70 @@ export default function MeetingPage() {
       )}
 
       {/* Speech-to-text transcript display */}
-      {hasJoinedRoom && !meetingExpired && roomID && transcript && userInfo?.vipUser && (
-        <div className="fixed bottom-20 left-5 right-5 z-[997] max-w-2xl mx-auto">
-          <div className="bg-black/80 text-white p-4 rounded-lg backdrop-blur-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <MessageCircle className="w-4 h-4" />
-              <span className="text-sm font-medium">Speech to Text</span>
-              {isListening && (
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
-                </span>
-              )}
+      {hasJoinedRoom &&
+        !meetingExpired &&
+        roomID &&
+        transcript &&
+        userInfo?.vipUser && (
+          <div className="fixed bottom-20 left-5 right-5 z-[997] max-w-2xl mx-auto">
+            <div className="bg-black/80 text-white p-4 rounded-lg backdrop-blur-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <MessageCircle className="w-4 h-4" />
+                <span className="text-sm font-medium">Speech to Text</span>
+                {isListening && (
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
+                  </span>
+                )}
+              </div>
+              <p className="text-sm leading-relaxed">{transcript}</p>
             </div>
-            <p className="text-sm leading-relaxed">{transcript}</p>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Sign Language FAKE Transcript Display */}
-      {hasJoinedRoom && !meetingExpired && roomID && signLanguageRecognition.isActive && signLanguageRecognition.fullTranscript && (
-        <div className="fixed bottom-36 left-5 right-5 z-[997] max-w-2xl mx-auto">
-          <div className="bg-black/80 text-white p-4 rounded-lg backdrop-blur-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <Languages className="w-4 h-4" />
-              <span className="text-sm font-medium">Sign Language (Demo)</span>
-              {signLanguageRecognition.isActive && (
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+      {/* Real AI Sign Language Transcript Display */}
+      {hasJoinedRoom &&
+        !meetingExpired &&
+        roomID &&
+        signLanguageRecognition.isActive &&
+        signLanguageRecognition.fullTranscript && (
+          <div className="fixed bottom-36 left-5 right-5 z-[997] max-w-2xl mx-auto">
+            <div className="bg-black/80 text-white p-4 rounded-lg backdrop-blur-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <Languages className="w-4 h-4" />
+                <span className="text-sm font-medium">
+                  Sign Language AI Recognition
                 </span>
+                {signLanguageRecognition.isActive && (
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+                  </span>
+                )}
+                {signLanguageRecognition.currentPrediction && (
+                  <span className="text-xs bg-green-600 px-2 py-1 rounded">
+                    {signLanguageRecognition.confidence}% confident
+                  </span>
+                )}
+              </div>
+              <p className="text-sm leading-relaxed">
+                {signLanguageRecognition.fullTranscript}
+              </p>
+              {signLanguageRecognition.currentPrediction && (
+                <div className="mt-2 text-xs text-green-300">
+                  Current: {signLanguageRecognition.currentPrediction}
+                </div>
               )}
             </div>
-            <p className="text-sm leading-relaxed">{signLanguageRecognition.fullTranscript}</p>
           </div>
-        </div>
-      )}
+        )}
+
+      {/* Real AI Sign Language Detector */}
+      <SignLanguageDetector
+        isActive={signLanguageRecognition.isActive}
+        onGestureDetected={signLanguageRecognition.handleGestureDetected}
+      />
 
       {/* Sign Language Recognition Overlay */}
       {hasJoinedRoom && !meetingExpired && (
@@ -397,7 +481,9 @@ export default function MeetingPage() {
             lastUpdate={signLanguageRecognition.lastUpdate}
             recentPredictions={signLanguageRecognition.recentPredictions}
             isVisible={signLanguageVisible}
-            onToggleVisibility={() => setSignLanguageVisible(!signLanguageVisible)}
+            onToggleVisibility={() =>
+              setSignLanguageVisible(!signLanguageVisible)
+            }
           />
 
           <SignLanguageToggleButton
@@ -419,7 +505,7 @@ export default function MeetingPage() {
           <p className="mb-6">This meeting has reached its time limit</p>
           <button
             className="px-4 py-2 bg-blue-600 rounded-md hover:bg-blue-700"
-            onClick={() => router.push('/meeting-room')}
+            onClick={() => router.push("/meeting-room")}
           >
             Return to Meeting Rooms
           </button>
