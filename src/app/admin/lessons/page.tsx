@@ -1,7 +1,7 @@
-// "use client";
+"use client";
 
-// import AdminLesson from "@/components/layouts/admin/admin-lesson";
+import AdminLesson from "@/components/layouts/admin/admin-lesson";
 
-// export default function LessonPage() {
-//   return <AdminLesson />;
-// }
+export default function LessonPage() {
+  return <AdminLesson />;
+}
