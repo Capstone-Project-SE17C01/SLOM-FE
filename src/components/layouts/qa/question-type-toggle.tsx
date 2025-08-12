@@ -44,11 +44,11 @@ export default function QuestionTypeToggle({
               : isDarkMode
                 ? "text-gray-300 hover:text-gray-100 hover:bg-gray-700"
                 : "text-gray-700 hover:text-gray-900 hover:bg-gray-50",
-            isAdmin ? "w-52" : "w-40"
+            isAdmin ? "w-56" : "w-44"
           )}
         >
           <Users className="h-4.5 w-4.5" />
-          <span className="font-medium">All Questions</span>
+          <span className="font-medium text-nowrap w-full">All Questions</span>
         </button>
 
         <button
@@ -60,11 +60,11 @@ export default function QuestionTypeToggle({
               : isDarkMode
                 ? "text-gray-300 hover:text-gray-100 hover:bg-gray-700"
                 : "text-gray-700 hover:text-gray-900 hover:bg-gray-50",
-            isAdmin ? "w-52" : "w-40"
+            isAdmin ? "w-56" : "w-44"
           )}
         >
           <User className="h-4.5 w-4.5" />
-          <span className="font-medium">{isAdmin ? "Unanswered Questions" : "My Questions"}</span>
+          <span className="font-medium text-nowrap w-full">{isAdmin ? "Unanswered Questions" : "My Questions"}</span>
         </button>
       </div>
     </div>

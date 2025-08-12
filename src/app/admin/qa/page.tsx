@@ -5,7 +5,7 @@ import QuestionTypeToggle from "@/components/layouts/qa/question-type-toggle";
 import QuestionsView from "@/components/layouts/qa/questions-view";
 import { RootState } from "@/redux/store";
 import { AnswerResponseDTO, NewAnswerAmount, QuestionResponseDTO } from "@/types/IQa";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/utils/cn";
@@ -21,31 +21,46 @@ export default function QAPage() {
     const [isUpdateAnswer, setIsUpdateAnswer] = useState<boolean>(false);
     const [answer, setAnswer] = useState<AnswerResponseDTO>();
     const { isDarkMode } = useTheme();
+    const [allQuestion, setAllQuestion] = useState<QuestionResponseDTO[] | null | undefined>();
+    const [questionPagination, setPagination] = useState<number>(1);
+    const [isLoadFull, setIsLoadFull] = useState<boolean>(false);
+    const [hasInitialLoad, setHasInitialLoad] = useState<boolean>(false);
+    const [savedScrollPosition, setSavedScrollPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+    const [lastIsCurrentUser, setLastIsCurrentUser] = useState<boolean | undefined>(false);
+
+    useEffect(() => {
+        if (!isSpecifiedPage && (savedScrollPosition.x !== 0 || savedScrollPosition.y !== 0)) {
+            window.scrollTo(savedScrollPosition.x, savedScrollPosition.y);
+        }
+    }, [isSpecifiedPage, savedScrollPosition]);
+
     return (
         <div className="relative max-w-6xl mx-auto px-6 py-8">
+            {!isSpecifiedPage && (
             <div className="mb-10 flex justify-center">
-                <QuestionTypeToggle 
+                <QuestionTypeToggle
                     isCurrentUser={showCurrentUserQuestions}
                     onToggle={(isCurrentUser) => setShowCurrentUserQuestions(isCurrentUser)}
                     isAdmin={true}
                     className="shadow-lg"
                 />
             </div>
+            )}
 
             {isResponseQuestion && (
                 <div className="mb-8">
-                    <NewAnswer 
-                    userInfo={userInfo} 
-                    setIsResponseQuestion={setIsResponseQuestion} 
-                    question={detailQuestion} 
-                    setAnswerOfQuestion={setAnswerOfQuestion} 
-                    setNewAnswerAmount={setNewAnswerAmount} 
-                    newAnswerAmount={newAnswerAmount}
-                    isUpdateAnswer={isUpdateAnswer}
-                    answer={answer}
-                    setIsUpdateAnswer={setIsUpdateAnswer}
-                    setAnswer={setAnswer}
-                />
+                    <NewAnswer
+                        userInfo={userInfo}
+                        setIsResponseQuestion={setIsResponseQuestion}
+                        question={detailQuestion}
+                        setAnswerOfQuestion={setAnswerOfQuestion}
+                        setNewAnswerAmount={setNewAnswerAmount}
+                        newAnswerAmount={newAnswerAmount}
+                        isUpdateAnswer={isUpdateAnswer}
+                        answer={answer}
+                        setIsUpdateAnswer={setIsUpdateAnswer}
+                        setAnswer={setAnswer}
+                    />
                 </div>
             )}
 
@@ -57,24 +72,37 @@ export default function QAPage() {
                                 {showCurrentUserQuestions ? "Unanswered Questions" : "All Questions"}
                             </h2>
                         </div>
-                        <QuestionsView 
-                            setIsResponseQuestion={setIsResponseQuestion} 
+                        <QuestionsView
+                            setIsResponseQuestion={setIsResponseQuestion}
                             userInfo={userInfo}
-                            setIsSpecifiedPage={setIsSpecifiedPage} 
+                            setIsSpecifiedPage={setIsSpecifiedPage}
                             setDetailQuestion={setDetailQuestion}
-                            isCurrentUser={showCurrentUserQuestions} 
-                            isAdmin={true} 
+                            isCurrentUser={showCurrentUserQuestions}
+                            setAllQuestion={setAllQuestion}
+                            allQuestion={allQuestion}
+                            questionPagination={questionPagination}
+                            setPagination={setPagination}
+                            isLoadFull={isLoadFull}
+                            setIsLoadFull={setIsLoadFull}
+                            hasInitialLoad={hasInitialLoad}
+                            setHasInitialLoad={setHasInitialLoad}
+                            setSavedScrollPosition={setSavedScrollPosition}
+                            isAdmin={true}
+                            lastIsCurrentUser={lastIsCurrentUser}
+                            setLastIsCurrentUser={setLastIsCurrentUser}
                         />
                     </div>
                 ) : (
-                    <DetailQuestionView 
-                        question={detailQuestion} 
+                    <DetailQuestionView
+                        question={detailQuestion}
                         setIsResponseQuestion={setIsResponseQuestion}
-                        setIsSpecifiedPage={setIsSpecifiedPage} 
+                        setIsSpecifiedPage={setIsSpecifiedPage}
                         answersOfQuestion={answersOfQuestion}
-                        setAnswerOfQuestion={setAnswerOfQuestion} 
-                        newAnswerAmount={newAnswerAmount}
+                        setAnswerOfQuestion={setAnswerOfQuestion}
                         userInfo={userInfo}
+                        setIsUpdateAnswer={setIsUpdateAnswer}
+                        setAnswer={setAnswer}
+                        setHasInitialLoad={setHasInitialLoad}
                     />
                 )}
             </div>

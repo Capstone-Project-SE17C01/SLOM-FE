@@ -10,6 +10,17 @@ export interface QuestionViewProps {
   setQuestion?: Dispatch<SetStateAction<QuestionResponseDTO | undefined>>
   setIsUpdateQuestion?: Dispatch<SetStateAction<boolean>>
   isAdmin?: boolean
+  setAllQuestion: Dispatch<SetStateAction<QuestionResponseDTO[] | null | undefined>>
+  allQuestion: QuestionResponseDTO[] | null | undefined
+  questionPagination: number
+  setPagination: Dispatch<SetStateAction<number>>
+  setSavedScrollPosition?: Dispatch<SetStateAction<{ x: number; y: number }>>;
+  isLoadFull: boolean
+  setIsLoadFull: Dispatch<SetStateAction<boolean>>
+  hasInitialLoad: boolean
+  setHasInitialLoad: Dispatch<SetStateAction<boolean>>
+  lastIsCurrentUser: boolean | undefined
+  setLastIsCurrentUser: Dispatch<SetStateAction<boolean | undefined>>
 }
 
 export interface NewQuestionProps {
@@ -24,6 +35,8 @@ export interface AnswerDetailQuestionViewProps {
   setIsResponseQuestion?: Dispatch<SetStateAction<boolean>>;
   setIsUpdateAnswer?: Dispatch<SetStateAction<boolean>>;
   setAnswer?: Dispatch<SetStateAction<AnswerResponseDTO | undefined>>;
+  onAnswerDeleted?: () => void;
+  setAnswerOfQuestion?: Dispatch<SetStateAction<AnswerResponseDTO[] | null | undefined>>;
 }
 
 export interface NewAnswerProps {
@@ -37,6 +50,7 @@ export interface NewAnswerProps {
   answer?: AnswerResponseDTO | undefined;
   setIsUpdateAnswer?: Dispatch<SetStateAction<boolean>>;
   setAnswer?: Dispatch<SetStateAction<AnswerResponseDTO | undefined>>;
+  updateQuestionAnswerCount?: (questionId: string, increment?: number) => void;
 }
 
 export interface NewQuestionPopupProps {
@@ -46,6 +60,7 @@ export interface NewQuestionPopupProps {
   question: QuestionResponseDTO | undefined
   setIsUpdateQuestion: Dispatch<SetStateAction<boolean>>
   setQuestion: Dispatch<SetStateAction<QuestionResponseDTO | undefined>>
+  setAllQuestion: Dispatch<SetStateAction<QuestionResponseDTO[] | null | undefined>>
 }
 
 export interface DetailQuestionViewProps {
@@ -54,10 +69,11 @@ export interface DetailQuestionViewProps {
   question: QuestionResponseDTO | undefined
   setAnswerOfQuestion: Dispatch<SetStateAction<AnswerResponseDTO[] | null | undefined>>
   answersOfQuestion: AnswerResponseDTO[] | null | undefined
-  newAnswerAmount: NewAnswerAmount[] | undefined
   userInfo: UserInfo | null
   setIsUpdateAnswer?: Dispatch<SetStateAction<boolean>>;
   setAnswer?: Dispatch<SetStateAction<AnswerResponseDTO | undefined>>;
+  setHasInitialLoad: Dispatch<SetStateAction<boolean>>;
+  updateQuestionAnswerCount?: (questionId: string, increment?: number) => void;
 }
 
 export interface Author {

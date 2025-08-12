@@ -7,13 +7,20 @@ import { cn } from "@/utils/cn";
 import Image from "next/image";
 import { useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
+import { toast } from "sonner";
+import React from "react";
 
 
-export default function AnswerDetailQuestionView({ specificThread, userInfo, questionOwner, setIsResponseQuestion, setIsUpdateAnswer, setAnswer }: Readonly<AnswerDetailQuestionViewProps>) {
+export default function AnswerDetailQuestionView({ specificThread, userInfo, questionOwner, setIsResponseQuestion, setIsUpdateAnswer, setAnswer, onAnswerDeleted, setAnswerOfQuestion }: Readonly<AnswerDetailQuestionViewProps>) {
     const [fullScreenImageIndex, setFullScreenImageIndex] = useState<number>(0);
     const [theElement, setTheElement] = useState<AnswerResponseDTO | undefined>();
     const [deleteAnswer] = useDeleteAnswerMutation();
+    const [answers, setAnswers] = useState(specificThread);
     const { isDarkMode } = useTheme();
+
+    React.useEffect(() => {
+        setAnswers(specificThread);
+    }, [specificThread]);
 
     const handleImageClick = (imgIndex: number) => {
         setFullScreenImageIndex(imgIndex);
@@ -66,18 +73,43 @@ export default function AnswerDetailQuestionView({ specificThread, userInfo, que
 
     const handleDeleteAnswer = async (answerId: string, e: React.MouseEvent) => {
         e.stopPropagation();
-        if (window.confirm("Bạn có chắc chắn muốn xóa câu trả lời này?")) {
-            try {
-                await deleteAnswer(answerId).unwrap();
-            } catch (error) {
-                console.error("Error deleting answer:", error);
-            }
-        }
+        
+        toast('Bạn có chắc chắn muốn xóa câu trả lời này?', {
+            action: {
+                label: 'Xóa',
+                onClick: () => {
+                    toast.promise(
+                        deleteAnswer(answerId).unwrap(),
+                        {
+                            loading: 'Đang xóa câu trả lời...',
+                            success: () => {
+                                const updatedAnswers = answers?.filter(answer => answer.answerId !== answerId);
+                                setAnswers(updatedAnswers);
+                                // Update parent component state
+                                if (setAnswerOfQuestion) {
+                                    setAnswerOfQuestion(updatedAnswers);
+                                }
+                                if (onAnswerDeleted) {
+                                    onAnswerDeleted();
+                                }
+                                return 'Đã xóa câu trả lời thành công';
+                            },
+                            error: 'Xóa câu trả lời thất bại',
+                        }
+                    );
+                }
+            },
+            cancel: {
+                label: 'Hủy',
+                onClick: () => {}
+            },
+            duration: 5000,
+        });
     };
 
     return (
         <div>
-            {(specificThread != null && specificThread != undefined) && specificThread.map((ele, index, array) => {
+            {(answers != null && answers != undefined) && answers.map((ele, index, array) => {
                 return (
                     <div key={ele.answerId} className={cn(
                         "py-4 px-4 w-full",
@@ -118,7 +150,7 @@ export default function AnswerDetailQuestionView({ specificThread, userInfo, que
                                                 "w-48",
                                                 isDarkMode ? "bg-gray-800 border-gray-700" : ""
                                             )}>
-                                                {userInfo?.role == "1803f630-a383-48fb-9a95-c192eba772db" &&
+                                                {ele.author.username === userInfo?.username &&
                                                     (<button className="w-full" onClick={(e) => {
                                                         e.stopPropagation();
                                                         handleEditAnswer(ele);

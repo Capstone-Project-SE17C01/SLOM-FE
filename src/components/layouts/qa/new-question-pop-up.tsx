@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
-import { NewQuestionPopupProps, PostQuestionRequestDTO, UpdateQuestionRequestDTO } from "../../../types/IQa";
+import { NewQuestionPopupProps, PostQuestionRequestDTO, QuestionResponseDTO, UpdateQuestionRequestDTO } from "../../../types/IQa";
 import { useEffect, useState, useRef } from "react";
 import { uploadImageToCloudinary } from "@/services/cloudinary/config";
 import { usePostQuestionMutation, useUpdateQuestionMutation, useGetTagsQuery } from "../../../api/QaApi";
@@ -9,12 +9,13 @@ import { OpenRouterService, TagGenerationRequest } from "@/services/openrouter/c
 import { X, Tag, Loader2, Plus } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/utils/cn";
+import { toast } from "sonner";
 
 // You should replace this with your actual OpenRouter API key
 const OPENROUTER_API_KEY = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || "";
 const openRouterService = new OpenRouterService(OPENROUTER_API_KEY);
 
-export default function NewQuestionPopup({ userInfo, setIsNewQuestion, isUpdateQuestion, question, setIsUpdateQuestion, setQuestion }: Readonly<NewQuestionPopupProps>) {
+export default function NewQuestionPopup({ userInfo, setIsNewQuestion, isUpdateQuestion, question, setIsUpdateQuestion, setQuestion, setAllQuestion }: Readonly<NewQuestionPopupProps>) {
     const [newQuestion, setNewQuestion] = useState<string | undefined>("");
     const [privacy, setPrivacy] = useState("All can view and answer your question");
     const [files, setFiles] = useState<File[]>([]);
@@ -98,14 +99,15 @@ export default function NewQuestionPopup({ userInfo, setIsNewQuestion, isUpdateQ
         };
 
         if (!files?.length) {
-            await postQuestionAPI(request);
-            setIsNewQuestion(false);
-            return;
+            const res = await postQuestionAPI(request).unwrap();
+            setAllQuestion(prev => [res.result as QuestionResponseDTO, ...((prev as QuestionResponseDTO[]) || [])]);
+        } else {
+            const resUrls = await uploadImage();
+            request.images = resUrls;
+            const res = await postQuestionAPI(request).unwrap();
+            setAllQuestion(prev => [res.result as QuestionResponseDTO, ...((prev as QuestionResponseDTO[]) || [])]);
         }
-
-        const resUrls = await uploadImage();
-        request.images = resUrls;
-        await postQuestionAPI(request);
+        
         setIsNewQuestion(false);
     };
 
@@ -121,19 +123,48 @@ export default function NewQuestionPopup({ userInfo, setIsNewQuestion, isUpdateQ
 
         if (!files?.length) {
             request.images = allImages;
-            await updateQuestionAPI(request);
-            setIsNewQuestion(false);
-            setIsUpdateQuestion(false);
-            setQuestion(undefined);
-            return;
+            await updateQuestionAPI(request).unwrap();
+            
+            setAllQuestion((prev) => 
+                prev?.map(q => 
+                    q.questionId === question.questionId 
+                        ? { 
+                            ...q, 
+                            content: newQuestion ?? question.content,
+                            privacy: privacy,
+                            tags: tags.length > 0 ? tags : undefined,
+                            images: allImages || []
+                          }
+                        : q
+                ) || []
+            );
+        } else {
+            const resUrls = await uploadImage();
+            request.images = [...(allImages || []), ...resUrls];
+            await updateQuestionAPI(request).unwrap();
+            
+            // Update the question in the list in real-time
+            setAllQuestion((prev) => 
+                prev?.map(q => 
+                    q.questionId === question.questionId 
+                        ? { 
+                            ...q, 
+                            content: newQuestion ?? question.content,
+                            privacy: privacy,
+                            tags: tags.length > 0 ? tags : undefined,
+                            images: [...(allImages || []), ...resUrls]
+                          }
+                        : q
+                ) || []
+            );
         }
 
-        const resUrls = await uploadImage();
-        request.images = [...(allImages || []), ...resUrls];
-        await updateQuestionAPI(request);
+        // Close popup and reset states
         setIsNewQuestion(false);
-        setIsUpdateQuestion(false);
-        setQuestion(undefined);
+        if (setIsUpdateQuestion && setQuestion) {
+            setIsUpdateQuestion(false);
+            setQuestion(undefined);
+        }
     };
 
     useEffect(() => {
@@ -436,9 +467,23 @@ export default function NewQuestionPopup({ userInfo, setIsNewQuestion, isUpdateQ
                         className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
                         onClick={async () => { 
                             if (isUpdateQuestion) { 
-                                await updateQuestion(existImages);
+                                toast.promise(
+                                    updateQuestion(existImages),
+                                    {
+                                        loading: 'Đang cập nhật câu hỏi...',
+                                        success: 'Đã cập nhật câu hỏi thành công',
+                                        error: 'Cập nhật câu hỏi thất bại',
+                                    }
+                                );
                             } else {
-                                await postQuestion();
+                                toast.promise(
+                                    postQuestion(),
+                                    {
+                                        loading: 'Đang đăng câu hỏi...',
+                                        success: 'Đã đăng câu hỏi thành công',
+                                        error: 'Đăng câu hỏi thất bại',
+                                    }
+                                );
                             }
                         }}
                         disabled={!newQuestion?.trim()}
