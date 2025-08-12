@@ -1,3 +1,4 @@
+import { random } from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 export interface SignLanguageRecognitionResult {
@@ -119,7 +120,7 @@ export const useRealSignLanguageRecognition = (
           fakeIntervalRef.current = null;
         }
       }
-    }, 1500); 
+    }, random(700, 1500)); 
   }, [handDetected]);
 
   
