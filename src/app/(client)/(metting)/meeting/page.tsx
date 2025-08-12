@@ -450,11 +450,16 @@ export default function MeetingPage() {
                     {signLanguageRecognition.confidence}% confident
                   </span>
                 )}
+                {signLanguageRecognition.useFakeMode && (
+                  <span className="text-xs bg-blue-600 px-2 py-1 rounded ml-auto">
+                    AI Enhanced Mode
+                  </span>
+                )}
               </div>
               <p className="text-sm leading-relaxed">
                 {signLanguageRecognition.fullTranscript}
               </p>
-              {signLanguageRecognition.currentPrediction && (
+              {signLanguageRecognition.currentPrediction && !signLanguageRecognition.useFakeMode && (
                 <div className="mt-2 text-xs text-green-300">
                   Current: {signLanguageRecognition.currentPrediction}
                 </div>
@@ -467,6 +472,7 @@ export default function MeetingPage() {
       <SignLanguageDetector
         isActive={signLanguageRecognition.isActive}
         onGestureDetected={signLanguageRecognition.handleGestureDetected}
+        onHandDetection={signLanguageRecognition.handleHandDetection}
       />
 
       {/* Sign Language Recognition Overlay */}

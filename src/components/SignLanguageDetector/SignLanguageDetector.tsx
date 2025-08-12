@@ -74,6 +74,7 @@ const HAND_CONNECTIONS: [number, number][] = [
 
 export interface SignLanguageDetectorProps {
   onGestureDetected?: (gesture: string, confidence: number) => void;
+  onHandDetection?: (detected: boolean) => void; // Thêm prop để phát hiện tay
   isActive: boolean;
   className?: string;
 }
@@ -86,6 +87,7 @@ export interface DetectedGesture {
 
 const SignLanguageDetector: React.FC<SignLanguageDetectorProps> = ({
   onGestureDetected,
+  onHandDetection,
   isActive,
   className = "",
 }) => {
@@ -98,6 +100,7 @@ const SignLanguageDetector: React.FC<SignLanguageDetectorProps> = ({
   const [error, setError] = useState<string | null>(null);
   const animationFrameRef = useRef<number>();
   const streamRef = useRef<MediaStream | null>(null);
+  const lastHandDetectedRef = useRef<boolean>(false);
 
   // Load MediaPipe gesture recognizer
   useEffect(() => {
@@ -202,6 +205,17 @@ const SignLanguageDetector: React.FC<SignLanguageDetectorProps> = ({
       canvasCtx.save();
       canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
 
+      // Kiểm tra phát hiện tay
+      const handsDetected = results.landmarks && results.landmarks.length > 0;
+      
+      // Chỉ gửi thông báo khi trạng thái thay đổi để tránh gọi callback quá nhiều
+      if (handsDetected !== lastHandDetectedRef.current) {
+        lastHandDetectedRef.current = handsDetected;
+        if (onHandDetection) {
+          onHandDetection(handsDetected);
+        }
+      }
+
       // Draw hand landmarks
       if (results.landmarks) {
         for (const landmarks of results.landmarks) {
@@ -233,7 +247,7 @@ const SignLanguageDetector: React.FC<SignLanguageDetectorProps> = ({
     } catch (err) {
       console.error("Prediction error:", err);
     }
-  }, [gestureRecognizer, runningMode, onGestureDetected]);
+  }, [gestureRecognizer, runningMode, onGestureDetected, onHandDetection]);
 
   // Animation loop
   useEffect(() => {
@@ -270,6 +284,16 @@ const SignLanguageDetector: React.FC<SignLanguageDetectorProps> = ({
     setupWebcam,
     cleanupWebcam,
   ]);
+
+  // Cleanup effect to reset hand detection state when component is unmounted or deactivated
+  useEffect(() => {
+    return () => {
+      if (onHandDetection && lastHandDetectedRef.current) {
+        onHandDetection(false);
+        lastHandDetectedRef.current = false;
+      }
+    };
+  }, [onHandDetection]);
 
   // Don't render anything if not active
   if (!isActive) {
