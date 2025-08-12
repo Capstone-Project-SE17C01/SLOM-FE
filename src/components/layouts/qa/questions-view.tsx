@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
-import { GetQuestionRequest, QuestionResponseDTO, QuestionViewProps, ScrollPosition } from "@/types/IQa";
+import { GetQuestionRequest, QuestionResponseDTO, QuestionViewProps } from "@/types/IQa";
 import { useGetQuestionMutation, useDeleteQuestionMutation, useGetTagsQuery, useGetQuestionByTagMutation } from "../../../api/QaApi";
 import { useEffect, useState, useCallback } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -8,44 +8,31 @@ import { CircleEllipsis, MessageSquare, OctagonX, SquarePen, X, Tag as TagIcon, 
 import { cn } from "@/utils/cn";
 import { format } from "date-fns";
 import { useTheme } from "@/contexts/ThemeContext";
+import { toast } from "sonner";
 
 export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage, setDetailQuestion, userInfo,
-    isCurrentUser, setIsNewQuestion, setIsUpdateQuestion, setQuestion, isAdmin }: Readonly<QuestionViewProps>) {
-
+    isCurrentUser, setIsNewQuestion, setIsUpdateQuestion, setQuestion, isAdmin, setAllQuestion, allQuestion,
+    questionPagination, setPagination, setSavedScrollPosition, isLoadFull, setIsLoadFull, hasInitialLoad,
+    setHasInitialLoad, lastIsCurrentUser, setLastIsCurrentUser }: Readonly<QuestionViewProps>) {
     const [getQuestionApi] = useGetQuestionMutation();
     const [getQuestionByTagApi] = useGetQuestionByTagMutation();
     const [deleteQuestionAPI] = useDeleteQuestionMutation();
-    const [questionPagination, setPagination] = useState<number>(1);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [fullScreenImageIndex, setFullScreenImageIndex] = useState<number>(0);
     const [theElement, setTheElement] = useState<QuestionResponseDTO | undefined>();
-    const [lastIsCurrentUser, setLastIsCurrentUser] = useState<boolean | undefined>(false);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [tagSearchQuery, setTagSearchQuery] = useState<string>('');
     const { isDarkMode } = useTheme();
-
-    const [allQuestion, setAllQuestion] = useState<QuestionResponseDTO[] | null | undefined>([]);
-    const [isLoadFull, setIsLoadFull] = useState<boolean>(false);
-    const [savedScrollPosition, setSavedScrollPosition] = useState<ScrollPosition | null>(null);
-
-    // Get all available tags
     const { data: tagsData } = useGetTagsQuery();
     const availableTags = tagsData?.result || [];
-    
-    // Filter tags based on search query
     const filteredTags = tagSearchQuery
-        ? availableTags.filter(tag => 
-            tag.toLowerCase().includes(tagSearchQuery.toLowerCase()) && 
+        ? availableTags.filter(tag =>
+            tag.toLowerCase().includes(tagSearchQuery.toLowerCase()) &&
             !selectedTags.includes(tag)
         )
         : availableTags.filter(tag => !selectedTags.includes(tag));
 
-    useEffect(() => {
-        if (savedScrollPosition != null)
-            window.scrollTo(savedScrollPosition.x, savedScrollPosition.y);
-    }, [savedScrollPosition]);
 
-    // Reset state when filter conditions change
     useEffect(() => {
         if (isCurrentUser !== lastIsCurrentUser) {
             setIsLoadFull(false);
@@ -53,19 +40,23 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
             setPagination(1);
             setLastIsCurrentUser(isCurrentUser);
         }
-    }, [isCurrentUser, lastIsCurrentUser]);
+    }, [isCurrentUser, lastIsCurrentUser, setAllQuestion, setIsLoadFull, setPagination, setLastIsCurrentUser]);
 
-    // Separate effect for handling selected tags changes
     useEffect(() => {
-        setIsLoadFull(false);
-        setAllQuestion([]);
-        setPagination(1);
-    }, [selectedTags]);
+        if (!hasInitialLoad) {
+            setIsLoadFull(false);
+            setAllQuestion([]);
+            setPagination(1);
+        }
+    }, [hasInitialLoad, selectedTags, setAllQuestion, setIsLoadFull, setPagination]);
 
-    // Fetch questions based on current state
     const fetchQuestions = useCallback(async () => {
         if (isLoadFull) return;
-        
+        if (hasInitialLoad) {
+            setHasInitialLoad(false)
+            return;
+        }
+
         setIsLoading(true);
         try {
             if (selectedTags.length > 0) {
@@ -77,10 +68,11 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                         isCurrentUser,
                         isAdmin
                     });
-                    
+
                     const newQuestions = res.data?.result;
                     if (newQuestions && newQuestions.length > 0) {
-                        setAllQuestion(prevQuestions => [...(prevQuestions || []), ...newQuestions]);
+                        const updatedQuestions = questionPagination === 1 ? newQuestions : [...(allQuestion || []), ...newQuestions];
+                        setAllQuestion(updatedQuestions);
                         if (newQuestions[0].isFull) {
                             setIsLoadFull(true);
                         }
@@ -99,11 +91,12 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                         isCurrentUser,
                         isAdmin
                     };
-                    
+
                     const res = await getQuestionApi(request);
                     const newQuestions = res.data?.result;
                     if (newQuestions && newQuestions.length > 0) {
-                        setAllQuestion(prevQuestions => [...(prevQuestions || []), ...newQuestions]);
+                        const updatedQuestions = questionPagination === 1 ? newQuestions : [...(allQuestion || []), ...newQuestions];
+                        setAllQuestion(updatedQuestions);
                         if (newQuestions[0].isFull) {
                             setIsLoadFull(true);
                         }
@@ -121,7 +114,7 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
         } finally {
             setIsLoading(false);
         }
-    }, [getQuestionApi, getQuestionByTagApi, questionPagination, isCurrentUser, isAdmin, userInfo, isLoadFull, selectedTags]);
+    }, [getQuestionApi, getQuestionByTagApi, questionPagination, isCurrentUser, isAdmin, userInfo, isLoadFull, selectedTags, allQuestion, hasInitialLoad, setAllQuestion, setHasInitialLoad, setIsLoadFull]);
 
     useEffect(() => {
         fetchQuestions();
@@ -137,7 +130,7 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
 
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, [isLoading, isLoadFull]);
+    }, [isLoading, isLoadFull, setPagination]);
 
     const handleImageClick = (imgIndex: number) => {
         setFullScreenImageIndex(imgIndex);
@@ -174,15 +167,32 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
 
     const handleDeleteQuestion = async (questionId: string, e: React.MouseEvent) => {
         e.stopPropagation();
-        try {
-            await deleteQuestionAPI(questionId);
-            // Remove the deleted question from the local state
-            setAllQuestion(prevQuestions =>
-                prevQuestions?.filter(q => q.questionId !== questionId) || []
-            );
-        } catch (error) {
-            console.error("Failed to delete question:", error);
-        }
+
+        toast('Bạn có chắc chắn muốn xóa câu hỏi này?', {
+            action: {
+                label: 'Xóa',
+                onClick: () => {
+                    toast.promise(
+                        deleteQuestionAPI(questionId).unwrap(),
+                        {
+                            loading: 'Đang xóa câu hỏi...',
+                            success: () => {
+                                // Update UI after successful deletion
+                                const updatedQuestions = allQuestion?.filter(q => q.questionId !== questionId) || [];
+                                setAllQuestion(updatedQuestions);
+                                return 'Đã xóa câu hỏi thành công';
+                            },
+                            error: 'Xóa câu hỏi thất bại',
+                        }
+                    );
+                }
+            },
+            cancel: {
+                label: 'Hủy',
+                onClick: () => { }
+            },
+            duration: 5000,
+        });
     };
 
     const handleTagClick = (tag: string) => {
@@ -192,7 +202,7 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
             setSelectedTags([...selectedTags, tag]);
         }
     };
-    
+
     const clearTagFilters = () => {
         setSelectedTags([]);
     };
@@ -212,12 +222,12 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                         Filter by Topics
                     </h3>
                     {selectedTags.length > 0 && (
-                        <button 
+                        <button
                             onClick={clearTagFilters}
                             className={cn(
                                 "px-3 py-1.5 text-sm rounded-lg flex items-center",
-                                isDarkMode 
-                                    ? "bg-gray-700 hover:bg-gray-600 text-gray-300" 
+                                isDarkMode
+                                    ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
                                     : "bg-gray-100 hover:bg-gray-200 text-gray-600"
                             )}
                         >
@@ -226,7 +236,7 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                         </button>
                     )}
                 </div>
-                
+
                 {/* Search tags input */}
                 <div className="relative mb-4">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -242,13 +252,13 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                         onChange={(e) => setTagSearchQuery(e.target.value)}
                         className={cn(
                             "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500",
-                            isDarkMode 
-                                ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400" 
+                            isDarkMode
+                                ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                                 : "bg-white border-gray-300 text-gray-800"
                         )}
                     />
                 </div>
-                
+
                 {/* Selected tags section */}
                 {selectedTags.length > 0 && (
                     <div className={cn(
@@ -266,12 +276,12 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                         </div>
                         <div className="flex flex-wrap gap-2">
                             {selectedTags.map((tag, index) => (
-                                <div 
-                                    key={index} 
+                                <div
+                                    key={index}
                                     className="bg-blue-600 text-white px-2.5 py-1 rounded-md text-sm flex items-center gap-1.5"
                                 >
                                     {tag}
-                                    <button 
+                                    <button
                                         onClick={() => handleTagClick(tag)}
                                         className="hover:bg-white hover:bg-opacity-20 rounded-full p-0.5"
                                     >
@@ -282,18 +292,18 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                         </div>
                     </div>
                 )}
-                
+
                 {/* Tags list with improved UI */}
                 <div className="flex flex-wrap gap-2">
                     {filteredTags.length > 0 ? (
                         filteredTags.map((tag, index) => (
-                            <button 
-                                key={index} 
+                            <button
+                                key={index}
                                 onClick={() => handleTagClick(tag)}
                                 className={cn(
                                     "px-3 py-2 rounded-lg font-medium text-sm transition-all",
-                                    isDarkMode 
-                                        ? "bg-gray-700 text-gray-200 hover:bg-gray-600" 
+                                    isDarkMode
+                                        ? "bg-gray-700 text-gray-200 hover:bg-gray-600"
                                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                                 )}
                             >
@@ -322,33 +332,36 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                     )}
                 </div>
             </div>
-            
+
             <div className={cn(
                 "divide-y rounded-xl shadow-sm border",
-                isDarkMode 
-                    ? "divide-gray-700 bg-gray-800 border-gray-700" 
+                isDarkMode
+                    ? "divide-gray-700 bg-gray-800 border-gray-700"
                     : "divide-gray-200 bg-white border-gray-200"
             )}>
                 {allQuestion && allQuestion.length > 0 ? (
                     allQuestion.map((element, index) => (
-                        <div 
-                            key={`${element.questionId}-${index}`} 
+                        <div
+                            key={`${element.questionId}-${index}`}
                             className={cn(
                                 "transition-colors duration-150",
                                 isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
                             )}
                         >
-                            <div 
-                                role="button" 
+                            <div
+                                role="button"
                                 onClick={() => {
+                                    if (setSavedScrollPosition) {
+                                        setSavedScrollPosition({
+                                            x: window.scrollX,
+                                            y: window.scrollY,
+                                        });
+                                    }
+
                                     setIsSpecifiedPage(true);
                                     setDetailQuestion(element);
-                                    setSavedScrollPosition({
-                                        x: window.scrollX,
-                                        y: window.scrollY,
-                                    });
-                                }} 
-                                className="p-6 cursor-pointer" 
+                                }}
+                                className="p-6 cursor-pointer"
                                 tabIndex={0}
                             >
                                 <div className="flex items-start">
@@ -361,7 +374,7 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                                             <AvatarFallback>{element.author.username}</AvatarFallback>
                                         </Avatar>
                                     </div>
-                                    
+
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center justify-between mb-2">
                                             <div className="flex items-center">
@@ -378,7 +391,7 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                                                     {format(new Date(element.createdAt), 'MMM d, yyyy')}
                                                 </span>
                                             </div>
-                                            
+
                                             {(userInfo?.username === element.author.username || isAdmin) && (
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
@@ -386,8 +399,8 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                                                             className={cn(
                                                                 "flex items-center justify-center rounded-full overflow-hidden",
                                                                 "h-8 w-8 focus:outline-none focus:ring-2 focus:ring-primary",
-                                                                isDarkMode 
-                                                                    ? "text-gray-400 hover:bg-gray-700 hover:text-gray-200" 
+                                                                isDarkMode
+                                                                    ? "text-gray-400 hover:bg-gray-700 hover:text-gray-200"
                                                                     : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
                                                             )}
                                                             onClick={(e) => e.stopPropagation()}
@@ -415,8 +428,8 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                                                                 <span>Edit Question</span>
                                                             </DropdownMenuItem>
                                                         </button>}
-                                                        <button 
-                                                            className="w-full" 
+                                                        <button
+                                                            className="w-full"
                                                             onClick={(e) => handleDeleteQuestion(element.questionId, e)}
                                                         >
                                                             <DropdownMenuItem className="cursor-pointer text-red-600 hover:text-red-700 focus:text-red-700">
@@ -437,18 +450,18 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                                         {element.tags && element.tags.length > 0 && (
                                             <div className="flex flex-wrap gap-2 mb-3">
                                                 {element.tags.map((tag, tagIndex) => (
-                                                    <span 
-                                                        key={tagIndex} 
+                                                    <span
+                                                        key={tagIndex}
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             handleTagClick(tag);
                                                         }}
                                                         className={cn(
                                                             "px-2.5 py-1 rounded-md text-xs cursor-pointer transition-colors",
-                                                            selectedTags.includes(tag) 
-                                                                ? "bg-blue-600 text-white" 
-                                                                : isDarkMode 
-                                                                    ? "bg-gray-700 text-gray-200 hover:bg-gray-600" 
+                                                            selectedTags.includes(tag)
+                                                                ? "bg-blue-600 text-white"
+                                                                : isDarkMode
+                                                                    ? "bg-gray-700 text-gray-200 hover:bg-gray-600"
                                                                     : "bg-gray-100 text-gray-800 hover:bg-gray-200"
                                                         )}
                                                     >
@@ -487,7 +500,7 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                                             </div>
                                         )}
 
-                                        <button 
+                                        <button
                                             className={cn(
                                                 "inline-flex items-center gap-1.5 text-sm transition-colors",
                                                 isDarkMode ? "text-gray-400 hover:text-gray-200" : "text-gray-600 hover:text-gray-900"
@@ -517,7 +530,7 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                                         "mb-2",
                                         isDarkMode ? "text-gray-400" : "text-gray-500"
                                     )}>No questions found with the selected topics</p>
-                                    <button 
+                                    <button
                                         onClick={clearTagFilters}
                                         className="px-4 py-2 mb-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                                     >
@@ -531,7 +544,7 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                                         isDarkMode ? "text-gray-400" : "text-gray-500"
                                     )}>No questions found</p>
                                     {!isAdmin && (
-                                        <button 
+                                        <button
                                             onClick={() => setIsNewQuestion && setIsNewQuestion(true)}
                                             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                                         >
@@ -590,7 +603,7 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
                         )}>Loading questions...</p>
                     </div>
                 )}
-                
+
                 {isLoadFull && allQuestion && allQuestion.length > 0 && (
                     <div className={cn(
                         "text-center py-8",

@@ -8,8 +8,9 @@ import { usePostAnswerMutation, useUpdateAnswerMutation } from "../../../api/QaA
 import { Send, X } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/utils/cn";
+import { toast } from "sonner";
 
-export default function NewAnswer({ userInfo, setIsResponseQuestion, question, setAnswerOfQuestion, setNewAnswerAmount, newAnswerAmount, isUpdateAnswer = false, answer, setIsUpdateAnswer, setAnswer }: Readonly<NewAnswerProps>) {
+export default function NewAnswer({ userInfo, setIsResponseQuestion, question, setAnswerOfQuestion, setNewAnswerAmount, newAnswerAmount, isUpdateAnswer = false, answer, setIsUpdateAnswer, setAnswer, updateQuestionAnswerCount }: Readonly<NewAnswerProps>) {
     const [newAnswer, setNewAnswer] = useState(isUpdateAnswer ? (answer?.content || "") : "");
     const [files, setFiles] = useState<File[]>([])
     const [existImages, setExistImages] = useState<string[] | undefined>(isUpdateAnswer ? answer?.images : undefined);
@@ -97,6 +98,11 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
                                     amount: 1
                                 }
                             setNewAnswerAmount((prev) => [...(prev ?? []).filter(val => val.questionId != lastQuestionId), newAnswerQuantity])
+                            
+                            // Update the question's answer count in allQuestion
+                            if (updateQuestionAnswerCount && question?.questionId) {
+                                updateQuestionAnswerCount(question.questionId, 1);
+                            }
                         }
                     }
                 );
@@ -104,6 +110,7 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
             }
         } catch (error) {
             console.error("Error posting/updating answer:", error);
+            throw error; // Re-throw for toast.promise to handle
         } finally {
             setIsSubmitting(false);
         }
@@ -114,7 +121,6 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
             setNewAnswer(answer.content);
             setExistImages(answer.images);
         }
-        console.log("answerImage", existImages);
     }, [answer, isUpdateAnswer]); 
 
     return (
@@ -220,7 +226,16 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
                     <div className="flex justify-end mt-6">
                         <button 
                             className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                            onClick={postAnswer}
+                            onClick={() => {
+                                toast.promise(
+                                    postAnswer(),
+                                    {
+                                        loading: isUpdateAnswer ? 'Đang cập nhật câu trả lời...' : 'Đang đăng câu trả lời...',
+                                        success: isUpdateAnswer ? 'Đã cập nhật câu trả lời thành công' : 'Đã đăng câu trả lời thành công',
+                                        error: isUpdateAnswer ? 'Cập nhật câu trả lời thất bại' : 'Đăng câu trả lời thất bại',
+                                    }
+                                );
+                            }}
                             disabled={isSubmitting || (!newAnswer.trim() && !files.length && !existImages?.length)}
                         >
                             <span>{isUpdateAnswer ? "Update Answer" : "Post Reply"}</span>

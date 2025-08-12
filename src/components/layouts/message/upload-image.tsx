@@ -6,10 +6,8 @@ export default function UploadImage({ setFiles, images, setExistImages, existIma
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) {
-            console.log("Falswe")
             return
         }
-        console.log(e.target.files)
         const files = Array.from(e.target.files)
         const urls = files.map(f => URL.createObjectURL(f))
         setFiles(prev => [...prev, ...files]);

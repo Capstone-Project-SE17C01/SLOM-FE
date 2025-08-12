@@ -8,16 +8,18 @@ import { ArrowLeft, MessageCircle } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/utils/cn";
 
-export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifiedPage, question, answersOfQuestion, setAnswerOfQuestion, newAnswerAmount, userInfo, setIsUpdateAnswer, setAnswer }: Readonly<DetailQuestionViewProps>) {
+export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifiedPage, question, answersOfQuestion, setAnswerOfQuestion, userInfo, setIsUpdateAnswer, setAnswer, setHasInitialLoad, updateQuestionAnswerCount }: Readonly<DetailQuestionViewProps>) {
     const [getAnswerApi] = useGetAnswerMutation();
     const [pagination, setPagination] = useState<number>(1);
     const { isDarkMode } = useTheme();
-
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isLoadFull, setIsLoadFull] = useState<boolean>(false);
 
     useEffect(() => {
         window.scrollTo(0, 0);
+    }, []);
+
+    useEffect(() => {
         if (isLoadFull || !question?.questionId) return;
 
         setIsLoading(true);
@@ -27,8 +29,7 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
         };
 
         getAnswerApi(getAnswerRequest).then(res => {
-            console.log("res", res)
-            if(pagination == 1) {
+            if (pagination == 1) {
                 setAnswerOfQuestion([]);
             }
             const newAnswers = res.data?.result;
@@ -45,7 +46,7 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
             setIsLoading(false);
         });
 
-    }, [question?.questionId, pagination, getAnswerApi, setAnswerOfQuestion, isLoadFull]);
+    }, [question?.questionId, getAnswerApi, setAnswerOfQuestion, isLoadFull, pagination]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -63,7 +64,8 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
                 getAnswerApi(getAnswerRequest).then(res => {
                     const newAnswers = res.data?.result?.filter(answer => !answersOfQuestion?.some(element => element.answerId == answer.answerId));
                     if (newAnswers && newAnswers.length > 0) {
-                        setAnswerOfQuestion(prev => [...(prev || []), ...newAnswers]);
+                        const updatedAnswers = [...(answersOfQuestion || []), ...newAnswers];
+                        setAnswerOfQuestion(updatedAnswers);
                         if (newAnswers[0].isFull) {
                             setIsLoadFull(true);
                         } else {
@@ -83,10 +85,11 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
         return () => window.removeEventListener('scroll', handleScroll);
     }, [answersOfQuestion, isLoadFull, isLoading, question?.questionId, pagination, getAnswerApi, setAnswerOfQuestion]);
 
-    const totalAnswers = (question?.answerAmount ?? 0) + (newAnswerAmount ? newAnswerAmount.findLast(val => val.questionId == question?.questionId)?.amount ?? 0 : 0);
+    const totalAnswers = (question?.answerAmount ?? 0);
 
     const handleBackToQuestions = () => {
         setIsSpecifiedPage(false);
+        setHasInitialLoad(true);
     };
 
     return (
@@ -95,7 +98,7 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
                 "sticky top-0 z-10 border-b px-4 py-3 flex items-center justify-between shadow-sm",
                 isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
             )}>
-                <button 
+                <button
                     className={cn(
                         "flex items-center transition-colors",
                         isDarkMode ? "text-gray-400 hover:text-gray-200" : "text-gray-600 hover:text-gray-900"
@@ -134,12 +137,12 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
                                 </div>
                             </div>
                             <div className="text-base mb-6">{question.content}</div>
-                            
+
                             {question.tags && question.tags.length > 0 && (
                                 <div className="flex flex-wrap gap-2 mb-6">
                                     {question.tags.map((tag, tagIndex) => (
-                                        <span 
-                                            key={tagIndex} 
+                                        <span
+                                            key={tagIndex}
                                             className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
                                         >
                                             {tag}
@@ -147,7 +150,7 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
                                     ))}
                                 </div>
                             )}
-                            
+
                             {question.images.length > 0 && (
                                 <div className="relative w-full overflow-x-auto mb-6">
                                     <div className="flex space-x-4">
@@ -170,13 +173,13 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
                                     </div>
                                 </div>
                             )}
-                            
-                            <button 
-                                onClick={() => setIsResponseQuestion(true)} 
+
+                            <button
+                                onClick={() => setIsResponseQuestion(true)}
                                 className={cn(
                                     "inline-flex items-center gap-2 px-4 py-2 rounded-full transition-colors",
-                                    isDarkMode 
-                                        ? "bg-gray-700 hover:bg-gray-600 text-gray-200" 
+                                    isDarkMode
+                                        ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
                                         : "bg-gray-100 hover:bg-gray-200 text-gray-700"
                                 )}
                             >
@@ -203,21 +206,27 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
             )}
 
             <div className={cn(
-                "divide-y", 
+                "divide-y",
                 isDarkMode ? "divide-gray-700" : "divide-gray-200"
             )}>
                 {question?.questionId && (
-                    <AnswerDetailQuestionView 
-                        specificThread={answersOfQuestion} 
-                        userInfo={userInfo} 
+                    <AnswerDetailQuestionView
+                        specificThread={answersOfQuestion}
+                        userInfo={userInfo}
                         questionOwner={question.author.username}
                         setIsResponseQuestion={setIsResponseQuestion}
                         setIsUpdateAnswer={setIsUpdateAnswer}
                         setAnswer={setAnswer}
+                        onAnswerDeleted={() => {
+                            if (updateQuestionAnswerCount && question?.questionId) {
+                                updateQuestionAnswerCount(question.questionId, -1);
+                            }
+                        }}
+                        setAnswerOfQuestion={setAnswerOfQuestion}
                     />
                 )}
             </div>
-            
+
             {isLoading && (
                 <div className="text-center py-6">
                     <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-solid border-primary border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
@@ -227,7 +236,7 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
                     )}>Loading answers...</p>
                 </div>
             )}
-            
+
             {isLoadFull && totalAnswers > 0 && (
                 <div className={cn(
                     "text-center py-8 border-t",
@@ -241,7 +250,7 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
                         "mb-2",
                         isDarkMode ? "text-gray-400" : "text-gray-500"
                     )}>No answers yet</p>
-                    <button 
+                    <button
                         onClick={() => setIsResponseQuestion(true)}
                         className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors"
                     >

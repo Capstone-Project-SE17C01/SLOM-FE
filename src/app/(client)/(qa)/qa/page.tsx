@@ -7,7 +7,7 @@ import QuestionTypeToggle from "@/components/layouts/qa/question-type-toggle";
 import QuestionsView from "@/components/layouts/qa/questions-view";
 import { RootState } from "@/redux/store";
 import { AnswerResponseDTO, NewAnswerAmount, QuestionResponseDTO } from "@/types/IQa";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 
 export default function QAPage() {
@@ -23,6 +23,36 @@ export default function QAPage() {
     const [showCurrentUserQuestions, setShowCurrentUserQuestions] = useState<boolean>(false);
     const [isUpdateAnswer, setIsUpdateAnswer] = useState<boolean>(false);
     const [answer, setAnswer] = useState<AnswerResponseDTO | undefined>();
+    const [allQuestion, setAllQuestion] = useState<QuestionResponseDTO[] | null | undefined>();
+    const [savedScrollPosition, setSavedScrollPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+    const [questionPagination, setPagination] = useState<number>(1);
+    const [isLoadFull, setIsLoadFull] = useState<boolean>(false);
+    const [hasInitialLoad, setHasInitialLoad] = useState<boolean>(false);
+    const [lastIsCurrentUser, setLastIsCurrentUser] = useState<boolean | undefined>(false);
+
+    // Function to update question's answer count in both allQuestion and detailQuestion
+    const updateQuestionAnswerCount = (questionId: string, increment: number = 1) => {
+        setAllQuestion(prev => 
+            prev?.map(question => 
+                question.questionId === questionId 
+                    ? { ...question, answerAmount: (question.answerAmount || 0) + increment }
+                    : question
+            ) || []
+        );
+        
+        // Also update detailQuestion if it's the same question
+        setDetailQuestion(prev => 
+            prev?.questionId === questionId 
+                ? { ...prev, answerAmount: (prev.answerAmount || 0) + increment }
+                : prev
+        );
+    };
+
+    useEffect(() => {
+        if (!isSpecifiedPage && (savedScrollPosition.x !== 0 || savedScrollPosition.y !== 0)) {
+            window.scrollTo(savedScrollPosition.x, savedScrollPosition.y);
+        }
+    }, [isSpecifiedPage, savedScrollPosition]);
 
     return (
         <>
@@ -31,11 +61,11 @@ export default function QAPage() {
                 <p className="text-gray-600 mb-6">
                     Ask questions, get answers, and share knowledge with the community
                 </p>
-                
-                <QuestionTypeToggle 
+                {!isSpecifiedPage ? <QuestionTypeToggle 
                     isCurrentUser={showCurrentUserQuestions}
                     onToggle={(isCurrentUser) => setShowCurrentUserQuestions(isCurrentUser)}
-                />
+                /> : <></>}
+                
             </div>
 
             {isNewQuestion && (
@@ -46,6 +76,7 @@ export default function QAPage() {
                     question={question} 
                     setIsUpdateQuestion={setIsUpdateQuestion} 
                     setQuestion={setQuestion}
+                    setAllQuestion={setAllQuestion}
                 />
             )}
 
@@ -61,6 +92,7 @@ export default function QAPage() {
                     answer={answer}
                     setIsUpdateAnswer={setIsUpdateAnswer}
                     setAnswer={setAnswer}
+                    updateQuestionAnswerCount={updateQuestionAnswerCount}
                 />
             )}
 
@@ -76,6 +108,17 @@ export default function QAPage() {
                         setIsNewQuestion={setIsNewQuestion} 
                         setIsUpdateQuestion={setIsUpdateQuestion} 
                         setQuestion={setQuestion}
+                        setAllQuestion={setAllQuestion}
+                        allQuestion={allQuestion}
+                        setSavedScrollPosition={setSavedScrollPosition}
+                        questionPagination={questionPagination}
+                        setPagination={setPagination}
+                        isLoadFull={isLoadFull}
+                        setIsLoadFull={setIsLoadFull}
+                        hasInitialLoad={hasInitialLoad}
+                        setHasInitialLoad={setHasInitialLoad}
+                        lastIsCurrentUser={lastIsCurrentUser}
+                        setLastIsCurrentUser={setLastIsCurrentUser}
                     />
                 </>
             ) : (
@@ -85,10 +128,11 @@ export default function QAPage() {
                     setIsSpecifiedPage={setIsSpecifiedPage} 
                     answersOfQuestion={answersOfQuestion}
                     setAnswerOfQuestion={setAnswerOfQuestion} 
-                    newAnswerAmount={newAnswerAmount}
                     userInfo={userInfo}
                     setIsUpdateAnswer={setIsUpdateAnswer}
                     setAnswer={setAnswer}
+                    setHasInitialLoad={setHasInitialLoad}
+                    updateQuestionAnswerCount={updateQuestionAnswerCount}
                 />
             )}
         </>

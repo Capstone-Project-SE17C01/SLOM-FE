@@ -42,33 +42,6 @@ export const useRealSignLanguageRecognition = (
   const fakeIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastHandStateRef = useRef<boolean>(false); // Theo dõi trạng thái tay trước đó
 
-  // Xử lý khi phát hiện tay
-  const handleHandDetection = useCallback((detected: boolean) => {
-    // Cập nhật state
-    setHandDetected(detected);
-    
-    // Lưu trạng thái tay trước đó
-    const previousHandState = lastHandStateRef.current;
-    lastHandStateRef.current = detected;
-    
-    // Nếu đang trong chế độ fake
-    if (useFakeMode) {
-      // Nếu tay biến mất, dừng hiển thị từ
-      if (!detected && fakeIntervalRef.current) {
-        clearInterval(fakeIntervalRef.current);
-        fakeIntervalRef.current = null;
-        console.log("Hand removed - pausing fake display");
-      }
-      
-      // Nếu tay xuất hiện trở lại và trước đó không có tay, tiếp tục hiển thị từ
-      if (detected && !previousHandState && !fakeIntervalRef.current && 
-          fakeWordIndexRef.current < currentFakeSentenceRef.current.length) {
-        console.log("Hand detected - resuming fake display");
-        startFakeSentenceDisplay();
-      }
-    }
-  }, [useFakeMode]);
-
   // Hàm bắt đầu hiển thị câu fake
   const startFakeSentenceDisplay = useCallback(() => {
     // Chỉ hiển thị nếu có tay được phát hiện
@@ -76,14 +49,14 @@ export const useRealSignLanguageRecognition = (
       console.log("Cannot start fake display - no hand detected");
       return;
     }
-    
+
     console.log("Starting fake sentence display");
-    
+
     // Dừng interval trước đó nếu có
     if (fakeIntervalRef.current) {
       clearInterval(fakeIntervalRef.current);
     }
-    
+
     // Hiển thị từng từ một với khoảng thời gian
     fakeIntervalRef.current = setInterval(() => {
       // Kiểm tra lại xem tay còn được phát hiện không
@@ -95,20 +68,20 @@ export const useRealSignLanguageRecognition = (
         }
         return;
       }
-      
+
       if (fakeWordIndexRef.current < currentFakeSentenceRef.current.length) {
         // Lấy từ tiếp theo trong câu
         const nextWord = currentFakeSentenceRef.current[fakeWordIndexRef.current];
         console.log(`Displaying word: ${nextWord}`);
-        
+
         // Thêm từ vào transcript
         setFullTranscript(prev => {
           return prev ? `${prev} ${nextWord}` : nextWord;
         });
-        
+
         // Cập nhật current prediction
         setCurrentPrediction(nextWord);
-        
+
         // Tăng index
         fakeWordIndexRef.current += 1;
       } else {
@@ -121,6 +94,33 @@ export const useRealSignLanguageRecognition = (
       }
     }, 1500); // Tăng thời gian lên 1.5 giây giữa các từ
   }, [handDetected]);
+
+  // Xử lý khi phát hiện tay
+  const handleHandDetection = useCallback((detected: boolean) => {
+    // Cập nhật state
+    setHandDetected(detected);
+
+    // Lưu trạng thái tay trước đó
+    const previousHandState = lastHandStateRef.current;
+    lastHandStateRef.current = detected;
+
+    // Nếu đang trong chế độ fake
+    if (useFakeMode) {
+      // Nếu tay biến mất, dừng hiển thị từ
+      if (!detected && fakeIntervalRef.current) {
+        clearInterval(fakeIntervalRef.current);
+        fakeIntervalRef.current = null;
+        console.log("Hand removed - pausing fake display");
+      }
+
+      // Nếu tay xuất hiện trở lại và trước đó không có tay, tiếp tục hiển thị từ
+      if (detected && !previousHandState && !fakeIntervalRef.current &&
+        fakeWordIndexRef.current < currentFakeSentenceRef.current.length) {
+        console.log("Hand detected - resuming fake display");
+        startFakeSentenceDisplay();
+      }
+    }
+  }, [useFakeMode, startFakeSentenceDisplay]);
 
   // Handle gesture detection from the SignLanguageDetector component
   const handleGestureDetected = useCallback(
@@ -136,15 +136,15 @@ export const useRealSignLanguageRecognition = (
       if (gesture === "Hello" && !useFakeMode) {
         console.log("Hello gesture detected - activating fake mode");
         setUseFakeMode(true);
-        
+
         // Reset transcript
         setFullTranscript("");
-        
+
         // Chọn một câu ngẫu nhiên và tách thành các từ
         const selectedSentence = fakeSentences[0]; // Chỉ có 1 câu dài
         currentFakeSentenceRef.current = selectedSentence.split(" ");
         fakeWordIndexRef.current = 0;
-        
+
         // Bắt đầu hiển thị câu nếu có tay được phát hiện
         if (handDetected) {
           console.log("Hand detected - starting fake display immediately");
@@ -152,12 +152,12 @@ export const useRealSignLanguageRecognition = (
         } else {
           console.log("No hand detected - waiting for hand to start display");
         }
-        
+
         // Set timer để thoát khỏi chế độ fake sau 30 giây
         if (fakeTimerRef.current) {
           clearTimeout(fakeTimerRef.current);
         }
-        
+
         fakeTimerRef.current = setTimeout(() => {
           console.log("Fake mode timeout - deactivating");
           if (fakeIntervalRef.current) {
@@ -166,10 +166,10 @@ export const useRealSignLanguageRecognition = (
           }
           setUseFakeMode(false);
         }, 30000); // Kéo dài 30 giây
-        
+
         return;
       }
-      
+
       // Skip normal processing if in fake mode
       if (useFakeMode) return;
 
@@ -281,13 +281,13 @@ export const useRealSignLanguageRecognition = (
       clearTimeout(debounceTimerRef.current);
       debounceTimerRef.current = null;
     }
-    
+
     // Clear fake timers
     if (fakeTimerRef.current) {
       clearTimeout(fakeTimerRef.current);
       fakeTimerRef.current = null;
     }
-    
+
     if (fakeIntervalRef.current) {
       clearInterval(fakeIntervalRef.current);
       fakeIntervalRef.current = null;
@@ -336,8 +336,8 @@ export const useRealSignLanguageRecognition = (
         console.log("Effect: Hand removed - pausing fake display");
         clearInterval(fakeIntervalRef.current);
         fakeIntervalRef.current = null;
-      } else if (handDetected && !fakeIntervalRef.current && 
-                fakeWordIndexRef.current < currentFakeSentenceRef.current.length) {
+      } else if (handDetected && !fakeIntervalRef.current &&
+        fakeWordIndexRef.current < currentFakeSentenceRef.current.length) {
         // Nếu đang trong chế độ fake, tay xuất hiện, không có interval đang chạy, và còn từ để hiển thị
         console.log("Effect: Hand detected - resuming fake display");
         startFakeSentenceDisplay();
