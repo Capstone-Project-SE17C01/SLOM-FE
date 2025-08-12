@@ -43,3 +43,6 @@ package-lock.json
 yarn.lock
 
 .cursor/rules/nextjs-rules.mdc
+
+# firebase
+google-services.json

@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "636023800043",
+    "firebase_url": "https://prnpe-42147-default-rtdb.firebaseio.com",
+    "project_id": "prnpe-42147",
+    "storage_bucket": "prnpe-42147.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:636023800043:android:0a81502f3617926e73beae",
+        "android_client_info": {
+          "package_name": "com.example.project1861"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5-V3cI0UDyjLYubtqCFIsYFWSaIwnQGs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

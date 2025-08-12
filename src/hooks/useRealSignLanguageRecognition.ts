@@ -13,7 +13,7 @@ export interface UseRealSignLanguageRecognitionOptions {
 
 
 const fakeSentences = [
-  "Hello, my name is Đức. Very nice to meet you today. I am learning sign language. Can you speak slower? Thank you for helping me. I work at a software company. The weather is really beautiful today. I like reading books on weekends. Can you help me with something? I am learning about new technology"
+  "hello we are S L O M we help everybody can communicate with each other, we hope everybody always happy"
 ];
 
 export const useRealSignLanguageRecognition = (
