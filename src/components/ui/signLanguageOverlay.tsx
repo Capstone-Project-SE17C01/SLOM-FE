@@ -19,10 +19,10 @@ export const SignLanguageOverlay: React.FC<SignLanguageOverlayProps> = ({
   isActive,
   isConnected,
   connectionStatus,
-  currentPrediction,
-  confidence,
+  // currentPrediction,
+  // confidence,
   lastUpdate,
-  recentPredictions,
+  // recentPredictions,
   isVisible,
   onToggleVisibility,
 }) => {
@@ -58,8 +58,8 @@ export const SignLanguageOverlay: React.FC<SignLanguageOverlayProps> = ({
           <span className="text-xs text-gray-300">{connectionStatus}</span>
         </div>
 
-        {/* Current Prediction */}
-        <div className="mb-3">
+        {/* Current Prediction - Hidden, only console logged */}
+        {/* <div className="mb-3">
           <div className="text-lg font-bold text-center mb-1">
             {currentPrediction}
           </div>
@@ -68,7 +68,7 @@ export const SignLanguageOverlay: React.FC<SignLanguageOverlayProps> = ({
               Confidence: {confidence}%
             </div>
           )}
-        </div>
+        </div> */}
 
         {/* Last Update */}
         {lastUpdate && (
@@ -79,8 +79,8 @@ export const SignLanguageOverlay: React.FC<SignLanguageOverlayProps> = ({
         )}
       </div>
 
-      {/* Recent predictions history */}
-      {recentPredictions.length > 0 && (
+      {/* Recent predictions history - Hidden, only console logged */}
+      {/* {recentPredictions.length > 0 && (
         <div className="bg-black bg-opacity-40 backdrop-blur-sm rounded-lg p-3 text-white">
           <div className="text-xs font-medium mb-2 text-gray-300">Recent Signs:</div>
           <div className="space-y-1 max-h-32 overflow-y-auto">
@@ -100,7 +100,7 @@ export const SignLanguageOverlay: React.FC<SignLanguageOverlayProps> = ({
             ))}
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

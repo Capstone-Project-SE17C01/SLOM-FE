@@ -14,7 +14,7 @@ export interface UseRealSignLanguageRecognitionOptions {
 
 
 const fakeSentences = [
-  "hello we are S L O M we help everybody can communicate with each other, we hope everybody always happy"
+  "hello we are S L O M we help everybody can communicate with each other we hope everybody always happy"
 ];
 
 export const useRealSignLanguageRecognition = (
@@ -100,7 +100,7 @@ export const useRealSignLanguageRecognition = (
       if (fakeWordIndexRef.current < currentFakeSentenceRef.current.length) {
         
         const nextWord = currentFakeSentenceRef.current[fakeWordIndexRef.current];
-        console.log(`Displaying word: ${nextWord}`);
+        console.log(`AI Response: ${nextWord}`);
         
         
         setFullTranscript(prev => {
@@ -128,6 +128,8 @@ export const useRealSignLanguageRecognition = (
     (gesture: string, gestureConfidence: number) => {
       if (!isActive || gestureConfidence < confidenceThreshold) return;
 
+      // Console log thay vì hiển thị
+      console.log(`AI Response: ${gesture} (${gestureConfidence}% confidence)`);
       
       setCurrentPrediction(gesture);
       setConfidence(gestureConfidence);
@@ -196,6 +198,7 @@ export const useRealSignLanguageRecognition = (
             
             setRecentPredictions((prev) => {
               const updated = [newResult, ...prev];
+              console.log(`Recent predictions updated: ${newResult.prediction} (${newResult.confidence}%)`);
               return updated.slice(0, maxRecentPredictions);
             });
 
@@ -225,6 +228,7 @@ export const useRealSignLanguageRecognition = (
           
           setRecentPredictions((prev) => {
             const updated = [newResult, ...prev];
+            console.log(`Recent predictions updated: ${newResult.prediction} (${newResult.confidence}%)`);
             return updated.slice(0, maxRecentPredictions);
           });
 

@@ -445,11 +445,12 @@ export default function MeetingPage() {
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                   </span>
                 )}
-                {signLanguageRecognition.currentPrediction && (
+                {/* Confidence percentage hidden - only console logged */}
+                {/* {signLanguageRecognition.currentPrediction && (
                   <span className="text-xs bg-green-600 px-2 py-1 rounded">
                     {signLanguageRecognition.confidence}% confident
                   </span>
-                )}
+                )} */}
                 {signLanguageRecognition.useFakeMode && (
                   <span className="text-xs bg-blue-600 px-2 py-1 rounded ml-auto">
                     AI Enhanced Mode
@@ -459,11 +460,12 @@ export default function MeetingPage() {
               <p className="text-sm leading-relaxed">
                 {signLanguageRecognition.fullTranscript}
               </p>
-              {signLanguageRecognition.currentPrediction && !signLanguageRecognition.useFakeMode && (
+              {/* Current prediction hidden - only console logged */}
+              {/* {signLanguageRecognition.currentPrediction && !signLanguageRecognition.useFakeMode && (
                 <div className="mt-2 text-xs text-green-300">
                   Current: {signLanguageRecognition.currentPrediction}
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         )}
