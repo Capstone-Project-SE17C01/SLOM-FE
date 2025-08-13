@@ -46,7 +46,7 @@ export default function DetailQuestionView({ setIsResponseQuestion, setIsSpecifi
             setIsLoading(false);
         });
 
-    }, [question?.questionId, getAnswerApi, setAnswerOfQuestion, isLoadFull, pagination]);
+    }, [question?.questionId, getAnswerApi, setAnswerOfQuestion, isLoadFull]);
 
     useEffect(() => {
         const handleScroll = () => {

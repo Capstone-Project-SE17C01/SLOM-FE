@@ -136,7 +136,7 @@ export default function AdminSidebar({
             let isActive = pathname === item.href;
             if (
               item.name === "Courses" &&
-              ["/admin/courses", "/admin/modules", "/admin/lessons"].some((p) =>
+              ["/admin/courses", "/admin/modules", "/admin/lessons", "/admin/quizzes", "/admin/words"].some((p) =>
                 pathname.startsWith(p)
               )
             ) {

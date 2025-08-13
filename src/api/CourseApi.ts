@@ -59,10 +59,18 @@ export const courseAPI = baseApi.injectEndpoints({
         flashError: false,
       }),
     }),
+    
+    getAllCourse: build.mutation<APIResponse<Course[]>, void>({
+      query: () => ({
+        url: `/api/Course/GetAllCourse`,
+        method: "GET",
+        flashError: false,
+      }),
+    }),
 
     getAllModuleByCourseId: build.mutation<APIResponse<Module[]>, string>({
       query: (courseId: string) => ({
-        url: `/api/Module/AllModules?courseId=${courseId}`,
+        url: `/api/Module/GetModuleByCourse?courseId=${courseId}`,
         method: "GET",
         flashError: false,
       }),
@@ -85,6 +93,14 @@ export const courseAPI = baseApi.injectEndpoints({
         }),
       }
     ),
+    
+    getLessonByModuleId: build.mutation<APIResponse<Lesson[]>, string>({
+      query: (moduleId: string) => ({
+        url: `/api/Lesson/GetLessonByModule?moduleId=${moduleId}`,
+        method: "GET",
+        flashError: false,
+      }),
+    }),
 
     getListWordByLessonId: build.mutation<APIResponse<Word[]>, string>({
       query: (lessonId: string) => ({
@@ -189,10 +205,12 @@ export const {
   useGetCourseByLanguageIdMutation,
   useGetCourseSummaryMutation,
   useGetCoursesMutation,
+  useGetAllCourseMutation,
   useGetAllModuleByCourseIdMutation,
   useGetOngoingLessonByUserIdMutation,
   useGetListLearnedLessonByUserIdMutation,
   useGetListWordByLessonIdMutation,
+  useGetLessonByModuleIdMutation,
   useGetListQuizByLessonIdMutation,
   useGetVideoSuggestMutation,
   useAddNewUserProgressMutation,

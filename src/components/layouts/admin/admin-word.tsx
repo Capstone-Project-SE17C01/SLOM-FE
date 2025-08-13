@@ -16,6 +16,7 @@ import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
+import { useGetAllCourseMutation } from "@/api/CourseApi";
 
 export default function AdminWord() {
   const router = useRouter();
@@ -32,11 +33,27 @@ export default function AdminWord() {
   const [deleteWord, setDeleteWord] = useState<Word | null>(null);
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<string>("");
+  const [getAllCourse] = useGetAllCourseMutation();
+  const [coursesSelect, setCoursesSelect] = useState<{ id: string; title: string }[]>([]);
 
   // Config fields for word
   const wordFields: FieldConfig[] = [
     { label: "Text", name: "text", type: "text", required: true },
     { label: "Video Source", name: "videoSrc", type: "text" },
+    {
+      label: "Course",
+      name: "courseId",
+      type: "select",
+      required: true,
+      options: coursesSelect.map((c) => ({ label: c.title, value: c.id })),
+    },
+    {
+      label: "Module",
+      name: "moduleId",
+      type: "select",
+      required: true,
+      options: [],
+    },
     {
       label: "Lesson",
       name: "lessonId",
@@ -51,6 +68,19 @@ export default function AdminWord() {
   const { data: wordsResponse, isLoading, refetch } = useGetAllWordsQuery();
   const [createWord] = useCreateWordMutation();
   const lessons = lessonsResponse?.result || [];
+
+  // Fetch courses for select
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await getAllCourse().unwrap();
+        setCoursesSelect(Array.isArray(response.result) ? response.result : []);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
+    fetchCourses();
+  }, [getAllCourse]);
 
   // Fetch lessons for select
   useEffect(() => {
