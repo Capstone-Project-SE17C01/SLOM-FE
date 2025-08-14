@@ -105,9 +105,10 @@ const EntityModal: React.FC<EntityModalProps> = ({
             </DialogFooter>
           </div>
                  ) : (
-           <form onSubmit={handleSubmit} className={`py-2 ${fieldOptions.length >= 6 ? 'grid grid-cols-2 gap-6' : 'space-y-4'}`}>
-             {fieldOptions.map((field) => (
-               <div key={field.name} className={field.type === "textarea" ? "col-span-2" : ""}>
+           <div>
+             <form onSubmit={handleSubmit} className={`py-2 ${fieldOptions.length >= 6 ? 'grid grid-cols-2 gap-6' : 'space-y-4'}`}>
+               {fieldOptions.map((field) => (
+                 <div key={field.name} className={field.type === "textarea" ? "col-span-2" : ""}>
                 <label
                   className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300"
                   htmlFor={field.name}
@@ -165,16 +166,16 @@ const EntityModal: React.FC<EntityModalProps> = ({
                     ))}
                   </select>
                 )}
-              </div>
-            ))}
-            
-            <DialogFooter className="pt-4">
-              <Button type="button" variant="outline" onClick={onClose} className="mr-2">
-                Cancel
-              </Button>
-              <Button type="submit">Save</Button>
-            </DialogFooter>
-          </form>
+                </div>
+              ))}
+              </form>
+              <DialogFooter className="pt-4">
+                <Button type="button" variant="outline" onClick={onClose} className="mr-2">
+                  Cancel
+                </Button>
+                <Button onClick={() => onSubmit(form)}>Save</Button>
+              </DialogFooter>
+            </div>
         )}
       </DialogContent>
     </Dialog>
