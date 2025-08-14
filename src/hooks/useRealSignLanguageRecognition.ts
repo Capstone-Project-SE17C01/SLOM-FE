@@ -1,5 +1,6 @@
 import { random } from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 export interface SignLanguageRecognitionResult {
   prediction: string;
@@ -21,7 +22,7 @@ export const useRealSignLanguageRecognition = (
   options: UseRealSignLanguageRecognitionOptions = {}
 ) => {
   const { confidenceThreshold = 70, maxRecentPredictions = 10 } = options;
-
+  const t_translatorPage = useTranslations("translatorPage");
   const [isActive, setIsActive] = useState(false);
   const [currentPrediction, setCurrentPrediction] = useState("");
   const [fullTranscript, setFullTranscript] = useState("");
@@ -366,7 +367,7 @@ export const useRealSignLanguageRecognition = (
     useFakeMode, 
     handDetected, 
     isConnected: isActive,
-    connectionStatus: isActive ? "Recognizing" : "Disconnected",
+    connectionStatus: isActive ? t_translatorPage("recognizing") : t_translatorPage("disconnected"),
     connect: startRecognition,
     disconnect: stopRecognition,
   };

@@ -3,9 +3,11 @@ import { NewQuestionProps } from "@/types/IQa";
 import { PlusCircle } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/utils/cn";    
+import { useTranslations } from "next-intl";
 
 export default function NewQuestion({ userInfo, setIsNewQuestion }: Readonly<NewQuestionProps>) {
     const { isDarkMode } = useTheme();
+    const t_qaPage = useTranslations("qaPage");
     return (
         <div className="px-6 py-5 flex items-center justify-between">
             <div className="flex items-center flex-1 max-w-3xl">
@@ -25,7 +27,7 @@ export default function NewQuestion({ userInfo, setIsNewQuestion }: Readonly<New
                     )}
                     onClick={() => setIsNewQuestion(true)}
                 >
-                    What&apos;s your question?
+                    {t_qaPage("whatsYourQuestion")}
                 </button>
             </div>
             <button 
@@ -33,7 +35,7 @@ export default function NewQuestion({ userInfo, setIsNewQuestion }: Readonly<New
                 onClick={() => setIsNewQuestion(true)}
             >
                 <PlusCircle className="h-4 w-4" />
-                <span>Ask Question</span>
+                <span>{t_qaPage("askAQuestion")}</span>
             </button>
         </div>
     );

@@ -41,7 +41,7 @@ export default function Header({
   const pathname = usePathname();
   const dispatch = useDispatch();
 
-  const t = useTranslations("header");
+  const t_header = useTranslations("header");
   const t3 = useTranslations("successMessages.authMessage");
   const handleLogout = () => {
     dispatch(logout());
@@ -81,7 +81,7 @@ export default function Header({
                 (item.href !== "/" && pathname?.startsWith(item.href));
               return (
                 <Link
-                  key={t(`${item.name}`)}
+                  key={t_header(`${item.name}`)}
                   href={item.href}
                   className={cn(
                     "text-sm font-medium transition-colors px-3 py-2 rounded-md relative",
@@ -92,7 +92,7 @@ export default function Header({
                       : "hover:bg-black/5 hover:text-black"
                   )}
                 >
-                  {t(`${item.name}`)}
+                  {t_header(`${item.name}`)}
                 </Link>
               );
             })}
@@ -136,7 +136,7 @@ export default function Header({
                   <Link href="/profile">
                     <DropdownMenuItem>
                       <UserCircle className="mr-2 h-4 w-4" />
-                      <span>Profile</span>
+                      <span>{t_header("profile")}</span>
                     </DropdownMenuItem>
                   </Link>
                   <DropdownMenuSeparator />
@@ -146,7 +146,7 @@ export default function Header({
                       className="w-full flex items-center"
                     >
                       <LogOut className="mr-2 h-4 w-4" />
-                      <span>Logout</span>
+                      <span>{t_header("logout")}</span>
                     </button>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -159,7 +159,7 @@ export default function Header({
                   className="ml-2 bg-[#6947A8] text-white hover:bg-[#5a3d8c] hover:text-white flex items-center gap-2"
                 >
                   <UserCircle className="h-4 w-4" />
-                  {t("signIn")}
+                  {t_header("signIn")}
                 </Button>
               </Link>
             )}

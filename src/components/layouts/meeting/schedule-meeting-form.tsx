@@ -1,17 +1,20 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { cn } from "@/utils/cn";
 import { useTheme } from "@/contexts/ThemeContext";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { ScheduleMeetingModalProps } from '../../../types/IMeeting';
-import { useCreateInvitationMutation, useSendMeetingInvitationMutation } from "../../../api/MeetingApi";
-import { useSelector } from 'react-redux';
-import { RootState } from '@/redux/store';
-
+import { ScheduleMeetingModalProps } from "../../../types/IMeeting";
+import {
+  useCreateInvitationMutation,
+  useSendMeetingInvitationMutation,
+} from "../../../api/MeetingApi";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { useTranslations } from "next-intl";
 
 export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
   show,
@@ -20,22 +23,23 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
   meetingId,
 }) => {
   const { isDarkMode } = useTheme();
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
   const [duration, setDuration] = useState(30);
-  const [recipientEmails, setRecipientEmails] = useState<string>('');
-  const [senderName, setSenderName] = useState('');
-  const [customMessage, setCustomMessage] = useState('');
+  const [recipientEmails, setRecipientEmails] = useState<string>("");
+  const [senderName, setSenderName] = useState("");
+  const [customMessage, setCustomMessage] = useState("");
   const [showInvitation, setShowInvitation] = useState(false);
-  const [sendInvitation, { isLoading: isSending, isSuccess: isSent }] = useSendMeetingInvitationMutation();
+  const [sendInvitation, { isLoading: isSending, isSuccess: isSent }] =
+    useSendMeetingInvitationMutation();
   const [createInvitation] = useCreateInvitationMutation();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const isVip = userInfo?.vipUser === true;
-
+  const t_meetingPage = useTranslations("meetingPage");
   if (!show) return null;
 
   const daysInMonth = new Date(
@@ -43,7 +47,7 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
     currentDate.getMonth() + 1,
     0
   ).getDate();
-  
+
   const firstDayOfMonth = new Date(
     currentDate.getFullYear(),
     currentDate.getMonth(),
@@ -51,21 +55,29 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
   ).getDay();
 
   const handlePrevMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
+    );
   };
 
   const handleNextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
+    );
   };
-  
+
   const handleDateSelect = (day: number) => {
-    const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+    const newDate = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      day
+    );
     // Check if selected date is in the past
     if (newDate < new Date(new Date().setHours(0, 0, 0, 0))) {
       return;
     }
     setSelectedDate(newDate);
-    setDate(newDate.toISOString().split('T')[0]);
+    setDate(newDate.toISOString().split("T")[0]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -81,10 +93,10 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
     });
 
     setShowInvitation(true);
-    setName('');
-    setDescription('');
-    setDate('');
-    setTime('');
+    setName("");
+    setDescription("");
+    setDate("");
+    setTime("");
     setDuration(30);
     setSelectedDate(null);
   };
@@ -94,22 +106,24 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
     if (!meetingId || !recipientEmails || !senderName) return;
     await createInvitation({
       request: {
-        email: recipientEmails.split(',').map(email => email.trim()),
-        meetingId
-      }
+        email: recipientEmails.split(",").map((email) => email.trim()),
+        meetingId,
+      },
     });
     await sendInvitation({
       id: meetingId,
       request: {
-        recipientEmails: recipientEmails.split(',').map(email => email.trim()),
+        recipientEmails: recipientEmails
+          .split(",")
+          .map((email) => email.trim()),
         senderName,
         customMessage,
-      }
+      },
     });
   };
 
-  const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-  
+  const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+
   const calendarDays = [];
   for (let i = 0; i < firstDayOfMonth; i++) {
     calendarDays.push(null);
@@ -120,17 +134,21 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <Card className={cn(
-        "w-full max-w-xl mx-auto",
-        isDarkMode ? "bg-gray-800 text-white" : "bg-white"
-      )}>
+      <Card
+        className={cn(
+          "w-full max-w-xl mx-auto",
+          isDarkMode ? "bg-gray-800 text-white" : "bg-white"
+        )}
+      >
         <CardHeader className="relative">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Meeting Appointment</h3>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={onClose} 
+            <h3 className="text-lg font-semibold">
+              {t_meetingPage("meetingAppointment")}
+            </h3>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
               className="absolute right-2 top-2"
             >
               <X className="h-4 w-4" />
@@ -141,62 +159,77 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-4 mb-6">
               <div>
-                <label htmlFor="name" className="text-sm font-medium block mb-1">
-                  Meeting Name
+                <label
+                  htmlFor="name"
+                  className="text-sm font-medium block mb-1"
+                >
+                  {t_meetingPage("meetingName")}
                 </label>
                 <Input
                   id="name"
-                  placeholder="Enter meeting name"
+                  placeholder={t_meetingPage("enterMeetingName")}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
                 />
               </div>
               <div>
-                <label htmlFor="description" className="text-sm font-medium block mb-1">
-                  Description
+                <label
+                  htmlFor="description"
+                  className="text-sm font-medium block mb-1"
+                >
+                  {t_meetingPage("description")}
                 </label>
                 <Input
                   id="description"
-                  placeholder="Enter meeting description"
+                  placeholder={t_meetingPage("enterMeetingDescription")}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                 />
               </div>
             </div>
-            
+
             <div className="border rounded-lg p-4">
               <div className="flex justify-between items-center mb-4">
                 <Button variant="ghost" onClick={handlePrevMonth} size="sm">
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
                 <span className="font-medium">
-                  {currentDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                  {currentDate.toLocaleDateString("en-US", {
+                    month: "short",
+                    year: "numeric",
+                  })}
                 </span>
                 <Button variant="ghost" onClick={handleNextMonth} size="sm">
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
-              
+
               <div className="grid grid-cols-7 gap-1 mb-4">
                 {dayNames.map((day) => (
-                  <div key={day} className="text-center text-xs font-medium py-1">
+                  <div
+                    key={day}
+                    className="text-center text-xs font-medium py-1"
+                  >
                     {day}
                   </div>
                 ))}
-                
+
                 {calendarDays.map((day, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className={cn(
                       "h-8 w-full flex items-center justify-center text-sm rounded-sm",
                       day === null ? "invisible" : "cursor-pointer",
-                      day && selectedDate && 
-                        day === selectedDate.getDate() && 
-                        currentDate.getMonth() === selectedDate.getMonth() && 
+                      day &&
+                        selectedDate &&
+                        day === selectedDate.getDate() &&
+                        currentDate.getMonth() === selectedDate.getMonth() &&
                         currentDate.getFullYear() === selectedDate.getFullYear()
                         ? "bg-[#6947A8] text-white"
-                        : day ? "hover:bg-gray-100 dark:hover:bg-gray-700" : ""
+                        : day
+                        ? "hover:bg-gray-100 dark:hover:bg-gray-700"
+                        : ""
                     )}
                     onClick={() => day && handleDateSelect(day)}
                   >
@@ -204,11 +237,14 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                   </div>
                 ))}
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="time" className="text-sm font-medium block mb-1">
-                    Time
+                  <label
+                    htmlFor="time"
+                    className="text-sm font-medium block mb-1"
+                  >
+                    {t_meetingPage("time")}
                   </label>
                   <Input
                     id="time"
@@ -219,8 +255,11 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                   />
                 </div>
                 <div>
-                  <label htmlFor="duration" className="text-sm font-medium block mb-1">
-                    Duration
+                  <label
+                    htmlFor="duration"
+                    className="text-sm font-medium block mb-1"
+                  >
+                    {t_meetingPage("duration")}
                   </label>
                   <div className="flex items-center">
                     <Input
@@ -236,14 +275,14 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                 </div>
               </div>
             </div>
-            
+
             <div className="pt-4">
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full bg-[#6947A8] hover:bg-[#5a3c96] text-white"
                 disabled={!date || !time}
               >
-                Schedule Meeting
+                {t_meetingPage("scheduleMeeting")}
               </Button>
             </div>
           </form>
@@ -251,13 +290,17 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
       </Card>
       {showInvitation && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <Card className={cn(
-            "w-full max-w-lg mx-auto",
-            isDarkMode ? "bg-gray-800 text-white" : "bg-white"
-          )}>
+          <Card
+            className={cn(
+              "w-full max-w-lg mx-auto",
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white"
+            )}
+          >
             <CardHeader className="relative">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Send Meeting Invitation Email</h3>
+                <h3 className="text-lg font-semibold">
+                  {t_meetingPage("sendMeetingInvitationEmail")}
+                </h3>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -271,26 +314,32 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
             <CardContent>
               <form onSubmit={handleSendInvitation} className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium block mb-1">Recipient Emails (comma separated)</label>
+                  <label className="text-sm font-medium block mb-1">
+                    {t_meetingPage("recipientEmails")}
+                  </label>
                   <Input
                     value={recipientEmails}
-                    onChange={e => setRecipientEmails(e.target.value)}
+                    onChange={(e) => setRecipientEmails(e.target.value)}
                     required
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium block mb-1">Sender Name</label>
+                  <label className="text-sm font-medium block mb-1">
+                    {t_meetingPage("senderName")}
+                  </label>
                   <Input
                     value={senderName}
-                    onChange={e => setSenderName(e.target.value)}
+                    onChange={(e) => setSenderName(e.target.value)}
                     required
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium block mb-1">Custom Message</label>
+                  <label className="text-sm font-medium block mb-1">
+                    {t_meetingPage("customMessage")}
+                  </label>
                   <Input
                     value={customMessage}
-                    onChange={e => setCustomMessage(e.target.value)}
+                    onChange={(e) => setCustomMessage(e.target.value)}
                   />
                 </div>
                 <div className="pt-4">
@@ -302,7 +351,9 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                     {isSending ? "Sending..." : "Send Invitation"}
                   </Button>
                   {isSent && (
-                    <div className="text-green-600 mt-2 text-center">Invitation sent!</div>
+                    <div className="text-green-600 mt-2 text-center">
+                      Invitation sent!
+                    </div>
                   )}
                 </div>
               </form>
@@ -313,4 +364,3 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
     </div>
   );
 };
-
