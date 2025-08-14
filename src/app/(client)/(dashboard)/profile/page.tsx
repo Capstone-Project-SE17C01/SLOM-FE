@@ -85,6 +85,15 @@ export default function ProfilePage() {
         bio,
         location,
       }).unwrap();
+      
+      // Cập nhật Redux store để đồng bộ username mới
+      if (userInfo) {
+        dispatch(setCredentials({
+          userInfo: { ...userInfo, username: safeUserName },
+          accessToken: undefined
+        }));
+      }
+      
       toast.success(t("profile.personalInfo.updateSuccess"));
       refetch();
     } catch {
