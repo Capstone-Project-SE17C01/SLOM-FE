@@ -114,7 +114,7 @@ export default function QuestionView({ setIsResponseQuestion, setIsSpecifiedPage
         } finally {
             setIsLoading(false);
         }
-    }, [getQuestionApi, getQuestionByTagApi, questionPagination, isCurrentUser, isAdmin, userInfo, isLoadFull, selectedTags, allQuestion, hasInitialLoad, setAllQuestion, setHasInitialLoad, setIsLoadFull]);
+    }, [getQuestionApi, getQuestionByTagApi, questionPagination, isCurrentUser, isAdmin, userInfo, isLoadFull, selectedTags, hasInitialLoad, setAllQuestion, setHasInitialLoad, setIsLoadFull]);
 
     useEffect(() => {
         fetchQuestions();

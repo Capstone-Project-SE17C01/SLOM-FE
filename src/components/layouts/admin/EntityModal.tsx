@@ -7,6 +7,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { useGetAllModuleByCourseIdMutation, useGetLessonByModuleIdMutation } from "@/api/CourseApi";
 
 export interface FieldConfig {
   label: string;
@@ -36,17 +37,49 @@ const EntityModal: React.FC<EntityModalProps> = ({
   children,
 }) => {
   const [form, setForm] = useState<Record<string, string>>(initialValues);
+  const [getAllModuleByCourseId] = useGetAllModuleByCourseIdMutation();
+  const [getLessonByModuleId] = useGetLessonByModuleIdMutation();
+  const [fieldOptions, setFieldOptions] = useState<FieldConfig[]>([]);
 
   useEffect(() => {
     setForm(initialValues || {});
   }, [initialValues, open]);
 
-  const handleChange = (
+  useEffect(() => {
+    setFieldOptions(fields);
+  }, [fields]);
+
+  const handleChange = async (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+
+    if(e.target.name === "courseId") {
+      if(e.target.value && e.target.value != "") {
+        const value = await getAllModuleByCourseId(e.target.value).unwrap()
+          .then(response => {
+            return Array.isArray(response.result) ? response.result.map(item => ({ label: item.title, value: item.id })) : [];
+          })
+  
+        setFieldOptions((prev) => prev.map(field => field.name === "moduleId" ? { ...field, options: value } : field));
+      }
+      setFieldOptions((prev) => prev.map(field => field.name === "lessonId" ? { ...field, options: [] } : field));
+    }
+
+    if(e.target.name === "moduleId") {
+      if(e.target.value && e.target.value != "") {
+        const value = await getLessonByModuleId(e.target.value).unwrap()
+          .then(response => {
+            return Array.isArray(response.result) ? response.result.map(item => ({ label: item.title, value: item.id })) : [];
+          })
+
+        setFieldOptions((prev) => prev.map(field => field.name === "lessonId" ? { ...field, options: value } : field));
+      } else {
+        setFieldOptions((prev) => prev.map(field => field.name === "lessonId" ? { ...field, options: [] } : field));
+      }
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -56,7 +89,7 @@ const EntityModal: React.FC<EntityModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className={fieldOptions.length >= 6 ? "sm:max-w-4xl" : "sm:max-w-lg"}>
         <DialogHeader>
           <DialogTitle className="text-xl">{title}</DialogTitle>
         </DialogHeader>
@@ -71,10 +104,11 @@ const EntityModal: React.FC<EntityModalProps> = ({
               <Button onClick={() => onSubmit(form)}>Confirm</Button>
             </DialogFooter>
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4 py-2">
-            {fields.map((field) => (
-              <div key={field.name}>
+                 ) : (
+           <div>
+             <form onSubmit={handleSubmit} className={`py-2 ${fieldOptions.length >= 6 ? 'grid grid-cols-2 gap-6' : 'space-y-4'}`}>
+               {fieldOptions.map((field) => (
+                 <div key={field.name} className={field.type === "textarea" ? "col-span-2" : ""}>
                 <label
                   className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300"
                   htmlFor={field.name}
@@ -132,16 +166,16 @@ const EntityModal: React.FC<EntityModalProps> = ({
                     ))}
                   </select>
                 )}
-              </div>
-            ))}
-            
-            <DialogFooter className="pt-4">
-              <Button type="button" variant="outline" onClick={onClose} className="mr-2">
-                Cancel
-              </Button>
-              <Button type="submit">Save</Button>
-            </DialogFooter>
-          </form>
+                </div>
+              ))}
+              </form>
+              <DialogFooter className="pt-4">
+                <Button type="button" variant="outline" onClick={onClose} className="mr-2">
+                  Cancel
+                </Button>
+                <Button onClick={() => onSubmit(form)}>Save</Button>
+              </DialogFooter>
+            </div>
         )}
       </DialogContent>
     </Dialog>

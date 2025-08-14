@@ -9,6 +9,7 @@ import EntityModal, {
   FieldConfig,
 } from "@/components/layouts/admin/EntityModal";
 import { useGetAllQuizzesQuery, useCreateQuizMutation, useUpdateQuizMutation, useDeleteQuizMutation, useGetAllLessonsQuery } from "@/api/QuizApi";
+import { useGetAllCourseMutation } from "@/api/CourseApi";
 import { Quiz } from "@/types/IQuiz";
 import { toast } from "sonner";
 
@@ -20,7 +21,7 @@ export default function AdminQuiz() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalFields, setModalFields] = useState<FieldConfig[]>([]);
   const [modalTitle, setModalTitle] = useState("");
-  const [lessonsSelect, setLessonsSelect] = useState<{ id: string; title: string }[]>([]);
+  const [coursesSelect, setCoursesSelect] = useState<{ id: string; title: string }[]>([]);
   const [updateQuiz] = useUpdateQuizMutation();
   const [editQuiz, setEditQuiz] = useState<Quiz | null>(null);
   const [deleteQuizApi] = useDeleteQuizMutation();
@@ -30,15 +31,29 @@ export default function AdminQuiz() {
 
   // Config fields for quiz
   const quizFields: FieldConfig[] = [
-    { label: "Question", name: "question", type: "textarea", required: true },
+    { label: "Question", name: "question", type: "text", required: true },
     { label: "Correct Answer", name: "correctAnswer", type: "text", required: true },
-    { label: "Explanation", name: "explanation", type: "textarea" },
+    { label: "Explanation", name: "explanation", type: "text" },
+    {
+      label: "Course",
+      name: "courseId",
+      type: "select",
+      required: true,
+      options: coursesSelect.map((c) => ({ label: c.title, value: c.id })),
+    },
+    {
+      label: "Module",
+      name: "moduleId",
+      type: "select",
+      required: true,
+      options: [],
+    },
     {
       label: "Lesson",
       name: "lessonId",
       type: "select",
       required: true,
-      options: lessonsSelect.map((l) => ({ label: l.title, value: l.id })),
+      options: [],
     },
     { label: "Max Score", name: "maxScore", type: "number" },
   ];
@@ -47,14 +62,21 @@ export default function AdminQuiz() {
   const { data: lessonsResponse, isLoading: lessonsLoading } = useGetAllLessonsQuery();
   const { data: quizzesResponse, isLoading, refetch } = useGetAllQuizzesQuery();
   const [createQuiz] = useCreateQuizMutation();
+  const [getAllCourse] = useGetAllCourseMutation();
   const lessons = lessonsResponse?.result || [];
 
-  // Fetch lessons for select
+  // Fetch courses for select
   useEffect(() => {
-    if (lessonsResponse?.result) {
-      setLessonsSelect(Array.isArray(lessonsResponse.result) ? lessonsResponse.result : []);
-    }
-  }, [lessonsResponse]);
+    const fetchCourses = async () => {
+      try {
+        const response = await getAllCourse().unwrap();
+        setCoursesSelect(Array.isArray(response.result) ? response.result : []);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
+    fetchCourses();
+  }, [getAllCourse]);
 
   const getAllQuiz = useCallback(async () => {
     if (quizzesResponse?.result) {
@@ -82,6 +104,7 @@ export default function AdminQuiz() {
     }
     setModalOpen(true);
   };
+
   const openDeleteModal = (quiz: Quiz) => {
     setDeleteQuiz(quiz);
     setEditQuiz(null);
@@ -89,6 +112,7 @@ export default function AdminQuiz() {
     setModalTitle("Delete Quiz");
     setModalOpen(true);
   };
+
   const closeModal = () => {
     setModalOpen(false);
     setEditQuiz(null);

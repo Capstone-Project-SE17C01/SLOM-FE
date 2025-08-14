@@ -219,38 +219,45 @@ const CardLesson = ({
 }) => (
   <div
     className={cn(
-      " relative bg-gray-100 rounded-xl min-w-[210px] h-[120px] flex flex-col justify-end shadow-sm border-b-4 border-primary overflow-hidden cursor-pointer hover:bg-primary hover:text-white transition",
+      "group relative bg-gradient-to-br from-white to-gray-50 rounded-2xl min-w-[240px] h-[140px] flex flex-col justify-end shadow-lg hover:shadow-xl border border-gray-200 border-b-4 border-primary overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1",
       className
     )}
     onClick={onClick}
   >
-    {/* Ảnh hình tròn, chỉ lộ nửa trái, nằm cạnh phải */}
-    <div
-      className="absolute top-1/2"
-      style={{
-        right: "-50px",
-        transform: "translateY(-50%)",
-        width: "100px",
-        height: "100px",
-        borderRadius: "9999px",
-        overflow: "hidden",
-        clipPath: "inset(0 50% 0 0)",
-      }}
-    >
-      <Image
-        src={image}
-        alt={title}
-        width={100}
-        height={100}
-        quality={100}
-        className="object-cover w-full h-full"
-        style={{ objectPosition: "left center" }}
-      />
+    {/* Background decoration */}
+    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+    <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-primary/10 to-transparent rounded-full transform translate-x-10 -translate-y-10 group-hover:scale-150 transition-transform duration-500"></div>
+    
+    {/* Enhanced image with modern styling */}
+    <div className="absolute top-1/2 right-0 transform -translate-y-1/2 translate-x-8 group-hover:translate-x-6 transition-transform duration-300">
+      <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-lg group-hover:shadow-xl transition-shadow duration-300 border-2 border-white">
+        <Image
+          src={image}
+          alt={title}
+          width={80}
+          height={80}
+          quality={100}
+          className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300"
+        />
+      </div>
     </div>
-    <div className="relative z-10 p-3 pr-24">
-      <span className="font-semibold text-sm block whitespace-normal">
+    
+    {/* Content with enhanced styling */}
+    <div className="relative z-10 p-4 pr-20">
+      <div className="flex items-center gap-2 mb-2">
+        <div className="w-2 h-2 bg-primary rounded-full group-hover:animate-pulse"></div>
+        <span className="text-xs text-primary font-medium">Lesson</span>
+      </div>
+      <h3 className="font-bold text-sm text-gray-900 group-hover:text-primary transition-colors duration-300 leading-tight">
         {title}
-      </span>
+      </h3>
+      
+      {/* Hover indicator */}
+      <div className="absolute bottom-2 right-4 w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <svg className="w-3 h-3 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </div>
     </div>
   </div>
 );
