@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const path = url.pathname;
   
-  const publicPaths = ['/login', '/register', '/forgot-password', '/confirm-registeration', '/'];
+  const publicPaths = ['/login', '/register', '/forgot-password', '/confirm-registeration', '/', '/home', '/about', '/contact', '/features'];
   const isPublicPath = publicPaths.some(publicPath => path === publicPath || path.startsWith(publicPath + '/'));
   
   const userInfoCookie = request.cookies.get(constants.USER_INFO)?.value;
@@ -30,11 +30,11 @@ export async function middleware(request: NextRequest) {
   
   const isAdmin = userInfo?.role === 'ADMIN' || userInfo?.roleName === 'ADMIN';
   
-  if (isAdminRoute && !accessToken) {
+  if (!isPublicPath && !accessToken) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  if (isAdminRoute && userInfo && !isAdmin) {
+  if (isAdminRoute && !isAdmin) {
     return NextResponse.redirect(new URL('/', request.url));
   }
   
