@@ -365,8 +365,6 @@ export const useRealSignLanguageRecognition = (
     handleHandDetection, 
     useFakeMode, 
     handDetected, 
-
-    
     isConnected: isActive,
     connectionStatus: isActive ? "Recognizing" : "Disconnected",
     connect: startRecognition,

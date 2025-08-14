@@ -276,7 +276,7 @@ export default function MeetingPage() {
                     </>
                   )}
                 </button>
-                
+
                 <select
                   value={speechLang}
                   onChange={(e) => setSpeechLang(e.target.value as "vi-VN" | "en-US")}
@@ -295,7 +295,7 @@ export default function MeetingPage() {
       {hasJoinedRoom &&
         !meetingExpired &&
         roomID &&
-        userInfo?.vipUser && 
+        userInfo?.vipUser &&
         (transcript || (signLanguageRecognition.isActive && signLanguageRecognition.fullTranscript)) && (
           <div className="fixed bottom-20 left-5 right-5 z-[997] max-w-2xl mx-auto">
             <div className="bg-black/80 text-white p-4 rounded-lg backdrop-blur-sm">
@@ -306,7 +306,7 @@ export default function MeetingPage() {
                   <Languages className="w-4 h-4" />
                   <span className="text-sm font-medium">Translation</span>
                 </div>
-                
+
                 {/* Status indicators */}
                 <div className="flex items-center gap-2 ml-auto">
                   {isListening && (
@@ -318,7 +318,7 @@ export default function MeetingPage() {
                       <span className="text-xs text-blue-400">Speech</span>
                     </div>
                   )}
-                  
+
                   {signLanguageRecognition.isActive && (
                     <div className="flex items-center gap-1 ml-2">
                       <span className="relative flex h-2 w-2">
@@ -328,7 +328,7 @@ export default function MeetingPage() {
                       <span className="text-xs text-green-400">Sign</span>
                     </div>
                   )}
-                  
+
                   {signLanguageRecognition.useFakeMode && (
                     <span className="text-xs bg-blue-600 px-2 py-1 rounded ml-2">
                       AI Enhanced Mode
@@ -336,7 +336,7 @@ export default function MeetingPage() {
                   )}
                 </div>
               </div>
-              
+
               {/* Speech to Text Transcript */}
               {transcript && (
                 <div className="mb-3">
@@ -347,7 +347,7 @@ export default function MeetingPage() {
                   <p className="text-sm leading-relaxed">{transcript}</p>
                 </div>
               )}
-              
+
               {/* Sign Language Transcript */}
               {signLanguageRecognition.isActive && signLanguageRecognition.fullTranscript && (
                 <div>
@@ -362,12 +362,13 @@ export default function MeetingPage() {
           </div>
         )}
 
-      {/* Real AI Sign Language Detector */}
-      <SignLanguageDetector
-        isActive={signLanguageRecognition.isActive}
-        onGestureDetected={signLanguageRecognition.handleGestureDetected}
-        onHandDetection={signLanguageRecognition.handleHandDetection}
-      />
+      {hasJoinedRoom && !meetingExpired && (
+        <SignLanguageDetector
+          isActive={signLanguageRecognition.isActive}
+          onGestureDetected={signLanguageRecognition.handleGestureDetected}
+          onHandDetection={signLanguageRecognition.handleHandDetection}
+        />
+      )}
 
       {/* Sign Language Recognition Overlay */}
       {hasJoinedRoom && !meetingExpired && (

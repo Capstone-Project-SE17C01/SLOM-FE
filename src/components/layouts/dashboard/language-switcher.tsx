@@ -16,6 +16,7 @@ import { useChangeLanguageMutation } from "@/api/AuthApi";
 import Spinner from "@/components/ui/spinner";
 import { RootState } from "@/redux/store";
 import { useSelector } from "react-redux";
+import { useEffect } from "react";
 
 export default function LanguageSwitcher() {
   const t = useTranslations();
@@ -24,11 +25,24 @@ export default function LanguageSwitcher() {
   const [changeLanguage, { isLoading }] = useChangeLanguageMutation();
   const { userInfo } = useSelector((state: RootState) => state.auth);
 
+  // Đọc ngôn ngữ từ localStorage khi component mount
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem("language");
+    if (savedLanguage && savedLanguage !== locale) {
+      // Nếu có ngôn ngữ đã lưu và khác với ngôn ngữ hiện tại
+      Cookies.set(constants.LOCALE, savedLanguage);
+      router.refresh();
+    }
+  }, [locale, router]);
+
   const handleLanguageChange = async (
     event: React.MouseEvent,
     newLocale: string
   ) => {
     event.preventDefault();
+
+    // Lưu ngôn ngữ vào localStorage
+    localStorage.setItem("language", newLocale);
 
     if (userInfo) {
       await changeLanguage({
