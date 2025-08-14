@@ -10,8 +10,6 @@ import { useSpeechToText } from "@/hooks/useSpeechToText";
 import {
   Mic,
   Square,
-  Clock,
-  AlarmClock,
   Languages,
   MessageCircle,
 } from "lucide-react";
@@ -29,105 +27,6 @@ import {
   useLeaveMeetingMutation,
 } from "@/api/MeetingApi";
 import { FolderSelectionModal } from "@/components/layouts/meeting/folder-selection-form";
-
-function ZegoMeetingTimerDisplay({
-  roomId,
-  onExpired,
-}: {
-  roomId: string;
-  onExpired?: () => void;
-}) {
-  const { data: meeting } = useGetMeetingQuery(roomId, {
-    pollingInterval: 30000,
-  });
-  const [timeRemaining, setTimeRemaining] = React.useState<number | null>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [isExpired, setIsExpired] = React.useState(false);
-
-  React.useEffect(() => {
-    if (meeting && meeting.endTime) {
-      const endTime = new Date(meeting.endTime).getTime();
-      const now = new Date().getTime();
-      const timeLeft = Math.max(0, Math.floor((endTime - now) / 1000));
-
-      setTimeRemaining(timeLeft);
-      setIsLoading(false);
-
-      if (timeLeft <= 0 || meeting.status === "Ended") {
-        setIsExpired(true);
-        if (onExpired) onExpired();
-      }
-
-      const interval = setInterval(() => {
-        const now = new Date().getTime();
-        const timeLeft = Math.max(0, Math.floor((endTime - now) / 1000));
-
-        setTimeRemaining(timeLeft);
-
-        if (timeLeft <= 0) {
-          setIsExpired(true);
-          if (onExpired) onExpired();
-          clearInterval(interval);
-        }
-      }, 1000);
-
-      return () => clearInterval(interval);
-    } else if (meeting) {
-      setIsLoading(false);
-      setTimeRemaining(null);
-    }
-  }, [meeting, onExpired]);
-
-  const formatTimeDisplay = () => {
-    if (timeRemaining === null) return "--:--:--";
-
-    const hours = Math.floor(timeRemaining / 3600);
-    const minutes = Math.floor((timeRemaining % 3600) / 60);
-    const seconds = timeRemaining % 60;
-
-    return `${hours.toString().padStart(2, "0")}:${minutes
-      .toString()
-      .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-  };
-
-  const isCloseToExpire = timeRemaining !== null && timeRemaining < 300;
-
-  if (isLoading) {
-    return (
-      <div className="text-sm text-gray-200 animate-pulse flex items-center gap-1.5">
-        <Clock className="w-3.5 h-3.5" />
-        <span>Loading...</span>
-      </div>
-    );
-  }
-
-  if (isExpired) {
-    return (
-      <div className="flex items-center gap-2">
-        <div className="text-red-400 flex items-center gap-1.5">
-          <AlarmClock className="w-3.5 h-3.5" />
-          <span className="text-sm font-medium">Meeting ended</span>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className={cn(
-        "flex items-center gap-1.5 text-sm font-medium",
-        isCloseToExpire ? "text-red-300" : "text-gray-200"
-      )}
-    >
-      {isCloseToExpire ? (
-        <AlarmClock className="w-3.5 h-3.5" />
-      ) : (
-        <Clock className="w-3.5 h-3.5" />
-      )}
-      <span>{formatTimeDisplay()}</span>
-    </div>
-  );
-}
 
 export default function MeetingPage() {
   const router = useRouter();
@@ -288,10 +187,10 @@ export default function MeetingPage() {
   );
 
   useEffect(() => {
-    if (containerRef.current && roomID && userInfo?.id) {
+    if (containerRef.current && roomID && userInfo?.id && !hasJoinedRoom) {
       joinZegoRoom(containerRef.current);
     }
-  }, [roomID, userInfo?.id, joinZegoRoom]);
+  }, [roomID, userInfo?.id, joinZegoRoom, hasJoinedRoom]);
 
   return (
     <>
@@ -304,21 +203,8 @@ export default function MeetingPage() {
       {/* Main control bar */}
       {hasJoinedRoom && !meetingExpired && roomID && (
         <div className="fixed bottom-3 left-5 z-[999] flex items-center gap-4 bg-opacity-80 bg-gray-900 dark:bg-gray-800 py-2 px-4 rounded-full shadow-lg">
-          {meetingData && (
-            <div className="text-sm text-gray-200 mr-2">
-              <span className="font-medium">{meetingData.title}</span>
-            </div>
-          )}
-
-          <ZegoMeetingTimerDisplay
-            roomId={roomID}
-            onExpired={() => setMeetingExpired(true)}
-          />
-
           {userInfo?.vipUser && (
             <>
-              <div className="h-8 w-[1px] bg-gray-500 dark:bg-gray-600 mx-1" />
-
               <button
                 onClick={isRecording ? stopRecording : startRecording}
                 className={cn(
@@ -347,125 +233,131 @@ export default function MeetingPage() {
 
               <div className="h-8 w-[1px] bg-gray-500 dark:bg-gray-600 mx-1" />
 
-              <button
-                onClick={signLanguageRecognition.toggleRecognition}
-                className={cn(
-                  "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all font-medium text-sm",
-                  signLanguageRecognition.isActive
-                    ? "bg-green-500 text-white hover:bg-green-600"
-                    : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-                )}
-              >
-                {signLanguageRecognition.isActive ? (
-                  <>
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
-                    </span>
-                    <Languages className="w-3.5 h-3.5" />
-                    <span>Sign AI</span>
-                  </>
-                ) : (
-                  <>
-                    <Languages className="w-3.5 h-3.5" />
-                    <span>Sign AI</span>
-                  </>
-                )}
-              </button>
+              {/* Combined Speech to Text and Sign Language AI button */}
+              <div className="flex items-center gap-2 ml-auto">
+                <button
+                  onClick={() => {
+                    if (isListening || signLanguageRecognition.isActive) {
+                      // Stop both if either is active
+                      if (isListening) stopListening();
+                      if (signLanguageRecognition.isActive) signLanguageRecognition.stopRecognition();
+                    } else {
+                      // Start both
+                      startListening();
+                      signLanguageRecognition.startRecognition();
+                    }
+                  }}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all font-medium text-sm",
+                    isListening || signLanguageRecognition.isActive
+                      ? "bg-purple-500 text-white hover:bg-purple-600"
+                      : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                  )}
+                >
+                  {isListening || signLanguageRecognition.isActive ? (
+                    <>
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-300 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-400" />
+                      </span>
+                      <div className="flex items-center gap-1">
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        <Languages className="w-3.5 h-3.5" />
+                      </div>
+                      <span>Translation</span>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-1">
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        <Languages className="w-3.5 h-3.5" />
+                      </div>
+                      <span>Translation</span>
+                    </>
+                  )}
+                </button>
+                
+                <select
+                  value={speechLang}
+                  onChange={(e) => setSpeechLang(e.target.value as "vi-VN" | "en-US")}
+                  className="h-8 rounded-full bg-gray-200 text-gray-800 text-sm font-medium px-3"
+                >
+                  <option value="vi-VN">Tiếng Việt</option>
+                  <option value="en-US">English</option>
+                </select>
+              </div>
             </>
           )}
         </div>
       )}
 
-      {/* Speech-to-text control bar */}
-      {hasJoinedRoom && !meetingExpired && roomID && userInfo?.vipUser && (
-        <div className="fixed bottom-3 right-0 mr-[220px] z-[999] bg-opacity-80 bg-gray-900 dark:bg-gray-800 py-2 px-4 rounded-full shadow-lg flex items-center gap-2">
-          <select
-            value={speechLang}
-            onChange={(e) => setSpeechLang(e.target.value as "vi-VN" | "en-US")}
-            className="h-8 rounded-full bg-gray-200 text-gray-800 text-sm font-medium px-3"
-          >
-            <option value="vi-VN">Tiếng Việt</option>
-            <option value="en-US">English</option>
-          </select>
-          <button
-            onClick={() => (isListening ? stopListening() : startListening())}
-            className={cn(
-              "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all font-medium text-sm",
-              isListening
-                ? "bg-blue-500 text-white hover:bg-blue-600"
-                : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-            )}
-          >
-            <MessageCircle className="w-3.5 h-3.5" />
-            <span>{isListening ? "Stop Speech" : "Speech to Text"}</span>
-          </button>
-        </div>
-      )}
-
-      {/* Speech-to-text transcript display */}
+      {/* Combined Transcript Display */}
       {hasJoinedRoom &&
         !meetingExpired &&
         roomID &&
-        transcript &&
-        userInfo?.vipUser && (
+        userInfo?.vipUser && 
+        (transcript || (signLanguageRecognition.isActive && signLanguageRecognition.fullTranscript)) && (
           <div className="fixed bottom-20 left-5 right-5 z-[997] max-w-2xl mx-auto">
             <div className="bg-black/80 text-white p-4 rounded-lg backdrop-blur-sm">
-              <div className="flex items-center gap-2 mb-2">
-                <MessageCircle className="w-4 h-4" />
-                <span className="text-sm font-medium">Speech to Text</span>
-                {isListening && (
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
-                  </span>
-                )}
-              </div>
-              <p className="text-sm leading-relaxed">{transcript}</p>
-            </div>
-          </div>
-        )}
-
-      {/* Real AI Sign Language Transcript Display */}
-      {hasJoinedRoom &&
-        !meetingExpired &&
-        roomID &&
-        signLanguageRecognition.isActive &&
-        signLanguageRecognition.fullTranscript && (
-          <div className="fixed bottom-36 left-5 right-5 z-[997] max-w-2xl mx-auto">
-            <div className="bg-black/80 text-white p-4 rounded-lg backdrop-blur-sm">
-              <div className="flex items-center gap-2 mb-2">
-                <Languages className="w-4 h-4" />
-                <span className="text-sm font-medium">
-                  Sign Language AI Recognition
-                </span>
-                {signLanguageRecognition.isActive && (
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
-                  </span>
-                )}
-                {/* Confidence percentage hidden - only console logged */}
-                {/* {signLanguageRecognition.currentPrediction && (
-                  <span className="text-xs bg-green-600 px-2 py-1 rounded">
-                    {signLanguageRecognition.confidence}% confident
-                  </span>
-                )} */}
-                {signLanguageRecognition.useFakeMode && (
-                  <span className="text-xs bg-blue-600 px-2 py-1 rounded ml-auto">
-                    AI Enhanced Mode
-                  </span>
-                )}
-              </div>
-              <p className="text-sm leading-relaxed">
-                {signLanguageRecognition.fullTranscript}
-              </p>
-              {/* Current prediction hidden - only console logged */}
-              {/* {signLanguageRecognition.currentPrediction && !signLanguageRecognition.useFakeMode && (
-                <div className="mt-2 text-xs text-green-300">
-                  Current: {signLanguageRecognition.currentPrediction}
+              {/* Tabs for switching between transcripts */}
+              <div className="flex items-center gap-2 mb-3 border-b border-gray-700 pb-2">
+                <div className="flex items-center gap-1">
+                  <MessageCircle className="w-4 h-4" />
+                  <Languages className="w-4 h-4" />
+                  <span className="text-sm font-medium">Translation</span>
                 </div>
-              )} */}
+                
+                {/* Status indicators */}
+                <div className="flex items-center gap-2 ml-auto">
+                  {isListening && (
+                    <div className="flex items-center gap-1">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
+                      </span>
+                      <span className="text-xs text-blue-400">Speech</span>
+                    </div>
+                  )}
+                  
+                  {signLanguageRecognition.isActive && (
+                    <div className="flex items-center gap-1 ml-2">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+                      </span>
+                      <span className="text-xs text-green-400">Sign</span>
+                    </div>
+                  )}
+                  
+                  {signLanguageRecognition.useFakeMode && (
+                    <span className="text-xs bg-blue-600 px-2 py-1 rounded ml-2">
+                      AI Enhanced Mode
+                    </span>
+                  )}
+                </div>
+              </div>
+              
+              {/* Speech to Text Transcript */}
+              {transcript && (
+                <div className="mb-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <MessageCircle className="w-3 h-3 text-blue-400" />
+                    <span className="text-xs font-medium text-blue-400">Speech to Text</span>
+                  </div>
+                  <p className="text-sm leading-relaxed">{transcript}</p>
+                </div>
+              )}
+              
+              {/* Sign Language Transcript */}
+              {signLanguageRecognition.isActive && signLanguageRecognition.fullTranscript && (
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Languages className="w-3 h-3 text-green-400" />
+                    <span className="text-xs font-medium text-green-400">Sign Language</span>
+                  </div>
+                  <p className="text-sm leading-relaxed">{signLanguageRecognition.fullTranscript}</p>
+                </div>
+              )}
             </div>
           </div>
         )}
