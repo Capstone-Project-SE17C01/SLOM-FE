@@ -1,112 +1,92 @@
-"use client";
-import * as React from "react";
-import { useSelector } from "react-redux";
-import { useRouter } from "next/navigation";
-import { useRecording } from "@/hooks/useRecording";
-import { useRealSignLanguageRecognition } from "@/hooks/useRealSignLanguageRecognition";
-import SignLanguageDetector from "@/components/SignLanguageDetector/SignLanguageDetector";
-import { useEffect } from "react";
-import { useSpeechToText } from "@/hooks/useSpeechToText";
-import { useFirebaseTest } from "@/hooks/useFirebaseTest";
-import {
-  Mic,
-  Square,
-  Languages,
-  MessageCircle,
-} from "lucide-react";
-import { generateZegoToken } from "@/services/zego/config";
-import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
-import {
-  SignLanguageOverlay,
-  SignLanguageToggleButton,
-} from "@/components/ui/signLanguageOverlay";
-import { cn } from "@/utils/cn";
-import { RootState } from "@/redux/store";
-import {
-  useAddRecordingMutation,
-  useGetMeetingQuery,
-  useLeaveMeetingMutation,
-} from "@/api/MeetingApi";
-import { FolderSelectionModal } from "@/components/layouts/meeting/folder-selection-form";
+'use client'
+import * as React from 'react'
+import { useSelector } from 'react-redux'
+import { useRouter } from 'next/navigation'
+import { useRecording } from '@/hooks/useRecording'
+import { useRealSignLanguageRecognition } from '@/hooks/useRealSignLanguageRecognition'
+import SignLanguageDetector from '@/components/SignLanguageDetector/SignLanguageDetector'
+import { useEffect } from 'react'
+import { useSpeechToText } from '@/hooks/useSpeechToText'
+import { useFirebaseTest } from '@/hooks/useFirebaseTest'
+import { Mic, Square, Languages, MessageCircle } from 'lucide-react'
+import { generateZegoToken } from '@/services/zego/config'
+import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt'
+import { SignLanguageOverlay, SignLanguageToggleButton } from '@/components/ui/signLanguageOverlay'
+import { cn } from '@/utils/cn'
+import { RootState } from '@/redux/store'
+import { useAddRecordingMutation, useGetMeetingQuery, useLeaveMeetingMutation } from '@/api/MeetingApi'
+import { FolderSelectionModal } from '@/components/layouts/meeting/folder-selection-form'
 
 export default function MeetingPage() {
-  const router = useRouter();
-  const { userInfo } = useSelector((state: RootState) => state.auth);
+  const router = useRouter()
+  const { userInfo } = useSelector((state: RootState) => state.auth)
 
   // Meeting states
-  const [roomID, setRoomID] = React.useState("");
-  const [hasJoinedRoom, setHasJoinedRoom] = React.useState(false);
-  const [meetingExpired, setMeetingExpired] = React.useState(false);
-  const [signLanguageVisible, setSignLanguageVisible] = React.useState(false);
-  const containerRef = React.useRef<HTMLDivElement | null>(null);
+  const [roomID, setRoomID] = React.useState('')
+  const [hasJoinedRoom, setHasJoinedRoom] = React.useState(false)
+  const [meetingExpired, setMeetingExpired] = React.useState(false)
+  const [signLanguageVisible, setSignLanguageVisible] = React.useState(false)
+  const containerRef = React.useRef<HTMLDivElement | null>(null)
 
   // Speech-to-text states
-  const [speechLang, setSpeechLang] = React.useState<"vi-VN" | "en-US">(
-    "vi-VN"
-  );
-  const subscriptionKey = process.env.NEXT_PUBLIC_AZURE_SPEECH_KEY || "";
-  const region = process.env.NEXT_PUBLIC_AZURE_REGION || "";
-  const translatorKey = process.env.NEXT_PUBLIC_AZURE_TRANSLATOR_KEY || "";
-  const fromLang = speechLang === "vi-VN" ? "en-US" : "vi-VN";
-  const toLang = speechLang === "vi-VN" ? "vi" : "en";
+  const [speechLang, setSpeechLang] = React.useState<'vi-VN' | 'en-US'>('vi-VN')
+  const subscriptionKey = process.env.NEXT_PUBLIC_AZURE_SPEECH_KEY || ''
+  const region = process.env.NEXT_PUBLIC_AZURE_REGION || ''
+  const translatorKey = process.env.NEXT_PUBLIC_AZURE_TRANSLATOR_KEY || ''
+  const fromLang = speechLang === 'vi-VN' ? 'en-US' : 'vi-VN'
+  const toLang = speechLang === 'vi-VN' ? 'vi' : 'en'
 
   // API hooks
-  const [leaveMeeting] = useLeaveMeetingMutation();
-  const [addRecording] = useAddRecordingMutation();
+  const [leaveMeeting] = useLeaveMeetingMutation()
+  const [addRecording] = useAddRecordingMutation()
   const { data: meetingData } = useGetMeetingQuery(roomID, {
     skip: !roomID,
-    pollingInterval: 30000,
-  });
+    pollingInterval: 30000
+  })
 
   // Speech-to-text hook
-  const {
-    transcript,
-    isListening,
-    startListening,
-    stopListening,
-    resetTranscript,
-  } = useSpeechToText({
+  const { transcript, isListening, startListening, stopListening, resetTranscript } = useSpeechToText({
     subscriptionKey,
     region,
     translatorKey,
     fromLang,
-    toLang,
-  });
+    toLang
+  })
 
   // Real AI Sign Language Recognition hook
   const signLanguageRecognition = useRealSignLanguageRecognition({
     confidenceThreshold: 70, // Only accept gestures with >70% confidence
-    maxRecentPredictions: 20, // Keep last 20 predictions
-  });
+    maxRecentPredictions: 20 // Keep last 20 predictions
+  })
 
   // Firebase Test hook
-  const firebaseTest = useFirebaseTest();
+  const firebaseTest = useFirebaseTest()
 
   // Auto show overlay when sign language recognition is activated
   React.useEffect(() => {
     if (signLanguageRecognition.isActive && !signLanguageVisible) {
-      setSignLanguageVisible(true);
+      setSignLanguageVisible(true)
     }
-  }, [signLanguageRecognition.isActive, signLanguageVisible]);
+  }, [signLanguageRecognition.isActive, signLanguageVisible])
 
   const handleRecordingSave = React.useCallback(
     async (recordingPath: string, duration: number) => {
-      if (!roomID || !userInfo?.id) return;
+      if (!roomID || !userInfo?.id) return
       try {
         await addRecording({
           id: roomID,
           request: {
             storagePath: recordingPath,
             duration,
-            userId: userInfo.id,
-          },
-        }).unwrap();
+            userId: userInfo.id
+          }
+        }).unwrap()
       } catch (error) {
-        console.error("Failed to save recording:", error);
+        console.error('Failed to save recording:', error)
       }
     },
     [addRecording, roomID, userInfo]
-  );
+  )
 
   const {
     isRecording,
@@ -118,118 +98,96 @@ export default function MeetingPage() {
     customFolderName,
     setCustomFolderName,
     handleFolderSelect,
-    handleCustomFolderSubmit,
-  } = useRecording({ roomID, onStopRecording: handleRecordingSave });
+    handleCustomFolderSubmit
+  } = useRecording({ roomID, onStopRecording: handleRecordingSave })
 
   React.useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const id = params.get("roomID");
-      if (id) setRoomID(id);
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const id = params.get('roomID')
+      if (id) setRoomID(id)
     }
-  }, []);
+  }, [])
 
   React.useEffect(() => {
     if (meetingData?.endTime) {
-      const endTime = new Date(meetingData.endTime).getTime();
-      const now = new Date().getTime();
-      const timeLeft = Math.max(0, Math.floor((endTime - now) / 1000));
+      const endTime = new Date(meetingData.endTime).getTime()
+      const now = new Date().getTime()
+      const timeLeft = Math.max(0, Math.floor((endTime - now) / 1000))
 
-      if (timeLeft <= 0 || meetingData.status === "Ended") {
-        setMeetingExpired(true);
+      if (timeLeft <= 0 || meetingData.status === 'Ended') {
+        setMeetingExpired(true)
       }
     }
-  }, [meetingData]);
+  }, [meetingData])
 
   React.useEffect(() => {
     return () => {
-      if (isListening) stopListening();
-      resetTranscript();
+      if (isListening) stopListening()
+      resetTranscript()
       if (roomID && userInfo?.id) {
-        leaveMeeting({ id: roomID, request: { userId: userInfo.id } });
+        leaveMeeting({ id: roomID, request: { userId: userInfo.id } })
       }
-    };
-  }, [
-    leaveMeeting,
-    roomID,
-    userInfo,
-    isListening,
-    stopListening,
-    resetTranscript,
-  ]);
+    }
+  }, [leaveMeeting, roomID, userInfo, isListening, stopListening, resetTranscript])
 
   const joinZegoRoom = React.useCallback(
     async (element: HTMLDivElement) => {
-      if (!element || !roomID || !userInfo?.id) return;
+      if (!element || !roomID || !userInfo?.id) return
       try {
-        const kitToken = generateZegoToken(roomID);
-        const zp = ZegoUIKitPrebuilt.create(kitToken);
+        const kitToken = generateZegoToken(roomID)
+        const zp = ZegoUIKitPrebuilt.create(kitToken)
         zp.joinRoom({
           container: element,
           sharedLinks: [
             {
-              name: "Personal link",
+              name: 'Personal link',
               url:
-                typeof window !== "undefined"
+                typeof window !== 'undefined'
                   ? `${window.location.protocol}//${window.location.host}${window.location.pathname}?roomID=${roomID}`
-                  : "",
-            },
+                  : ''
+            }
           ],
           scenario: { mode: ZegoUIKitPrebuilt.GroupCall },
           onJoinRoom: () => setHasJoinedRoom(true),
           onLeaveRoom: () => {
-            setHasJoinedRoom(false);
-            if (isListening) stopListening();
-            resetTranscript();
-          },
-        });
+            setHasJoinedRoom(false)
+            if (isListening) stopListening()
+            resetTranscript()
+          }
+        })
       } catch (error) {
-        console.error("Failed to join meeting:", error);
+        console.error('Failed to join meeting:', error)
       }
     },
     [roomID, userInfo, isListening, stopListening, resetTranscript]
-  );
+  )
 
   useEffect(() => {
     if (containerRef.current && roomID && userInfo?.id && !hasJoinedRoom) {
-      joinZegoRoom(containerRef.current);
+      joinZegoRoom(containerRef.current)
     }
-  }, [roomID, userInfo?.id, joinZegoRoom, hasJoinedRoom]);
+  }, [roomID, userInfo?.id, joinZegoRoom, hasJoinedRoom])
 
   return (
     <>
-      <div
-        className="myCallContainer"
-        ref={containerRef}
-        style={{ height: "100vh", width: "100vw" }}
-      />
+      <div className="myCallContainer" ref={containerRef} style={{ height: '100vh', width: '100vw' }} />
 
       {/* Firebase Test Panel - Fixed position */}
       {roomID && (
         <div className="fixed top-4 left-4 z-[1000] bg-black/90 text-white p-4 rounded-lg max-w-sm">
           <h3 className="text-sm font-bold mb-3">🔥 Firebase Test Panel</h3>
-          
+
           {/* Connection Status */}
           <div className="mb-3">
             <div className="flex items-center gap-2">
-              <span className={cn(
-                "w-3 h-3 rounded-full",
-                firebaseTest.isConnected ? "bg-green-500" : "bg-red-500"
-              )} />
-              <span className="text-xs">
-                {firebaseTest.isConnected ? "Connected" : "Disconnected"}
-              </span>
-              {firebaseTest.isLoading && (
-                <span className="text-xs text-yellow-400">Loading...</span>
-              )}
+              <span className={cn('w-3 h-3 rounded-full', firebaseTest.isConnected ? 'bg-green-500' : 'bg-red-500')} />
+              <span className="text-xs">{firebaseTest.isConnected ? 'Connected' : 'Disconnected'}</span>
+              {firebaseTest.isLoading && <span className="text-xs text-yellow-400">Loading...</span>}
             </div>
-            
-            {firebaseTest.error && (
-              <div className="text-xs text-red-400 mt-1">
-                Error: {firebaseTest.error}
-              </div>
-            )}
-            
+
+            {firebaseTest.error && <div className="text-xs text-red-400 mt-1">Error: {firebaseTest.error}</div>}
+
             <div className="text-xs text-gray-400 mt-1">
               Last update: {new Date(firebaseTest.lastUpdate).toLocaleTimeString()}
             </div>
@@ -244,7 +202,7 @@ export default function MeetingPage() {
             >
               🧪 Test Connection
             </button>
-            
+
             <button
               onClick={firebaseTest.readAllDatabase}
               disabled={firebaseTest.isLoading}
@@ -252,7 +210,7 @@ export default function MeetingPage() {
             >
               📖 Read All DB
             </button>
-            
+
             <button
               onClick={firebaseTest.createTestData}
               disabled={firebaseTest.isLoading}
@@ -260,15 +218,15 @@ export default function MeetingPage() {
             >
               🏗️ Create Test Data
             </button>
-            
+
             <button
               onClick={() => {
-                const unsubscribe = firebaseTest.startRealTimeListener();
+                const unsubscribe = firebaseTest.startRealTimeListener()
                 // Store unsubscribe function for later cleanup
                 setTimeout(() => {
-                  console.log("🔇 Auto-stopping listener after 30 seconds");
-                  unsubscribe();
-                }, 30000);
+                  console.log('🔇 Auto-stopping listener after 30 seconds')
+                  unsubscribe()
+                }, 30000)
               }}
               disabled={firebaseTest.isLoading}
               className="w-full text-xs px-2 py-1 bg-orange-600 hover:bg-orange-700 disabled:bg-gray-600 rounded"
@@ -297,10 +255,10 @@ export default function MeetingPage() {
               <button
                 onClick={isRecording ? stopRecording : startRecording}
                 className={cn(
-                  "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all font-medium text-sm",
+                  'flex items-center gap-2 px-3 py-1.5 rounded-full transition-all font-medium text-sm',
                   isRecording
-                    ? "bg-red-500 text-white hover:bg-red-600"
-                    : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                    ? 'bg-red-500 text-white hover:bg-red-600'
+                    : 'bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600'
                 )}
               >
                 {isRecording ? (
@@ -328,19 +286,19 @@ export default function MeetingPage() {
                   onClick={() => {
                     if (isListening || signLanguageRecognition.isActive) {
                       // Stop both if either is active
-                      if (isListening) stopListening();
-                      if (signLanguageRecognition.isActive) signLanguageRecognition.stopRecognition();
+                      if (isListening) stopListening()
+                      if (signLanguageRecognition.isActive) signLanguageRecognition.stopRecognition()
                     } else {
                       // Start both
-                      startListening();
-                      signLanguageRecognition.startRecognition();
+                      startListening()
+                      signLanguageRecognition.startRecognition()
                     }
                   }}
                   className={cn(
-                    "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all font-medium text-sm",
+                    'flex items-center gap-2 px-3 py-1.5 rounded-full transition-all font-medium text-sm',
                     isListening || signLanguageRecognition.isActive
-                      ? "bg-purple-500 text-white hover:bg-purple-600"
-                      : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                      ? 'bg-purple-500 text-white hover:bg-purple-600'
+                      : 'bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600'
                   )}
                 >
                   {isListening || signLanguageRecognition.isActive ? (
@@ -368,7 +326,7 @@ export default function MeetingPage() {
 
                 <select
                   value={speechLang}
-                  onChange={(e) => setSpeechLang(e.target.value as "vi-VN" | "en-US")}
+                  onChange={(e) => setSpeechLang(e.target.value as 'vi-VN' | 'en-US')}
                   className="h-8 rounded-full bg-gray-200 text-gray-800 text-sm font-medium px-3"
                 >
                   <option value="vi-VN">Tiếng Việt</option>
@@ -419,9 +377,7 @@ export default function MeetingPage() {
                   )}
 
                   {signLanguageRecognition.useFakeMode && (
-                    <span className="text-xs bg-blue-600 px-2 py-1 rounded ml-2">
-                      AI Enhanced Mode
-                    </span>
+                    <span className="text-xs bg-blue-600 px-2 py-1 rounded ml-2">AI Enhanced Mode</span>
                   )}
                 </div>
               </div>
@@ -471,9 +427,7 @@ export default function MeetingPage() {
             lastUpdate={signLanguageRecognition.lastUpdate}
             recentPredictions={signLanguageRecognition.recentPredictions}
             isVisible={signLanguageVisible}
-            onToggleVisibility={() =>
-              setSignLanguageVisible(!signLanguageVisible)
-            }
+            onToggleVisibility={() => setSignLanguageVisible(!signLanguageVisible)}
           />
 
           <SignLanguageToggleButton
@@ -488,14 +442,12 @@ export default function MeetingPage() {
         <div className="fixed inset-0 bg-black/85 z-[1000] flex flex-col justify-center items-center text-white">
           <h2 className="text-2xl font-bold mb-4">Meeting Ended</h2>
           {meetingData && (
-            <p className="mb-3 text-lg text-center max-w-md">
-              The meeting &ldquo;{meetingData.title}&rdquo; has ended
-            </p>
+            <p className="mb-3 text-lg text-center max-w-md">The meeting &ldquo;{meetingData.title}&rdquo; has ended</p>
           )}
           <p className="mb-6">This meeting has reached its time limit</p>
           <button
             className="px-4 py-2 bg-blue-600 rounded-md hover:bg-blue-700"
-            onClick={() => router.push("/meeting-room")}
+            onClick={() => router.push('/meeting-room')}
           >
             Return to Meeting Rooms
           </button>
@@ -512,5 +464,5 @@ export default function MeetingPage() {
         onClose={() => setShowFolderModal(false)}
       />
     </>
-  );
+  )
 }
