@@ -7,6 +7,7 @@ import { useRealSignLanguageRecognition } from "@/hooks/useRealSignLanguageRecog
 import SignLanguageDetector from "@/components/SignLanguageDetector/SignLanguageDetector";
 import { useEffect } from "react";
 import { useSpeechToText } from "@/hooks/useSpeechToText";
+import { useFirebaseTest } from "@/hooks/useFirebaseTest";
 import {
   Mic,
   Square,
@@ -77,6 +78,9 @@ export default function MeetingPage() {
     confidenceThreshold: 70, // Only accept gestures with >70% confidence
     maxRecentPredictions: 20, // Keep last 20 predictions
   });
+
+  // Firebase Test hook
+  const firebaseTest = useFirebaseTest();
 
   // Auto show overlay when sign language recognition is activated
   React.useEffect(() => {
@@ -199,6 +203,91 @@ export default function MeetingPage() {
         ref={containerRef}
         style={{ height: "100vh", width: "100vw" }}
       />
+
+      {/* Firebase Test Panel - Fixed position */}
+      {roomID && (
+        <div className="fixed top-4 left-4 z-[1000] bg-black/90 text-white p-4 rounded-lg max-w-sm">
+          <h3 className="text-sm font-bold mb-3">🔥 Firebase Test Panel</h3>
+          
+          {/* Connection Status */}
+          <div className="mb-3">
+            <div className="flex items-center gap-2">
+              <span className={cn(
+                "w-3 h-3 rounded-full",
+                firebaseTest.isConnected ? "bg-green-500" : "bg-red-500"
+              )} />
+              <span className="text-xs">
+                {firebaseTest.isConnected ? "Connected" : "Disconnected"}
+              </span>
+              {firebaseTest.isLoading && (
+                <span className="text-xs text-yellow-400">Loading...</span>
+              )}
+            </div>
+            
+            {firebaseTest.error && (
+              <div className="text-xs text-red-400 mt-1">
+                Error: {firebaseTest.error}
+              </div>
+            )}
+            
+            <div className="text-xs text-gray-400 mt-1">
+              Last update: {new Date(firebaseTest.lastUpdate).toLocaleTimeString()}
+            </div>
+          </div>
+
+          {/* Test Buttons */}
+          <div className="space-y-2">
+            <button
+              onClick={firebaseTest.testConnection}
+              disabled={firebaseTest.isLoading}
+              className="w-full text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded"
+            >
+              🧪 Test Connection
+            </button>
+            
+            <button
+              onClick={firebaseTest.readAllDatabase}
+              disabled={firebaseTest.isLoading}
+              className="w-full text-xs px-2 py-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded"
+            >
+              📖 Read All DB
+            </button>
+            
+            <button
+              onClick={firebaseTest.createTestData}
+              disabled={firebaseTest.isLoading}
+              className="w-full text-xs px-2 py-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 rounded"
+            >
+              🏗️ Create Test Data
+            </button>
+            
+            <button
+              onClick={() => {
+                const unsubscribe = firebaseTest.startRealTimeListener();
+                // Store unsubscribe function for later cleanup
+                setTimeout(() => {
+                  console.log("🔇 Auto-stopping listener after 30 seconds");
+                  unsubscribe();
+                }, 30000);
+              }}
+              disabled={firebaseTest.isLoading}
+              className="w-full text-xs px-2 py-1 bg-orange-600 hover:bg-orange-700 disabled:bg-gray-600 rounded"
+            >
+              🎧 Start Listener (30s)
+            </button>
+          </div>
+
+          {/* Data Preview */}
+          {firebaseTest.allData && (
+            <div className="mt-3 p-2 bg-gray-800 rounded text-xs">
+              <div className="text-yellow-400 mb-1">📊 Live Data:</div>
+              <div className="max-h-20 overflow-y-auto text-gray-300">
+                {JSON.stringify(firebaseTest.allData, null, 1).substring(0, 200)}...
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Main control bar */}
       {hasJoinedRoom && !meetingExpired && roomID && (
