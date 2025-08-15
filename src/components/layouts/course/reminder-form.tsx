@@ -96,7 +96,7 @@ export function ReminderForm({
         <Label htmlFor="active">{tCourseDashBoard("reminderActive")}</Label>
       </div>
       <div className="space-y-2">
-        <Label htmlFor="time">Time to Send</Label>
+        <Label htmlFor="time">{tCourseDashBoard("reminderTime")}</Label>
         <Input
           id="time"
           type="time"
@@ -106,12 +106,12 @@ export function ReminderForm({
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="message">Message (Optional)</Label>
+        <Label htmlFor="message">{tCourseDashBoard("reminderMessage")}</Label>
         <Input
           id="message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="Enter your reminder message"
+          placeholder={tCourseDashBoard("enterYourReminderMessage")}
         />
       </div>
 

@@ -54,7 +54,9 @@ function ActivityCard({
             >
               &times;
             </button>
-            <div className="font-bold text-lg mb-4 dark:text-neutral-100">{title}</div>
+            <div className="font-bold text-lg mb-4 dark:text-neutral-100">
+              {title}
+            </div>
             <div className="flex flex-col gap-4">
               {Object.entries(activities).map(([key, value]) => {
                 const label = tCourseDashBoard(key);
@@ -64,8 +66,12 @@ function ActivityCard({
                     className="bg-primary/10 dark:bg-neutral-800/60 rounded-2xl px-4 py-3 flex items-center justify-between min-w-[250px]"
                   >
                     <div>
-                      <div className="text-base font-semibold dark:text-neutral-100">{label}</div>
-                      <div className="text-3xl font-bold dark:text-neutral-100">{value}</div>
+                      <div className="text-base font-semibold dark:text-neutral-100">
+                        {label}
+                      </div>
+                      <div className="text-3xl font-bold dark:text-neutral-100">
+                        {value}
+                      </div>
                     </div>
                   </div>
                 );

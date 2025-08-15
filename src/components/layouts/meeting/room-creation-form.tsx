@@ -1,17 +1,18 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { cn } from "@/utils/cn";
 import { useTheme } from "@/contexts/ThemeContext";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { RoomCreationModalProps } from '../../../types/IMeeting';
+import { RoomCreationModalProps } from "../../../types/IMeeting";
 import { useSelector } from "react-redux";
 import { useGetScheduledMeetingsByDateQuery } from "@/api/MeetingApi";
 import dayjs from "dayjs";
-import { RootState } from '@/redux/store';
+import { RootState } from "@/redux/store";
+import { useTranslations } from "next-intl";
 
 export const RoomCreationModal: React.FC<RoomCreationModalProps> = ({
   show,
@@ -19,15 +20,15 @@ export const RoomCreationModal: React.FC<RoomCreationModalProps> = ({
   onCreateRoom,
 }) => {
   const { isDarkMode } = useTheme();
-  const [roomName, setRoomName] = useState('');
-  const [description, setDescription] = useState('');
+  const [roomName, setRoomName] = useState("");
+  const [description, setDescription] = useState("");
   const [duration, setDuration] = useState(30);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const isVip = userInfo?.vipUser === true;
-
+  const t_meetingPage = useTranslations("meetingPage");
   const today = dayjs().format("YYYY-MM-DD");
   const { data: meetingsToday } = useGetScheduledMeetingsByDateQuery(
     { date: today, userId: userInfo?.id },
@@ -45,11 +46,15 @@ export const RoomCreationModal: React.FC<RoomCreationModalProps> = ({
 
     if (!isVip) {
       if (duration > 30) {
-        setError("Free accounts can only create rooms up to 30 minutes.");
+        setError(t_meetingPage("freeAccountsCanOnlyCreateRoomsUpTo30Minutes"));
         return;
       }
       if (meetingCount >= 3) {
-        setError("You have reached the daily limit of 3 room creations for free accounts.");
+        setError(
+          t_meetingPage(
+            "youHaveReachedTheDailyLimitOf3RoomCreationsForFreeAccounts"
+          )
+        );
         return;
       }
     }
@@ -57,11 +62,11 @@ export const RoomCreationModal: React.FC<RoomCreationModalProps> = ({
     setIsLoading(true);
     try {
       await onCreateRoom(roomName, description, duration);
-      setRoomName('');
-      setDescription('');
+      setRoomName("");
+      setDescription("");
       setDuration(30);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create room');
+      setError(err instanceof Error ? err.message : "Failed to create room");
     } finally {
       setIsLoading(false);
     }
@@ -69,13 +74,17 @@ export const RoomCreationModal: React.FC<RoomCreationModalProps> = ({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <Card className={cn(
-        "w-full max-w-md mx-auto",
-        isDarkMode ? "bg-gray-800 text-white" : "bg-white"
-      )}>
+      <Card
+        className={cn(
+          "w-full max-w-md mx-auto",
+          isDarkMode ? "bg-gray-800 text-white" : "bg-white"
+        )}
+      >
         <CardHeader className="relative pb-2">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Create Room</h3>
+            <h3 className="text-lg font-semibold">
+              {t_meetingPage("createRoom")}
+            </h3>
             <Button
               variant="ghost"
               size="icon"
@@ -89,12 +98,15 @@ export const RoomCreationModal: React.FC<RoomCreationModalProps> = ({
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="room-name" className="text-sm font-medium block mb-1">
-                Room Name
+              <label
+                htmlFor="room-name"
+                className="text-sm font-medium block mb-1"
+              >
+                {t_meetingPage("roomName")}
               </label>
               <Input
                 id="room-name"
-                placeholder="Enter room name"
+                placeholder={t_meetingPage("enterRoomName")}
                 value={roomName}
                 onChange={(e) => setRoomName(e.target.value)}
                 required
@@ -103,20 +115,26 @@ export const RoomCreationModal: React.FC<RoomCreationModalProps> = ({
             </div>
 
             <div>
-              <label htmlFor="description" className="text-sm font-medium block mb-1">
-                Description
+              <label
+                htmlFor="description"
+                className="text-sm font-medium block mb-1"
+              >
+                {t_meetingPage("description")}
               </label>
               <Input
                 id="description"
-                placeholder="Enter description"
+                placeholder={t_meetingPage("enterDescription")}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="w-full"
               />
             </div>
             <div>
-              <label htmlFor="duration" className="text-sm font-medium block mb-1">
-                Duration
+              <label
+                htmlFor="duration"
+                className="text-sm font-medium block mb-1"
+              >
+                {t_meetingPage("duration")}
               </label>
               <div className="flex items-center">
                 <select
@@ -125,32 +143,50 @@ export const RoomCreationModal: React.FC<RoomCreationModalProps> = ({
                   onChange={(e) => setDuration(Number(e.target.value))}
                   className={cn(
                     "w-full p-2 border rounded",
-                    isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"
+                    isDarkMode
+                      ? "bg-gray-700 border-gray-600 text-white"
+                      : "bg-white border-gray-300"
                   )}
                   disabled={isFreeUserLimitReached}
                 >
-                  <option value="15">15 minutes</option>
-                  <option value="30">30 minutes</option>
-                  <option value="45" disabled={!isVip}>45 minutes</option>
-                  <option value="60" disabled={!isVip}>1 hour</option>
-                  <option value="90" disabled={!isVip}>1.5 hours</option>
-                  <option value="120" disabled={!isVip}>2 hours</option>
-                  <option value="180" disabled={!isVip}>3 hours</option>
-                  <option value="240" disabled={!isVip}>4 hours</option>
-                  <option value="480" disabled={!isVip}>8 hours</option>
+                  <option value="15">{t_meetingPage("15minutes")}</option>
+                  <option value="30">{t_meetingPage("30minutes")}</option>
+                  <option value="45" disabled={!isVip}>
+                    {t_meetingPage("45minutes")}
+                  </option>
+                  <option value="60" disabled={!isVip}>
+                    {t_meetingPage("1hour")}
+                  </option>
+                  <option value="90" disabled={!isVip}>
+                    {t_meetingPage("1,5hours")}
+                  </option>
+                  <option value="120" disabled={!isVip}>
+                    {t_meetingPage("2hours")}
+                  </option>
+                  <option value="180" disabled={!isVip}>
+                    {t_meetingPage("3hours")}
+                  </option>
+                  <option value="240" disabled={!isVip}>
+                    {t_meetingPage("4hours")}
+                  </option>
+                  <option value="480" disabled={!isVip}>
+                    {t_meetingPage("8hours")}
+                  </option>
                 </select>
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 {isVip
-                  ? "The meeting will automatically end after the selected duration."
-                  : "Free accounts can only create rooms up to 30 minutes/time, up to 3 times/day."}
+                  ? t_meetingPage(
+                      "theMeetingWillAutomaticallyEndAfterTheSelectedDuration"
+                    )
+                  : t_meetingPage(
+                      "freeAccountsCanOnlyCreateRoomsUpTo30MinutesTimeUpTo3TimesDay"
+                    )}
               </p>
             </div>
             <div className="pt-4">
               {error && (
-                <div className="text-red-500 text-sm mb-2">
-                  {error}
-                </div>
+                <div className="text-red-500 text-sm mb-2">{error}</div>
               )}
               <Button
                 type="submit"
@@ -158,10 +194,10 @@ export const RoomCreationModal: React.FC<RoomCreationModalProps> = ({
                 disabled={isLoading || isFreeUserLimitReached}
               >
                 {isLoading
-                  ? 'Creating...'
+                  ? t_meetingPage("creating")
                   : isFreeUserLimitReached
-                    ? 'Reached limit/day'
-                    : 'Create room'}
+                  ? t_meetingPage("reachedLimitDay")
+                  : t_meetingPage("createRoom")}
               </Button>
             </div>
           </form>

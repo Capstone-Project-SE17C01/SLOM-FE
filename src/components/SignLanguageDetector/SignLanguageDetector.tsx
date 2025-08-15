@@ -207,7 +207,7 @@ const SignLanguageDetector: React.FC<SignLanguageDetectorProps> = ({
 
       // Kiểm tra phát hiện tay
       const handsDetected = results.landmarks && results.landmarks.length > 0;
-      
+
       // Chỉ gửi thông báo khi trạng thái thay đổi để tránh gọi callback quá nhiều
       if (handsDetected !== lastHandDetectedRef.current) {
         lastHandDetectedRef.current = handsDetected;

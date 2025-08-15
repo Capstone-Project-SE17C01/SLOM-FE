@@ -3,19 +3,40 @@ import {
   RealTimeTranslationState,
   UseRealTimeTranslatorReturn,
   PredictionResult,
-  UseFakeTranslatorOptions
+  UseFakeTranslatorOptions,
 } from "@/types/ITranslator";
+import { useTranslations } from "next-intl";
 
 const FAKE_WORDS = [
-  "This", "is", "a", "real-time", "sign", "language", "translator",
-  "It", "can", "recognize", "various", "signs", "and", "convert", "them",
-  "into", "text", "for", "easier", "communication"
+  "This",
+  "is",
+  "a",
+  "real-time",
+  "sign",
+  "language",
+  "translator",
+  "It",
+  "can",
+  "recognize",
+  "various",
+  "signs",
+  "and",
+  "convert",
+  "them",
+  "into",
+  "text",
+  "for",
+  "easier",
+  "communication",
 ];
 
 const DEFAULT_INITIAL_DELAY = 2000;
 const DEFAULT_TRANSLATION_INTERVAL = 1500;
 
-export const useRealTimeTranslator = (options: UseFakeTranslatorOptions = {}): UseRealTimeTranslatorReturn => {
+export const useRealTimeTranslator = (
+  options: UseFakeTranslatorOptions = {}
+): UseRealTimeTranslatorReturn => {
+  const t = useTranslations("translatorPage");
   const {
     words = FAKE_WORDS,
     initialDelay = DEFAULT_INITIAL_DELAY,
@@ -27,12 +48,12 @@ export const useRealTimeTranslator = (options: UseFakeTranslatorOptions = {}): U
     isActive: false,
     isRecording: false,
     isProcessing: false,
-    connectionStatus: 'Disconnected',
-    currentPrediction: '...',
-    fullTranscript: '',
+    connectionStatus: "Disconnected",
+    currentPrediction: "...",
+    fullTranscript: "",
     confidence: 0,
-    lastUpdate: '',
-    recentPredictions: []
+    lastUpdate: "",
+    recentPredictions: [],
   });
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -44,12 +65,21 @@ export const useRealTimeTranslator = (options: UseFakeTranslatorOptions = {}): U
   }, [state.isConnected]);
 
   const connect = useCallback(() => {
-    setState(prev => ({ ...prev, isConnected: true, connectionStatus: 'Connected' }));
+    setState((prev) => ({
+      ...prev,
+      isConnected: true,
+      connectionStatus: "Connected",
+    }));
   }, []);
 
   const disconnect = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
-    setState(prev => ({ ...prev, isConnected: false, isActive: false, connectionStatus: 'Disconnected' }));
+    setState((prev) => ({
+      ...prev,
+      isConnected: false,
+      isActive: false,
+      connectionStatus: "Disconnected",
+    }));
   }, []);
 
   const startRecognition = useCallback(() => {
@@ -57,11 +87,17 @@ export const useRealTimeTranslator = (options: UseFakeTranslatorOptions = {}): U
       console.error("Not connected");
       return false;
     }
-    
+
     if (timerRef.current) clearInterval(timerRef.current);
     wordIndexRef.current = 0;
-    
-    setState(prev => ({ ...prev, isActive: true, recentPredictions: [], currentPrediction: 'Starting recognition...', fullTranscript: '' }));
+
+    setState((prev) => ({
+      ...prev,
+      isActive: true,
+      recentPredictions: [],
+      currentPrediction: t("startingRecognition"),
+      fullTranscript: "",
+    }));
 
     setTimeout(() => {
       timerRef.current = setInterval(() => {
@@ -70,41 +106,50 @@ export const useRealTimeTranslator = (options: UseFakeTranslatorOptions = {}): U
           const newResult: PredictionResult = {
             prediction: newWord,
             confidence: Math.floor(Math.random() * 11) + 90, // Random confidence 90-100
-            timestamp: new Date().toLocaleTimeString()
+            timestamp: new Date().toLocaleTimeString(),
           };
 
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
             isProcessing: true,
             currentPrediction: newWord,
-            fullTranscript: prev.fullTranscript ? `${prev.fullTranscript} ${newWord}` : newWord,
+            fullTranscript: prev.fullTranscript
+              ? `${prev.fullTranscript} ${newWord}`
+              : newWord,
             confidence: newResult.confidence,
             lastUpdate: newResult.timestamp,
-            recentPredictions: [newResult, ...prev.recentPredictions]
+            recentPredictions: [newResult, ...prev.recentPredictions],
           }));
 
-          setTimeout(() => setState(prev => ({ ...prev, isProcessing: false })), 500);
+          setTimeout(
+            () => setState((prev) => ({ ...prev, isProcessing: false })),
+            500
+          );
 
           wordIndexRef.current += 1;
         } else {
           if (timerRef.current) clearInterval(timerRef.current);
-          setState(prev => ({ ...prev, isActive: false, currentPrediction: "Recognition finished." }));
+          setState((prev) => ({
+            ...prev,
+            isActive: false,
+            currentPrediction: t("recognitionFinished"),
+          }));
         }
       }, translationInterval);
     }, initialDelay);
 
     return true;
-  }, [words, initialDelay, translationInterval]);
+  }, [words, initialDelay, translationInterval, t]);
 
   const stopRecognition = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       isActive: false,
       isProcessing: false,
-      currentPrediction: 'Stopped'
+      currentPrediction: t("stopTranslation"),
     }));
-  }, []);
+  }, [t]);
 
   const toggleRecognition = useCallback(() => {
     if (state.isActive) {
@@ -117,18 +162,24 @@ export const useRealTimeTranslator = (options: UseFakeTranslatorOptions = {}): U
         startRecognition();
       }
     }
-  }, [state.isActive, state.isConnected, connect, startRecognition, stopRecognition]);
+  }, [
+    state.isActive,
+    state.isConnected,
+    connect,
+    startRecognition,
+    stopRecognition,
+  ]);
 
   const clearHistory = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       recentPredictions: [],
-      currentPrediction: 'History cleared',
-      fullTranscript: '',
+      currentPrediction: t("historyCleared"),
+      fullTranscript: "",
       confidence: 0,
-      lastUpdate: ''
+      lastUpdate: "",
     }));
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     return () => {
@@ -143,6 +194,6 @@ export const useRealTimeTranslator = (options: UseFakeTranslatorOptions = {}): U
     startRecognition,
     stopRecognition,
     toggleRecognition,
-    clearHistory
+    clearHistory,
   };
-}; 
+};

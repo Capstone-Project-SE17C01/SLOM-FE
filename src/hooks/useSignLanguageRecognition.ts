@@ -1,12 +1,67 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 // Default list of words to simulate recognition
 const DEFAULT_WORDS = [
-  "Xin", "chào", "mọi", "người", "mình", "tên", "là", "[Tên]",
-  "Hiện", "mình", "đang", "làm", "việc", "ở", "quán", "cà", "phê", "tại", "Angel", "Coffee",
-  "Mình", "rất", "vui", "được", "gặp", "các", "bạn", "hôm", "nay",
-  "Mình", "là", "người", "khiếm", "thính", "nhưng", "mình", "có", "thể", "giao", "tiếp", "tốt", "nhờ", "ký", "hiệu", "và", "công", "nghệ",
-  "Nếu", "có", "gì", "cần", "hỗ", "trợ", "cứ", "nhắn", "hoặc", "ra", "dấu", "nhé"
+  "Xin",
+  "chào",
+  "mọi",
+  "người",
+  "mình",
+  "tên",
+  "là",
+  "[Tên]",
+  "Hiện",
+  "mình",
+  "đang",
+  "làm",
+  "việc",
+  "ở",
+  "quán",
+  "cà",
+  "phê",
+  "tại",
+  "Angel",
+  "Coffee",
+  "Mình",
+  "rất",
+  "vui",
+  "được",
+  "gặp",
+  "các",
+  "bạn",
+  "hôm",
+  "nay",
+  "Mình",
+  "là",
+  "người",
+  "khiếm",
+  "thính",
+  "nhưng",
+  "mình",
+  "có",
+  "thể",
+  "giao",
+  "tiếp",
+  "tốt",
+  "nhờ",
+  "ký",
+  "hiệu",
+  "và",
+  "công",
+  "nghệ",
+  "Nếu",
+  "có",
+  "gì",
+  "cần",
+  "hỗ",
+  "trợ",
+  "cứ",
+  "nhắn",
+  "hoặc",
+  "ra",
+  "dấu",
+  "nhé",
 ];
 const DEFAULT_INITIAL_DELAY = 3000;
 const DEFAULT_WORD_INTERVAL = 500;
@@ -23,13 +78,15 @@ export interface SignLanguageRecognitionResult {
   timestamp: string;
 }
 
-export const useSignLanguageRecognition = (options: UseFakeSignLanguageRecognitionOptions = {}) => {
+export const useSignLanguageRecognition = (
+  options: UseFakeSignLanguageRecognitionOptions = {}
+) => {
   const {
     words = DEFAULT_WORDS,
     initialDelay = DEFAULT_INITIAL_DELAY,
-    wordInterval = DEFAULT_WORD_INTERVAL
+    wordInterval = DEFAULT_WORD_INTERVAL,
   } = options;
-
+  const t_translatorPage = useTranslations("translatorPage");
   const [isActive, setIsActive] = useState(false);
   const [currentPrediction, setCurrentPrediction] = useState("");
   const [fullTranscript, setFullTranscript] = useState("");
@@ -38,19 +95,19 @@ export const useSignLanguageRecognition = (options: UseFakeSignLanguageRecogniti
 
   const startRecognition = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
-    
+
     // Reset state when starting
     setCurrentPrediction("");
     setFullTranscript("");
     wordIndexRef.current = 0;
-    
+
     // Start generating words after a 3-second delay
     setTimeout(() => {
       timerRef.current = setInterval(() => {
         if (wordIndexRef.current < words.length) {
           const newWord = words[wordIndexRef.current];
           setCurrentPrediction(newWord);
-          setFullTranscript(prev => (prev ? `${prev} ${newWord}` : newWord));
+          setFullTranscript((prev) => (prev ? `${prev} ${newWord}` : newWord));
           wordIndexRef.current += 1;
         } else {
           // Stop when all words are shown
@@ -66,11 +123,11 @@ export const useSignLanguageRecognition = (options: UseFakeSignLanguageRecogniti
       timerRef.current = null;
     }
     // Optionally reset or keep the transcript
-    // setCurrentPrediction(""); 
+    // setCurrentPrediction("");
   }, []);
 
   const toggleRecognition = useCallback(() => {
-    setIsActive(prev => {
+    setIsActive((prev) => {
       const newIsActive = !prev;
       if (newIsActive) {
         startRecognition();
@@ -95,16 +152,18 @@ export const useSignLanguageRecognition = (options: UseFakeSignLanguageRecogniti
     toggleRecognition,
     currentPrediction,
     fullTranscript, // This will be used for the subtitle display
-    
+
     // --- Mock data to prevent breaking the UI ---
     isConnected: isActive,
-    connectionStatus: isActive ? "Recognizing" : "Disconnected",
+    connectionStatus: isActive
+      ? t_translatorPage("recognizing")
+      : t_translatorPage("disconnected"),
     confidence: isActive ? 100 : 0,
     lastUpdate: new Date().toLocaleTimeString(),
     recentPredictions: [],
     connect: () => {},
     disconnect: () => {},
     startRecognition: () => {},
-    stopRecognition: () => {}
+    stopRecognition: () => {},
   };
-}; 
+};
