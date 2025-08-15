@@ -58,9 +58,6 @@ export default function WordPractice({
         lessonId: lessonId,
       })
         .unwrap()
-        .then((res) => {
-          console.error(res.result);
-        })
         .catch((error) => {
           console.error(error.data?.errorMessages[0]);
         });

@@ -5,8 +5,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RootState } from "@/redux/store";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 export default function TranslatorPage() {
+  const t_translatorPage = useTranslations("translatorPage");
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const isVip = userInfo?.vipUser === true;
   useEffect(() => { 
@@ -17,17 +19,17 @@ export default function TranslatorPage() {
     <div className="container mx-auto max-w-6xl px-4 py-6 space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Sign Language Translator
+          {t_translatorPage("signLanguageTranslator")}
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Real-time translation and video analysis for sign language
+          {t_translatorPage("realTimeTranslationAndVideoAnalysisForSignLanguage")}
         </p>
       </div>
 
       {isVip ? (<Tabs defaultValue="realtime" className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-8">
-          <TabsTrigger value="realtime">Real-time Translation</TabsTrigger>
-          <TabsTrigger value="upload">Video Upload Translation</TabsTrigger>
+          <TabsTrigger value="realtime">{t_translatorPage("realTimeTranslation")}</TabsTrigger>
+          <TabsTrigger value="upload">{t_translatorPage("videoUploadTranslation")}</TabsTrigger>
         </TabsList>
         <TabsContent value="realtime" className="mt-0">
           <RealTimeTranslator />

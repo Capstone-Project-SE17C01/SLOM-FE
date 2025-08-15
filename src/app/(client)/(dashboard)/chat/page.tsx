@@ -18,6 +18,7 @@ import { uploadImageToCloudinary } from "@/services/cloudinary/config";
 
 function Page() {
   const t = useTranslations("unAuthenMessage");
+  const t_chatPage = useTranslations("chatPage");
   const [selectedUser, setSelectedUser] = useState<User>();
   const [messages, setMessages] = useState<Message[]>([]);
   const [connection, setConnection] = useState<HubConnection | null>(null);
@@ -119,7 +120,7 @@ function Page() {
     <div className="h-[70vh] flex">
       <div className="bg-white dark:bg-[#23272f] rounded-xl w-[20vw] pl-2.5 pr-2.5 pt-2.5 mr-5 shadow-md flex flex-col border border-1">
         <div className="pr-4 h-[80px] mb-[3%]">
-          <h3 className="h-[50%] text-3xl font-bold dark:text-white">Chat</h3>
+          <h3 className="h-[50%] text-3xl font-bold dark:text-white">{t_chatPage("chat")}</h3>
 
           <div className="h-[50%] relative">
             <SearchUser
@@ -171,10 +172,10 @@ function Page() {
         <div className="bg-white dark:bg-[#23272f] rounded-xl shadow-md p-6 flex items-center justify-center flex-1 border border-1">
           <div className="text-center">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
-              No User Selected
+              {t_chatPage("noUserSelected")}
             </h2>
             <p className="text-gray-500 dark:text-gray-300">
-              Please select or find a user to view their details.
+              {t_chatPage("pleaseSelectOrFindUser")}
             </p>
           </div>
         </div>
@@ -242,7 +243,7 @@ function Page() {
 
                   <input
                     type="text"
-                    placeholder="Aa"
+                    placeholder={t_chatPage("message")}
                     className={cn("h-[60%] w-full p-2.5 border border-[#ccc] dark:border-[#444] m-0 bg-[#f3f3f5] dark:bg-[#353945] text-black dark:text-white",
                       previews != undefined && previews.length != 0 ? "rounded-b-xl border-t-0 mb-1" : "rounded-xl"
                     )}

@@ -2,7 +2,15 @@
 
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-import { Menu, Search, Bell, LogOut, UserCircle, Sun, Moon } from "lucide-react";
+import {
+  Menu,
+  Search,
+  Bell,
+  LogOut,
+  UserCircle,
+  Sun,
+  Moon,
+} from "lucide-react";
 import { cn } from "@/utils/cn";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -18,6 +26,7 @@ import { RootState } from "@/redux/store";
 import { useTheme } from "@/contexts/ThemeContext";
 import { toast } from "sonner";
 import { logout } from "@/redux/auth/slice";
+import { useTranslations } from "next-intl";
 
 interface AdminHeaderProps {
   onToggleSidebar: () => void;
@@ -28,7 +37,7 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const router = useRouter();
   const dispatch = useDispatch();
-
+  const t_header = useTranslations("header");
   const handleLogout = () => {
     dispatch(logout());
     router.push("/login");
@@ -39,9 +48,7 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
     <header
       className={cn(
         "h-16 border-b flex items-center justify-between px-6",
-        isDarkMode
-          ? "bg-gray-800 border-gray-700"
-          : "bg-white border-gray-200"
+        isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
       )}
     >
       {/* Left side */}
@@ -63,7 +70,7 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Search admin panel..."
+            placeholder={t_header("search")}
             className={cn(
               "pl-10 pr-4 py-2 w-64 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-[#6947A8] focus:border-transparent",
               isDarkMode
@@ -113,9 +120,7 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
               <button
                 className={cn(
                   "flex items-center space-x-2 p-2 rounded-lg transition-colors",
-                  isDarkMode
-                    ? "hover:bg-gray-700"
-                    : "hover:bg-gray-100"
+                  isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
                 )}
               >
                 <Avatar className="h-8 w-8">
@@ -124,11 +129,15 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
                     alt={userInfo.username}
                     className="object-cover"
                   />
-                  <AvatarFallback>{userInfo.username?.[0]?.toUpperCase()}</AvatarFallback>
+                  <AvatarFallback>
+                    {userInfo.username?.[0]?.toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="hidden md:block text-left">
                   <p className="text-sm font-medium">{userInfo.username}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Admin</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Admin
+                  </p>
                 </div>
               </button>
             </DropdownMenuTrigger>
@@ -142,11 +151,11 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <UserCircle className="mr-2 h-4 w-4" />
-                <span>Profile</span>
+                <span>{t_header("profile")}</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem 
-                asChild 
+              <DropdownMenuItem
+                asChild
                 className="text-destructive cursor-pointer"
               >
                 <button
@@ -154,7 +163,7 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
                   className="w-full flex items-center"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Logout</span>
+                  <span>{t_header("logout")}</span>
                 </button>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -166,10 +175,10 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
             onClick={() => router.push("/login")}
           >
             <UserCircle className="h-4 w-4 mr-2" />
-            Sign In
+            {t_header("signIn")}
           </Button>
         )}
       </div>
     </header>
   );
-} 
+}
