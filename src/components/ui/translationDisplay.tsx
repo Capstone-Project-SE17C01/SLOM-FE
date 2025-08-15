@@ -1,6 +1,7 @@
 import { cn } from "@/utils/cn";
 import { TranslationDisplayProps } from "@/types/ITranslator";
 import { Clock, Zap } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function TranslationDisplay({
   prediction,
@@ -9,7 +10,7 @@ export default function TranslationDisplay({
   showConfidence = true,
   className
 }: TranslationDisplayProps) {
-  
+  const t_translatorPage = useTranslations("translatorPage");
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 80) return "text-green-600";
     if (confidence >= 60) return "text-yellow-600";
@@ -34,7 +35,7 @@ export default function TranslationDisplay({
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Zap className="w-4 h-4 text-blue-500" />
-          <span className="text-sm font-medium text-gray-600">Live Translation</span>
+          <span className="text-sm font-medium text-gray-600">{t_translatorPage("liveTranslation")}</span>
         </div>
         {timestamp && (
           <div className="flex items-center gap-1 text-xs text-gray-500">
@@ -55,7 +56,7 @@ export default function TranslationDisplay({
       {showConfidence && (
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Confidence:</span>
+            <span className="text-sm text-gray-600">{t_translatorPage("confidence")}:</span>
             <span className={cn(
               "text-sm font-bold",
               getConfidenceColor(confidence)
@@ -85,7 +86,7 @@ export default function TranslationDisplay({
             getConfidenceBgColor(confidence),
             getConfidenceColor(confidence)
           )}>
-            {confidence >= 80 ? "High" : confidence >= 60 ? "Medium" : "Low"}
+            {confidence >= 80 ? t_translatorPage("high") : confidence >= 60 ? t_translatorPage("medium") : t_translatorPage("low")}
           </div>
         </div>
       )}

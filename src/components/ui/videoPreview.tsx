@@ -3,6 +3,7 @@ import { VideoPreviewProps } from "@/types/ITranslator";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Volume2, VolumeX, X, Loader2, FileVideo } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 export default function VideoPreview({
   file,
@@ -11,7 +12,7 @@ export default function VideoPreview({
   onRemove,
   className
 }: VideoPreviewProps) {
-  
+  const t_translatorPage = useTranslations("translatorPage");
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -84,8 +85,8 @@ export default function VideoPreview({
       )}>
         <div className="text-center">
           <FileVideo className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-          <p className="text-lg font-medium text-gray-600">No video selected</p>
-          <p className="text-sm text-gray-500">Upload a video to see preview</p>
+          <p className="text-lg font-medium text-gray-600">{t_translatorPage("noVideoSelected")}</p>
+          <p className="text-sm text-gray-500">{t_translatorPage("uploadAVideoToSeePreview")}</p>
         </div>
       </div>
     );
@@ -108,7 +109,7 @@ export default function VideoPreview({
               playsInline
             >
               <source src={videoUrl} type={file?.type || "video/mp4"} />
-              Your browser does not support the video tag.
+              {t_translatorPage("yourBrowserDoesNotSupportTheVideoTag")}
             </video>
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -121,8 +122,8 @@ export default function VideoPreview({
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
               <div className="text-center text-white">
                 <Loader2 className="w-12 h-12 mx-auto mb-4 animate-spin" />
-                <p className="text-lg font-medium">Processing video...</p>
-                <p className="text-sm opacity-75">Translating sign language content</p>
+                <p className="text-lg font-medium">{t_translatorPage("processingVideo")}...</p>
+                <p className="text-sm opacity-75">{t_translatorPage("translatingSignLanguageContent")}</p>
               </div>
             </div>
           )}
@@ -211,7 +212,7 @@ export default function VideoPreview({
             {isProcessing && (
               <div className="flex items-center gap-2 text-blue-600">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span className="text-sm font-medium">Processing...</span>
+                <span className="text-sm font-medium">{t_translatorPage("processing")}...</span>
               </div>
             )}
           </div>

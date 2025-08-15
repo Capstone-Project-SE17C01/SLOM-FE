@@ -16,7 +16,10 @@ import { Switch } from "@/components/ui/switch";
 import { Check } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { useCreatePaymentLinkMutation, useGetAllPlanQuery } from "@/api/PaymentApi";
+import {
+  useCreatePaymentLinkMutation,
+  useGetAllPlanQuery,
+} from "@/api/PaymentApi";
 import constants from "@/config/constants";
 import {
   APIResponse,
@@ -39,6 +42,7 @@ export default function PricingPlans() {
   const t_error_dashboard = useTranslations("errorMessages.errorDashboard");
   const t_error_payment = useTranslations("errorMessages.paymentError");
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+  const isVip = userInfo?.vipUser === true;
 
   useEffect(() => {
     if (error) console.error(t_error_payment("failGetplan"));
@@ -175,12 +179,15 @@ export default function PricingPlans() {
                 <CardFooter className="mt-auto">
                   {plan.name === "Free User" || plan.name === "free" ? (
                     <Button className="w-full" variant="outline" disabled>
-                      {t_pricing("currentPlan")}
+                      {isVip
+                        ? t_pricing("buttonTextFree")
+                        : t_pricing("currentPlan")}
                     </Button>
                   ) : (
                     <Button
                       className="w-full bg-primary hover:bg-primary/90"
                       variant="default"
+                      disabled={isVip}
                       onClick={(e) =>
                         handlePayment(
                           e,
@@ -192,7 +199,9 @@ export default function PricingPlans() {
                         )
                       }
                     >
-                      {t_pricing("buttonText")}
+                      {isVip
+                        ? t_pricing("currentPlan")
+                        : t_pricing("buttonText")}
                     </Button>
                   )}
                 </CardFooter>

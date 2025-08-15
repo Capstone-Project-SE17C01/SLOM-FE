@@ -3,6 +3,7 @@ import { cn } from '@/utils/cn';
 import { Users, User } from 'lucide-react';
 import { QuestionTypeToggleProps } from '@/types/IQa';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useTranslations } from 'next-intl';
 
 export default function QuestionTypeToggle({
   isCurrentUser,
@@ -12,7 +13,7 @@ export default function QuestionTypeToggle({
 }: QuestionTypeToggleProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const { isDarkMode } = useTheme();
-
+  const t_qaPage = useTranslations("qaPage");
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
@@ -48,7 +49,7 @@ export default function QuestionTypeToggle({
           )}
         >
           <Users className="h-4.5 w-4.5" />
-          <span className="font-medium text-nowrap w-full">All Questions</span>
+          <span className="font-medium text-nowrap w-full">{t_qaPage("allQuestions")}</span>
         </button>
 
         <button
@@ -64,7 +65,7 @@ export default function QuestionTypeToggle({
           )}
         >
           <User className="h-4.5 w-4.5" />
-          <span className="font-medium text-nowrap w-full">{isAdmin ? "Unanswered Questions" : "My Questions"}</span>
+          <span className="font-medium text-nowrap w-full">{isAdmin ? t_qaPage("unansweredQuestions") : t_qaPage("myQuestions")}</span>
         </button>
       </div>
     </div>

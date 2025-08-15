@@ -41,14 +41,10 @@ export default function ApprenderLearnPractice() {
         await addNewUserProgress({
           userId: userInfo.id || "",
           lessonId: lessonId,
-        })
-          .then((res) => {
-            console.log(res.data?.result);
-          })
-          .catch((error) => {
-            setIsErrorAddNewUserProgress(true);
-            console.error(error.data?.errorMessages[0]);
-          });
+        }).catch((error) => {
+          setIsErrorAddNewUserProgress(true);
+          console.error(error.data?.errorMessages[0]);
+        });
       }
     };
     fetchAddNewUserProgress();
