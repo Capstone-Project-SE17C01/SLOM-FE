@@ -7,6 +7,7 @@ import { ArrowLeft, Play, Pause, Volume2, VolumeX, Maximize2, Minimize2, FileTex
 import { OpenRouterService } from "@/services/openrouter/config";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useExtractTextMutation } from "@/api/TranscriptApi";
+import { Input } from "@/components/ui/input";
 
 export default function VideoViewerPage() {
   const searchParams = useSearchParams();
@@ -156,7 +157,7 @@ export default function VideoViewerPage() {
               
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
                 <div className="mb-4">
-                  <input type="range" min="0" max={duration || 0} value={currentTime} onChange={handleSeek} className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer slider" />
+                  <Input type="range" min="0" max={duration || 0} value={currentTime} onChange={handleSeek} className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer slider" />
                   <div className="flex justify-between text-xs text-white mt-1">
                     <span>{formatTime(currentTime) || '00:00'}</span>
                     <span>{formatTime(duration) || '00:00'}</span>
@@ -171,7 +172,7 @@ export default function VideoViewerPage() {
                     <button onClick={handleMute} className="text-white hover:text-gray-300 transition-colors">
                       {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
                     </button>
-                    <input type="range" min="0" max="1" step="0.1" value={volume} onChange={handleVolumeChange} className="w-20 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer" />
+                    <Input type="range" min="0" max="1" step="0.1" value={volume} onChange={handleVolumeChange} className="w-20 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer" />
                   </div>
                   <button onClick={toggleFullscreen} className="text-white hover:text-gray-300 transition-colors">
                     {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}

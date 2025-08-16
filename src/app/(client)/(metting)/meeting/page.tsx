@@ -16,6 +16,13 @@ import { cn } from '@/utils/cn'
 import { RootState } from '@/redux/store'
 import { useAddRecordingMutation, useGetMeetingQuery, useLeaveMeetingMutation } from '@/api/MeetingApi'
 import { FolderSelectionModal } from '@/components/layouts/meeting/folder-selection-form'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 
 export default function MeetingPage() {
   const router = useRouter()
@@ -324,14 +331,18 @@ export default function MeetingPage() {
                   )}
                 </button>
 
-                <select
+                <Select
                   value={speechLang}
-                  onChange={(e) => setSpeechLang(e.target.value as 'vi-VN' | 'en-US')}
-                  className="h-8 rounded-full bg-gray-200 text-gray-800 text-sm font-medium px-3"
+                  onValueChange={(value) => setSpeechLang(value as 'vi-VN' | 'en-US')}
                 >
-                  <option value="vi-VN">Tiếng Việt</option>
-                  <option value="en-US">English</option>
-                </select>
+                  <SelectTrigger className="h-8 rounded-full bg-gray-200 text-gray-800 text-sm font-medium px-3 w-auto">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="mb-2">
+                    <SelectItem value="vi-VN">Tiếng Việt</SelectItem>
+                    <SelectItem value="en-US">English</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </>
           )}

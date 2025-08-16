@@ -9,6 +9,7 @@ import { Send, X } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/utils/cn";
 import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function NewAnswer({ userInfo, setIsResponseQuestion, question, setAnswerOfQuestion, setNewAnswerAmount, newAnswerAmount, isUpdateAnswer = false, answer, setIsUpdateAnswer, setAnswer, updateQuestionAnswerCount }: Readonly<NewAnswerProps>) {
     const [newAnswer, setNewAnswer] = useState(isUpdateAnswer ? (answer?.content || "") : "");
@@ -196,7 +197,7 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
                                 "border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent",
                                 isDarkMode ? "border-gray-600" : "border-gray-300"
                             )}>
-                                <textarea
+                                <Textarea
                                     ref={textareaRef}
                                     value={newAnswer}
                                     rows={3}

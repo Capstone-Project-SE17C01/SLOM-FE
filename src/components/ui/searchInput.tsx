@@ -9,7 +9,7 @@ interface SearchInputProps {
 }
 
 export default function SearchInput({
-  placeholder = "Tìm kiếm",
+  placeholder = "Search",
   value,
   onChange,
   className = "",

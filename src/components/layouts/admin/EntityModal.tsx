@@ -7,6 +7,15 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useGetAllModuleByCourseIdMutation, useGetLessonByModuleIdMutation } from "@/api/CourseApi";
 
 export interface FieldConfig {
@@ -117,7 +126,7 @@ const EntityModal: React.FC<EntityModalProps> = ({
                   {field.required && <span className="text-red-500 ml-1">*</span>}
                 </label>
                 {field.type === "text" && (
-                  <input
+                  <Input
                     type="text"
                     id={field.name}
                     name={field.name}
@@ -128,7 +137,7 @@ const EntityModal: React.FC<EntityModalProps> = ({
                   />
                 )}
                 {field.type === "number" && (
-                  <input
+                  <Input
                     type="number"
                     id={field.name}
                     name={field.name}
@@ -139,7 +148,7 @@ const EntityModal: React.FC<EntityModalProps> = ({
                   />
                 )}
                 {field.type === "textarea" && (
-                  <textarea
+                  <Textarea
                     id={field.name}
                     name={field.name}
                     value={form[field.name] || ""}
@@ -150,21 +159,33 @@ const EntityModal: React.FC<EntityModalProps> = ({
                   />
                 )}
                 {field.type === "select" && field.options && (
-                  <select
-                    id={field.name}
-                    name={field.name}
+                  <Select
                     value={form[field.name] || ""}
-                    onChange={handleChange}
-                    required={field.required}
-                    className="w-full border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
+                    onValueChange={(value) => {
+                      const syntheticEvent = {
+                        target: {
+                          name: field.name,
+                          value: value
+                        }
+                      } as React.ChangeEvent<HTMLSelectElement>;
+                      handleChange(syntheticEvent);
+                    }}
                   >
-                    <option value="">Select...</option>
-                    {field.options.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+                      <SelectValue placeholder="Select..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 shadow-lg">
+                      {field.options.map((opt) => (
+                        <SelectItem 
+                          key={opt.value} 
+                          value={opt.value}
+                          className="hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer px-3 py-2 text-gray-900 dark:text-gray-100"
+                        >
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 )}
                 </div>
               ))}

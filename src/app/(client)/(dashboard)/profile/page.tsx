@@ -264,7 +264,7 @@ export default function ProfilePage() {
             <CardContent>
               <div className="flex flex-col space-y-4">
                 <div className="relative">
-                  <input
+                  <Input
                     type="file"
                     id="avatar-upload"
                     className="hidden"
