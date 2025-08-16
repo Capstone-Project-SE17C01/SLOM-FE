@@ -15,6 +15,7 @@ import UploadImage from "@/components/layouts/message/upload-image";
 import Image from "next/image";
 import { cn } from "@/utils/cn";
 import { uploadImageToCloudinary } from "@/services/cloudinary/config";
+import { Input } from "@/components/ui/input";
 
 function Page() {
   const t = useTranslations("unAuthenMessage");
@@ -241,7 +242,7 @@ function Page() {
                     </div> : <></>
                   }
 
-                  <input
+                  <Input
                     type="text"
                     placeholder={t_chatPage("message")}
                     className={cn("h-[60%] w-full p-2.5 border border-[#ccc] dark:border-[#444] m-0 bg-[#f3f3f5] dark:bg-[#353945] text-black dark:text-white",

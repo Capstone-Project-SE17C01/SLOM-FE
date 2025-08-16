@@ -386,7 +386,8 @@
       "bioPlaceholder": "Hãy chia sẻ đôi điều về bạn",
       "location": "Địa điểm",
       "locationPlaceholder": "Thành phố, Quốc gia",
-      "saveChanges": "Lưu thay đổi"
+      "saveChanges": "Lưu thay đổi",
+      "updateSuccess": "Cập nhật thành công"
     },
     "security": {
       "title": "Bảo mật",
@@ -628,7 +629,8 @@
     "recordings": "phiên họp",
     "deleteMeeting": "Xóa cuộc họp",
     "areYouSureYouWantToDeleteTheMeeting": "Bạn có chắc chắn muốn xóa cuộc họp",
-    "thisActionCannotBeUndone": "Hành động này không thể được hoàn tác."
+    "thisActionCannotBeUndone": "Hành động này không thể được hoàn tác.",
+    "processing":"Đang xử lý"
   },
   "translatorPage": {
     "signLanguageTranslator": "Trình dịch ngôn ngữ ký hiệu",

@@ -584,7 +584,7 @@
   },
   "meetingPage": {
     "startMeeting": "Start a meeting",
-    "startExplain": "Start a meeting with a new meeting code",
+    "startExplain": "Create meeting with new code",
     "create": "Create",
     "join": "Join a meeting",
     "joinExplain": "Join using meeting code or link",
@@ -646,7 +646,8 @@
     "recordings": "recordings",
     "deleteMeeting": "Delete Meeting",
     "areYouSureYouWantToDeleteTheMeeting": "Are you sure you want to delete the meeting",
-    "thisActionCannotBeUndone": "This action cannot be undone."
+    "thisActionCannotBeUndone": "This action cannot be undone.",
+    "processing": "Processing"
   },
   "translatorPage": {
     "signLanguageTranslator": "Sign Language Translator",

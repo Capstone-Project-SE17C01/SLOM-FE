@@ -28,6 +28,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/utils/cn";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { Textarea } from "@/components/ui/textarea";
 
 // You should replace this with your actual OpenRouter API key
 const OPENROUTER_API_KEY = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || "";
@@ -276,7 +277,7 @@ export default function NewQuestionPopup({
             <div className="flex-1 space-y-4">
               <div className="font-medium">{userInfo?.username}</div>
 
-              <textarea
+              <Textarea
                 onChange={handleChange}
                 placeholder={t_qaPage("whatWouldYouLikeToAsk")}
                 className={cn(

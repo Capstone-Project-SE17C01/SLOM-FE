@@ -7,6 +7,13 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { RoomCreationModalProps } from "../../../types/IMeeting";
 import { useSelector } from "react-redux";
 import { useGetScheduledMeetingsByDateQuery } from "@/api/MeetingApi";
@@ -137,42 +144,51 @@ export const RoomCreationModal: React.FC<RoomCreationModalProps> = ({
                 {t_meetingPage("duration")}
               </label>
               <div className="flex items-center">
-                <select
-                  id="duration"
-                  value={duration}
-                  onChange={(e) => setDuration(Number(e.target.value))}
-                  className={cn(
-                    "w-full p-2 border rounded",
+                <Select
+                  value={duration.toString()}
+                  onValueChange={(value) => setDuration(Number(value))}
+                  disabled={isFreeUserLimitReached}
+                >
+                  <SelectTrigger
+                    className={cn(
+                      "w-full",
+                      isDarkMode
+                        ? "bg-gray-700 border-gray-600 text-white"
+                        : "bg-white border-gray-300"
+                    )}
+                  >
+                    <SelectValue placeholder="Select duration" />
+                  </SelectTrigger>
+                  <SelectContent className={cn(
                     isDarkMode
                       ? "bg-gray-700 border-gray-600 text-white"
                       : "bg-white border-gray-300"
-                  )}
-                  disabled={isFreeUserLimitReached}
-                >
-                  <option value="15">{t_meetingPage("15minutes")}</option>
-                  <option value="30">{t_meetingPage("30minutes")}</option>
-                  <option value="45" disabled={!isVip}>
-                    {t_meetingPage("45minutes")}
-                  </option>
-                  <option value="60" disabled={!isVip}>
-                    {t_meetingPage("1hour")}
-                  </option>
-                  <option value="90" disabled={!isVip}>
-                    {t_meetingPage("1,5hours")}
-                  </option>
-                  <option value="120" disabled={!isVip}>
-                    {t_meetingPage("2hours")}
-                  </option>
-                  <option value="180" disabled={!isVip}>
-                    {t_meetingPage("3hours")}
-                  </option>
-                  <option value="240" disabled={!isVip}>
-                    {t_meetingPage("4hours")}
-                  </option>
-                  <option value="480" disabled={!isVip}>
-                    {t_meetingPage("8hours")}
-                  </option>
-                </select>
+                  )}>
+                    <SelectItem value="15">{t_meetingPage("15minutes")}</SelectItem>
+                    <SelectItem value="30">{t_meetingPage("30minutes")}</SelectItem>
+                    <SelectItem value="45" disabled={!isVip}>
+                      {t_meetingPage("45minutes")}
+                    </SelectItem>
+                    <SelectItem value="60" disabled={!isVip}>
+                      {t_meetingPage("1hour")}
+                    </SelectItem>
+                    <SelectItem value="90" disabled={!isVip}>
+                      {t_meetingPage("1,5hours")}
+                    </SelectItem>
+                    <SelectItem value="120" disabled={!isVip}>
+                      {t_meetingPage("2hours")}
+                    </SelectItem>
+                    <SelectItem value="180" disabled={!isVip}>
+                      {t_meetingPage("3hours")}
+                    </SelectItem>
+                    <SelectItem value="240" disabled={!isVip}>
+                      {t_meetingPage("4hours")}
+                    </SelectItem>
+                    <SelectItem value="480" disabled={!isVip}>
+                      {t_meetingPage("8hours")}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 {isVip
