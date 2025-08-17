@@ -21,6 +21,10 @@ import { toast } from "sonner";
 import { logout } from "@/redux/auth/slice";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
+import { useGetMessageNotReadMutation } from "@/api/MessageApi";
+import { useEffect } from "react";
+import { useMessageContext } from "@/contexts/MessageContext";
+import { initSignalRNumberNotReadConnection } from "@/services/signalR/config";
 
 interface HeaderProps {
   toggleMenu: () => void;
@@ -33,13 +37,15 @@ export default function Header({
   toggleMenu,
   toggleDarkMode,
   menuOpen,
-  navItems,
+  navItems
 }: HeaderProps) {
   const { isDarkMode } = useTheme();
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const router = useRouter();
   const pathname = usePathname();
   const dispatch = useDispatch();
+  const [getMessageNotRead] = useGetMessageNotReadMutation();
+  const { unreadCount, setUnreadCount } = useMessageContext();
 
   const t_header = useTranslations("header");
   const t3 = useTranslations("successMessages.authMessage");
@@ -48,6 +54,27 @@ export default function Header({
     router.push("/login");
     toast.success(t3("successLogout"));
   };
+
+  useEffect(() => {
+    if (userInfo?.id) {
+      getMessageNotRead(userInfo.id).unwrap()
+        .then(result => {
+          if (result.success) {
+            setUnreadCount(result.result);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching unread count:', error);
+        });
+    }
+  }, [userInfo?.id, getMessageNotRead, setUnreadCount]);
+
+  useEffect(() => {
+    initSignalRNumberNotReadConnection({
+      userInfo,
+      setUnreadCount
+    });
+  }, [userInfo, setUnreadCount]);
 
   return (
     <header
@@ -79,12 +106,14 @@ export default function Header({
               const isActive =
                 pathname === item.href ||
                 (item.href !== "/" && pathname?.startsWith(item.href));
+              const isMessageItem = item.name === "message";
+              
               return (
                 <Link
                   key={t_header(`${item.name}`)}
                   href={item.href}
                   className={cn(
-                    "text-sm font-medium transition-colors px-3 py-2 rounded-md relative",
+                    "text-sm font-medium transition-colors px-3 py-2 rounded-md relative flex items-center",
                     isActive
                       ? "text-[#6947A8] after:content-[''] after:absolute after:left-3 after:right-3 after:bottom-0 after:h-0.5 after:bg-[#6947A8]"
                       : isDarkMode
@@ -93,6 +122,11 @@ export default function Header({
                   )}
                 >
                   {t_header(`${item.name}`)}
+                  {isMessageItem && unreadCount > 0 && (
+                    <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-[50%] flex items-center justify-center min-w-[20px]">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
                 </Link>
               );
             })}

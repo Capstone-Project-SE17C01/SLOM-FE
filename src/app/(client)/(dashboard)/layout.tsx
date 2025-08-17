@@ -1,10 +1,13 @@
 import DashboardLayout from "@/components/layouts/dashboard/dashboard-layout";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { MessageProvider } from "@/contexts/MessageContext";
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
-      <DashboardLayout>{children}</DashboardLayout>
+      <MessageProvider>
+        <DashboardLayout>{children}</DashboardLayout>
+      </MessageProvider>
     </ThemeProvider>
   );
 }

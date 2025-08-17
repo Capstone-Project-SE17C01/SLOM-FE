@@ -16,6 +16,8 @@ import Image from "next/image";
 import { cn } from "@/utils/cn";
 import { uploadImageToCloudinary } from "@/services/cloudinary/config";
 import { Input } from "@/components/ui/input";
+import { useMarkIsReadMutation } from "@/api/MessageApi";
+import { useMessageContext } from "@/contexts/MessageContext";
 
 function Page() {
   const t = useTranslations("unAuthenMessage");
@@ -39,6 +41,9 @@ function Page() {
     _callback(urls);
     return urls;
   }
+  const [users, setUsers] = useState<User[]>([])
+  const [markIsRead] = useMarkIsReadMutation();
+  const { setUnreadCount } = useMessageContext();
 
   useEffect(() => {
     initSignalRConnection({
@@ -46,6 +51,7 @@ function Page() {
       selectedUser,
       setMessages,
       onConnectionCreated: setConnection,
+      setUsers
     });
   }, [selectedUser, userInfo]);
 
@@ -58,21 +64,17 @@ function Page() {
   }
 
   const sendMessage = async (message: string, messageFiles: File[] = []) => {
-    console.log("================================")
-    console.log(message)
     let sentImages: string[] = []
     if (connection && (message.trim() || messageFiles.length > 0)) {
       if (messageFiles.length > 0) {
-        
-        console.log("================================")
-        console.log("hrhrhrhrhr")
         sentImages = await uploadImage(async (res : string[]) => {
           await connection.send(
             "PostMessage",
             message,
             userInfo.email,
             selectedUser?.email,
-            res
+            res,
+            userInfo?.avatarUrl
           );
         })
       } else {
@@ -82,7 +84,8 @@ function Page() {
           message,
           userInfo.email,
           selectedUser?.email,
-          emptyString
+          emptyString,
+          userInfo?.avatarUrl
         );
       }
     }
@@ -96,6 +99,32 @@ function Page() {
       ...prev,
       { id: biggest + 1, content: message, isSender: true, images: sentImages },
     ]);
+
+    if (selectedUser && message.trim()) {
+      const updatedUser: User = {
+        id: 1,
+        name: selectedUser.name,
+        image: selectedUser.image,
+        lastMessage: message.trim(),
+        isSender: true,
+        isSeen: true,
+        lastSent: "just now",
+        email: selectedUser.email,
+      };
+
+      setUsers((prev) => {
+        const filteredPrev = prev.filter(
+          (user) => user.email !== updatedUser.email
+        );
+
+        const updatedPrev = filteredPrev.map((user) => ({
+          ...user,
+          id: user.id + 1,
+        }));
+
+        return [updatedUser, ...updatedPrev];
+      });
+    }
 
     setFiles([]);
     setPreviews([]);
@@ -136,6 +165,9 @@ function Page() {
           <SearchUserMessage
             userId={userInfo.id ?? ""}
             handleUserSelect={handleUserSelect}
+            setUsers={setUsers}
+            users={users}
+            setUnreadCount={setUnreadCount}
           />
         )}
 
@@ -248,6 +280,20 @@ function Page() {
                     className={cn("h-[60%] w-full p-2.5 border border-[#ccc] dark:border-[#444] m-0 bg-[#f3f3f5] dark:bg-[#353945] text-black dark:text-white",
                       previews != undefined && previews.length != 0 ? "rounded-b-xl border-t-0 mb-1" : "rounded-xl"
                     )}
+                    onFocus={async () => {
+                      if (selectedUser && userInfo) {
+                        try {
+                          await markIsRead({
+                            senderEmail: selectedUser.email,
+                            receiverEmail: userInfo.email
+                          }).unwrap();
+                          setUsers((prev) => prev.map(user => user.email === selectedUser.email ? { ...user, isSeen: true } : user));
+                          setUnreadCount(prev => Math.max(0, prev - 1));
+                        } catch (error) {
+                          console.error('Error marking messages as read:', error);
+                        }
+                      }
+                    }}
                     onKeyDown={(e) => {
                       const target = e.target as HTMLInputElement;
                       if (e.key === "Enter" && (target.value.trim() !== "" || files.length > 0)) {

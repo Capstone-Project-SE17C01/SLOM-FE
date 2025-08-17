@@ -26,6 +26,10 @@ export interface User {
 export interface SearchUserMessageProps {
   readonly userId: string;
   readonly handleUserSelect: (user: User) => void;
+  readonly setUsers: Dispatch<SetStateAction<User[]>>;
+  readonly users: User[];
+  readonly setUnreadCount: Dispatch<SetStateAction<number>>;
+  
 }
 
 export interface MessageBoxProps {
@@ -70,6 +74,7 @@ export interface InitSignalROptions {
   selectedUser: User | undefined;
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   onConnectionCreated?: (connection: HubConnection) => void;
+  setUsers: Dispatch<SetStateAction<User[]>>;
 }
 
 export interface MessageUploadImageDTO {
@@ -79,4 +84,19 @@ export interface MessageUploadImageDTO {
   existImage: string[] | undefined
   previews: string[] | undefined
   setPreviews: Dispatch<SetStateAction<string[] | undefined>>
+}
+
+export interface InitSignalRNumberNotReadOptions {
+  userInfo: {
+    id?: string;
+    username?: string;
+    email: string;
+    avatarUrl: string;
+    role?: string;
+    preferredLanguageId?: string;
+    firstname?: string;
+    lastname?: string;
+    } | null;
+  onConnectionCreated?: (connection: HubConnection) => void;
+  setUnreadCount: Dispatch<SetStateAction<number>>;
 }

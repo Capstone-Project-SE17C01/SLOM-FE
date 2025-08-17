@@ -29,11 +29,27 @@ export const authAPI = baseApi.injectEndpoints({
         flashError: true,
       }),
     }),
+    markIsRead: build.mutation({
+      query: (data: { senderEmail: string; receiverEmail: string }) => ({
+        url: `/api/Message/MarkIsRead?senderEmail=${data.senderEmail}&receiverEmail=${data.receiverEmail}`,
+        method: "PUT",
+        flashError: false,
+      }),
+    }),
+    getMessageNotRead: build.mutation({
+      query: (userId: string) => ({
+        url: `/api/Message/GetMessageNotRead?userId=${userId}`,
+        method: "GET",
+        flashError: false,
+      }),
+    }),
   }),
 });
 
 export const {
   useGetProfileByNameMutation,
   useGetUserByIdMutation,
-  useGetMessageByIdMutation
+  useGetMessageByIdMutation,
+  useMarkIsReadMutation,
+  useGetMessageNotReadMutation
 } = authAPI;

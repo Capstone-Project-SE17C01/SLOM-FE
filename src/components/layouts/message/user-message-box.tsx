@@ -26,7 +26,6 @@ export function MessageBox({ messages, setMessages, userId, selectedUser, curren
     } catch (error) {
       console.error(error);
     }
-    console.log(getMessages)
     return getMessages;
   }, [getMessageById, userId]);
 
@@ -54,7 +53,6 @@ export function MessageBox({ messages, setMessages, userId, selectedUser, curren
       setCurrentPage(2)
       setIsLoadFull(false);
       setMessages(data.data);
-      console.log(data)
     }
     getTheMessage();
 
