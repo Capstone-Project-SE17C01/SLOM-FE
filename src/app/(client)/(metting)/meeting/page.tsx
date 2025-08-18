@@ -8,6 +8,7 @@ import SignLanguageDetector from '@/components/SignLanguageDetector/SignLanguage
 import { useEffect } from 'react'
 import { useSpeechToText } from '@/hooks/useSpeechToText'
 import { useFirebaseTest } from '@/hooks/useFirebaseTest'
+import { useMeetingFirebase } from '@/hooks/useMeetingFirebase'
 import { Mic, Square, Languages, MessageCircle } from 'lucide-react'
 import { generateZegoToken } from '@/services/zego/config'
 import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt'
@@ -66,8 +67,13 @@ export default function MeetingPage() {
     maxRecentPredictions: 20 // Keep last 20 predictions
   })
 
-  // Firebase Test hook
+  // Firebase hooks
   const firebaseTest = useFirebaseTest()
+  const meetingFirebase = useMeetingFirebase({
+    meetingCode: roomID,
+    userId: userInfo?.id || '',
+    enabled: hasJoinedRoom && !meetingExpired && userInfo?.vipUser
+  })
 
   // Auto show overlay when sign language recognition is activated
   React.useEffect(() => {
@@ -75,6 +81,28 @@ export default function MeetingPage() {
       setSignLanguageVisible(true)
     }
   }, [signLanguageRecognition.isActive, signLanguageVisible])
+
+  // Auto-send speech transcript to Firebase when it changes
+  React.useEffect(() => {
+    if (transcript && hasJoinedRoom && !meetingExpired && userInfo?.vipUser) {
+      const timeoutId = setTimeout(() => {
+        meetingFirebase.sendSpeechContent(transcript)
+      }, 2000) // Debounce by 2 seconds to avoid too many updates
+
+      return () => clearTimeout(timeoutId)
+    }
+  }, [transcript, hasJoinedRoom, meetingExpired, userInfo?.vipUser, meetingFirebase])
+
+  // Auto-send sign language transcript to Firebase when it changes
+  React.useEffect(() => {
+    if (signLanguageRecognition.fullTranscript && hasJoinedRoom && !meetingExpired && userInfo?.vipUser) {
+      const timeoutId = setTimeout(() => {
+        meetingFirebase.sendSignContent(signLanguageRecognition.fullTranscript)
+      }, 2000) // Debounce by 2 seconds
+
+      return () => clearTimeout(timeoutId)
+    }
+  }, [signLanguageRecognition.fullTranscript, hasJoinedRoom, meetingExpired, userInfo?.vipUser, meetingFirebase])
 
   const handleRecordingSave = React.useCallback(
     async (recordingPath: string, duration: number) => {
@@ -182,8 +210,8 @@ export default function MeetingPage() {
 
       {/* Firebase Test Panel - Fixed position */}
       {roomID && (
-        <div className="fixed top-4 left-4 z-[1000] bg-black/90 text-white p-4 rounded-lg max-w-sm">
-          <h3 className="text-sm font-bold mb-3">🔥 Firebase Test Panel</h3>
+        <div className="fixed top-4 left-4 z-[1000] bg-black/90 text-white p-4 rounded-lg max-w-md w-96">
+          <h3 className="text-sm font-bold mb-3">🔥 Firebase Meeting Test</h3>
 
           {/* Connection Status */}
           <div className="mb-3">
@@ -198,59 +226,120 @@ export default function MeetingPage() {
             <div className="text-xs text-gray-400 mt-1">
               Last update: {new Date(firebaseTest.lastUpdate).toLocaleTimeString()}
             </div>
+
+            {/* Current Bucket Info */}
+            <div className="text-xs text-blue-400 mt-1">
+              Current bucket: {firebaseTest.getCurrentBucketInfo().timeRange}
+            </div>
+            
+            {/* Auto-sync Status */}
+            {meetingFirebase.isConnected && (
+              <div className="text-xs text-green-400 mt-1 flex items-center gap-1">
+                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                Auto-sync active
+              </div>
+            )}
+            {meetingFirebase.error && (
+              <div className="text-xs text-red-400 mt-1">
+                Sync error: {meetingFirebase.error}
+              </div>
+            )}
           </div>
 
-          {/* Test Buttons */}
+          {/* Real-time Database Display */}
+          <div className="mb-4">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-xs font-medium text-yellow-400">📊 Live Database:</span>
+              <button
+                onClick={firebaseTest.startRealTimeListener}
+                disabled={firebaseTest.isLoading}
+                className="text-xs px-2 py-1 bg-orange-600 hover:bg-orange-700 disabled:bg-gray-600 rounded"
+              >
+                🎧 Listen
+              </button>
+            </div>
+            <div className="bg-gray-800 rounded p-2 max-h-32 overflow-y-auto">
+              <pre className="text-xs text-gray-300 whitespace-pre-wrap">
+                {firebaseTest.allData ? JSON.stringify(firebaseTest.allData, null, 2) : 'No data yet...'}
+              </pre>
+            </div>
+          </div>
+
+          {/* Add Content Form */}
           <div className="space-y-2">
+            <div>
+              <label className="text-xs text-gray-400 block mb-1">Meeting Code:</label>
+              <input
+                type="text"
+                value={firebaseTest.meetingCode}
+                onChange={(e) => firebaseTest.updateMeetingCode(e.target.value)}
+                placeholder={`Auto: ${roomID}`}
+                className="w-full text-xs px-2 py-1 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500"
+              />
+            </div>
+            
+            <div>
+              <label className="text-xs text-gray-400 block mb-1">User ID:</label>
+              <input
+                type="text"
+                value={firebaseTest.userId}
+                onChange={(e) => firebaseTest.updateUserId(e.target.value)}
+                placeholder={`Auto: ${userInfo?.id || 'user_123'}`}
+                className="w-full text-xs px-2 py-1 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs text-gray-400 block mb-1">Content:</label>
+              <textarea
+                value={firebaseTest.content}
+                onChange={(e) => firebaseTest.updateContent(e.target.value)}
+                placeholder="Enter message content..."
+                rows={2}
+                className="w-full text-xs px-2 py-1 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 resize-none"
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={firebaseTest.addContent}
+                disabled={firebaseTest.isLoading}
+                className="flex-1 text-xs px-2 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded font-medium"
+              >
+                ✍️ Add Content
+              </button>
+              
+              <button
+                onClick={() => {
+                  firebaseTest.updateMeetingCode(roomID)
+                  firebaseTest.updateUserId(userInfo?.id || 'user_123')
+                }}
+                disabled={firebaseTest.isLoading}
+                className="text-xs px-2 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded"
+              >
+                🔄 Auto Fill
+              </button>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="mt-3 flex gap-2">
             <button
               onClick={firebaseTest.testConnection}
               disabled={firebaseTest.isLoading}
-              className="w-full text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded"
+              className="flex-1 text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded"
             >
-              🧪 Test Connection
+              🧪 Test
             </button>
 
             <button
               onClick={firebaseTest.readAllDatabase}
               disabled={firebaseTest.isLoading}
-              className="w-full text-xs px-2 py-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded"
+              className="flex-1 text-xs px-2 py-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 rounded"
             >
-              📖 Read All DB
-            </button>
-
-            <button
-              onClick={firebaseTest.createTestData}
-              disabled={firebaseTest.isLoading}
-              className="w-full text-xs px-2 py-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 rounded"
-            >
-              🏗️ Create Test Data
-            </button>
-
-            <button
-              onClick={() => {
-                const unsubscribe = firebaseTest.startRealTimeListener()
-                // Store unsubscribe function for later cleanup
-                setTimeout(() => {
-                  console.log('🔇 Auto-stopping listener after 30 seconds')
-                  unsubscribe()
-                }, 30000)
-              }}
-              disabled={firebaseTest.isLoading}
-              className="w-full text-xs px-2 py-1 bg-orange-600 hover:bg-orange-700 disabled:bg-gray-600 rounded"
-            >
-              🎧 Start Listener (30s)
+              📖 Read
             </button>
           </div>
-
-          {/* Data Preview */}
-          {firebaseTest.allData && (
-            <div className="mt-3 p-2 bg-gray-800 rounded text-xs">
-              <div className="text-yellow-400 mb-1">📊 Live Data:</div>
-              <div className="max-h-20 overflow-y-auto text-gray-300">
-                {JSON.stringify(firebaseTest.allData, null, 1).substring(0, 200)}...
-              </div>
-            </div>
-          )}
         </div>
       )}
 
