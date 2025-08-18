@@ -39,7 +39,12 @@ const Chatbot: React.FC = () => {
           messages: [
             {
               role: "system",
-              content: "You are a friendly AI assistant. Answer concisely and clearly in English.",
+              content: `You are a friendly AI assistant for SLOM app (Sign Language Online meeting). Our app have components: 
+              online meeting allow user meeting and translate sign language, message for chat,
+              course for course learning deaf language, translator ...., QA for User to ask questions 
+              Just answer the questions about the system and deaf related problems.
+              If user ask questions not related, answer just: Sorry, your question is out of my scope, please ask others question..
+              Answer concisely and clearly in English`
             },
             ...[...messages, userMessage].map((m) => ({
               role: m.role,
