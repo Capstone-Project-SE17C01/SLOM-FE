@@ -1,3 +1,5 @@
+// disable eslint for this file
+/* eslint-disable */
 import { useState, useEffect, useCallback } from 'react'
 import { meetingService } from '@/services/firebase/meetingService'
 import { getCurrentBucketKey, formatBucketTime } from '@/utils/bucketTimeUtils'
