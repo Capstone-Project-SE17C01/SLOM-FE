@@ -307,10 +307,8 @@ export default function MeetingPage() {
             if (isListening) stopListening()
             resetTranscript()
           },
-<<<<<<< HEAD
           // Add Firebase Live Database foreground view
           requireRoomForegroundView: createFirebaseForegroundView,
-=======
           leaveRoomDialogConfig: {
             titleText: 'Leave Meeting',
             descriptionText: 'Are you sure you want to leave this meeting?',
@@ -321,17 +319,13 @@ export default function MeetingPage() {
               router.push('/meeting-room')
             }
           }
->>>>>>> origin/develop
         })
       } catch (error) {
         console.error('Failed to join meeting:', error)
       }
     },
-<<<<<<< HEAD
-    [roomID, userInfo, isListening, stopListening, resetTranscript, createFirebaseForegroundView]
-=======
-    [roomID, userInfo, isListening, stopListening, resetTranscript, leaveMeeting, router, joinAttempted]
->>>>>>> origin/develop
+        [roomID, userInfo, isListening, stopListening, resetTranscript, createFirebaseForegroundView, router, joinAttempted,leaveMeeting]
+ // fix
   )
 
   useEffect(() => {
