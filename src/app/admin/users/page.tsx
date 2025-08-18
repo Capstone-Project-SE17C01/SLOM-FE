@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useGetAllProfilesQuery, useDeleteProfileMutation } from "@/api/ProfileApi";
 import { IProfile } from "@/types/IProfile";
 
@@ -50,170 +51,199 @@ export default function UsersPage() {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Users Management</h1>
-          <p className="text-gray-600 dark:text-gray-400">Manage all users in the system</p>
-        </div>
-      </div>
-
-      <div className="flex items-center space-x-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search users..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#6947A8] focus:border-transparent"
-          />
-        </div>
-      </div>
-
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Avatar
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Username
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Bio
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Location
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  VIP User
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
-              {isLoading ? (
-               <tr>
-                 <td colSpan={7} className="text-center py-8">
-                   Loading data...
-                 </td>
-               </tr>
-             ) : paginatedProfiles.length === 0 ? (
-               <tr>
-                 <td colSpan={7} className="text-center py-8">
-                   No profiles found.
-                 </td>
-               </tr>
-             ) : (
-               paginatedProfiles.map((user) => (
-                 <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                   <td className="px-4 py-4 whitespace-nowrap">
-                     <Avatar className="h-10 w-10">
-                       <AvatarImage src={user.avatarUrl || ""} alt={user.username} />
-                       <AvatarFallback>{user.username?.[0]}</AvatarFallback>
-                     </Avatar>
-                   </td>
-                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{user.username}</td>
-                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{user.email}</td>
-                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{user.bio ?? "-"}</td>
-                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{user.location ?? "-"}</td>
-                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                     {user.vipUser ? (
-                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
-                         VIP
-                       </span>
-                     ) : (
-                       "-"
-                     )}
-                   </td>
-                   <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
-                     <DropdownMenu>
-                       <DropdownMenuTrigger asChild>
-                         <Button variant="ghost" size="sm">
-                           <MoreHorizontal className="h-4 w-4" />
-                         </Button>
-                       </DropdownMenuTrigger>
-                       <DropdownMenuContent align="end">
-                         <DropdownMenuItem
-                           className="text-red-600"
-                           onClick={() => {
-                             setDeleteId(user.id);
-                             setShowModal(true);
-                           }}
-                         >
-                           <Trash2 className="mr-2 h-4 w-4" />
-                           Delete
-                         </DropdownMenuItem>
-                       </DropdownMenuContent>
-                     </DropdownMenu>
-                   </td>
-                 </tr>
-               ))
-             )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div className="flex justify-between items-center">
-        <div className="text-sm text-gray-700 dark:text-gray-300">
-          Showing {paginatedProfiles.length} of {filteredProfiles.length} profiles
-        </div>
-        <div className="flex space-x-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages || totalPages === 0}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
-
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-sm">
-            <h2 className="text-lg font-semibold mb-4">Delete Confirmation</h2>
-            <p>Are you sure you want to delete this profile?</p>
-            <div className="flex justify-end gap-2 mt-6">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowModal(false);
-                  setDeleteId(null);
-                }}
-                disabled={deleting}
-              >
-                Cancel
-              </Button>
-              <Button
-                className="bg-red-600 hover:bg-red-700 text-white"
-                onClick={handleDelete}
-                disabled={deleting}
-              >
-                {deleting ? "Deleting..." : "Delete"}
-              </Button>
-            </div>
+    <TooltipProvider>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">Users Management</h1>
+            <p className="text-gray-600 dark:text-gray-400">Manage all users in the system</p>
           </div>
         </div>
-      )}
-    </div>
+
+        <div className="flex items-center space-x-4">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search users..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#6947A8] focus:border-transparent"
+            />
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-16">
+                    Avatar
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-32">
+                    Username
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-48">
+                    Email
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider max-w-xs">
+                    Bio
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-32">
+                    Location
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-24">
+                    VIP User
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-20">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
+                {isLoading ? (
+                 <tr>
+                   <td colSpan={7} className="text-center py-8">
+                     Loading data...
+                   </td>
+                 </tr>
+               ) : paginatedProfiles.length === 0 ? (
+                 <tr>
+                   <td colSpan={7} className="text-center py-8">
+                     No profiles found.
+                   </td>
+                 </tr>
+               ) : (
+                 paginatedProfiles.map((user) => (
+                   <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                     <td className="px-4 py-4 whitespace-nowrap">
+                       <Avatar className="h-10 w-10">
+                         <AvatarImage src={user.avatarUrl || ""} alt={user.username} />
+                         <AvatarFallback>{user.username?.[0]}</AvatarFallback>
+                       </Avatar>
+                     </td>
+                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{user.username}</td>
+                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                       <Tooltip>
+                         <TooltipTrigger asChild>
+                           <span className="truncate block max-w-[180px]">{user.email}</span>
+                         </TooltipTrigger>
+                         <TooltipContent>
+                           <p>{user.email}</p>
+                         </TooltipContent>
+                       </Tooltip>
+                     </td>
+                     <td className="px-4 py-4 text-sm text-gray-900 dark:text-white">
+                       <Tooltip>
+                         <TooltipTrigger asChild>
+                           <span className="truncate block max-w-xs">{user.bio ?? "-"}</span>
+                         </TooltipTrigger>
+                         <TooltipContent className="max-w-sm">
+                           <p>{user.bio ?? "-"}</p>
+                         </TooltipContent>
+                       </Tooltip>
+                     </td>
+                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                       <Tooltip>
+                         <TooltipTrigger asChild>
+                           <span className="truncate block max-w-[100px]">{user.location ?? "-"}</span>
+                         </TooltipTrigger>
+                         <TooltipContent>
+                           <p>{user.location ?? "-"}</p>
+                         </TooltipContent>
+                       </Tooltip>
+                     </td>
+                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                       {user.vipUser ? (
+                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
+                           VIP
+                         </span>
+                       ) : (
+                         "-"
+                       )}
+                     </td>
+                     <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+                       <DropdownMenu>
+                         <DropdownMenuTrigger asChild>
+                           <Button variant="ghost" size="sm">
+                             <MoreHorizontal className="h-4 w-4" />
+                           </Button>
+                         </DropdownMenuTrigger>
+                         <DropdownMenuContent align="end">
+                           <DropdownMenuItem
+                             className="text-red-600"
+                             onClick={() => {
+                               setDeleteId(user.id);
+                               setShowModal(true);
+                             }}
+                           >
+                             <Trash2 className="mr-2 h-4 w-4" />
+                             Delete
+                           </DropdownMenuItem>
+                         </DropdownMenuContent>
+                       </DropdownMenu>
+                     </td>
+                   </tr>
+                 ))
+               )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center">
+          <div className="text-sm text-gray-700 dark:text-gray-300">
+            Showing {paginatedProfiles.length} of {filteredProfiles.length} profiles
+          </div>
+          <div className="flex space-x-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages || totalPages === 0}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+
+        {showModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-sm">
+              <h2 className="text-lg font-semibold mb-4">Delete Confirmation</h2>
+              <p>Are you sure you want to delete this profile?</p>
+              <div className="flex justify-end gap-2 mt-6">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowModal(false);
+                    setDeleteId(null);
+                  }}
+                  disabled={deleting}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                  onClick={handleDelete}
+                  disabled={deleting}
+                >
+                  {deleting ? "Deleting..." : "Delete"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </TooltipProvider>
   );
 }
