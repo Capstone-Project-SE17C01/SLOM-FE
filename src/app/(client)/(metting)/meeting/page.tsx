@@ -34,10 +34,11 @@ export default function MeetingPage() {
   const [hasJoinedRoom, setHasJoinedRoom] = React.useState(false)
   const [meetingExpired, setMeetingExpired] = React.useState(false)
   const [signLanguageVisible, setSignLanguageVisible] = React.useState(false)
+  const [joinAttempted, setJoinAttempted] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement | null>(null)
 
   // Speech-to-text states
-  const [speechLang, setSpeechLang] = React.useState<'vi-VN' | 'en-US'>('vi-VN')
+  const [speechLang, setSpeechLang] = React.useState<'vi-VN' | 'en-US'>('en-US')
   const subscriptionKey = process.env.NEXT_PUBLIC_AZURE_SPEECH_KEY || ''
   const region = process.env.NEXT_PUBLIC_AZURE_REGION || ''
   const translatorKey = process.env.NEXT_PUBLIC_AZURE_TRANSLATOR_KEY || ''
@@ -168,7 +169,10 @@ export default function MeetingPage() {
 
   const joinZegoRoom = React.useCallback(
     async (element: HTMLDivElement) => {
-      if (!element || !roomID || !userInfo?.id) return
+      if (!element || !roomID || !userInfo?.id || joinAttempted) return
+      
+      setJoinAttempted(true)
+      
       try {
         const kitToken = generateZegoToken(roomID)
         const zp = ZegoUIKitPrebuilt.create(kitToken)
@@ -189,20 +193,30 @@ export default function MeetingPage() {
             setHasJoinedRoom(false)
             if (isListening) stopListening()
             resetTranscript()
+          },
+          leaveRoomDialogConfig: {
+            titleText: 'Leave Meeting',
+            descriptionText: 'Are you sure you want to leave this meeting?',
+            confirmCallback: () => {
+              if (roomID && userInfo?.id) {
+                leaveMeeting({ id: roomID, request: { userId: userInfo.id } })
+              }
+              router.push('/meeting-room')
+            }
           }
         })
       } catch (error) {
         console.error('Failed to join meeting:', error)
       }
     },
-    [roomID, userInfo, isListening, stopListening, resetTranscript]
+    [roomID, userInfo, isListening, stopListening, resetTranscript, leaveMeeting, router, joinAttempted]
   )
 
   useEffect(() => {
-    if (containerRef.current && roomID && userInfo?.id && !hasJoinedRoom) {
+    if (containerRef.current && roomID && userInfo?.id && !hasJoinedRoom && !joinAttempted) {
       joinZegoRoom(containerRef.current)
     }
-  }, [roomID, userInfo?.id, joinZegoRoom, hasJoinedRoom])
+  }, [roomID, userInfo?.id, joinZegoRoom, hasJoinedRoom, joinAttempted])
 
   return (
     <>
@@ -428,8 +442,8 @@ export default function MeetingPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="mb-2">
-                    <SelectItem value="vi-VN">Tiếng Việt</SelectItem>
                     <SelectItem value="en-US">English</SelectItem>
+                    <SelectItem value="vi-VN">Tiếng Việt</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

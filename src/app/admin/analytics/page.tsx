@@ -3,24 +3,36 @@
 import { useEffect, useState } from "react";
 import { Download } from "lucide-react";
 import { useGetAllPaymentsQuery } from "@/api/PaymentApi";
+import { useGetAllProfilesQuery } from "@/api/ProfileApi";
 import { Payment } from "@/types/IPayment";
+import { IProfile } from "@/types/IProfile";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export default function AnalyticsPage() {
   const { data: paymentsData, isLoading, error } = useGetAllPaymentsQuery();
+  const { data: profilesData } = useGetAllProfilesQuery();
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [profiles, setProfiles] = useState<IProfile[]>([]);
 
   useEffect(() => {
     if (paymentsData?.result) {
       setPayments(paymentsData.result);
     }
-  }, [paymentsData]);
+    if (profilesData?.result) {
+      setProfiles(profilesData.result);
+    }
+  }, [paymentsData, profilesData]);
+
+  const getUsernameById = (userId: string) => {
+    const user = profiles.find(profile => profile.id === userId);
+    return user?.username || "Unknown User";
+  };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'VND'
     }).format(amount);
   };
 
@@ -35,7 +47,7 @@ export default function AnalyticsPage() {
     }
 
     try {
-      // Tạo header cho file CSV
+      // Create headers for CSV file
       const headers = [
         "Transaction ID",
         "User ID",
@@ -48,7 +60,7 @@ export default function AnalyticsPage() {
         "Date"
       ];
 
-      // Tạo dữ liệu cho file CSV
+      // Create data for CSV file
       const csvData = payments.map((payment) => [
         payment.transactionId || "N/A",
         payment.userId,
@@ -61,23 +73,23 @@ export default function AnalyticsPage() {
         new Date(payment.createdAt).toLocaleString()
       ]);
 
-      // Kết hợp header và data
+      // Combine headers and data
       const csvContent = [
         headers.join(","),
         ...csvData.map(row => row.join(","))
       ].join("\n");
 
-      // Tạo Blob và URL để download
+      // Create Blob and URL for download
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       
-      // Tạo element a để download
+      // Create element a to download
       const link = document.createElement("a");
       link.setAttribute("href", url);
       link.setAttribute("download", `payment_transactions_${new Date().toISOString().split('T')[0]}.csv`);
       link.style.visibility = 'hidden';
       
-      // Thêm vào DOM, click và xóa
+      // Add to DOM, click and remove
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -123,7 +135,7 @@ export default function AnalyticsPage() {
               <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
                   <th className="text-left py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">Transaction ID</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">User ID</th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">Username</th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">Amount</th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">Payment Method</th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">Status</th>
@@ -135,7 +147,7 @@ export default function AnalyticsPage() {
                   payments.map((payment) => (
                     <tr key={payment.id} className="border-b border-gray-100 dark:border-gray-700 last:border-0">
                       <td className="py-4 px-4 text-gray-900 dark:text-white font-medium">{payment.transactionId || 'N/A'}</td>
-                      <td className="py-4 px-4 text-gray-600 dark:text-gray-400">{payment.userId}</td>
+                      <td className="py-4 px-4 text-gray-600 dark:text-gray-400">{getUsernameById(payment.userId)}</td>
                       <td className="py-4 px-4 text-gray-600 dark:text-gray-400">{formatCurrency(payment.amount)}</td>
                       <td className="py-4 px-4 text-gray-600 dark:text-gray-400">{payment.paymentMethod || 'N/A'}</td>
                       <td className="py-4 px-4">

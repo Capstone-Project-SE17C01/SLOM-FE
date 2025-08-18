@@ -9,8 +9,6 @@ import {
   Users,
   BookOpen,
   MessageSquare,
-  Settings,
-  FileText,
   BarChart3,
   Calendar,
   ChevronLeft,
@@ -74,25 +72,13 @@ export default function AdminSidebar({
       icon: MessageSquare,
       description: "Feedback Management",
     },
-    {
-      name: "Content",
-      href: "/admin/content",
-      icon: FileText,
-      description: "Content Management",
-    },
-    {
-      name: "Settings",
-      href: "/admin/settings",
-      icon: Settings,
-      description: "System Settings",
-    },
   ];
 
   return (
     <div
       className={cn(
         "flex flex-col border-r transition-all duration-300 ease-in-out",
-        collapsed ? "w-16" : "w-64",
+        collapsed ? "w-20" : "w-64",
         isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
       )}
     >
@@ -114,16 +100,16 @@ export default function AdminSidebar({
         <button
           onClick={onToggle}
           className={cn(
-            "p-1.5 rounded-lg transition-colors",
+            "p-1.5 rounded-lg transition-colors ml-2",
             isDarkMode
               ? "hover:bg-gray-700 text-gray-300"
               : "hover:bg-gray-100 text-gray-600"
           )}
         >
           {collapsed ? (
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-[19px] w-6" />
           ) : (
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-[19px] w-6" />
           )}
         </button>
       </div>
