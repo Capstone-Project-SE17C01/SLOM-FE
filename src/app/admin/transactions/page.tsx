@@ -9,7 +9,7 @@ import { IProfile } from "@/types/IProfile";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-export default function AnalyticsPage() {
+export default function TransactionsPage() {
   const { data: paymentsData, isLoading, error } = useGetAllPaymentsQuery();
   const { data: profilesData } = useGetAllProfilesQuery();
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -104,8 +104,8 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Analytics & Reports</h1>
-        <p className="text-gray-600 dark:text-gray-400">Track performance and user engagement</p>
+        <h1 className="text-3xl font-bold">Transactions</h1>
+        <p className="text-gray-600 dark:text-gray-400">Track payment status and user engagement</p>
       </div>
 
       {/* Payment Transactions */}

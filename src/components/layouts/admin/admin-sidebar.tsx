@@ -55,8 +55,8 @@ export default function AdminSidebar({
       description: "Question & Answer",
     },
     {
-      name: "Analytics",
-      href: "/admin/analytics",
+      name: "Transactions",
+      href: "/admin/transactions",
       icon: BarChart3,
       description: "Reports & Stats",
     },
