@@ -89,25 +89,59 @@ export default function MeetingPage() {
     }
   }, [signLanguageRecognition.isActive, signLanguageVisible])
 
-  // Auto-send speech transcript to Firebase when it changes
+  // Track previously sent speech content to avoid duplicates
+  const lastSentSpeechRef = React.useRef<string>('')
+  const lastSentSignRef = React.useRef<string>('')
+
+  // Auto-send speech transcript to Firebase when it changes (only new content)
   React.useEffect(() => {
     if (transcript && hasJoinedRoom && !meetingExpired && userInfo?.vipUser) {
-      const timeoutId = setTimeout(() => {
-        meetingFirebase.sendSpeechContent(transcript)
-      }, 100) // Debounce by 2 seconds to avoid too many updates
+      // Only send if content is different from what was last sent
+      if (transcript !== lastSentSpeechRef.current && transcript.trim()) {
+        const timeoutId = setTimeout(() => {
+          // Check if transcript is longer than last sent content (new content added)
+          if (transcript.startsWith(lastSentSpeechRef.current)) {
+            // Extract only the new part
+            const newContent = transcript.slice(lastSentSpeechRef.current.length).trim()
+            if (newContent) {
+              meetingFirebase.sendSpeechContent(newContent)
+              lastSentSpeechRef.current = transcript
+            }
+          } else {
+            // Completely new transcript (user started a new speech session)
+            meetingFirebase.sendSpeechContent(transcript)
+            lastSentSpeechRef.current = transcript
+          }
+        }, 200) // Increased debounce to 1 second for better stability
 
-      return () => clearTimeout(timeoutId)
+        return () => clearTimeout(timeoutId)
+      }
     }
   }, [transcript, hasJoinedRoom, meetingExpired, userInfo?.vipUser, meetingFirebase])
 
-  // Auto-send sign language transcript to Firebase when it changes
+  // Auto-send sign language transcript to Firebase when it changes (only new content)
   React.useEffect(() => {
     if (signLanguageRecognition.fullTranscript && hasJoinedRoom && !meetingExpired && userInfo?.vipUser) {
-      const timeoutId = setTimeout(() => {
-        meetingFirebase.sendSignContent(signLanguageRecognition.fullTranscript)
-      }, 100) // Debounce by 2 seconds
+      // Only send if content is different from what was last sent
+      if (signLanguageRecognition.fullTranscript !== lastSentSignRef.current && signLanguageRecognition.fullTranscript.trim()) {
+        const timeoutId = setTimeout(() => {
+          // Check if transcript is longer than last sent content (new content added)
+          if (signLanguageRecognition.fullTranscript.startsWith(lastSentSignRef.current)) {
+            // Extract only the new part
+            const newContent = signLanguageRecognition.fullTranscript.slice(lastSentSignRef.current.length).trim()
+            if (newContent) {
+              meetingFirebase.sendSignContent(newContent)
+              lastSentSignRef.current = signLanguageRecognition.fullTranscript
+            }
+          } else {
+            // Completely new transcript (user started a new sign language session)
+            meetingFirebase.sendSignContent(signLanguageRecognition.fullTranscript)
+            lastSentSignRef.current = signLanguageRecognition.fullTranscript
+          }
+        }, 1000) // Increased debounce to 1 second for better stability
 
-      return () => clearTimeout(timeoutId)
+        return () => clearTimeout(timeoutId)
+      }
     }
   }, [signLanguageRecognition.fullTranscript, hasJoinedRoom, meetingExpired, userInfo?.vipUser, meetingFirebase])
 
@@ -163,10 +197,27 @@ export default function MeetingPage() {
     }
   }, [meetingData])
 
+  // Reset tracking refs when speech listening stops
+  React.useEffect(() => {
+    if (!isListening) {
+      lastSentSpeechRef.current = ''
+    }
+  }, [isListening])
+
+  // Reset tracking refs when sign language recognition stops
+  React.useEffect(() => {
+    if (!signLanguageRecognition.isActive) {
+      lastSentSignRef.current = ''
+    }
+  }, [signLanguageRecognition.isActive])
+
   React.useEffect(() => {
     return () => {
       if (isListening) stopListening()
       resetTranscript()
+      // Reset tracking refs on cleanup
+      lastSentSpeechRef.current = ''
+      lastSentSignRef.current = ''
       if (roomID && userInfo?.id) {
         leaveMeeting({ id: roomID, request: { userId: userInfo.id } })
       }
