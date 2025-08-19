@@ -24,6 +24,12 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 
 export default function MeetingPage() {
   const router = useRouter()
@@ -390,49 +396,113 @@ export default function MeetingPage() {
 
               <div className="h-8 w-[1px] bg-gray-500 dark:bg-gray-600 mx-1" />
 
-              {/* Combined Speech to Text and Sign Language AI button */}
+              {/* Translation Dropdown Menu */}
               <div className="flex items-center gap-2 ml-auto">
-                <button
-                  onClick={() => {
-                    if (isListening || signLanguageRecognition.isActive) {
-                      // Stop both if either is active
-                      if (isListening) stopListening()
-                      if (signLanguageRecognition.isActive) signLanguageRecognition.stopRecognition()
-                    } else {
-                      // Start both
-                      startListening()
-                      signLanguageRecognition.startRecognition()
-                    }
-                  }}
-                  className={cn(
-                    'flex items-center gap-2 px-3 py-1.5 rounded-full transition-all font-medium text-sm',
-                    isListening || signLanguageRecognition.isActive
-                      ? 'bg-purple-500 text-white hover:bg-purple-600'
-                      : 'bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600'
-                  )}
-                >
-                  {isListening || signLanguageRecognition.isActive ? (
-                    <>
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-300 opacity-75" />
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-400" />
-                      </span>
-                      <div className="flex items-center gap-1">
-                        <MessageCircle className="w-3.5 h-3.5" />
-                        <Languages className="w-3.5 h-3.5" />
-                      </div>
-                      <span>Translation</span>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex items-center gap-1">
-                        <MessageCircle className="w-3.5 h-3.5" />
-                        <Languages className="w-3.5 h-3.5" />
-                      </div>
-                      <span>Translation</span>
-                    </>
-                  )}
-                </button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    className={cn(
+                      'flex items-center gap-2 px-3 py-1.5 rounded-full transition-all font-medium text-sm',
+                      isListening || signLanguageRecognition.isActive
+                        ? 'bg-purple-500 text-white hover:bg-purple-600'
+                        : 'bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600'
+                    )}
+                  >
+                    {isListening || signLanguageRecognition.isActive ? (
+                      <>
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-300 opacity-75" />
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-400" />
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <MessageCircle className="w-3.5 h-3.5" />
+                          <Languages className="w-3.5 h-3.5" />
+                        </div>
+                        <span>Translation</span>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-1">
+                          <MessageCircle className="w-3.5 h-3.5" />
+                          <Languages className="w-3.5 h-3.5" />
+                        </div>
+                        <span>Translation</span>
+                      </>
+                    )}
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem
+                      onClick={() => {
+                        // Stop Sign Language if active
+                        if (signLanguageRecognition.isActive) {
+                          signLanguageRecognition.stopRecognition()
+                        }
+                        // Toggle Speech to Text
+                        if (isListening) {
+                          stopListening()
+                        } else {
+                          startListening()
+                        }
+                      }}
+                      className={cn(
+                        'flex items-center gap-2',
+                        isListening && 'bg-purple-100 dark:bg-purple-900'
+                      )}
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span>Speech to Text</span>
+                      {isListening && (
+                        <span className="ml-auto relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75" />
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500" />
+                        </span>
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        // Stop Speech to Text if active
+                        if (isListening) {
+                          stopListening()
+                        }
+                        // Toggle Sign Language
+                        if (signLanguageRecognition.isActive) {
+                          signLanguageRecognition.stopRecognition()
+                        } else {
+                          signLanguageRecognition.startRecognition()
+                        }
+                      }}
+                      className={cn(
+                        'flex items-center gap-2',
+                        signLanguageRecognition.isActive && 'bg-purple-100 dark:bg-purple-900'
+                      )}
+                    >
+                      <Languages className="w-4 h-4" />
+                      <span>Sign Language AI</span>
+                      {signLanguageRecognition.isActive && (
+                        <span className="ml-auto relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75" />
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500" />
+                        </span>
+                      )}
+                    </DropdownMenuItem>
+                    {(isListening || signLanguageRecognition.isActive) && (
+                      <DropdownMenuItem
+                        onClick={() => {
+                          // Turn off both features
+                          if (isListening) {
+                            stopListening()
+                          }
+                          if (signLanguageRecognition.isActive) {
+                            signLanguageRecognition.stopRecognition()
+                          }
+                        }}
+                        className="flex items-center gap-2 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+                      >
+                        <Square className="w-4 h-4" />
+                        <span>Turn Off</span>
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
                 <Select
                   value={speechLang}
