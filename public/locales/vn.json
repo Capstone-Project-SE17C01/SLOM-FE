@@ -630,7 +630,7 @@
     "deleteMeeting": "Xóa cuộc họp",
     "areYouSureYouWantToDeleteTheMeeting": "Bạn có chắc chắn muốn xóa cuộc họp",
     "thisActionCannotBeUndone": "Hành động này không thể được hoàn tác.",
-    "processing":"Đang xử lý"
+    "processing": "Đang xử lý"
   },
   "translatorPage": {
     "signLanguageTranslator": "Trình dịch ngôn ngữ ký hiệu",
@@ -734,7 +734,14 @@
     "postQuestion": "Đăng câu hỏi",
     "generating": "Đang tạo...",
     "editQuestion": "Sửa câu hỏi",
-    "newQuestion": "Câu hỏi mới"
+    "newQuestion": "Câu hỏi mới",
+    "backTo": "Quay lại",
+    "questionDetails": "Chi tiết câu hỏi",
+    "reply": "Trả lời",
+    "loadingAnswers": "Đang tải câu trả lời...",
+    "noMoreAnswers": "Không có câu trả lời nào nữa.",
+    "noAnswersYet": "Không có câu trả lời nào",
+    "beTheFirstToAnswer": "Trả lời đầu tiên"
   },
   "meaningCard": {
     "meaning": "Ý nghĩa",

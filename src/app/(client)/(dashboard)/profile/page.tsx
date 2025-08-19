@@ -34,6 +34,13 @@ export default function ProfilePage() {
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
   const t = useTranslations();
+  const personalTab = t("profile.tabs.personal");
+  const [activeTab, setActiveTab] = useState(personalTab);
+
+  useEffect(() => {
+    setActiveTab(personalTab);
+  }, [personalTab]);
+
   const [updatePassword] = useUpdatePasswordMutation();
   const [getHistoryPayment, { isLoading: isLoadingHistoryPayment }] =
     useGetHistoryPaymentMutation();
@@ -41,7 +48,6 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string>("");
   const [historyPayment, setHistoryPayment] = useState<HistoryPaymentDTO[]>([]);
-  const [activeTab, setActiveTab] = useState(t("profile.tabs.personal"));
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -52,13 +58,16 @@ export default function ProfilePage() {
   const [location, setLocation] = useState("");
 
   const [updateProfile] = useUpdateProfileMutation();
-  const { data: profileData, refetch } = useGetUserProfileQuery(userInfo?.email, { skip: !userInfo?.email });
+  const { data: profileData, refetch } = useGetUserProfileQuery(
+    userInfo?.email,
+    { skip: !userInfo?.email }
+  );
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   useEffect(() => {
-    console.log("profileData", profileData);
     if (profileData?.result) {
-      const { username, avatarUrl, bio, id, email, location } = profileData.result;
+      const { username, avatarUrl, bio, id, email, location } =
+        profileData.result;
       const nameParts = (username || "").trim().split(" ");
       setFirstName(nameParts[0] || "");
       setLastName(nameParts.length > 1 ? nameParts.slice(1).join(" ") : "");
@@ -85,15 +94,17 @@ export default function ProfilePage() {
         bio,
         location,
       }).unwrap();
-      
+
       // Cập nhật Redux store để đồng bộ username mới
       if (userInfo) {
-        dispatch(setCredentials({
-          userInfo: { ...userInfo, username: safeUserName },
-          accessToken: undefined
-        }));
+        dispatch(
+          setCredentials({
+            userInfo: { ...userInfo, username: safeUserName },
+            accessToken: undefined,
+          })
+        );
       }
-      
+
       toast.success(t("profile.personalInfo.updateSuccess"));
       refetch();
     } catch {
@@ -113,7 +124,7 @@ export default function ProfilePage() {
       const newAvatarUrl = result.secure_url;
 
       setAvatarUrl(newAvatarUrl);
-      
+
       // Cập nhật thông tin profile sau khi upload avatar thành công
       await updateProfile({
         id: profileId,
@@ -123,15 +134,17 @@ export default function ProfilePage() {
         bio,
         location,
       }).unwrap();
-      
+
       // Cập nhật Redux store để đồng bộ avatarUrl mới
       if (userInfo) {
-        dispatch(setCredentials({
-          userInfo: { ...userInfo, avatarUrl: newAvatarUrl },
-          accessToken: undefined
-        }));
+        dispatch(
+          setCredentials({
+            userInfo: { ...userInfo, avatarUrl: newAvatarUrl },
+            accessToken: undefined,
+          })
+        );
       }
-      
+
       toast.success(t("profile.personalInfo.updateSuccess"));
       refetch();
     } catch (error: unknown) {
@@ -243,19 +256,19 @@ export default function ProfilePage() {
         <div>
           <Card>
             <CardHeader className="text-center">
-                <div className="flex justify-center mb-4">
+              <div className="flex justify-center mb-4">
                 <Avatar className="h-32 w-32 rounded-full overflow-hidden border-4 border-primary/10">
                   <AvatarImage
-                  src={avatarUrl}
-                  alt={`${userInfo.firstname} ${userInfo.lastname}`}
-                  className="object-cover"
+                    src={avatarUrl}
+                    alt={`${userInfo.firstname} ${userInfo.lastname}`}
+                    className="object-cover"
                   />
                   <AvatarFallback className="text-4xl">
-                  {userInfo.firstname?.[0]}
-                  {userInfo.lastname?.[0]}
+                    {userInfo.firstname?.[0]}
+                    {userInfo.lastname?.[0]}
                   </AvatarFallback>
                 </Avatar>
-                </div>
+              </div>
               <CardTitle className="text-2xl">
                 {userInfo.firstname} {userInfo.lastname}
               </CardTitle>
@@ -272,10 +285,12 @@ export default function ProfilePage() {
                     onChange={handleAvatarUpload}
                     disabled={isUploadingAvatar}
                   />
-                  <Button 
-                    variant="outline" 
-                    className="w-full" 
-                    onClick={() => document.getElementById('avatar-upload')?.click()}
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() =>
+                      document.getElementById("avatar-upload")?.click()
+                    }
                     disabled={isUploadingAvatar}
                   >
                     {isUploadingAvatar ? (
@@ -304,7 +319,11 @@ export default function ProfilePage() {
                   <span className="text-sm font-medium text-muted-foreground">
                     {t("profile.memberSince")}
                   </span>
-                  <p>{new Date(profileData?.result?.createdAt).toLocaleDateString()}</p>
+                  <p>
+                    {new Date(
+                      profileData?.result?.createdAt
+                    ).toLocaleDateString()}
+                  </p>
                 </div>
                 <div>
                   <span className="text-sm font-medium text-muted-foreground">
@@ -352,7 +371,7 @@ export default function ProfilePage() {
                         <Input
                           id="firstName"
                           value={firstName}
-                          onChange={e => setFirstName(e.target.value)}
+                          onChange={(e) => setFirstName(e.target.value)}
                         />
                       </div>
                       <div className="space-y-2">
@@ -362,7 +381,7 @@ export default function ProfilePage() {
                         <Input
                           id="lastName"
                           value={lastName}
-                          onChange={e => setLastName(e.target.value)}
+                          onChange={(e) => setLastName(e.target.value)}
                         />
                       </div>
                     </div>
@@ -386,7 +405,7 @@ export default function ProfilePage() {
                       <Textarea
                         id="bio"
                         value={bio}
-                        onChange={e => setBio(e.target.value)}
+                        onChange={(e) => setBio(e.target.value)}
                         placeholder={t("profile.personalInfo.bioPlaceholder")}
                         rows={4}
                       />
@@ -399,7 +418,7 @@ export default function ProfilePage() {
                       <Input
                         id="location"
                         value={location}
-                        onChange={e => setLocation(e.target.value)}
+                        onChange={(e) => setLocation(e.target.value)}
                         placeholder={t(
                           "profile.personalInfo.locationPlaceholder"
                         )}

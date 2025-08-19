@@ -63,7 +63,6 @@ export default function Page() {
             setStatus("error");
           }
           if (response.result) {
-            console.log("response.result", response.result);
             if (params.cancel === "false") {
               setStatus("success");
             } else {
