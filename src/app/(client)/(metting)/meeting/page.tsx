@@ -167,119 +167,6 @@ export default function MeetingPage() {
     }
   }, [leaveMeeting, roomID, userInfo, isListening, stopListening, resetTranscript])
 
-  // Function to create Firebase Live Database foreground view
-  const createFirebaseForegroundView = React.useCallback(() => {
-    const containerDiv = document.createElement('div')
-    containerDiv.style.cssText = `
-      background-color: rgba(0, 0, 0, 0.9);
-      color: white;
-      padding: 16px;
-      border-radius: 8px;
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      z-index: 1000;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-      min-width: 320px;
-      max-width: 400px;
-      max-height: 300px;
-      overflow: hidden;
-      backdrop-filter: blur(8px);
-    `
-    
-    // Create header
-    const header = document.createElement('div')
-    header.style.cssText = `
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-      border-bottom: 1px solid #374151;
-      padding-bottom: 8px;
-    `
-    header.innerHTML = `
-      <span style="font-size: 12px; font-weight: 600; color: #fbbf24;">📊 Live Database</span>
-    `
-    
-    // Create listen button
-    const listenBtn = document.createElement('button')
-    listenBtn.style.cssText = `
-      font-size: 12px;
-      padding: 4px 8px;
-      background-color: #ea580c;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: background-color 0.2s;
-    `
-    listenBtn.innerHTML = '🎧 Listen'
-    listenBtn.onmouseover = () => { listenBtn.style.backgroundColor = '#c2410c' }
-    listenBtn.onmouseout = () => { listenBtn.style.backgroundColor = '#ea580c' }
-    listenBtn.onclick = () => {
-      if (firebaseTest.isLoading) return
-      firebaseTest.startRealTimeListener()
-    }
-    
-    header.appendChild(listenBtn)
-    
-    // Create data display area
-    const dataArea = document.createElement('div')
-    dataArea.style.cssText = `
-      background-color: #1f2937;
-      border-radius: 4px;
-      padding: 8px;
-      max-height: 200px;
-      overflow-y: auto;
-      font-family: 'Courier New', monospace;
-      font-size: 11px;
-      color: #d1d5db;
-      white-space: pre-wrap;
-      word-break: break-all;
-    `
-    
-    // Function to update data display
-    const updateDataDisplay = () => {
-      const data = firebaseTest.allData
-      dataArea.textContent = data ? JSON.stringify(data, null, 2) : 'No data yet...'
-    }
-    
-    // Initial update
-    updateDataDisplay()
-    
-    // Set up interval to update data display periodically
-    const updateInterval = setInterval(() => {
-      updateDataDisplay()
-    }, 1000)
-    
-    // Clean up interval when element is removed
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'childList') {
-          mutation.removedNodes.forEach((node) => {
-            if (node === containerDiv) {
-              clearInterval(updateInterval)
-              observer.disconnect()
-            }
-          })
-        }
-      })
-    })
-    
-    // Start observing
-    if (document.body) {
-      observer.observe(document.body, { childList: true, subtree: true })
-    }
-    
-    // Assemble the container
-    containerDiv.appendChild(header)
-    containerDiv.appendChild(dataArea)
-    
-    return containerDiv
-  }, [firebaseTest])
-
   const joinZegoRoom = React.useCallback(
     async (element: HTMLDivElement) => {
       if (!element || !roomID || !userInfo?.id || joinAttempted) return
@@ -307,8 +194,6 @@ export default function MeetingPage() {
             if (isListening) stopListening()
             resetTranscript()
           },
-          // Add Firebase Live Database foreground view
-          requireRoomForegroundView: createFirebaseForegroundView,
           leaveRoomDialogConfig: {
             titleText: 'Leave Meeting',
             descriptionText: 'Are you sure you want to leave this meeting?',
@@ -324,8 +209,7 @@ export default function MeetingPage() {
         console.error('Failed to join meeting:', error)
       }
     },
-        [roomID, userInfo, isListening, stopListening, resetTranscript, createFirebaseForegroundView, router, joinAttempted,leaveMeeting]
- // fix
+    [roomID, userInfo, isListening, stopListening, resetTranscript, leaveMeeting, router, joinAttempted]
   )
 
   useEffect(() => {
@@ -376,10 +260,22 @@ export default function MeetingPage() {
             )}
           </div>
 
-          {/* Live Database moved to requireRoomForegroundView */}
+          {/* Real-time Database Display */}
           <div className="mb-4">
-            <div className="text-xs text-green-400 bg-gray-800 rounded p-2">
-              📊 Live Database moved to video overlay for better visibility
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-xs font-medium text-yellow-400">📊 Live Database:</span>
+              <button
+                onClick={firebaseTest.startRealTimeListener}
+                disabled={firebaseTest.isLoading}
+                className="text-xs px-2 py-1 bg-orange-600 hover:bg-orange-700 disabled:bg-gray-600 rounded"
+              >
+                🎧 Listen
+              </button>
+            </div>
+            <div className="bg-gray-800 rounded p-2 max-h-32 overflow-y-auto">
+              <pre className="text-xs text-gray-300 whitespace-pre-wrap">
+                {firebaseTest.allData ? JSON.stringify(firebaseTest.allData, null, 2) : 'No data yet...'}
+              </pre>
             </div>
           </div>
 
