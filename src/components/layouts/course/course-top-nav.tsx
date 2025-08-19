@@ -5,6 +5,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { cn } from "@/utils/cn";
+import { List } from "lucide-react";
 
 interface CourseTopNavProps {
   navItems: { name: string; href: string; icon: React.ReactNode }[];
@@ -24,9 +25,12 @@ export default function CourseTopNav({ navItems }: CourseTopNavProps) {
           <div className="flex items-center">
             <Link
               href="/list-course"
-              className="text-primary font-bold text-xl hover:text-primary/80 transition-colors"
+              className="flex items-center gap-2 text-primary font-bold text-xl hover:text-primary/80 transition-colors group"
             >
-              {userInfo?.courseTitle == "chooseCourse" ? tListCourse("chooseCourse") : userInfo?.courseTitle}
+              <List className="h-5 w-5 group-hover:scale-110 transition-transform" />
+              {userInfo?.courseTitle == "chooseCourse"
+                ? tListCourse("chooseCourse")
+                : userInfo?.courseTitle}
             </Link>
           </div>
 
@@ -45,7 +49,14 @@ export default function CourseTopNav({ navItems }: CourseTopNavProps) {
                       : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
                   )}
                 >
-                  <span className={cn("text-lg", isActive ? "text-white" : "text-gray-600 dark:text-gray-300")}>
+                  <span
+                    className={cn(
+                      "text-lg",
+                      isActive
+                        ? "text-white"
+                        : "text-gray-600 dark:text-gray-300"
+                    )}
+                  >
                     {item.icon}
                   </span>
                   <span>{t(item.name)}</span>
@@ -57,8 +68,18 @@ export default function CourseTopNav({ navItems }: CourseTopNavProps) {
           {/* Mobile Menu Button - you can expand this later */}
           <div className="md:hidden">
             <button className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             </button>
           </div>

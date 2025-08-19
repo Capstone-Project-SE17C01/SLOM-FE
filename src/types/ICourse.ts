@@ -155,12 +155,12 @@ export interface Language {
 }
 
 export interface SummaryResponse {
-  totalLessonsCompleted: number;
+  totalQuizzesCompleted: number;
+  totalQuizzes: number;
+  totalLessonsLearned: number;
   totalLessons: number;
   totalModulesCompleted: number;
   totalModules: number;
-  totalCourseCompleted: number;
-  totalCourse: number;
   activeLesson: Lesson | null;
   activities: Activities | null;
 }

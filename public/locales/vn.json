@@ -18,7 +18,8 @@
     "meeting": "Phòng họp",
     "translator": "Dịch thuật",
     "qa": "Hỏi&Đáp",
-    "searchAdminPanel": "Tìm kiếm trong trang quản trị..."
+    "searchAdminPanel": "Tìm kiếm trong trang quản trị...",
+    "progress": "Tiến độ"
   },
   "language": {
     "en": "Tiếng Anh",
@@ -485,7 +486,7 @@
     "studiedSituations": "Các tình huống đã học",
     "continueLearning": "Tiếp tục học",
     "continue": "Tiếp tục",
-    "emptyModule": "Không có module nào",
+    "emptyModule": "Không có chủ đề nào",
     "checkAnswer": "Kiểm tra đáp án",
     "typeYourAnswer": "Nhập câu trả lời",
     "dontKnow": "Không biết",
@@ -513,19 +514,21 @@
     "percentage": "{percentage}%",
     "progress": "Tiến độ {progress}%",
     "lessons": "Bài học",
-    "modules": "Module",
+    "modules": "Chủ đề",
     "course": "Khóa học",
+    "quizzes": "Bài kiểm tra",
     "numberCompleted": "{count} đã hoàn thành",
-    "totalLessons": "{count} bài học trong chương",
-    "totalModules": "{count} chương trong khóa",
+    "totalLessons": "{count} bài học trong khoá học",
+    "totalModules": "{count} chủ đề trong khoá học",
     "totalCourse": "{count} khóa học trong hệ thống",
+    "totalQuizzes": "{count} bài kiểm tra trong khoá học",
     "lessonsCompletedLast7Days": "Bài học đã hoàn thành (7 ngày qua)",
-    "modulesCompletedLast7Days": "Module đã hoàn thành (7 ngày qua)",
+    "modulesCompletedLast7Days": "Chủ đề đã hoàn thành (7 ngày qua)",
     "courseCompletedLast7Days": "Khóa học đã hoàn thành (7 ngày qua)",
     "recentLessonsCompleted": "Bài học đã hoàn thành gần đây",
-    "recentModulesCompleted": "Module đã hoàn thành gần đây",
+    "recentModulesCompleted": "Chủ đề đã hoàn thành gần đây",
     "recentCoursesCompleted": "Khóa học đã hoàn thành gần đây",
-    "moduleTitle": "Tiêu đề module",
+    "moduleTitle": "Tiêu đề chủ đề",
     "lessonTitle": "Tiêu đề bài học",
     "setReminder": "Đặt lịch nhắc nhở",
     "reminderSetSuccessfully": "Lưu cài đặt thành công",
@@ -533,7 +536,8 @@
     "reminderActive": "Kích hoạt",
     "reminderTime": "Thời gian nhắc nhở",
     "reminderMessage": "Nội dung nhắc nhở",
-    "enterYourReminderMessage": "Nhập nội dung nhắc nhở"
+    "enterYourReminderMessage": "Nhập nội dung nhắc nhở",
+    "thisCourseNotAvailable": "Khóa học này không khả dụng, vui lòng chọn khóa học khác"
   },
   "listCoursePage": {
     "noCourseRemain": "Không có khóa học còn lại",
@@ -630,7 +634,7 @@
     "deleteMeeting": "Xóa cuộc họp",
     "areYouSureYouWantToDeleteTheMeeting": "Bạn có chắc chắn muốn xóa cuộc họp",
     "thisActionCannotBeUndone": "Hành động này không thể được hoàn tác.",
-    "processing":"Đang xử lý"
+    "processing": "Đang xử lý"
   },
   "translatorPage": {
     "signLanguageTranslator": "Trình dịch ngôn ngữ ký hiệu",

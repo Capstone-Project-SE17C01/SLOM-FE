@@ -60,19 +60,25 @@ function ProgressBar({
   ) => string;
 }) {
   const percent =
-    ((dashboardData?.totalLessonsCompleted ?? 0) /
+    ((dashboardData?.totalQuizzesCompleted ?? 0) /
       (dashboardData?.totalLessons ?? 1)) *
     100;
   return (
     <div className="mb-6">
       <div className="text-lg mb-2 font-semibold">
         {/* current module title */}
-        {dashboardData?.activeLesson?.module?.title
+        {dashboardData?.activeLesson?.module?.title &&
+        dashboardData?.totalModules !== 0 &&
+        dashboardData?.totalLessons !== 0
           ? dashboardData.activeLesson.module.title
           : tCourseDashBoard("moduleTitle")}
         <span className="inline-block bg-[#6947A8] dark:bg-[#4b2e6a] ml-2 text-white rounded-full px-2">
           {/*current lesson title */}
-          {dashboardData?.activeLesson?.orderNumber ?? "0"}
+          {dashboardData?.activeLesson?.orderNumber &&
+          dashboardData?.totalModules !== 0 &&
+          dashboardData?.totalLessons !== 0
+            ? dashboardData.activeLesson.orderNumber
+            : "0"}
         </span>
       </div>
       <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
@@ -158,13 +164,23 @@ export default function CourseDashboard() {
   const accomplishmentConfigs = [
     {
       title: tCourseDashBoard("lessons"),
-      completed: dashboardData?.totalLessonsCompleted ?? 0,
+      completed: dashboardData?.totalLessonsLearned ?? 0,
       total: dashboardData?.totalLessons ?? 0,
       percentage:
-        ((dashboardData?.totalLessonsCompleted ?? 0) /
+        ((dashboardData?.totalLessonsLearned ?? 0) /
           (dashboardData?.totalLessons ?? 1)) *
         100,
       totalLabel: "totalLessons",
+    },
+    {
+      title: tCourseDashBoard("quizzes"),
+      completed: dashboardData?.totalQuizzesCompleted ?? 0,
+      total: dashboardData?.totalQuizzes ?? 0,
+      percentage:
+        ((dashboardData?.totalQuizzesCompleted ?? 0) /
+          (dashboardData?.totalQuizzes ?? 1)) *
+        100,
+      totalLabel: "totalQuizzes",
     },
     {
       title: tCourseDashBoard("modules"),
@@ -175,16 +191,6 @@ export default function CourseDashboard() {
           (dashboardData?.totalModules ?? 1)) *
         100,
       totalLabel: "totalModules",
-    },
-    {
-      title: tCourseDashBoard("course"),
-      completed: dashboardData?.totalCourseCompleted ?? 0,
-      total: dashboardData?.totalCourse ?? 0,
-      percentage:
-        ((dashboardData?.totalCourseCompleted ?? 0) /
-          (dashboardData?.totalCourse ?? 1)) *
-        100,
-      totalLabel: "totalCourse",
     },
   ];
 
@@ -197,80 +203,101 @@ export default function CourseDashboard() {
           tCourseDashBoard={tCourseDashBoard}
         />
 
-        {/* Accomplishments */}
+        {/* Accomplishments, not show if total module or total lesson is 0 */}
         <div className="bg-gradient-to-r from-primary to-primary/80 dark:from-gray-800 dark:to-gray-700 rounded-xl p-6 mb-6 shadow-lg">
           <div className="flex justify-between items-center">
-            <div className="font-bold text-xl text-white dark:text-gray-200">
-              {tCourseDashBoard("myAccomplishments")}
-            </div>
-
-            {/* Reminder Dialog */}
-            <ReminderDialog
-              isOpen={isOpen}
-              onOpenChange={setIsOpen}
-              userEmail={userInfo?.email}
-              userId={userInfo?.id}
-              isActive={isActive}
-            />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-            {accomplishmentConfigs.map((cfg) => (
-              <AccomplishmentCard
-                key={cfg.title}
-                {...cfg}
-                tCourseDashBoard={tCourseDashBoard}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* ActivityCard */}
-        <div className="mb-6">
-          <ActivityCard
-            title={tCourseDashBoard("myActivity")}
-            activities={
-              dashboardData?.activities ?? {
-                recentLessonsCompleted: 0,
-                recentModulesCompleted: 0,
-                recentCoursesCompleted: 0,
-              }
-            }
-            subLabel={tCourseDashBoard("lessonsCompletedLast7Days")}
-          />
-        </div>
-
-        {/* BannerStartLearning */}
-        <div className="bg-gradient-to-r from-primary/10 to-primary/5 dark:from-gray-800 dark:to-gray-700 rounded-xl p-6 flex items-center justify-between mb-6 border border-primary/20 dark:border-gray-700">
-          <div>
-            <div className="font-bold text-xl mb-2 text-gray-900 dark:text-gray-200">
-              {tCourseDashBoard("learnNewSign")}
-            </div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">
-              {dashboardData?.activeLesson?.title && (
-                <span>{dashboardData?.activeLesson?.title}</span>
+            {/* not show label if total module or total lesson is 0 */}
+            {dashboardData?.totalModules !== 0 &&
+              dashboardData?.totalLessons !== 0 && (
+                <div className="font-bold text-xl text-white dark:text-gray-200">
+                  {tCourseDashBoard("myAccomplishments")}
+                </div>
               )}
-            </div>
+
+            {/* Reminder Dialog, not show if total module or total lesson is 0 */}
+            {dashboardData?.totalModules !== 0 &&
+              dashboardData?.totalLessons !== 0 && (
+                <ReminderDialog
+                  isOpen={isOpen}
+                  onOpenChange={setIsOpen}
+                  userEmail={userInfo?.email}
+                  userId={userInfo?.id}
+                  isActive={isActive}
+                />
+              )}
           </div>
-          <ButtonCourse
-            variant="super"
-            className="shadow-lg hover:shadow-xl transition-shadow"
-            onClick={() => {
-              if (dashboardData?.activeLesson) {
-                router.push(
-                  `/apprender/learn?lessonId=${
-                    dashboardData.activeLesson.id
-                  }&moduleId=${
-                    dashboardData.activeLesson.moduleId
-                  }&back=${encodeURIComponent("/course-dashboard")}`
-                );
-              } else {
-                router.push("/learn");
-              }
-            }}
-          >
-            {tCourseDashBoard("startLearning")}
-          </ButtonCourse>
+          {/* if total module or total lesson is 0, show a message to user "This Course not available, Please choose other course" */}
+          {dashboardData?.totalModules === 0 ||
+          dashboardData?.totalLessons === 0 ? (
+            <div className="text-white dark:text-white text-center text-2xl font-bold">
+              {tCourseDashBoard("thisCourseNotAvailable")}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+              {accomplishmentConfigs.map((cfg) => (
+                <AccomplishmentCard
+                  key={cfg.title}
+                  {...cfg}
+                  tCourseDashBoard={tCourseDashBoard}
+                />
+              ))}
+            </div>
+          )}
         </div>
+
+        {/* ActivityCard, not show if total module or total lesson is 0 */}
+        {dashboardData?.totalModules !== 0 &&
+          dashboardData?.totalLessons !== 0 && (
+            <div className="mb-6">
+              <ActivityCard
+                title={tCourseDashBoard("myActivity")}
+                activities={
+                  dashboardData?.activities ?? {
+                    recentLessonsCompleted: 0,
+                    recentModulesCompleted: 0,
+                    recentCoursesCompleted: 0,
+                  }
+                }
+                subLabel={tCourseDashBoard("lessonsCompletedLast7Days")}
+              />
+            </div>
+          )}
+
+        {/* BannerStartLearning, not show if total module or total lesson is 0 */}
+        {dashboardData?.totalModules !== 0 &&
+          dashboardData?.totalLessons !== 0 && (
+            <div className="bg-gradient-to-r from-primary/10 to-primary/5 dark:from-gray-800 dark:to-gray-700 rounded-xl p-6 flex items-center justify-between mb-6 border border-primary/20 dark:border-gray-700">
+              <div>
+                <div className="font-bold text-xl mb-2 text-gray-900 dark:text-gray-200">
+                  {tCourseDashBoard("learnNewSign")}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-300">
+                  {dashboardData?.activeLesson?.title && (
+                    <span>{dashboardData?.activeLesson?.title}</span>
+                  )}
+                </div>
+              </div>
+              <ButtonCourse
+                variant="super"
+                className="shadow-lg hover:shadow-xl transition-shadow"
+                onClick={() => {
+                  if (dashboardData?.activeLesson) {
+                    router.push(
+                      `/apprender/learn?lessonId=${
+                        dashboardData.activeLesson.id
+                      }&moduleId=${
+                        dashboardData.activeLesson.moduleId
+                      }&back=${encodeURIComponent("/course-dashboard")}`
+                    );
+                  } else {
+                    router.push("/learn");
+                  }
+                }}
+              >
+                {tCourseDashBoard("startLearning")}
+              </ButtonCourse>
+            </div>
+          )}
       </div>
     </div>
   );
