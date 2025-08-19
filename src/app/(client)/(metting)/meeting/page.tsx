@@ -7,7 +7,7 @@ import { useRealSignLanguageRecognition } from '@/hooks/useRealSignLanguageRecog
 import SignLanguageDetector from '@/components/SignLanguageDetector/SignLanguageDetector'
 import { useEffect } from 'react'
 import { useSpeechToText } from '@/hooks/useSpeechToText'
-import { useFirebaseTest } from '@/hooks/useFirebaseTest'
+
 import { useMeetingFirebase } from '@/hooks/useMeetingFirebase'
 import { Mic, Square, Languages, MessageCircle } from 'lucide-react'
 import { generateZegoToken } from '@/services/zego/config'
@@ -75,7 +75,6 @@ export default function MeetingPage() {
   })
 
   // Firebase hooks
-  const firebaseTest = useFirebaseTest()
   const meetingFirebase = useMeetingFirebase({
     meetingCode: roomID,
     userId: userInfo?.id || '',
@@ -279,140 +278,7 @@ export default function MeetingPage() {
     <>
       <div className="myCallContainer" ref={containerRef} style={{ height: '100vh', width: '100vw' }} />
 
-      {/* Firebase Test Panel - Fixed position */}
-      {roomID && (
-        <div className="fixed top-4 left-4 z-[1000] bg-black/90 text-white p-4 rounded-lg max-w-md w-96">
-          <h3 className="text-sm font-bold mb-3">🔥 Firebase Meeting Test</h3>
 
-          {/* Connection Status */}
-          <div className="mb-3">
-            <div className="flex items-center gap-2">
-              <span className={cn('w-3 h-3 rounded-full', firebaseTest.isConnected ? 'bg-green-500' : 'bg-red-500')} />
-              <span className="text-xs">{firebaseTest.isConnected ? 'Connected' : 'Disconnected'}</span>
-              {firebaseTest.isLoading && <span className="text-xs text-yellow-400">Loading...</span>}
-            </div>
-
-            {firebaseTest.error && <div className="text-xs text-red-400 mt-1">Error: {firebaseTest.error}</div>}
-
-            <div className="text-xs text-gray-400 mt-1">
-              Last update: {new Date(firebaseTest.lastUpdate).toLocaleTimeString()}
-            </div>
-
-            {/* Current Bucket Info */}
-            <div className="text-xs text-blue-400 mt-1">
-              Current bucket: {firebaseTest.getCurrentBucketInfo().timeRange}
-            </div>
-            
-            {/* Auto-sync Status */}
-            {meetingFirebase.isConnected && (
-              <div className="text-xs text-green-400 mt-1 flex items-center gap-1">
-                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                Auto-sync active
-              </div>
-            )}
-            {meetingFirebase.error && (
-              <div className="text-xs text-red-400 mt-1">
-                Sync error: {meetingFirebase.error}
-              </div>
-            )}
-          </div>
-
-          {/* Real-time Database Display */}
-          <div className="mb-4">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-xs font-medium text-yellow-400">📊 Live Database:</span>
-              <button
-                onClick={firebaseTest.startRealTimeListener}
-                disabled={firebaseTest.isLoading}
-                className="text-xs px-2 py-1 bg-orange-600 hover:bg-orange-700 disabled:bg-gray-600 rounded"
-              >
-                🎧 Listen
-              </button>
-            </div>
-            <div className="bg-gray-800 rounded p-2 max-h-32 overflow-y-auto">
-              <pre className="text-xs text-gray-300 whitespace-pre-wrap">
-                {firebaseTest.allData ? JSON.stringify(firebaseTest.allData, null, 2) : 'No data yet...'}
-              </pre>
-            </div>
-          </div>
-
-          {/* Add Content Form */}
-          <div className="space-y-2">
-            <div>
-              <label className="text-xs text-gray-400 block mb-1">Meeting Code:</label>
-              <input
-                type="text"
-                value={firebaseTest.meetingCode}
-                onChange={(e) => firebaseTest.updateMeetingCode(e.target.value)}
-                placeholder={`Auto: ${roomID}`}
-                className="w-full text-xs px-2 py-1 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500"
-              />
-            </div>
-            
-            <div>
-              <label className="text-xs text-gray-400 block mb-1">User ID:</label>
-              <input
-                type="text"
-                value={firebaseTest.userId}
-                onChange={(e) => firebaseTest.updateUserId(e.target.value)}
-                placeholder={`Auto: ${userInfo?.id || 'user_123'}`}
-                className="w-full text-xs px-2 py-1 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs text-gray-400 block mb-1">Content:</label>
-              <textarea
-                value={firebaseTest.content}
-                onChange={(e) => firebaseTest.updateContent(e.target.value)}
-                placeholder="Enter message content..."
-                rows={2}
-                className="w-full text-xs px-2 py-1 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 resize-none"
-              />
-            </div>
-
-            <div className="flex gap-2">
-              <button
-                onClick={firebaseTest.addContent}
-                disabled={firebaseTest.isLoading}
-                className="flex-1 text-xs px-2 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded font-medium"
-              >
-                ✍️ Add Content
-              </button>
-              
-              <button
-                onClick={() => {
-                  firebaseTest.updateMeetingCode(roomID)
-                  firebaseTest.updateUserId(userInfo?.id || 'user_123')
-                }}
-                disabled={firebaseTest.isLoading}
-                className="text-xs px-2 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded"
-              >
-                🔄 Auto Fill
-              </button>
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="mt-3 flex gap-2">
-            <button
-              onClick={firebaseTest.testConnection}
-              disabled={firebaseTest.isLoading}
-              className="flex-1 text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded"
-            >
-              🧪 Test
-            </button>
-
-            <button
-              onClick={firebaseTest.readAllDatabase}
-              disabled={firebaseTest.isLoading}
-              className="flex-1 text-xs px-2 py-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 rounded"
-            >
-              📖 Read
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Main control bar */}
       {hasJoinedRoom && !meetingExpired && roomID && (
