@@ -94,7 +94,7 @@ export default function MeetingPage() {
     if (transcript && hasJoinedRoom && !meetingExpired && userInfo?.vipUser) {
       const timeoutId = setTimeout(() => {
         meetingFirebase.sendSpeechContent(transcript)
-      }, 2000) // Debounce by 2 seconds to avoid too many updates
+      }, 100) // Debounce by 2 seconds to avoid too many updates
 
       return () => clearTimeout(timeoutId)
     }
@@ -105,7 +105,7 @@ export default function MeetingPage() {
     if (signLanguageRecognition.fullTranscript && hasJoinedRoom && !meetingExpired && userInfo?.vipUser) {
       const timeoutId = setTimeout(() => {
         meetingFirebase.sendSignContent(signLanguageRecognition.fullTranscript)
-      }, 2000) // Debounce by 2 seconds
+      }, 100) // Debounce by 2 seconds
 
       return () => clearTimeout(timeoutId)
     }
