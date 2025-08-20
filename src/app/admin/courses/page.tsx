@@ -5,7 +5,9 @@ import { Plus, Edit, Trash2, Book } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TableWithStatsCard from "@/components/layouts/admin/TableWithStatsCard";
 import { useRouter } from "next/navigation";
-import EntityModal, { FieldConfig } from "@/components/layouts/admin/EntityModal";
+import EntityModal, {
+  FieldConfig,
+} from "@/components/layouts/admin/EntityModal";
 import {
   useCreateCourseMutation,
   useGetListCourseMutation,
@@ -23,7 +25,7 @@ import Image from "next/image";
 export default function CoursePage() {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
+  const itemsPerPage = 10;
   const [courses, setCourses] = useState<Course[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalFields, setModalFields] = useState<FieldConfig[]>([]);
@@ -313,8 +315,12 @@ export default function CoursePage() {
         title="Confirm delete course"
       >
         <div className="py-4 text-center">
-          <p className="text-lg">Are you sure you want to delete this course?</p>
-          <p className="text-sm text-gray-500 mt-2">This action cannot be undone.</p>
+          <p className="text-lg">
+            Are you sure you want to delete this course?
+          </p>
+          <p className="text-sm text-gray-500 mt-2">
+            This action cannot be undone.
+          </p>
         </div>
       </EntityModal>
     </div>

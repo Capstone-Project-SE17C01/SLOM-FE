@@ -498,7 +498,8 @@
     "finishedLesson": "Đã hoàn thành bài học!",
     "finishLesson": "Kết thúc bài học",
     "finishQuiz": "Kết thúc quiz",
-    "nextLesson": "Bài học tiếp theo"
+    "nextLesson": "Bài học tiếp theo",
+    "back": "Quay lại từ trước đó"
   },
   "learn": {
     "finishedLesson": "Đã hoàn thành bài học!",
@@ -634,7 +635,9 @@
     "deleteMeeting": "Xóa cuộc họp",
     "areYouSureYouWantToDeleteTheMeeting": "Bạn có chắc chắn muốn xóa cuộc họp",
     "thisActionCannotBeUndone": "Hành động này không thể được hoàn tác.",
-    "processing": "Đang xử lý"
+    "processing": "Đang xử lý",
+    "recording": "bản ghi",
+    "folders": "Thư mục"
   },
   "translatorPage": {
     "signLanguageTranslator": "Trình dịch ngôn ngữ ký hiệu",
@@ -702,7 +705,10 @@
     "historyCleared": "Lịch sử đã xóa",
     "stopped": "Đã dừng",
     "startingRecognition": "Đang bắt đầu nhận dạng...",
-    "recognitionFinished": "Nhận dạng đã hoàn thành."
+    "recognitionFinished": "Nhận dạng đã hoàn thành.",
+    "error": "Không thể kết nối với máy dịch ngôn ngữ ký hiệu",
+    "duration": "Thời lượng",
+    "uploadFailed": "Tải lên thất bại"
   },
   "qaPage": {
     "communityQ&A": "Cộng đồng Q&A",
@@ -745,7 +751,23 @@
     "loadingAnswers": "Đang tải câu trả lời...",
     "noMoreAnswers": "Không có câu trả lời nào nữa.",
     "noAnswersYet": "Không có câu trả lời nào",
-    "beTheFirstToAnswer": "Trả lời đầu tiên"
+    "beTheFirstToAnswer": "Trả lời đầu tiên",
+    "deleteConfirmation": "Xác nhận xóa",
+    "areYouSureYouWantToDeleteThisQuestion": "Bạn có chắc chắn muốn xóa câu hỏi này?",
+    "cancel": "Hủy",
+    "deleteQuestion": "Xóa câu hỏi",
+    "replies": "trả lời",
+    "writeYourReplyHere": "Viết câu trả lời của bạn ở đây...",
+    "updateAnswer": "Cập nhật câu trả lời",
+    "postReply": "Đăng câu trả lời",
+    "replyToQuestion": "Trả lời câu hỏi",
+    "editAnswer": "Sửa câu trả lời",
+    "updatingAnswer": "Đang cập nhật câu trả lời...",
+    "postingAnswer": "Đang đăng câu trả lời...",
+    "updatedAnswerSuccess": "Cập nhật câu trả lời thành công",
+    "postedAnswerSuccess": "Đăng câu trả lời thành công",
+    "updateAnswerError": "Cập nhật câu trả lời thất bại",
+    "postAnswerError": "Đăng câu trả lời thất bại"
   },
   "meaningCard": {
     "meaning": "Ý nghĩa",

@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 export default function AdminModule() {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
+  const itemsPerPage = 10;
   const [modules, setModules] = useState<Module[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalFields, setModalFields] = useState<FieldConfig[]>([]);
@@ -322,8 +322,8 @@ export default function AdminModule() {
         {...(deleteModule && {
           children: (
             <div className="py-6 text-center text-lg">
-              Bạn có chắc chắn muốn xóa module <b>{deleteModule.title}</b>{" "}
-              không?
+              Are you sure you want to delete module <b>{deleteModule.title}</b>{" "}
+              ?
             </div>
           ),
         })}
