@@ -57,12 +57,12 @@ class MeetingService {
       let lastActivity = 0
 
       // Analyze meeting data
-      buckets.forEach(bucketKey => {
+      buckets.forEach((bucketKey) => {
         const bucket = meetingData[bucketKey]
-        Object.keys(bucket).forEach(userId => {
+        Object.keys(bucket).forEach((userId) => {
           participants.add(userId)
         })
-        
+
         // Update last activity (latest bucket key)
         const bucketTime = parseInt(bucketKey)
         if (bucketTime > lastActivity) {
@@ -94,7 +94,7 @@ class MeetingService {
   async createMeeting(meetingCode: string): Promise<CreateMeetingResult> {
     try {
       const meetingRef = ref(database, `${this.MEETINGS_PATH}/${meetingCode}`)
-      
+
       // Check if meeting already exists
       const exists = await this.meetingExists(meetingCode)
       if (exists) {
@@ -132,7 +132,7 @@ class MeetingService {
     try {
       const { meetingCode, userId, content } = entry
       const bucketKey = getCurrentBucketKey(entry.timestamp)
-      
+
       // Ensure meeting exists
       if (!(await this.meetingExists(meetingCode))) {
         const createResult = await this.createMeeting(meetingCode)
@@ -148,19 +148,19 @@ class MeetingService {
       }
 
       const userContentRef = ref(database, `${this.MEETINGS_PATH}/${meetingCode}/${bucketKey}/${userId}`)
-      
+
       // Use transaction to safely append content
       const result = await runTransaction(userContentRef, (currentData) => {
         const currentContent = currentData || ''
-        const newContent = currentContent ? `${currentContent}+${content}` : content
+        const newContent = currentContent ? `${currentContent} ${content}` : content
         return newContent
       })
 
       if (result.committed) {
         const previousContent = result.snapshot.val() || ''
-        const segments = previousContent.split('+')
-        const actualPreviousContent = segments.slice(0, -1).join('+') || ''
-        
+        const segments = previousContent.split(' ')
+        const actualPreviousContent = segments.slice(0, -1).join(' ') || ''
+
         console.log('✅ Content added successfully:', {
           meetingCode,
           userId,
@@ -196,11 +196,11 @@ class MeetingService {
     try {
       const meetingRef = ref(database, `${this.MEETINGS_PATH}/${meetingCode}`)
       const snapshot = await get(meetingRef)
-      
+
       if (snapshot.exists()) {
         return snapshot.val() as TimeBucket
       }
-      
+
       return null
     } catch (error) {
       console.error('❌ Error getting meeting content:', error)
@@ -215,11 +215,11 @@ class MeetingService {
     try {
       const bucketRef = ref(database, `${this.MEETINGS_PATH}/${meetingCode}/${bucketKey}`)
       const snapshot = await get(bucketRef)
-      
+
       if (snapshot.exists()) {
         return snapshot.val() as UserBucketContent
       }
-      
+
       return null
     } catch (error) {
       console.error('❌ Error getting bucket content:', error)
@@ -234,11 +234,11 @@ class MeetingService {
     try {
       const userRef = ref(database, `${this.MEETINGS_PATH}/${meetingCode}/${bucketKey}/${userId}`)
       const snapshot = await get(userRef)
-      
+
       if (snapshot.exists()) {
         return snapshot.val() as string
       }
-      
+
       return null
     } catch (error) {
       console.error('❌ Error getting user bucket content:', error)
@@ -251,7 +251,7 @@ class MeetingService {
    */
   subscribeToMeeting(meetingCode: string, callback: MeetingUpdateCallback): () => void {
     const meetingRef = ref(database, `${this.MEETINGS_PATH}/${meetingCode}`)
-    
+
     onValue(meetingRef, (snapshot) => {
       const data = snapshot.exists() ? (snapshot.val() as TimeBucket) : null
       callback(data)
@@ -267,7 +267,7 @@ class MeetingService {
    */
   subscribeToDatabase(callback: DatabaseUpdateCallback): () => void {
     const rootRef = ref(database)
-    
+
     onValue(rootRef, (snapshot) => {
       const data = snapshot.exists() ? snapshot.val() : null
       callback(data)
@@ -283,7 +283,7 @@ class MeetingService {
    */
   parseUserContent(content: string): string[] {
     if (!content) return []
-    return content.split('+').filter(segment => segment.trim() !== '')
+    return content.split(' ').filter((segment) => segment.trim() !== '')
   }
 
   /**
@@ -293,11 +293,11 @@ class MeetingService {
     try {
       const meetingsRef = ref(database, this.MEETINGS_PATH)
       const snapshot = await get(meetingsRef)
-      
+
       if (snapshot.exists()) {
         return snapshot.val() as MeetingData
       }
-      
+
       return null
     } catch (error) {
       console.error('❌ Error getting all meetings:', error)
@@ -312,7 +312,7 @@ class MeetingService {
     try {
       const meetingRef = ref(database, `${this.MEETINGS_PATH}/${meetingCode}`)
       await set(meetingRef, null)
-      
+
       console.log('🗑️ Meeting deleted:', meetingCode)
       return true
     } catch (error) {

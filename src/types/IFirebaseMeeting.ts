@@ -1,19 +1,19 @@
 /**
  * Firebase Realtime Database Types for Meeting Transcripts
- * 
+ *
  * Structure:
- * meetings/{meetingCode}/{bucketKey}/{userId} = "content1+content2+content3"
- * 
+ * meetings/{meetingCode}/{bucketKey}/{userId} = "content1 content2 content3"
+ *
  * Where:
  * - meetingCode: unique meeting identifier (e.g., roomID from Zego)
  * - bucketKey: UTC timestamp rounded down to 100-second intervals
  * - userId: user identifier
- * - value: concatenated content separated by '+'
+ * - value: concatenated content separated by space
  */
 
 // Raw user content in a specific time bucket
 export interface UserBucketContent {
-  [userId: string]: string // "content1+content2+content3"
+  [userId: string]: string // "content1 content2 content3"
 }
 
 // Time bucket containing all users' content for that period
@@ -35,7 +35,7 @@ export interface FirebaseDatabase {
 export interface BucketTimeInfo {
   bucketKey: string // e.g., "1710000100"
   startTime: number // Unix timestamp in seconds
-  endTime: number   // Unix timestamp in seconds
+  endTime: number // Unix timestamp in seconds
 }
 
 export interface ContentEntry {
@@ -56,7 +56,7 @@ export interface MeetingInfo {
 // Utility type for content parsing
 export interface ParsedUserContent {
   userId: string
-  contents: string[] // Split by '+'
+  contents: string[] // Split by space
   totalSegments: number
 }
 

@@ -17,19 +17,9 @@ import { cn } from '@/utils/cn'
 import { RootState } from '@/redux/store'
 import { useAddRecordingMutation, useGetMeetingQuery, useLeaveMeetingMutation } from '@/api/MeetingApi'
 import { FolderSelectionModal } from '@/components/layouts/meeting/folder-selection-form'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
+import FirebaseSubtitleDisplay from '@/components/layouts/meeting/firebase-subtitle-display'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 export default function MeetingPage() {
   const router = useRouter()
@@ -122,7 +112,10 @@ export default function MeetingPage() {
   React.useEffect(() => {
     if (signLanguageRecognition.fullTranscript && hasJoinedRoom && !meetingExpired && userInfo?.vipUser) {
       // Only send if content is different from what was last sent
-      if (signLanguageRecognition.fullTranscript !== lastSentSignRef.current && signLanguageRecognition.fullTranscript.trim()) {
+      if (
+        signLanguageRecognition.fullTranscript !== lastSentSignRef.current &&
+        signLanguageRecognition.fullTranscript.trim()
+      ) {
         const timeoutId = setTimeout(() => {
           // Check if transcript is longer than last sent content (new content added)
           if (signLanguageRecognition.fullTranscript.startsWith(lastSentSignRef.current)) {
@@ -226,9 +219,9 @@ export default function MeetingPage() {
   const joinZegoRoom = React.useCallback(
     async (element: HTMLDivElement) => {
       if (!element || !roomID || !userInfo?.id || joinAttempted) return
-      
+
       setJoinAttempted(true)
-      
+
       try {
         const kitToken = generateZegoToken(roomID)
         const zp = ZegoUIKitPrebuilt.create(kitToken)
@@ -277,8 +270,6 @@ export default function MeetingPage() {
   return (
     <>
       <div className="myCallContainer" ref={containerRef} style={{ height: '100vh', width: '100vw' }} />
-
-
 
       {/* Main control bar */}
       {hasJoinedRoom && !meetingExpired && roomID && (
@@ -360,10 +351,7 @@ export default function MeetingPage() {
                           startListening()
                         }
                       }}
-                      className={cn(
-                        'flex items-center gap-2',
-                        isListening && 'bg-purple-100 dark:bg-purple-900'
-                      )}
+                      className={cn('flex items-center gap-2', isListening && 'bg-purple-100 dark:bg-purple-900')}
                     >
                       <MessageCircle className="w-4 h-4" />
                       <span>Speech to Text</span>
@@ -421,10 +409,7 @@ export default function MeetingPage() {
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                <Select
-                  value={speechLang}
-                  onValueChange={(value) => setSpeechLang(value as 'vi-VN' | 'en-US')}
-                >
+                <Select value={speechLang} onValueChange={(value) => setSpeechLang(value as 'vi-VN' | 'en-US')}>
                   <SelectTrigger className="h-8 rounded-full bg-gray-200 text-gray-800 text-sm font-medium px-3 w-auto">
                     <SelectValue />
                   </SelectTrigger>
@@ -439,74 +424,12 @@ export default function MeetingPage() {
         </div>
       )}
 
-      {/* Combined Transcript Display */}
-      {hasJoinedRoom &&
-        !meetingExpired &&
-        roomID &&
-        userInfo?.vipUser &&
-        (transcript || (signLanguageRecognition.isActive && signLanguageRecognition.fullTranscript)) && (
-          <div className="fixed bottom-20 left-5 right-5 z-[997] max-w-2xl mx-auto">
-            <div className="bg-black/80 text-white p-4 rounded-lg backdrop-blur-sm">
-              {/* Tabs for switching between transcripts */}
-              <div className="flex items-center gap-2 mb-3 border-b border-gray-700 pb-2">
-                <div className="flex items-center gap-1">
-                  <MessageCircle className="w-4 h-4" />
-                  <Languages className="w-4 h-4" />
-                  <span className="text-sm font-medium">Translation</span>
-                </div>
-
-                {/* Status indicators */}
-                <div className="flex items-center gap-2 ml-auto">
-                  {isListening && (
-                    <div className="flex items-center gap-1">
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
-                      </span>
-                      <span className="text-xs text-blue-400">Speech</span>
-                    </div>
-                  )}
-
-                  {signLanguageRecognition.isActive && (
-                    <div className="flex items-center gap-1 ml-2">
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
-                      </span>
-                      <span className="text-xs text-green-400">Sign</span>
-                    </div>
-                  )}
-
-                  {signLanguageRecognition.useFakeMode && (
-                    <span className="text-xs bg-blue-600 px-2 py-1 rounded ml-2">AI Enhanced Mode</span>
-                  )}
-                </div>
-              </div>
-
-              {/* Speech to Text Transcript */}
-              {transcript && (
-                <div className="mb-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <MessageCircle className="w-3 h-3 text-blue-400" />
-                    <span className="text-xs font-medium text-blue-400">Speech to Text</span>
-                  </div>
-                  <p className="text-sm leading-relaxed">{transcript}</p>
-                </div>
-              )}
-
-              {/* Sign Language Transcript */}
-              {signLanguageRecognition.isActive && signLanguageRecognition.fullTranscript && (
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Languages className="w-3 h-3 text-green-400" />
-                    <span className="text-xs font-medium text-green-400">Sign Language</span>
-                  </div>
-                  <p className="text-sm leading-relaxed">{signLanguageRecognition.fullTranscript}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+      {/* Firebase Real-time Subtitle Display */}
+      {hasJoinedRoom && !meetingExpired && roomID && userInfo?.vipUser && (
+        <div className="fixed bottom-20 left-5 right-5 z-[997] max-w-2xl mx-auto">
+          <FirebaseSubtitleDisplay meetingCode={roomID} currentUserId={userInfo?.id || ''} />
+        </div>
+      )}
 
       {hasJoinedRoom && !meetingExpired && (
         <SignLanguageDetector
