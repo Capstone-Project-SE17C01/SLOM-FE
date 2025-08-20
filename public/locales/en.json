@@ -751,7 +751,14 @@
     "postQuestion": "Post Question",
     "generating": "Generating...",
     "editQuestion": "Edit Question",
-    "newQuestion": "New Question"
+    "newQuestion": "New Question",
+    "backTo": "Back to",
+    "questionDetails": "Question Details",
+    "reply": "Reply",
+    "loadingAnswers": "Loading answers...",
+    "noMoreAnswers": "No more answers.",
+    "noAnswersYet": "No answers yet",
+    "beTheFirstToAnswer": "Be the first to answer"
   },
   "meaningCard": {
     "meaning": "Meaning",

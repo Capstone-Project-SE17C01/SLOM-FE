@@ -148,9 +148,13 @@ export default function PricingPlans() {
                   {(plan.name === "Pro User" || plan.name === "pro") && (
                     <div className="mt-4">
                       <span className="text-3xl font-bold">
-                        ₫
-                        {Math.round(
-                          plan.price * durationPlan * (1 - discount / 100)
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(
+                          Math.round(
+                            plan.price * durationPlan * (1 - discount / 100)
+                          )
                         )}
                       </span>
                       <span className="text-muted-foreground ml-2">

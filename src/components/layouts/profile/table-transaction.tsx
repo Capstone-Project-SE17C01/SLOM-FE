@@ -56,8 +56,9 @@ export default function TableTransaction({
     await reportPayment(createReportRequestDTO)
       .unwrap()
       .then((res) => {
-        console.log(res);
-        toast.success(t("profile.report.success"));
+        if (res) {
+          toast.success(t("profile.report.success"));
+        }
         handleCloseDialog();
       })
       .catch((err) => {
