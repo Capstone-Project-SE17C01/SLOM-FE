@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { AnswerDetailQuestionViewProps, AnswerResponseDTO } from "@/types/IQa";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { CircleEllipsis, SquarePen, OctagonX } from "lucide-react";
@@ -7,7 +8,6 @@ import { cn } from "@/utils/cn";
 import Image from "next/image";
 import { useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
-import { toast } from "sonner";
 import React from "react";
 
 
@@ -16,6 +16,8 @@ export default function AnswerDetailQuestionView({ specificThread, userInfo, que
     const [theElement, setTheElement] = useState<AnswerResponseDTO | undefined>();
     const [deleteAnswer] = useDeleteAnswerMutation();
     const [answers, setAnswers] = useState(specificThread);
+    const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [showModal, setShowModal] = useState(false);
     const { isDarkMode } = useTheme();
 
     React.useEffect(() => {
@@ -73,38 +75,28 @@ export default function AnswerDetailQuestionView({ specificThread, userInfo, que
 
     const handleDeleteAnswer = async (answerId: string, e: React.MouseEvent) => {
         e.stopPropagation();
-        
-        toast('Bạn có chắc chắn muốn xóa câu trả lời này?', {
-            action: {
-                label: 'Xóa',
-                onClick: () => {
-                    toast.promise(
-                        deleteAnswer(answerId).unwrap(),
-                        {
-                            loading: 'Đang xóa câu trả lời...',
-                            success: () => {
-                                const updatedAnswers = answers?.filter(answer => answer.answerId !== answerId);
-                                setAnswers(updatedAnswers);
-                                // Update parent component state
-                                if (setAnswerOfQuestion) {
-                                    setAnswerOfQuestion(updatedAnswers);
-                                }
-                                if (onAnswerDeleted) {
-                                    onAnswerDeleted();
-                                }
-                                return 'Đã xóa câu trả lời thành công';
-                            },
-                            error: 'Xóa câu trả lời thất bại',
-                        }
-                    );
-                }
-            },
-            cancel: {
-                label: 'Hủy',
-                onClick: () => {}
-            },
-            duration: 5000,
-        });
+        setDeleteId(answerId);
+        setShowModal(true);
+    };
+
+    const handleDelete = async () => {
+        if (!deleteId) return;
+        try {
+            await deleteAnswer(deleteId).unwrap();
+            const updatedAnswers = answers?.filter(answer => answer.answerId !== deleteId);
+            setAnswers(updatedAnswers);
+            // Update parent component state
+            if (setAnswerOfQuestion) {
+                setAnswerOfQuestion(updatedAnswers);
+            }
+            if (onAnswerDeleted) {
+                onAnswerDeleted();
+            }
+            setShowModal(false);
+            setDeleteId(null);
+        } catch (error) {
+            console.error("Failed to delete answer:", error);
+        }
     };
 
     return (
@@ -247,6 +239,32 @@ export default function AnswerDetailQuestionView({ specificThread, userInfo, que
                     </div>
                 )
             })}
+
+            {showModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-sm">
+                        <h2 className="text-lg font-semibold mb-4">Delete Confirmation</h2>
+                        <p>Are you sure you want to delete this answer?</p>
+                        <div className="flex justify-end gap-2 mt-6">
+                            <Button
+                                variant="outline"
+                                onClick={() => {
+                                    setShowModal(false);
+                                    setDeleteId(null);
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                className="bg-red-600 hover:bg-red-700 text-white"
+                                onClick={handleDelete}
+                            >
+                                Delete
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

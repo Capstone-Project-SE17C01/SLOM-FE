@@ -43,6 +43,29 @@ export default function QAPage() {
   const [lastIsCurrentUser, setLastIsCurrentUser] = useState<
     boolean | undefined
   >(false);
+  const updateQuestionAnswerCount = (
+    questionId: string,
+    increment: number = 1
+  ) => {
+    setAllQuestion(
+      (prev) =>
+        prev?.map((question) =>
+          question.questionId === questionId
+            ? {
+                ...question,
+                answerAmount: (question.answerAmount || 0) + increment,
+              }
+            : question
+        ) || []
+    );
+
+    // Also update detailQuestion if it's the same question
+    setDetailQuestion((prev) =>
+      prev?.questionId === questionId
+        ? { ...prev, answerAmount: (prev.answerAmount || 0) + increment }
+        : prev
+    );
+  };
 
   useEffect(() => {
     if (
@@ -81,6 +104,7 @@ export default function QAPage() {
             answer={answer}
             setIsUpdateAnswer={setIsUpdateAnswer}
             setAnswer={setAnswer}
+            updateQuestionAnswerCount={updateQuestionAnswerCount}
           />
         </div>
       )}

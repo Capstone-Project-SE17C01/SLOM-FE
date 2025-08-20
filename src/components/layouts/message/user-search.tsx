@@ -34,7 +34,11 @@ export function SearchUser({ isSearch, setIsSearch, setListSearchUser }: Readonl
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value;
-      findUser(value);
+      if (value.length > 0) {
+        findUser(value);
+      } else {
+        setListSearchUser([]);
+      }
     };
 
     return(

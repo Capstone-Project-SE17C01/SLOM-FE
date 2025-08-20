@@ -31,6 +31,7 @@ export default function AdminWord() {
   const [editWord, setEditWord] = useState<Word | null>(null);
   const [deleteWordApi] = useDeleteWordMutation();
   const [deleteWord, setDeleteWord] = useState<Word | null>(null);
+  const [showModal, setShowModal] = useState(false);
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<string>("");
   const [getAllCourse] = useGetAllCourseMutation();
@@ -117,10 +118,7 @@ export default function AdminWord() {
   };
   const openDeleteModal = (word: Word) => {
     setDeleteWord(word);
-    setEditWord(null);
-    setModalFields([]);
-    setModalTitle("Delete Word");
-    setModalOpen(true);
+    setShowModal(true);
   };
   const closeModal = () => {
     setModalOpen(false);
@@ -138,12 +136,23 @@ export default function AdminWord() {
     setSelectedVideo("");
   };
 
+  const handleDelete = async () => {
+    if (!deleteWord) return;
+    try {
+      await deleteWordApi(deleteWord.id).unwrap();
+      toast.success("Word deleted successfully");
+      setShowModal(false);
+      setDeleteWord(null);
+      refetch();
+    } catch (error) {
+      console.error("Failed to delete word:", error);
+      toast.error("Failed to delete word");
+    }
+  };
+
   const handleModalSubmit = async (values: Record<string, string>) => {
     try {
-      if (deleteWord) {
-        await deleteWordApi(deleteWord.id).unwrap();
-        toast.success("Word deleted successfully");
-      } else if (editWord) {
+      if (editWord) {
         await updateWord({
           id: editWord.id,
           lessonId: values.lessonId,
@@ -317,14 +326,34 @@ export default function AdminWord() {
               }
             : {}
         }
-        {...(deleteWord && {
-          children: (
-            <div className="py-6 text-center text-lg">
-              Are you sure you want to delete word <b>{deleteWord.text}</b>?
-            </div>
-          ),
-        })}
       />
+      
+      {/* Delete Confirmation Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-sm">
+            <h2 className="text-lg font-semibold mb-4">Delete Confirmation</h2>
+            <p>Are you sure you want to delete this word?</p>
+            <div className="flex justify-end gap-2 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowModal(false);
+                  setDeleteWord(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={handleDelete}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Video Modal */}
       <Dialog open={videoModalOpen} onOpenChange={(open) => !open && closeVideoModal()}>
