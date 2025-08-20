@@ -2,11 +2,13 @@ import { ButtonCourse } from "./buttonCourse";
 import { useTranslations } from "next-intl";
 export default function ActionButtons({
   onContinue,
-  onAlreadyKnow,
+  onBack,
+  canGoBack,
   t_learn,
 }: {
   onContinue: () => void;
-  onAlreadyKnow: () => void;
+  onBack: () => void;
+  canGoBack: boolean;
   t_learn: ReturnType<typeof useTranslations>;
 }) {
   return (
@@ -19,11 +21,12 @@ export default function ActionButtons({
         {t_learn("continue")}
       </ButtonCourse>
       <ButtonCourse
-        onClick={onAlreadyKnow}
+        onClick={onBack}
         variant="ghost"
         className="w-full border-2 border-gray-300 rounded-xl py-3 font-semibold text-lg text-[#0a2233] flex items-center justify-center gap-2"
+        disabled={!canGoBack}
       >
-        {t_learn("alreadyKnow")}
+        {t_learn("back")}
       </ButtonCourse>
     </div>
   );

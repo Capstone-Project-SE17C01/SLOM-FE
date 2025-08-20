@@ -8,7 +8,13 @@ import { useRouter } from "next/navigation";
 import EntityModal, {
   FieldConfig,
 } from "@/components/layouts/admin/EntityModal";
-import { useGetAllQuizzesQuery, useCreateQuizMutation, useUpdateQuizMutation, useDeleteQuizMutation, useGetAllLessonsQuery } from "@/api/QuizApi";
+import {
+  useGetAllQuizzesQuery,
+  useCreateQuizMutation,
+  useUpdateQuizMutation,
+  useDeleteQuizMutation,
+  useGetAllLessonsQuery,
+} from "@/api/QuizApi";
 import { useGetAllCourseMutation } from "@/api/CourseApi";
 import { Quiz } from "@/types/IQuiz";
 import { toast } from "sonner";
@@ -16,12 +22,14 @@ import { toast } from "sonner";
 export default function AdminQuiz() {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
+  const itemsPerPage = 10;
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalFields, setModalFields] = useState<FieldConfig[]>([]);
   const [modalTitle, setModalTitle] = useState("");
-  const [coursesSelect, setCoursesSelect] = useState<{ id: string; title: string }[]>([]);
+  const [coursesSelect, setCoursesSelect] = useState<
+    { id: string; title: string }[]
+  >([]);
   const [updateQuiz] = useUpdateQuizMutation();
   const [editQuiz, setEditQuiz] = useState<Quiz | null>(null);
   const [deleteQuizApi] = useDeleteQuizMutation();
@@ -33,7 +41,12 @@ export default function AdminQuiz() {
   // Config fields for quiz
   const quizFields: FieldConfig[] = [
     { label: "Question", name: "question", type: "text", required: true },
-    { label: "Correct Answer", name: "correctAnswer", type: "text", required: true },
+    {
+      label: "Correct Answer",
+      name: "correctAnswer",
+      type: "text",
+      required: true,
+    },
     { label: "Explanation", name: "explanation", type: "text" },
     {
       label: "Course",
@@ -60,7 +73,8 @@ export default function AdminQuiz() {
   ];
 
   // API hooks
-  const { data: lessonsResponse, isLoading: lessonsLoading } = useGetAllLessonsQuery();
+  const { data: lessonsResponse, isLoading: lessonsLoading } =
+    useGetAllLessonsQuery();
   const { data: quizzesResponse, isLoading, refetch } = useGetAllQuizzesQuery();
   const [createQuiz] = useCreateQuizMutation();
   const [getAllCourse] = useGetAllCourseMutation();
@@ -81,7 +95,9 @@ export default function AdminQuiz() {
 
   const getAllQuiz = useCallback(async () => {
     if (quizzesResponse?.result) {
-      setQuizzes(Array.isArray(quizzesResponse.result) ? quizzesResponse.result : []);
+      setQuizzes(
+        Array.isArray(quizzesResponse.result) ? quizzesResponse.result : []
+      );
     }
   }, [quizzesResponse]);
 
@@ -150,7 +166,7 @@ export default function AdminQuiz() {
           question: values.question,
           correctAnswer: values.correctAnswer,
           explanation: values.explanation,
-          maxScore: parseInt(values.maxScore) || 0
+          maxScore: parseInt(values.maxScore) || 0,
         }).unwrap();
         toast.success("Quiz updated successfully");
       } else {
@@ -159,7 +175,7 @@ export default function AdminQuiz() {
           question: values.question,
           correctAnswer: values.correctAnswer,
           explanation: values.explanation,
-          maxScore: parseInt(values.maxScore) || 0
+          maxScore: parseInt(values.maxScore) || 0,
         }).unwrap();
         toast.success("Quiz created successfully");
       }
@@ -218,7 +234,10 @@ export default function AdminQuiz() {
           <span>{quiz.correctAnswer}</span>
         </td>
         <td className="px-6 py-4">
-          <span>{lessons.find(l => l.id === quiz.lessonId)?.title || quiz.lessonId}</span>
+          <span>
+            {lessons.find((l) => l.id === quiz.lessonId)?.title ||
+              quiz.lessonId}
+          </span>
         </td>
         <td className="px-6 py-4">
           <span>{quiz.maxScore || 0}</span>
@@ -356,7 +375,7 @@ export default function AdminQuiz() {
           </div>
         </div>
       )}
-      
+
       {/* Video Modal */}
       {videoModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
@@ -370,7 +389,7 @@ export default function AdminQuiz() {
               <X className="h-6 w-6" />
             </Button>
             <iframe
-              src={selectedVideo.replace('watch?v=', 'embed/')}
+              src={selectedVideo.replace("watch?v=", "embed/")}
               className="w-full h-full rounded-lg"
               title="Video Player"
               frameBorder="0"

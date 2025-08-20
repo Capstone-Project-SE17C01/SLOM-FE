@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import LessonHeader from "@/components/ui/lessonHeader";
 import ProgressBar from "@/components/ui/progressBar";
 import VideoSquare from "@/components/ui/videoSquare";
@@ -26,29 +26,28 @@ export default function WordPractice({
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [passedSignIds, setPassedSignIds] = useState<string[]>([]);
-  const [skippedMeanings, setSkippedMeanings] = useState<string[]>([]);
   const [markLessonAsLearned, { isLoading: isLoadingMarkLessonAsLearned }] =
     useMarkLessonAsLearnedMutation();
   const router = useRouter();
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
 
-  const filteredSignList = useMemo(
-    () => wordList.filter((sign) => !skippedMeanings.includes(sign.text)),
-    [wordList, skippedMeanings]
-  );
-  const filteredLength = filteredSignList.length;
-  const isComplete = currentIndex >= filteredLength;
-  const currentSign = filteredSignList[currentIndex] ?? null;
+  const isComplete = currentIndex >= wordList.length;
+  const currentSign = wordList[currentIndex] ?? null;
   const totalSigns = wordList.length;
   const progress = (passedSignIds.length / totalSigns) * 100;
 
   const handleContinue = () => {
-    setPassedSignIds((prev) => [...prev, currentSign?.id || ""]);
+    if (currentSign?.id) {
+      setPassedSignIds((previousIds) =>
+        previousIds.includes(currentSign.id)
+          ? previousIds
+          : [...previousIds, currentSign.id]
+      );
+    }
     setCurrentIndex((idx) => idx + 1);
   };
-  const handleAlreadyKnow = () => {
-    setSkippedMeanings((prev) => [...prev, currentSign?.text || ""]);
-    setCurrentIndex(0);
+  const handleBack = () => {
+    setCurrentIndex((idx) => Math.max(0, idx - 1));
   };
 
   const handleFinish = async () => {
@@ -97,7 +96,8 @@ export default function WordPractice({
             <div className="flex gap-4">
               <ActionButtons
                 onContinue={handleContinue}
-                onAlreadyKnow={handleAlreadyKnow}
+                onBack={handleBack}
+                canGoBack={currentIndex > 0}
                 t_learn={t_learn}
               />
             </div>

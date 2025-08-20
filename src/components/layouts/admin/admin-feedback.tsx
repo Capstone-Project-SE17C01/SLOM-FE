@@ -2,10 +2,16 @@
 
 import { Clock, Users, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
 import {
-  useGetListFeedbackMutation,
-} from "@/api/AdminApi";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useEffect, useState } from "react";
+import { useGetListFeedbackMutation } from "@/api/AdminApi";
 import { Feedback } from "@/types/IFeedback";
 import { toast } from "sonner";
 import { useDeleteFeedbackMutation } from "@/api/FeedbackApi";
@@ -17,7 +23,11 @@ export default function AdminFeedback() {
 
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [feedbackToDelete, setFeedbackToDelete] = useState<Feedback | null>(
+    null
+  );
+  const itemsPerPage = 10;
   const totalPages = Math.ceil(feedbacks.length / itemsPerPage);
   const paginatedFeedbacks = feedbacks.slice(
     (currentPage - 1) * itemsPerPage,
@@ -48,11 +58,25 @@ export default function AdminFeedback() {
       .then(() => {
         setFeedbacks(feedbacks.filter((fb) => fb.id !== id));
         toast.success("Feedback deleted successfully");
+        setIsDeleteDialogOpen(false);
+        setFeedbackToDelete(null);
       })
       .catch((err) => {
         console.log(err);
         toast.error("Failed to delete feedback");
       });
+  };
+
+  //handle open delete dialog
+  const openDeleteDialog = (feedback: Feedback) => {
+    setFeedbackToDelete(feedback);
+    setIsDeleteDialogOpen(true);
+  };
+
+  //handle close delete dialog
+  const closeDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setFeedbackToDelete(null);
   };
   //calc total feedbacks and total users send feedback by unique email
   const totalFeedbacks = feedbacks.length;
@@ -175,7 +199,7 @@ export default function AdminFeedback() {
                           size="sm"
                           variant="ghost"
                           className="text-red-600"
-                          onClick={() => handleDeleteFeedback(feedback.id)}
+                          onClick={() => openDeleteDialog(feedback)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -211,6 +235,37 @@ export default function AdminFeedback() {
           Next
         </Button>
       </div>
+
+      {/* Confirm Delete Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm delete feedback</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete feedback from{" "}
+              <strong>{feedbackToDelete?.name}</strong> (
+              {feedbackToDelete?.email})?
+              <br />
+              <span className="text-sm text-gray-500 mt-2 block">
+                Subject: {feedbackToDelete?.subject}
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={closeDeleteDialog}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() =>
+                feedbackToDelete && handleDeleteFeedback(feedbackToDelete.id)
+              }
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
