@@ -42,7 +42,8 @@
     "meeting": "Meeting Room",
     "translator": "Translator",
     "qa": "Q&A",
-    "searchAdminPanel": "Search admin panel..."
+    "searchAdminPanel": "Search admin panel...",
+    "progress": "Progress"
   },
   "language": {
     "en": "English",
@@ -532,10 +533,12 @@
     "lessons": "Lessons",
     "modules": "Modules",
     "course": "Course",
+    "quizzes": "Quizzes",
     "numberCompleted": "{count} completed",
-    "totalLessons": "{count} Lessons in module",
+    "totalLessons": "{count} Lessons in course",
     "totalModules": "{count} Modules in course",
     "totalCourse": "{count} Courses in total",
+    "totalQuizzes": "{count} Quizzes in course",
     "lessonsCompletedLast7Days": "Lessons completed (last 7 days)",
     "modulesCompletedLast7Days": "Modules completed (last 7 days)",
     "courseCompletedLast7Days": "Courses completed (last 7 days)",
@@ -550,7 +553,8 @@
     "reminderActive": "Active",
     "reminderTime": "Reminder Time",
     "reminderMessage": "Reminder Message",
-    "enterYourReminderMessage": "Enter your reminder message"
+    "enterYourReminderMessage": "Enter your reminder message",
+    "thisCourseNotAvailable": "This course is not available, please choose another course"
   },
   "listCoursePage": {
     "noCourseRemain": "No course remain",

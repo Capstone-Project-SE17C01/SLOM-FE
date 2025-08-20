@@ -28,12 +28,12 @@ export default function CourseLayout({
     { name: "meeting", href: "/meeting-room" },
     { name: "translator", href: "/translator" },
     { name: "qa", href: "/qa" },
-    { name: "contact", href: "/contact" }
+    { name: "contact", href: "/contact" },
   ];
 
   const courseNavItems = [
     {
-      name: "home",
+      name: "progress",
       href: "/course-dashboard",
       icon: <FaClipboardList size={18} />,
     },
@@ -44,9 +44,7 @@ export default function CourseLayout({
   return (
     <CourseProvider>
       <div
-        className={cn(
-          "min-h-screen flex flex-col text-black dark:text-white"
-        )}
+        className={cn("min-h-screen flex flex-col text-black dark:text-white")}
       >
         <Header
           toggleMenu={toggleMenu}
