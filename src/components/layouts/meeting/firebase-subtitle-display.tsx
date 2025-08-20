@@ -199,76 +199,82 @@ export default function FirebaseSubtitleDisplay({
 
           {/* Bucket List */}
           <div className="space-y-3">
-            {bucketDisplays.map((bucket, index) => (
-              <div
-                key={bucket.bucketKey}
-                ref={bucket.isCurrentBucket ? currentBucketRef : null}
-                className={cn(
-                  'border-l-2 pl-3 transition-all duration-200',
-                  bucket.isCurrentBucket ? 'border-green-500 bg-green-900/20' : 'border-gray-600'
-                )}
-              >
-                {/* Time Header */}
-                <div className="flex items-center gap-2 mb-2">
-                  <Clock className="w-3 h-3 text-gray-400" />
-                  <span className="text-xs font-medium text-gray-300">{formatTimestamp(bucket.bucketKey)}</span>
-                  {bucket.isCurrentBucket && (
-                    <span className="text-xs bg-green-600 px-2 py-0.5 rounded text-white">LIVE</span>
-                  )}
-                </div>
+            {bucketDisplays.map(
+              (bucket, index) => (
+                console.log('index', index),
+                (
+                  <div
+                    key={bucket.bucketKey}
+                    ref={bucket.isCurrentBucket ? currentBucketRef : null}
+                    className={cn(
+                      'border-l-2 pl-3 transition-all duration-200',
+                      bucket.isCurrentBucket ? 'border-green-500 bg-green-900/20' : 'border-gray-600'
+                    )}
+                  >
+                    {/* Time Header */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <Clock className="w-3 h-3 text-gray-400" />
+                      <span className="text-xs font-medium text-gray-300">{formatTimestamp(bucket.bucketKey)}</span>
+                      {bucket.isCurrentBucket && (
+                        <span className="text-xs bg-green-600 px-2 py-0.5 rounded text-white">LIVE</span>
+                      )}
+                    </div>
 
-                {/* User Contents */}
-                <div className="space-y-2">
-                  {bucket.userContents.map((userContent, userIndex) => {
-                    // Join all content pieces into one continuous text
-                    const fullContent = userContent.contents.join(' ').trim()
+                    {/* User Contents */}
+                    <div className="space-y-2">
+                      {bucket.userContents.map((userContent, userIndex) => {
+                        console.log('userContent', userIndex)
+                        // Join all content pieces into one continuous text
+                        const fullContent = userContent.contents.join(' ').trim()
 
-                    if (!fullContent) return null
+                        if (!fullContent) return null
 
-                    // Check if content contains sign language
-                    const isSignLanguage = fullContent.includes('[SIGN]')
-                    const displayContent = fullContent.replace(/\[SIGN\]\s*/g, '')
+                        // Check if content contains sign language
+                        const isSignLanguage = fullContent.includes('[SIGN]')
+                        const displayContent = fullContent.replace(/\[SIGN\]\s*/g, '')
 
-                    return (
-                      <div
-                        key={`${bucket.bucketKey}-${userContent.userId}`}
-                        className={cn(
-                          'text-sm leading-relaxed mb-2',
-                          userContent.isCurrentUser ? 'text-blue-300' : 'text-white'
-                        )}
-                      >
-                        <div className="flex items-start gap-2">
-                          {/* Content Type Indicator */}
-                          {isSignLanguage ? (
-                            <div className="flex-shrink-0 mt-0.5">
-                              <div className="w-3 h-3 rounded-full bg-green-500 flex items-center justify-center">
-                                <span className="text-xs text-white font-bold">🤟</span>
-                              </div>
+                        return (
+                          <div
+                            key={`${bucket.bucketKey}-${userContent.userId}`}
+                            className={cn(
+                              'text-sm leading-relaxed mb-2',
+                              userContent.isCurrentUser ? 'text-blue-300' : 'text-white'
+                            )}
+                          >
+                            <div className="flex items-start gap-2">
+                              {/* Content Type Indicator */}
+                              {isSignLanguage ? (
+                                <div className="flex-shrink-0 mt-0.5">
+                                  <div className="w-3 h-3 rounded-full bg-green-500 flex items-center justify-center">
+                                    <span className="text-xs text-white font-bold">🤟</span>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="flex-shrink-0 mt-0.5">
+                                  <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                                </div>
+                              )}
+
+                              {/* Content */}
+                              <p className="flex-1">{displayContent}</p>
+
+                              {/* User Indicator */}
+                              {userContent.isCurrentUser && (
+                                <span className="text-xs text-blue-400 flex-shrink-0">You</span>
+                              )}
                             </div>
-                          ) : (
-                            <div className="flex-shrink-0 mt-0.5">
-                              <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                            </div>
-                          )}
+                          </div>
+                        )
+                      })}
 
-                          {/* Content */}
-                          <p className="flex-1">{displayContent}</p>
-
-                          {/* User Indicator */}
-                          {userContent.isCurrentUser && (
-                            <span className="text-xs text-blue-400 flex-shrink-0">You</span>
-                          )}
-                        </div>
-                      </div>
-                    )
-                  })}
-
-                  {bucket.userContents.length === 0 && (
-                    <p className="text-xs text-gray-500 italic">No content in this period</p>
-                  )}
-                </div>
-              </div>
-            ))}
+                      {bucket.userContents.length === 0 && (
+                        <p className="text-xs text-gray-500 italic">No content in this period</p>
+                      )}
+                    </div>
+                  </div>
+                )
+              )
+            )}
           </div>
 
           {/* Auto-scroll indicator */}
