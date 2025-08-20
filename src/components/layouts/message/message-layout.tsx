@@ -1,0 +1,75 @@
+"use client";
+
+import { useState } from "react";
+import { cn } from "@/utils/cn";
+import { useTheme } from "@/contexts/ThemeContext";
+
+import Header from "../dashboard/header-breadcrumb";
+import MobileMenu from "../dashboard/mobile-menu";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { isDarkMode, toggleDarkMode } = useTheme();
+  const toggleMenu = () => setMenuOpen(!menuOpen);
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+  let navItems = [
+    { name: "home", href: "/home" },
+    { name: "features", href: "/features" },
+    { name: "about", href: "/about" },
+    { name: "contact", href: "/contact" },
+  ];
+  if (userInfo) {
+    navItems = [
+      { name: "home", href: "/home" },
+      { name: "message", href: "/chat" },
+      { name: "course", href: "/list-course" },
+      { name: "meeting", href: "/meeting-room" },
+      { name: "translator", href: "/translator" },
+      { name: "qa", href: "/qa" },
+      { name: "contact", href: "/contact" }
+    ];
+  }
+
+  return (
+    <div
+      className={cn(
+        "min-h-screen antialiased",
+        isDarkMode ? "bg-black text-white" : "bg-white text-black"
+      )}
+    >
+      <Header
+        toggleMenu={toggleMenu}
+        toggleDarkMode={toggleDarkMode}
+        menuOpen={menuOpen}
+        navItems={navItems}
+      />
+
+      <MobileMenu
+        menuOpen={menuOpen}
+        navItems={navItems}
+        setMenuOpen={setMenuOpen}
+      />
+
+      <main className="">
+        <div className="max-w-[90vw] mx-auto py-4">
+          <div
+            className={cn(
+              "rounded-xl p-8 shadow-sm border w-[90vw]",
+              isDarkMode
+                ? "bg-gray-800 border-gray-700 text-white"
+                : "bg-white border-gray-100 text-black"
+            )}
+          >
+            {children}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}

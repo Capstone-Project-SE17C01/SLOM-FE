@@ -53,6 +53,7 @@ function Page() {
       onConnectionCreated: setConnection,
       setUsers
     });
+    console.log(window.screen.width)
   }, [selectedUser, userInfo]);
 
   if (!userInfo) {
@@ -148,7 +149,7 @@ function Page() {
 
   return (
     <div className="h-[70vh] flex">
-      <div className="bg-white dark:bg-[#23272f] rounded-xl w-[20vw] pl-2.5 pr-2.5 pt-2.5 mr-5 shadow-md flex flex-col border border-1">
+      <div className="bg-white dark:bg-[#23272f] rounded-xl w-[40vw] sm:w-[40vw] md:w-[40vw] lg:w-[30vw] xl:w-[25vw] 2xl:w-[20vw] pl-2.5 pr-2.5 pt-2.5 mr-5 shadow-md flex flex-col border border-1">
         <div className="pr-4 h-[80px] mb-[3%]">
           <h3 className="h-[50%] text-3xl font-bold dark:text-white">{t_chatPage("chat")}</h3>
 
@@ -173,7 +174,7 @@ function Page() {
 
         {isSearch && (
           <div className="flex-1 overflow-y-scroll">
-            {listSearchedUser.map((user) => (
+            {listSearchedUser != null && listSearchedUser != undefined && listSearchedUser.length > 0 ? listSearchedUser.map((user) => (
               <Button
                 key={user.id}
                 onClick={() => handleUserSelect(user)}
@@ -196,7 +197,11 @@ function Page() {
                   </div>
                 </div>
               </Button>
-            ))}
+            )) : (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-gray-500 dark:text-gray-300">No user found</p>
+              </div>
+            )}
           </div>
         )}
       </div>

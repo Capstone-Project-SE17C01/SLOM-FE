@@ -34,7 +34,8 @@ export function MessageBox({ messages, setMessages, userId, selectedUser, curren
       if (chatContainerRef.current.scrollTop === 0) {
         const prevScrollHeight = chatContainerRef.current.scrollHeight;
         const response = await getMessage(selectedUser?.email, theCurrentPage);
-        const data = [...response.data, ...theMessage];
+        const responseData = response.data.filter(message => !theMessage.some(m => m.id === message.id));
+        const data = [...responseData, ...theMessage];
 
         if (response.isLoadFullPage) {
           setIsLoadFull(true);

@@ -26,6 +26,7 @@ export default function AdminQuiz() {
   const [editQuiz, setEditQuiz] = useState<Quiz | null>(null);
   const [deleteQuizApi] = useDeleteQuizMutation();
   const [deleteQuiz, setDeleteQuiz] = useState<Quiz | null>(null);
+  const [showModal, setShowModal] = useState(false);
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<string>("");
 
@@ -107,10 +108,7 @@ export default function AdminQuiz() {
 
   const openDeleteModal = (quiz: Quiz) => {
     setDeleteQuiz(quiz);
-    setEditQuiz(null);
-    setModalFields([]);
-    setModalTitle("Delete Quiz");
-    setModalOpen(true);
+    setShowModal(true);
   };
 
   const closeModal = () => {
@@ -129,12 +127,23 @@ export default function AdminQuiz() {
     setSelectedVideo("");
   };
 
+  const handleDelete = async () => {
+    if (!deleteQuiz) return;
+    try {
+      await deleteQuizApi(deleteQuiz.id).unwrap();
+      toast.success("Quiz deleted successfully");
+      setShowModal(false);
+      setDeleteQuiz(null);
+      refetch();
+    } catch (error) {
+      console.error("Failed to delete quiz:", error);
+      toast.error("Failed to delete quiz");
+    }
+  };
+
   const handleModalSubmit = async (values: Record<string, string>) => {
     try {
-      if (deleteQuiz) {
-        await deleteQuizApi(deleteQuiz.id).unwrap();
-        toast.success("Quiz deleted successfully");
-      } else if (editQuiz) {
+      if (editQuiz) {
         await updateQuiz({
           id: editQuiz.id,
           lessonId: values.lessonId,
@@ -319,14 +328,34 @@ export default function AdminQuiz() {
               }
             : {}
         }
-        {...(deleteQuiz && {
-          children: (
-            <div className="py-6 text-center text-lg">
-              Are you sure you want to delete quiz <b>{deleteQuiz.question}</b>?
-            </div>
-          ),
-        })}
       />
+
+      {/* Delete Confirmation Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-sm">
+            <h2 className="text-lg font-semibold mb-4">Delete Confirmation</h2>
+            <p>Are you sure you want to delete this quiz?</p>
+            <div className="flex justify-end gap-2 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowModal(false);
+                  setDeleteQuiz(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={handleDelete}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Video Modal */}
       {videoModalOpen && (

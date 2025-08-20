@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import {
   GetQuestionRequest,
@@ -30,7 +31,6 @@ import {
 import { cn } from "@/utils/cn";
 import { format } from "date-fns";
 import { useTheme } from "@/contexts/ThemeContext";
-import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 export default function QuestionView({
@@ -68,13 +68,15 @@ export default function QuestionView({
   const [tagSearchQuery, setTagSearchQuery] = useState<string>("");
   const { isDarkMode } = useTheme();
   const { data: tagsData } = useGetTagsQuery();
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
   const availableTags = tagsData?.result || [];
   const filteredTags = tagSearchQuery
     ? availableTags.filter(
-        (tag) =>
-          tag.toLowerCase().includes(tagSearchQuery.toLowerCase()) &&
-          !selectedTags.includes(tag)
-      )
+      (tag) =>
+        tag.toLowerCase().includes(tagSearchQuery.toLowerCase()) &&
+        !selectedTags.includes(tag)
+    )
     : availableTags.filter((tag) => !selectedTags.includes(tag));
 
   useEffect(() => {
@@ -126,8 +128,9 @@ export default function QuestionView({
             isAdmin,
           });
 
-          const newQuestions = res.data?.result;
+          let newQuestions = res.data?.result;
           if (newQuestions && newQuestions.length > 0) {
+            newQuestions = newQuestions.filter(question => !allQuestion?.some(q => q.questionId === question.questionId));
             const updatedQuestions =
               questionPagination === 1
                 ? newQuestions
@@ -152,29 +155,30 @@ export default function QuestionView({
             isAdmin,
           };
 
-                    const res = await getQuestionApi(request);
-                    const newQuestions = res.data?.result;
-                    if (newQuestions && newQuestions.length > 0) {
-                        const updatedQuestions = questionPagination === 1 ? newQuestions : [...(allQuestion || []), ...newQuestions];
-                        setAllQuestion(updatedQuestions);
-                        if (newQuestions[0].isFull) {
-                            setIsLoadFull(true);
-                        }
-                    } else {
-                        setIsLoadFull(true);
-                    }
-                } catch (error) {
-                    console.error("Error fetching all questions:", error);
-                    setIsLoadFull(true);
-                }
+          const res = await getQuestionApi(request);
+          let newQuestions = res.data?.result;
+          if (newQuestions && newQuestions.length > 0) {
+            newQuestions = newQuestions.filter(question => !allQuestion?.some(q => q.questionId === question.questionId));
+            const updatedQuestions = questionPagination === 1 ? newQuestions : [...(allQuestion || []), ...newQuestions];
+            setAllQuestion(updatedQuestions);
+            if (newQuestions[0].isFull) {
+              setIsLoadFull(true);
             }
-        } catch (error) {
-            console.error("Failed to fetch questions:", error);
+          } else {
             setIsLoadFull(true);
-        } finally {
-            setIsLoading(false);
+          }
+        } catch (error) {
+          console.error("Error fetching all questions:", error);
+          setIsLoadFull(true);
         }
-    }, [getQuestionApi, getQuestionByTagApi, questionPagination, isCurrentUser, isAdmin, userInfo, isLoadFull, selectedTags, hasInitialLoad, setAllQuestion, setHasInitialLoad, setIsLoadFull]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch questions:", error);
+      setIsLoadFull(true);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [getQuestionApi, getQuestionByTagApi, questionPagination, isCurrentUser, isAdmin, userInfo, isLoadFull, selectedTags, hasInitialLoad, setAllQuestion, setHasInitialLoad, setIsLoadFull]);
 
   useEffect(() => {
     fetchQuestions();
@@ -233,31 +237,23 @@ export default function QuestionView({
     questionId: string,
     e: React.MouseEvent
   ) => {
-    e.stopPropagation();
+    e.stopPropagation(); setDeleteId(questionId);
+    setShowModal(true);
+  };
 
-    toast("Bạn có chắc chắn muốn xóa câu hỏi này?", {
-      action: {
-        label: "Xóa",
-        onClick: () => {
-          toast.promise(deleteQuestionAPI(questionId).unwrap(), {
-            loading: "Đang xóa câu hỏi...",
-            success: () => {
-              // Update UI after successful deletion
-              const updatedQuestions =
-                allQuestion?.filter((q) => q.questionId !== questionId) || [];
-              setAllQuestion(updatedQuestions);
-              return "Đã xóa câu hỏi thành công";
-            },
-            error: "Xóa câu hỏi thất bại",
-          });
-        },
-      },
-      cancel: {
-        label: "Hủy",
-        onClick: () => {},
-      },
-      duration: 5000,
-    });
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await deleteQuestionAPI(deleteId).unwrap();
+      // Update UI after successful deletion
+      const updatedQuestions =
+        allQuestion?.filter((q) => q.questionId !== deleteId) || [];
+      setAllQuestion(updatedQuestions);
+      setShowModal(false);
+      setDeleteId(null);
+    } catch (error) {
+      console.error("Failed to delete question:", error);
+    }
   };
 
   const handleTagClick = (tag: string) => {
@@ -433,65 +429,65 @@ export default function QuestionView({
       >
         {allQuestion && allQuestion.length > 0
           ? allQuestion.map((element, index) => (
+            <div
+              key={`${element.questionId}-${index}`}
+              className={cn(
+                "transition-colors duration-150",
+                isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
+              )}
+            >
               <div
-                key={`${element.questionId}-${index}`}
-                className={cn(
-                  "transition-colors duration-150",
-                  isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
-                )}
+                role="button"
+                onClick={() => {
+                  if (setSavedScrollPosition) {
+                    setSavedScrollPosition({
+                      x: window.scrollX,
+                      y: window.scrollY,
+                    });
+                  }
+
+                  setIsSpecifiedPage(true);
+                  setDetailQuestion(element);
+                }}
+                className="p-6 cursor-pointer"
+                tabIndex={0}
               >
-                <div
-                  role="button"
-                  onClick={() => {
-                    if (setSavedScrollPosition) {
-                      setSavedScrollPosition({
-                        x: window.scrollX,
-                        y: window.scrollY,
-                      });
-                    }
+                <div className="flex items-start">
+                  <div className="mr-4 flex-shrink-0">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage
+                        src={element.author.profileImage}
+                        alt={`${element.author.username}`}
+                      />
+                      <AvatarFallback>
+                        {element.author.username}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
 
-                    setIsSpecifiedPage(true);
-                    setDetailQuestion(element);
-                  }}
-                  className="p-6 cursor-pointer"
-                  tabIndex={0}
-                >
-                  <div className="flex items-start">
-                    <div className="mr-4 flex-shrink-0">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage
-                          src={element.author.profileImage}
-                          alt={`${element.author.username}`}
-                        />
-                        <AvatarFallback>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center">
+                        <span
+                          className={cn(
+                            "font-medium mr-2",
+                            isDarkMode ? "text-white" : "text-gray-900"
+                          )}
+                        >
                           {element.author.username}
-                        </AvatarFallback>
-                      </Avatar>
-                    </div>
+                        </span>
+                        <span
+                          className={cn(
+                            "text-sm",
+                            isDarkMode ? "text-gray-400" : "text-gray-500"
+                          )}
+                        >
+                          {format(new Date(element.createdAt), "MMM d, yyyy")}
+                        </span>
+                      </div>
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center">
-                          <span
-                            className={cn(
-                              "font-medium mr-2",
-                              isDarkMode ? "text-white" : "text-gray-900"
-                            )}
-                          >
-                            {element.author.username}
-                          </span>
-                          <span
-                            className={cn(
-                              "text-sm",
-                              isDarkMode ? "text-gray-400" : "text-gray-500"
-                            )}
-                          >
-                            {format(new Date(element.createdAt), "MMM d, yyyy")}
-                          </span>
-                        </div>
-
-                        {(userInfo?.username === element.author.username ||
-                          isAdmin) && (
+                      {(userInfo?.username === element.author.username ||
+                        isAdmin) && (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <button
@@ -557,139 +553,139 @@ export default function QuestionView({
                             </DropdownMenuContent>
                           </DropdownMenu>
                         )}
-                      </div>
+                    </div>
 
-                      <div
-                        className={cn(
-                          "mb-3",
-                          isDarkMode ? "text-gray-200" : "text-gray-800"
-                        )}
-                      >
-                        {element.content}
-                      </div>
+                    <div
+                      className={cn(
+                        "mb-3",
+                        isDarkMode ? "text-gray-200" : "text-gray-800"
+                      )}
+                    >
+                      {element.content}
+                    </div>
 
-                      {element.tags && element.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-3">
-                          {element.tags.map((tag, tagIndex) => (
-                            <span
-                              key={tagIndex}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleTagClick(tag);
-                              }}
-                              className={cn(
-                                "px-2.5 py-1 rounded-md text-xs cursor-pointer transition-colors",
-                                selectedTags.includes(tag)
-                                  ? "bg-blue-600 text-white"
-                                  : isDarkMode
+                    {element.tags && element.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {element.tags.map((tag, tagIndex) => (
+                          <span
+                            key={tagIndex}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTagClick(tag);
+                            }}
+                            className={cn(
+                              "px-2.5 py-1 rounded-md text-xs cursor-pointer transition-colors",
+                              selectedTags.includes(tag)
+                                ? "bg-blue-600 text-white"
+                                : isDarkMode
                                   ? "bg-gray-700 text-gray-200 hover:bg-gray-600"
                                   : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                            )}
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {element.images.length > 0 && (
+                      <div className="relative overflow-x-auto mb-4">
+                        <div className="flex space-x-3">
+                          {element.images.map((image, imgIndex) => (
+                            <div
+                              key={imgIndex}
+                              className={cn(
+                                "relative min-w-[150px] max-w-[250px] aspect-video rounded-lg overflow-hidden border",
+                                isDarkMode
+                                  ? "border-gray-700"
+                                  : "border-gray-200"
                               )}
                             >
-                              {tag}
-                            </span>
+                              <Image
+                                src={image}
+                                alt={`image-${imgIndex}`}
+                                fill
+                                sizes="(max-width: 640px) 150px, 250px"
+                                className="object-cover"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleImageClick(imgIndex);
+                                  setTheElement(element);
+                                }}
+                              />
+                            </div>
                           ))}
                         </div>
-                      )}
+                      </div>
+                    )}
 
-                      {element.images.length > 0 && (
-                        <div className="relative overflow-x-auto mb-4">
-                          <div className="flex space-x-3">
-                            {element.images.map((image, imgIndex) => (
-                              <div
-                                key={imgIndex}
-                                className={cn(
-                                  "relative min-w-[150px] max-w-[250px] aspect-video rounded-lg overflow-hidden border",
-                                  isDarkMode
-                                    ? "border-gray-700"
-                                    : "border-gray-200"
-                                )}
-                              >
-                                <Image
-                                  src={image}
-                                  alt={`image-${imgIndex}`}
-                                  fill
-                                  sizes="(max-width: 640px) 150px, 250px"
-                                  className="object-cover"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleImageClick(imgIndex);
-                                    setTheElement(element);
-                                  }}
-                                />
-                              </div>
-                            ))}
-                          </div>
-                        </div>
+                    <button
+                      className={cn(
+                        "inline-flex items-center gap-1.5 text-sm transition-colors",
+                        isDarkMode
+                          ? "text-gray-400 hover:text-gray-200"
+                          : "text-gray-600 hover:text-gray-900"
                       )}
-
-                      <button
-                        className={cn(
-                          "inline-flex items-center gap-1.5 text-sm transition-colors",
-                          isDarkMode
-                            ? "text-gray-400 hover:text-gray-200"
-                            : "text-gray-600 hover:text-gray-900"
-                        )}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setIsResponseQuestion(true);
-                          setDetailQuestion(element);
-                        }}
-                      >
-                        <MessageSquare className="h-4 w-4" />
-                        <span>
-                          {element.answerAmount}{" "}
-                          {element.answerAmount === 1 ? "reply" : "replies"}
-                        </span>
-                      </button>
-                    </div>
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsResponseQuestion(true);
+                        setDetailQuestion(element);
+                      }}
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                      <span>
+                        {element.answerAmount}{" "}
+                        {element.answerAmount === 1 ? "reply" : "replies"}
+                      </span>
+                    </button>
                   </div>
                 </div>
               </div>
-            ))
+            </div>
+          ))
           : !isLoading && (
-              <div className="py-16 text-center">
-                {selectedTags.length > 0 ? (
-                  <>
-                    <p
-                      className={cn(
-                        "mb-2",
-                        isDarkMode ? "text-gray-400" : "text-gray-500"
-                      )}
-                    >
-                      {t_qaPage("noQuestionsFoundWithTheSelectedTopics")}
-                    </p>
-                    <button
-                      onClick={clearTagFilters}
-                      className="px-4 py-2 mb-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      {t_qaPage("showAllQuestions")}
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <p
-                      className={cn(
-                        "mb-2",
-                        isDarkMode ? "text-gray-400" : "text-gray-500"
-                      )}
-                    >
-                      {t_qaPage("noQuestionsFound")}
-                    </p>
-                    {!isAdmin && (
-                      <button
-                        onClick={() =>
-                          setIsNewQuestion && setIsNewQuestion(true)
-                        }
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                      >
-                        {t_qaPage("askAQuestion")}
-                      </button>
+            <div className="py-16 text-center">
+              {selectedTags.length > 0 ? (
+                <>
+                  <p
+                    className={cn(
+                      "mb-2",
+                      isDarkMode ? "text-gray-400" : "text-gray-500"
                     )}
-                  </>
-                )}
-              </div>
-            )}
+                  >
+                    {t_qaPage("noQuestionsFoundWithTheSelectedTopics")}
+                  </p>
+                  <button
+                    onClick={clearTagFilters}
+                    className="px-4 py-2 mb-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    {t_qaPage("showAllQuestions")}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p
+                    className={cn(
+                      "mb-2",
+                      isDarkMode ? "text-gray-400" : "text-gray-500"
+                    )}
+                  >
+                    {t_qaPage("noQuestionsFound")}
+                  </p>
+                  {!isAdmin && (
+                    <button
+                      onClick={() =>
+                        setIsNewQuestion && setIsNewQuestion(true)
+                      }
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      {t_qaPage("askAQuestion")}
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+          )}
 
         {currentFullScreenImageSrc && (
           <div
@@ -775,6 +771,32 @@ export default function QuestionView({
           </div>
         )}
       </div>
+
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-sm">
+            <h2 className="text-lg font-semibold mb-4">Delete Confirmation</h2>
+            <p>Are you sure you want to delete this question?</p>
+            <div className="flex justify-end gap-2 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowModal(false);
+                  setDeleteId(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={handleDelete}
+              >
+                Xóa
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
