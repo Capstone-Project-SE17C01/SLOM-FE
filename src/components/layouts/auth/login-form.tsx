@@ -244,7 +244,7 @@ export function LoginForm() {
             <Button
               type="button"
               variant="outline"
-              className="w-full h-9 sm:h-10 bg-white dark:bg-neutral-900 hover:bg-gray-50 dark:hover:bg-neutral-800 flex items-center justify-center gap-2 text-sm sm:text-base border-0"
+              className="w-full h-9 sm:h-10 bg-white dark:bg-neutral-900 hover:bg-gray-50 dark:hover:bg-neutral-800 flex items-center justify-center gap-2 text-sm sm:text-base border-gray-300 dark:border-gray-700"
               onClick={redirectToGoogleLogin}
               disabled={isLoading}
             >

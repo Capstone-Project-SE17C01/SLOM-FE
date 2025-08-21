@@ -10,6 +10,7 @@ import {
   Camera,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface ConnectionStatusProps {
   connectionStatus: RealTimeTranslationState["connectionStatus"];
@@ -23,21 +24,23 @@ export default function ConnectionStatus({
   className,
 }: ConnectionStatusProps) {
   const t_translatorPage = useTranslations("translatorPage");
+  const { isDarkMode } = useTheme();
+  
   const getStatusConfig = () => {
     switch (connectionStatus) {
       case "Connected":
         return {
           icon: CheckCircle,
-          color: "text-green-600",
-          bgColor: "bg-green-100",
+          color: isDarkMode ? "text-green-400" : "text-green-600",
+          bgColor: isDarkMode ? "bg-green-900/20" : "bg-green-100",
           dotColor: "bg-green-500",
           message: t_translatorPage("connectedToTranslationServer"),
         };
       case "Connecting...":
         return {
           icon: Loader2,
-          color: "text-blue-600",
-          bgColor: "bg-blue-100",
+          color: isDarkMode ? "text-blue-400" : "text-blue-600",
+          bgColor: isDarkMode ? "bg-blue-900/20" : "bg-blue-100",
           dotColor: "bg-blue-500",
           message: t_translatorPage("connectingToServer"),
           animated: true,
@@ -45,8 +48,8 @@ export default function ConnectionStatus({
       case "Recognizing...":
         return {
           icon: Wifi,
-          color: "text-purple-600",
-          bgColor: "bg-purple-100",
+          color: isDarkMode ? "text-purple-400" : "text-purple-600",
+          bgColor: isDarkMode ? "bg-purple-900/20" : "bg-purple-100",
           dotColor: "bg-purple-500",
           message: t_translatorPage("translatingSignLanguage"),
           pulse: true,
@@ -54,16 +57,16 @@ export default function ConnectionStatus({
       case "Error":
         return {
           icon: AlertCircle,
-          color: "text-red-600",
-          bgColor: "bg-red-100",
+          color: isDarkMode ? "text-red-400" : "text-red-600",
+          bgColor: isDarkMode ? "bg-red-900/20" : "bg-red-100",
           dotColor: "bg-red-500",
           message: t_translatorPage("connectionErrorOccurred"),
         };
       case "Demo Mode (Server Unavailable)":
         return {
           icon: Play,
-          color: "text-orange-600",
-          bgColor: "bg-orange-100",
+          color: isDarkMode ? "text-orange-400" : "text-orange-600",
+          bgColor: isDarkMode ? "bg-orange-900/20" : "bg-orange-100",
           dotColor: "bg-orange-500",
           message: t_translatorPage("runningInDemoModeServerTemporarilyUnavailable"),
           pulse: true,
@@ -71,16 +74,16 @@ export default function ConnectionStatus({
       case "Camera Only Mode (WebSocket Disabled)":
         return {
           icon: Camera,
-          color: "text-blue-600",
-          bgColor: "bg-blue-100",
+          color: isDarkMode ? "text-blue-400" : "text-blue-600",
+          bgColor: isDarkMode ? "bg-blue-900/20" : "bg-blue-100",
           dotColor: "bg-blue-500",
           message: t_translatorPage("cameraPreviewOnlyWebSocketTemporarilyDisabled"),
         };
       default: // Disconnected
         return {
           icon: WifiOff,
-          color: "text-gray-600",
-          bgColor: "bg-gray-100",
+          color: isDarkMode ? "text-gray-400" : "text-gray-600",
+          bgColor: isDarkMode ? "bg-gray-800" : "bg-gray-100",
           dotColor: "bg-gray-400",
           message: t_translatorPage("notConnected"),
         };
@@ -95,7 +98,7 @@ export default function ConnectionStatus({
       className={cn(
         "flex items-center gap-3 p-4 rounded-lg border transition-all duration-300",
         config.bgColor,
-        "border-opacity-50",
+        isDarkMode ? "border-gray-700" : "border-opacity-50",
         className
       )}
     >
@@ -133,7 +136,12 @@ export default function ConnectionStatus({
         <p className={cn("text-sm font-medium", config.color)}>
           {connectionStatus}
         </p>
-        <p className="text-xs text-gray-600 mt-0.5">{config.message}</p>
+        <p className={cn(
+          "text-xs mt-0.5",
+          isDarkMode ? "text-gray-300" : "text-gray-600"
+        )}>
+          {config.message}
+        </p>
       </div>
 
       {/* Activity indicator for active translation */}

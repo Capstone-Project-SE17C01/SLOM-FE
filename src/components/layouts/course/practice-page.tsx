@@ -20,6 +20,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { useRouter } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
+import { cn } from "@/utils/cn";
+import { useTheme } from "@/contexts/ThemeContext";
 
 function SectionList({
   title,
@@ -33,6 +35,8 @@ function SectionList({
   emptyText: string;
 }) {
   const t_practice = useTranslations("practicePage");
+  const { isDarkMode } = useTheme();
+  
   return (
     <>
       <div className="flex items-center gap-3 mb-3 max-md:flex-col max-md:gap-2 max-md:items-start">
@@ -51,7 +55,12 @@ function SectionList({
           }))}
         />
       ) : (
-        <div className="bg-[#f5f6f7] my-4 rounded-xl p-4 text-[#0a2233] text-base">
+        <div className={cn(
+          "my-4 rounded-xl p-4 text-base",
+          isDarkMode 
+            ? "bg-gray-800 text-gray-300" 
+            : "bg-[#f5f6f7] text-[#0a2233]"
+        )}>
           {emptyText}
         </div>
       )}

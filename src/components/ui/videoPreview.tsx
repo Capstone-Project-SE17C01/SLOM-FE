@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Play, Pause, Volume2, VolumeX, X, Loader2, FileVideo } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function VideoPreview({
   file,
@@ -13,6 +14,7 @@ export default function VideoPreview({
   className
 }: VideoPreviewProps) {
   const t_translatorPage = useTranslations("translatorPage");
+  const { isDarkMode } = useTheme();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -79,14 +81,29 @@ export default function VideoPreview({
   if (!file && !videoUrl) {
     return (
       <div className={cn(
-        "aspect-video rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center",
-        "bg-gray-50",
+        "aspect-video rounded-xl border-2 border-dashed flex items-center justify-center",
+        isDarkMode 
+          ? "border-gray-600 bg-gray-800" 
+          : "border-gray-300 bg-gray-50",
         className
       )}>
         <div className="text-center">
-          <FileVideo className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-          <p className="text-lg font-medium text-gray-600">{t_translatorPage("noVideoSelected")}</p>
-          <p className="text-sm text-gray-500">{t_translatorPage("uploadAVideoToSeePreview")}</p>
+          <FileVideo className={cn(
+            "w-16 h-16 mx-auto mb-4",
+            isDarkMode ? "text-gray-500" : "text-gray-400"
+          )} />
+          <p className={cn(
+            "text-lg font-medium",
+            isDarkMode ? "text-gray-300" : "text-gray-600"
+          )}>
+            {t_translatorPage("noVideoSelected")}
+          </p>
+          <p className={cn(
+            "text-sm",
+            isDarkMode ? "text-gray-400" : "text-gray-500"
+          )}>
+            {t_translatorPage("uploadAVideoToSeePreview")}
+          </p>
         </div>
       </div>
     );
@@ -133,7 +150,12 @@ export default function VideoPreview({
             <Button
               size="sm"
               variant="outline"
-              className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 hover:bg-white"
+              className={cn(
+                "absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity",
+                isDarkMode 
+                  ? "bg-gray-800/90 hover:bg-gray-700 border-gray-600" 
+                  : "bg-white/90 hover:bg-white"
+              )}
               onClick={onRemove}
             >
               <X className="w-4 h-4" />
@@ -201,11 +223,22 @@ export default function VideoPreview({
 
       {/* File information */}
       {file && (
-        <div className="p-3 bg-gray-50 rounded-lg">
+        <div className={cn(
+          "p-3 rounded-lg",
+          isDarkMode ? "bg-gray-800" : "bg-gray-50"
+        )}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-gray-900 truncate">{file.name}</p>
-              <p className="text-sm text-gray-600">
+              <p className={cn(
+                "font-medium truncate",
+                isDarkMode ? "text-gray-100" : "text-gray-900"
+              )}>
+                {file.name}
+              </p>
+              <p className={cn(
+                "text-sm",
+                isDarkMode ? "text-gray-400" : "text-gray-600"
+              )}>
                 {formatFileSize(file.size)} • {file.type}
               </p>
             </div>
