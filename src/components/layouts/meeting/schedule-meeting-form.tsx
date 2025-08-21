@@ -189,7 +189,7 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
               </div>
             </div>
 
-            <div className="border rounded-lg p-4">
+            <div className={cn("border rounded-lg p-4", isDarkMode && "border-gray-600")}>
               <div className="flex justify-between items-center mb-4">
                 <Button variant="ghost" onClick={handlePrevMonth} size="sm">
                   <ChevronLeft className="h-4 w-4" />
@@ -228,7 +228,9 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                         currentDate.getFullYear() === selectedDate.getFullYear()
                         ? "bg-[#6947A8] text-white"
                         : day
-                        ? "hover:bg-gray-100 dark:hover:bg-gray-700"
+                        ? isDarkMode 
+                          ? "hover:bg-gray-700"
+                          : "hover:bg-gray-100"
                         : ""
                     )}
                     onClick={() => day && handleDateSelect(day)}
@@ -252,6 +254,7 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                     value={time}
                     onChange={(e) => setTime(e.target.value)}
                     required
+                    className={isDarkMode ? "border-gray-600" : ""}
                   />
                 </div>
                 <div>
@@ -269,6 +272,7 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                       max={isVip ? 480 : 30}
                       value={duration}
                       onChange={(e) => setDuration(Number(e.target.value))}
+                      className={isDarkMode ? "border-gray-600" : ""}
                     />
                     <span className="ml-2">mins</span>
                   </div>
@@ -321,6 +325,7 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                     value={recipientEmails}
                     onChange={(e) => setRecipientEmails(e.target.value)}
                     required
+                    className={isDarkMode ? "border-gray-600" : ""}
                   />
                 </div>
                 <div>
@@ -331,6 +336,7 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                     value={senderName}
                     onChange={(e) => setSenderName(e.target.value)}
                     required
+                    className={isDarkMode ? "border-gray-600" : ""}
                   />
                 </div>
                 <div>
@@ -340,6 +346,7 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                   <Input
                     value={customMessage}
                     onChange={(e) => setCustomMessage(e.target.value)}
+                    className={isDarkMode ? "border-gray-600" : ""}
                   />
                 </div>
                 <div className="pt-4">

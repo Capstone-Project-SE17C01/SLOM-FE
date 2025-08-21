@@ -51,10 +51,10 @@ export default function LearningPathSection({
   return (
     <div className="mb-8">
       {sectionTitle && (
-        <div className="text-2xl font-extrabold mb-1">{sectionTitle}</div>
+        <div className="text-2xl font-extrabold mb-1 text-gray-900 dark:text-gray-100">{sectionTitle}</div>
       )}
       {sectionDescription && (
-        <div className="text-base font-semibold text-gray-700 mb-3">
+        <div className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-3">
           {sectionDescription}
         </div>
       )}

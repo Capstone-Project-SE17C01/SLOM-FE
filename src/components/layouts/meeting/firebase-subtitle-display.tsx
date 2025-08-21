@@ -186,7 +186,7 @@ export default function FirebaseSubtitleDisplay({
       >
         <div className="flex items-center gap-2">
           <Clock className="w-4 h-4 animate-pulse" />
-          <span className="text-sm">Waiting for subtitles...</span>
+          <span className="text-sm">Translating... Please speak or use sign language</span>
         </div>
       </div>
     )

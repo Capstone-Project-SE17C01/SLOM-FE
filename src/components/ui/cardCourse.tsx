@@ -9,7 +9,8 @@ const CardCourseWrapper = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "hover:bg-primary/10 max-w-[800px] relative rounded-2xl border border-slate-200 border-b-4 border-gray-300 bg-[#f7f8fa] shadow-sm overflow-hidden min-h-[120px] flex flex-col justify-between",
+      "hover:bg-primary/10 max-w-[800px] relative rounded-2xl border border-b-4 shadow-sm overflow-hidden min-h-[120px] flex flex-col justify-between",
+      "bg-[#f7f8fa] dark:bg-gray-800 border-slate-200 dark:border-gray-700 border-gray-300 dark:border-gray-600",
       className
     )}
     {...props}
@@ -36,7 +37,7 @@ const CardTitleModule = ({
   children: React.ReactNode;
   className?: string;
 }) => (
-  <h5 className={cn("text-xs font-bold text-black", className)}>{children}</h5>
+  <h5 className={cn("text-xs font-bold text-black dark:text-white", className)}>{children}</h5>
 );
 
 const CardContentColWrapper = React.forwardRef<
@@ -70,7 +71,7 @@ const CardTitleLesson = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("text-black", className)} {...props} />
+  <div ref={ref} className={cn("text-black dark:text-white", className)} {...props} />
 ));
 CardTitleLesson.displayName = "CardTitleLesson";
 
@@ -128,7 +129,7 @@ const CardTitleLessonFooter = ({
 }) => (
   <span
     className={cn(
-      "absolute left-4 bottom-3 text-base font-semibold text-black",
+      "absolute left-4 bottom-3 text-base font-semibold text-black dark:text-white",
       className
     )}
   >
@@ -144,7 +145,8 @@ const CardWrap = ({
 }: React.HTMLAttributes<HTMLDivElement> & { onClick?: () => void }) => (
   <div
     className={cn(
-      "relative bg-gray-100 rounded-xl min-w-[210px] h-[120px] flex flex-col justify-end shadow-sm border-b-4 border-yellow-400 overflow-hidden cursor-pointer hover:shadow-lg transition",
+      "relative rounded-xl min-w-[210px] h-[120px] flex flex-col justify-end shadow-sm border-b-4 border-yellow-400 overflow-hidden cursor-pointer hover:shadow-lg transition",
+      "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100",
       className
     )}
     onClick={onClick}
@@ -219,7 +221,8 @@ const CardLesson = ({
 }) => (
   <div
     className={cn(
-      " relative bg-gray-100 rounded-xl min-w-[210px] h-[120px] flex flex-col justify-end shadow-sm border-b-4 border-primary overflow-hidden cursor-pointer hover:bg-primary hover:text-white transition",
+      "relative rounded-xl min-w-[210px] h-[120px] flex flex-col justify-end shadow-sm border-b-4 border-primary overflow-hidden cursor-pointer hover:bg-primary hover:text-white transition",
+      "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100",
       className
     )}
     onClick={onClick}

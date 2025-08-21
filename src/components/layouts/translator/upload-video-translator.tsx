@@ -214,7 +214,12 @@ export default function UploadVideoTranslator({
                   </p>
                   <Button
                     variant="outline"
-                    className="border-blue-500 text-blue-500 hover:bg-blue-50"
+                    className={cn(
+                      "border-blue-500 text-blue-500",
+                      isDarkMode 
+                        ? "hover:bg-blue-900/20 dark:border-blue-400 dark:text-blue-400" 
+                        : "hover:bg-blue-50"
+                    )}
                     onClick={(e) => {
                       e.stopPropagation();
                       inputRef.current?.click();
@@ -263,7 +268,10 @@ export default function UploadVideoTranslator({
                           }}
                         />
                       </div>
-                      <div className="text-xs text-gray-600 mt-1">
+                      <div className={cn(
+                        "text-xs mt-1",
+                        isDarkMode ? "text-gray-300" : "text-gray-600"
+                      )}>
                         {translator.state.uploadProgress}%{" "}
                         {t_translatorPage("complete")}
                       </div>
@@ -283,10 +291,16 @@ export default function UploadVideoTranslator({
                       <div className="flex items-center gap-3">
                         <Languages className="w-5 h-5 text-purple-500 animate-pulse" />
                         <div>
-                          <p className="font-medium text-purple-600">
+                          <p className={cn(
+                            "font-medium",
+                            isDarkMode ? "text-purple-400" : "text-purple-600"
+                          )}>
                             {t_translatorPage("processingVideo")}...
                           </p>
-                          <p className="text-xs text-gray-600">
+                          <p className={cn(
+                            "text-xs",
+                            isDarkMode ? "text-gray-300" : "text-gray-600"
+                          )}>
                             {t_translatorPage("analyzingSignLanguageContent")}
                           </p>
                         </div>
@@ -307,10 +321,16 @@ export default function UploadVideoTranslator({
                       <div className="flex items-center gap-3">
                         <CheckCircle className="w-5 h-5 text-green-500" />
                         <div>
-                          <p className="font-medium text-green-600">
+                          <p className={cn(
+                            "font-medium",
+                            isDarkMode ? "text-green-400" : "text-green-600"
+                          )}>
                             {t_translatorPage("translationComplete")}!
                           </p>
-                          <p className="text-xs text-gray-600">
+                          <p className={cn(
+                            "text-xs",
+                            isDarkMode ? "text-gray-300" : "text-gray-600"
+                          )}>
                             {t_translatorPage("found")}{" "}
                             {
                               translator.state.translationResult.translations
@@ -336,10 +356,16 @@ export default function UploadVideoTranslator({
                       <div className="flex items-center gap-3">
                         <AlertCircle className="w-5 h-5 text-red-500" />
                         <div>
-                          <p className="font-medium text-red-600">
+                          <p className={cn(
+                            "font-medium",
+                            isDarkMode ? "text-red-400" : "text-red-600"
+                          )}>
                             {t_translatorPage("error")}
                           </p>
-                          <p className="text-xs text-gray-600">
+                          <p className={cn(
+                            "text-xs",
+                            isDarkMode ? "text-gray-300" : "text-gray-600"
+                          )}>
                             {translator.state.error}
                           </p>
                         </div>
@@ -385,12 +411,18 @@ export default function UploadVideoTranslator({
                           <FileVideo className="w-5 h-5 text-gray-500" />
                           <div className="truncate">
                             <p
-                              className="text-sm font-medium truncate"
+                              className={cn(
+                                "text-sm font-medium truncate",
+                                isDarkMode ? "text-gray-200" : "text-gray-900"
+                              )}
                               title={translator.state.file.name}
                             >
                               {translator.state.file.name}
                             </p>
-                            <p className="text-xs text-gray-500">
+                            <p className={cn(
+                              "text-xs",
+                              isDarkMode ? "text-gray-400" : "text-gray-500"
+                            )}>
                               {(
                                 translator.state.file.size /
                                 (1024 * 1024)
@@ -453,7 +485,10 @@ export default function UploadVideoTranslator({
                       : "bg-blue-50 border-blue-200"
                   )}
                 >
-                  <h4 className="font-semibold text-blue-600 mb-2">
+                  <h4 className={cn(
+                    "font-semibold mb-2",
+                    isDarkMode ? "text-blue-400" : "text-blue-600"
+                  )}>
                     {t_translatorPage("summary")}
                   </h4>
                   <p
@@ -493,7 +528,10 @@ export default function UploadVideoTranslator({
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
                             <Clock className="w-4 h-4 text-gray-500" />
-                            <span className="text-sm font-medium text-gray-500">
+                            <span className={cn(
+                              "text-sm font-medium",
+                              isDarkMode ? "text-gray-400" : "text-gray-500"
+                            )}>
                               {formatTime(segment.startTime)} -{" "}
                               {formatTime(segment.endTime)}
                             </span>
@@ -502,10 +540,16 @@ export default function UploadVideoTranslator({
                             className={cn(
                               "text-xs px-2 py-1 rounded-full",
                               segment.confidence >= 0.8
-                                ? "bg-green-100 text-green-600"
+                                ? isDarkMode 
+                                  ? "bg-green-900/30 text-green-400" 
+                                  : "bg-green-100 text-green-600"
                                 : segment.confidence >= 0.6
-                                ? "bg-yellow-100 text-yellow-600"
-                                : "bg-red-100 text-red-600"
+                                ? isDarkMode 
+                                  ? "bg-yellow-900/30 text-yellow-400" 
+                                  : "bg-yellow-100 text-yellow-600"
+                                : isDarkMode 
+                                  ? "bg-red-900/30 text-red-400" 
+                                  : "bg-red-100 text-red-600"
                             )}
                           >
                             {Math.round(segment.confidence * 100)}%
@@ -534,39 +578,62 @@ export default function UploadVideoTranslator({
                     : "bg-gray-50 border-gray-200"
                 )}
               >
-                <h4 className="font-semibold mb-2">
+                <h4 className={cn(
+                  "font-semibold mb-2",
+                  isDarkMode ? "text-gray-200" : "text-gray-900"
+                )}>
                   {t_translatorPage("videoInformation")}
                 </h4>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="text-gray-500">
+                    <span className={cn(
+                      isDarkMode ? "text-gray-400" : "text-gray-500"
+                    )}>
                       {t_translatorPage("duration")}:
                     </span>
-                    <span className="ml-2 font-medium">
+                    <span className={cn(
+                      "ml-2 font-medium",
+                      isDarkMode ? "text-gray-200" : "text-gray-900"
+                    )}>
                       {formatTime(translator.state.translationResult.duration)}
                     </span>
                   </div>
                   <div>
-                    <span className="text-gray-500">
+                    <span className={cn(
+                      isDarkMode ? "text-gray-400" : "text-gray-500"
+                    )}>
                       {t_translatorPage("segments")}:
                     </span>
-                    <span className="ml-2 font-medium">
+                    <span className={cn(
+                      "ml-2 font-medium",
+                      isDarkMode ? "text-gray-200" : "text-gray-900"
+                    )}>
                       {translator.state.translationResult.translations.length}
                     </span>
                   </div>
                   <div>
-                    <span className="text-gray-500">
+                    <span className={cn(
+                      isDarkMode ? "text-gray-400" : "text-gray-500"
+                    )}>
                       {t_translatorPage("language")}:
                     </span>
-                    <span className="ml-2 font-medium">
+                    <span className={cn(
+                      "ml-2 font-medium",
+                      isDarkMode ? "text-gray-200" : "text-gray-900"
+                    )}>
                       {language.toUpperCase()}
                     </span>
                   </div>
                   <div>
-                    <span className="text-gray-500">
+                    <span className={cn(
+                      isDarkMode ? "text-gray-400" : "text-gray-500"
+                    )}>
                       {t_translatorPage("processed")}:
                     </span>
-                    <span className="ml-2 font-medium">
+                    <span className={cn(
+                      "ml-2 font-medium",
+                      isDarkMode ? "text-gray-200" : "text-gray-900"
+                    )}>
                       {new Date(
                         translator.state.translationResult.createdAt
                       ).toLocaleString()}

@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useRef, useEffect } from "react";
 import { OPENROUTER_CONFIG } from "@/services/openrouter/config";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface Message {
   role: "user" | "assistant";
@@ -13,6 +14,7 @@ const Chatbot: React.FC = () => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
     if (open) {
@@ -136,7 +138,7 @@ const Chatbot: React.FC = () => {
               right: 32,
               width: 340,
               maxHeight: 500,
-              background: "#fff",
+              background: isDarkMode ? "#1f2937" : "#fff",
               borderRadius: 16,
               boxShadow: "0 4px 24px rgba(0,0,0,0.18)",
               zIndex: 10001,
@@ -189,11 +191,15 @@ const Chatbot: React.FC = () => {
                 flex: 1,
                 padding: 12,
                 overflowY: "auto",
-                background: "#f9f9f9",
+                background: isDarkMode ? "#374151" : "#f9f9f9",
               }}
             >
               {messages.length === 0 && (
-                <div style={{ color: "#888", textAlign: "center", marginTop: 40 }}>
+                <div style={{ 
+                  color: isDarkMode ? "#9ca3af" : "#888", 
+                  textAlign: "center", 
+                  marginTop: 40 
+                }}>
                   Hello! How can I help you?
                 </div>
               )}
@@ -210,8 +216,10 @@ const Chatbot: React.FC = () => {
                       display: "inline-block",
                       padding: "8px 12px",
                       borderRadius: 16,
-                      background: msg.role === "user" ? "#e6f0ff" : "#e9e9e9",
-                      color: "#222",
+                      background: msg.role === "user" 
+                        ? (isDarkMode ? "#3b82f6" : "#e6f0ff") 
+                        : (isDarkMode ? "#4b5563" : "#e9e9e9"),
+                      color: isDarkMode ? "#f9fafb" : "#222",
                       maxWidth: 240,
                       wordBreak: "break-word",
                     }}
@@ -225,9 +233,9 @@ const Chatbot: React.FC = () => {
             <div
               style={{
                 display: "flex",
-                borderTop: "1px solid #eee",
+                borderTop: `1px solid ${isDarkMode ? "#4b5563" : "#eee"}`,
                 padding: 8,
-                background: "#fff",
+                background: isDarkMode ? "#1f2937" : "#fff",
               }}
             >
               <input
@@ -244,7 +252,8 @@ const Chatbot: React.FC = () => {
                   padding: "8px 12px",
                   borderRadius: 8,
                   fontSize: 15,
-                  background: "#f5f5f5",
+                  background: isDarkMode ? "#374151" : "#f5f5f5",
+                  color: isDarkMode ? "#f9fafb" : "#222",
                 }}
               />
               <button

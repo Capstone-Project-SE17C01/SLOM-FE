@@ -11,6 +11,7 @@ export async function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const path = url.pathname;
   
+  // Mở rộng danh sách đường dẫn công khai
   const publicPaths = ['/login', '/register', '/forgot-password', '/confirm-registeration', '/', '/home', '/about', '/contact', '/features'];
   const isPublicPath = publicPaths.some(publicPath => path === publicPath || path.startsWith(publicPath + '/'));
   
@@ -31,7 +32,8 @@ export async function middleware(request: NextRequest) {
   const isAdmin = userInfo?.role === 'ADMIN' || userInfo?.roleName === 'ADMIN';
   
   if (!isPublicPath && !accessToken) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    const callbackUrl = encodeURIComponent(request.nextUrl.pathname + request.nextUrl.search);
+    return NextResponse.redirect(new URL(`/login?callbackUrl=${callbackUrl}`, request.url));
   }
 
   if (isAdminRoute && !isAdmin) {
