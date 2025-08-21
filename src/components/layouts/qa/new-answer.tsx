@@ -1,15 +1,24 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { AnswerResponseDTO, NewAnswerAmount, NewAnswerProps, PostAnswerRequestDTO } from "@/types/IQa";
+import {
+    AnswerResponseDTO,
+    NewAnswerAmount,
+    NewAnswerProps,
+    PostAnswerRequestDTO,
+} from "@/types/IQa";
 import { useState, useRef, useEffect } from "react";
 import QuestionNewAnswer from "./question-new-answer";
 import UploadImage from "./upload-image";
 import { uploadImageToCloudinary } from "@/services/cloudinary/config";
-import { usePostAnswerMutation, useUpdateAnswerMutation } from "../../../api/QaApi";
+import {
+    usePostAnswerMutation,
+    useUpdateAnswerMutation,
+} from "../../../api/QaApi";
 import { Send, X } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/utils/cn";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
+import { useTranslations } from "next-intl";
 
 export default function NewAnswer({ userInfo, setIsResponseQuestion, question, setAnswerOfQuestion, setNewAnswerAmount, newAnswerAmount, isUpdateAnswer = false, answer, setIsUpdateAnswer, setAnswer, updateQuestionAnswerCount, setAllQuestion, allQuestion, isAdmin }: Readonly<NewAnswerProps>) {
     const [newAnswer, setNewAnswer] = useState(isUpdateAnswer ? (answer?.content || "") : "");
@@ -20,6 +29,7 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
     const [updateAnswerAPI] = useUpdateAnswerMutation();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { isDarkMode } = useTheme();
+    const t_qaPage = useTranslations("qaPage");
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setNewAnswer(e.target.value)
@@ -40,7 +50,7 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
 
     const postAnswer = async () => {
         if (!newAnswer.trim() && !files.length && !existImages?.length) return;
-        
+
         setIsSubmitting(true);
 
         try {
@@ -52,16 +62,16 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
                     content: newAnswer,
                     images: finalImages
                 }).unwrap();
-                
+
                 // Update the answer in the list
-                setAnswerOfQuestion((prev) => 
-                    prev?.map(ans => 
-                        ans.answerId === answer.answerId 
+                setAnswerOfQuestion((prev) =>
+                    prev?.map(ans =>
+                        ans.answerId === answer.answerId
                             ? { ...ans, content: newAnswer, images: finalImages }
                             : ans
                     ) || []
                 );
-                
+
                 // Close popup and reset states
                 setIsResponseQuestion(false);
                 if (setIsUpdateAnswer && setAnswer) {
@@ -99,12 +109,12 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
                                     amount: 1
                                 }
                             setNewAnswerAmount((prev) => [...(prev ?? []).filter(val => val.questionId != lastQuestionId), newAnswerQuantity])
-                            
+
                             // Update the question's answer count in allQuestion
                             if (updateQuestionAnswerCount && question?.questionId) {
                                 updateQuestionAnswerCount(question.questionId, 1);
                             }
-                            
+
                             // If admin is adding an answer and we're in "My Questions" view, remove the question from unanswered list
                             if (isAdmin && setAllQuestion && allQuestion && question?.questionId) {
                                 const updatedQuestions = allQuestion.filter((q) => q.questionId !== question.questionId);
@@ -128,7 +138,7 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
             setNewAnswer(answer.content);
             setExistImages(answer.images);
         }
-    }, [answer, isUpdateAnswer]); 
+    }, [answer, isUpdateAnswer]);
 
     return (
         <div>
@@ -139,7 +149,7 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
                     setAnswer(undefined);
                 }
             }}></div>
-            
+
             <div className={cn(
                 "fixed inset-x-0 z-50 mx-auto w-full max-w-2xl px-4 py-6 rounded-xl shadow-xl max-h-[85vh] top-[7.5vh] overflow-y-auto",
                 isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
@@ -152,9 +162,11 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
                         "text-lg font-semibold",
                         isDarkMode ? "text-white" : "text-gray-900"
                     )}>
-                        {isUpdateAnswer ? "Edit Answer" : "Reply to Question"}
+                        {isUpdateAnswer
+                            ? t_qaPage("editAnswer")
+                            : t_qaPage("replyToQuestion")}
                     </h2>
-                    <button 
+                    <button
                         onClick={() => {
                             setIsResponseQuestion(false);
                             if (isUpdateAnswer && setIsUpdateAnswer && setAnswer) {
@@ -164,8 +176,8 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
                         }}
                         className={cn(
                             "p-1.5 rounded-full transition-colors",
-                            isDarkMode 
-                                ? "hover:bg-gray-700 text-gray-400 hover:text-gray-200" 
+                            isDarkMode
+                                ? "hover:bg-gray-700 text-gray-400 hover:text-gray-200"
                                 : "hover:bg-gray-100 text-gray-500 hover:text-gray-700"
                         )}
                     >
@@ -191,7 +203,7 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
                                 <AvatarFallback>{userInfo?.username}</AvatarFallback>
                             </Avatar>
                         </div>
-                        
+
                         <div className="flex-1">
                             <div className={cn(
                                 "font-medium mb-2",
@@ -208,44 +220,52 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
                                     value={newAnswer}
                                     rows={3}
                                     onChange={handleChange}
-                                    placeholder="Write your reply here..."
+                                    placeholder={t_qaPage("writeYourReplyHere")}
                                     className={cn(
                                         "w-full p-3 border-none focus:ring-0 resize-none",
                                         isDarkMode ? "bg-gray-700 text-white placeholder-gray-400" : "bg-white text-gray-800"
                                     )}
                                 />
-                                
+
                                 <div className={cn(
                                     "border-t p-3",
                                     isDarkMode ? "bg-gray-700 border-gray-600" : "bg-gray-50 border-gray-200"
                                 )}>
-                                    <UploadImage 
-                                        setFiles={setFiles} 
-                                        images={existImages || []} 
-                                        setExistImages={setExistImages} 
+                                    <UploadImage
+                                        setFiles={setFiles}
+                                        images={existImages || []}
+                                        setExistImages={setExistImages}
                                         existImage={existImages}
                                     />
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div className="flex justify-end mt-6">
-                        <button 
-                            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                        <button
+                            className="flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                             onClick={() => {
                                 toast.promise(
                                     postAnswer(),
                                     {
-                                        loading: isUpdateAnswer ? 'Đang cập nhật câu trả lời...' : 'Đang đăng câu trả lời...',
-                                        success: isUpdateAnswer ? 'Đã cập nhật câu trả lời thành công' : 'Đã đăng câu trả lời thành công',
-                                        error: isUpdateAnswer ? 'Cập nhật câu trả lời thất bại' : 'Đăng câu trả lời thất bại',
+                                        loading: isUpdateAnswer
+                                            ? t_qaPage("updatingAnswer")
+                                            : t_qaPage("postingAnswer"),
+                                        success: isUpdateAnswer
+                                            ? t_qaPage("updatedAnswerSuccess")
+                                            : t_qaPage("postedAnswerSuccess"),
+                                        error: isUpdateAnswer
+                                            ? t_qaPage("updateAnswerError")
+                                            : t_qaPage("postAnswerError"),
                                     }
                                 );
                             }}
                             disabled={isSubmitting || (!newAnswer.trim() && !files.length && !existImages?.length)}
                         >
-                            <span>{isUpdateAnswer ? "Update Answer" : "Post Reply"}</span>
+                            <span>{isUpdateAnswer
+                                ? t_qaPage("updateAnswer")
+                                : t_qaPage("postReply")}</span>
                             <Send className="h-4 w-4" />
                         </button>
                     </div>
@@ -253,4 +273,4 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
             </div>
         </div>
     );
-}
+};

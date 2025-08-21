@@ -16,7 +16,6 @@ import QuizPractice from "../course/quiz-practice";
 import { useSelector } from "react-redux";
 export default function ApprenderLearnPractice() {
   const searchParams = useSearchParams();
-  const back = searchParams.get("back") || "/learn";
   const lessonId = decodeURIComponent(searchParams.get("lessonId") || "");
   const lessonTitle = decodeURIComponent(searchParams.get("lessonTitle") || "");
   const isReview =
@@ -98,7 +97,7 @@ export default function ApprenderLearnPractice() {
       <QuizPractice
         quizList={listQuizzes}
         lessonTitle={lessonTitle}
-        back={back}
+        back={"/practice"}
         lessonId={lessonId}
         t_learn={t_learn}
       />
@@ -108,7 +107,7 @@ export default function ApprenderLearnPractice() {
     <WordPractice
       wordList={listWords}
       lessonTitle={lessonTitle}
-      back={back}
+      back={"/learn"}
       lessonId={lessonId}
       t_learn={t_learn}
     />

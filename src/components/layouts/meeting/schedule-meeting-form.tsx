@@ -67,17 +67,28 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
   };
 
   const handleDateSelect = (day: number) => {
+    // Tạo date với timezone local để tránh bị tăng thêm 1 ngày
     const newDate = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth(),
-      day
+      day,
+      12, // Đặt giờ là 12:00 để tránh vấn đề timezone
+      0,
+      0,
+      0
     );
+    
     // Check if selected date is in the past
     if (newDate < new Date(new Date().setHours(0, 0, 0, 0))) {
       return;
     }
     setSelectedDate(newDate);
-    setDate(newDate.toISOString().split("T")[0]);
+    
+    // Format date theo local timezone
+    const year = newDate.getFullYear();
+    const month = String(newDate.getMonth() + 1).padStart(2, '0');
+    const dayStr = String(newDate.getDate()).padStart(2, '0');
+    setDate(`${year}-${month}-${dayStr}`);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -189,7 +200,7 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
               </div>
             </div>
 
-            <div className="border rounded-lg p-4">
+            <div className={cn("border rounded-lg p-4", isDarkMode && "border-gray-600")}>
               <div className="flex justify-between items-center mb-4">
                 <Button variant="ghost" onClick={handlePrevMonth} size="sm">
                   <ChevronLeft className="h-4 w-4" />
@@ -228,7 +239,9 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                         currentDate.getFullYear() === selectedDate.getFullYear()
                         ? "bg-[#6947A8] text-white"
                         : day
-                        ? "hover:bg-gray-100 dark:hover:bg-gray-700"
+                        ? isDarkMode 
+                          ? "hover:bg-gray-700"
+                          : "hover:bg-gray-100"
                         : ""
                     )}
                     onClick={() => day && handleDateSelect(day)}
@@ -252,6 +265,7 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                     value={time}
                     onChange={(e) => setTime(e.target.value)}
                     required
+                    className={isDarkMode ? "border-gray-600" : ""}
                   />
                 </div>
                 <div>
@@ -269,6 +283,7 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                       max={isVip ? 480 : 30}
                       value={duration}
                       onChange={(e) => setDuration(Number(e.target.value))}
+                      className={isDarkMode ? "border-gray-600" : ""}
                     />
                     <span className="ml-2">mins</span>
                   </div>
@@ -321,6 +336,7 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                     value={recipientEmails}
                     onChange={(e) => setRecipientEmails(e.target.value)}
                     required
+                    className={isDarkMode ? "border-gray-600" : ""}
                   />
                 </div>
                 <div>
@@ -331,6 +347,7 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                     value={senderName}
                     onChange={(e) => setSenderName(e.target.value)}
                     required
+                    className={isDarkMode ? "border-gray-600" : ""}
                   />
                 </div>
                 <div>
@@ -340,6 +357,7 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                   <Input
                     value={customMessage}
                     onChange={(e) => setCustomMessage(e.target.value)}
+                    className={isDarkMode ? "border-gray-600" : ""}
                   />
                 </div>
                 <div className="pt-4">

@@ -20,7 +20,7 @@ import { toast } from "sonner";
 export default function AdminLesson() {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
+  const itemsPerPage = 10;
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalFields, setModalFields] = useState<FieldConfig[]>([]);
@@ -314,8 +314,8 @@ export default function AdminLesson() {
         {...(deleteLesson && {
           children: (
             <div className="py-6 text-center text-lg">
-              Bạn có chắc chắn muốn xóa lesson <b>{deleteLesson.title}</b>{" "}
-              không?
+              Are you sure you want to delete lesson <b>{deleteLesson.title}</b>{" "}
+              ?
             </div>
           ),
         })}

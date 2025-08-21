@@ -8,7 +8,12 @@ import { useRouter } from "next/navigation";
 import EntityModal, {
   FieldConfig,
 } from "@/components/layouts/admin/EntityModal";
-import { useGetAllWordsQuery, useCreateWordMutation, useUpdateWordMutation, useDeleteWordMutation } from "@/api/WordApi";
+import {
+  useGetAllWordsQuery,
+  useCreateWordMutation,
+  useUpdateWordMutation,
+  useDeleteWordMutation,
+} from "@/api/WordApi";
 import { Word } from "@/types/IWord";
 import { toast } from "sonner";
 import { useGetAllLessonsQuery } from "@/api/QuizApi";
@@ -21,12 +26,14 @@ import { useGetAllCourseMutation, useGetAllModuleByCourseIdMutation } from "@/ap
 export default function AdminWord() {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
+  const itemsPerPage = 10;
   const [words, setWords] = useState<Word[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalFields, setModalFields] = useState<FieldConfig[]>([]);
   const [modalTitle, setModalTitle] = useState("");
-  const [lessonsSelect, setLessonsSelect] = useState<{ id: string; title: string }[]>([]);
+  const [lessonsSelect, setLessonsSelect] = useState<
+    { id: string; title: string }[]
+  >([]);
   const [updateWord] = useUpdateWordMutation();
   const [editWord, setEditWord] = useState<Word | null>(null);
   const [deleteWordApi] = useDeleteWordMutation();
@@ -67,7 +74,8 @@ export default function AdminWord() {
   ];
 
   // API hooks
-  const { data: lessonsResponse, isLoading: lessonsLoading } = useGetAllLessonsQuery();
+  const { data: lessonsResponse, isLoading: lessonsLoading } =
+    useGetAllLessonsQuery();
   const { data: wordsResponse, isLoading, refetch } = useGetAllWordsQuery();
   const [createWord] = useCreateWordMutation();
   const lessons = lessonsResponse?.result || [];
@@ -88,7 +96,9 @@ export default function AdminWord() {
   // Fetch lessons for select
   useEffect(() => {
     if (lessonsResponse?.result) {
-      setLessonsSelect(Array.isArray(lessonsResponse.result) ? lessonsResponse.result : []);
+      setLessonsSelect(
+        Array.isArray(lessonsResponse.result) ? lessonsResponse.result : []
+      );
     }
   }, [lessonsResponse]);
 
@@ -115,15 +125,16 @@ export default function AdminWord() {
         try {
           // Fetch modules for the course
           const courseModules = await getAllModuleByCourseId(word.lesson.module.courseId).unwrap();
-          setModulesSelect(Array.isArray(courseModules.result) ? courseModules.result : []);
+          const fetchedModules = Array.isArray(courseModules.result) ? courseModules.result : [];
+          setModulesSelect(fetchedModules);
           
-          // Update modal fields with course and module data
+          // Update modal fields with course and module data using the fetched modules directly
           const updatedFields = wordFields.map(field => {
             if (field.name === 'courseId') {
               return { ...field, options: coursesSelect.map((c) => ({ label: c.title, value: c.id })) };
             }
             if (field.name === 'moduleId') {
-              return { ...field, options: modulesSelect.map((m) => ({ label: m.title, value: m.id })) };
+              return { ...field, options: fetchedModules.map((m) => ({ label: m.title, value: m.id })) };
             }
             return field;
           });
@@ -185,14 +196,14 @@ export default function AdminWord() {
           id: editWord.id,
           lessonId: values.lessonId,
           text: values.text,
-          videoSrc: values.videoSrc
+          videoSrc: values.videoSrc,
         }).unwrap();
         toast.success("Word updated successfully");
       } else {
         await createWord({
           lessonId: values.lessonId,
           text: values.text,
-          videoSrc: values.videoSrc
+          videoSrc: values.videoSrc,
         }).unwrap();
         toast.success("Word created successfully");
       }
@@ -250,7 +261,10 @@ export default function AdminWord() {
           )}
         </td>
         <td className="px-6 py-4">
-          <span>{lessons.find(l => l.id === word.lessonId)?.title || word.lessonId}</span>
+          <span>
+            {lessons.find((l) => l.id === word.lessonId)?.title ||
+              word.lessonId}
+          </span>
         </td>
         <td className="px-6 py-4">
           <span>{new Date().toLocaleDateString()}</span>
@@ -357,7 +371,7 @@ export default function AdminWord() {
             : {}
         }
       />
-      
+
       {/* Delete Confirmation Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
@@ -384,13 +398,16 @@ export default function AdminWord() {
           </div>
         </div>
       )}
-      
+
       {/* Video Modal */}
-      <Dialog open={videoModalOpen} onOpenChange={(open) => !open && closeVideoModal()}>
+      <Dialog
+        open={videoModalOpen}
+        onOpenChange={(open) => !open && closeVideoModal()}
+      >
         <DialogContent className="sm:max-w-4xl w-[90vw] h-[80vh] p-0 border-0">
           <div className="relative w-full h-full">
             <iframe
-              src={selectedVideo.replace('watch?v=', 'embed/')}
+              src={selectedVideo.replace("watch?v=", "embed/")}
               className="w-full h-full rounded-lg"
               title="Video Player"
               frameBorder="0"

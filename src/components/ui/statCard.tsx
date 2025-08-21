@@ -1,5 +1,6 @@
 import React from "react";
-import clsx from "clsx";
+import { cn } from "@/utils/cn";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface StatCardProps {
   value: number | string;
@@ -8,15 +9,30 @@ interface StatCardProps {
 }
 
 export default function StatCard({ value, label, className }: StatCardProps) {
+  const { isDarkMode } = useTheme();
+  
   return (
     <div
-      className={clsx(
-        "bg-white rounded-xl shadow flex flex-col items-center justify-center w-24 h-24",
+      className={cn(
+        "rounded-xl shadow flex flex-col items-center justify-center w-24 h-24",
+        isDarkMode 
+          ? "bg-gray-800 text-white" 
+          : "bg-white text-[#0a2233]",
         className
       )}
     >
-      <span className="text-3xl font-extrabold text-[#0a2233]">{value}</span>
-      <span className="text-xs text-[#0a2233] mt-1 text-center">{label}</span>
+      <span className={cn(
+        "text-3xl font-extrabold",
+        isDarkMode ? "text-gray-100" : "text-[#0a2233]"
+      )}>
+        {value}
+      </span>
+      <span className={cn(
+        "text-xs mt-1 text-center",
+        isDarkMode ? "text-gray-300" : "text-[#0a2233]"
+      )}>
+        {label}
+      </span>
     </div>
   );
 }

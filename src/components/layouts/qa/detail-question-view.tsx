@@ -360,7 +360,7 @@ export default function DetailQuestionView({
               isDarkMode ? "text-gray-200" : "text-gray-700"
             )}
           >
-            {totalAnswers} {totalAnswers === 1 ? "Answer" : "Answers"}
+            {totalAnswers} {totalAnswers === 1 ? t_qaPage("answer") : t_qaPage("answers")}
           </h3>
         </div>
       )}
@@ -440,7 +440,7 @@ export default function DetailQuestionView({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-sm">
             <h2 className="text-lg font-semibold mb-4">Delete Confirmation</h2>
-            <p>Are you sure you want to delete this question?</p>
+            <p>{t_qaPage("areYouSureYouWantToDeleteThisQuestion")}</p>
             <div className="flex justify-end gap-2 mt-6">
               <Button
                 variant="outline"
@@ -449,13 +449,13 @@ export default function DetailQuestionView({
                   setDeleteId(null);
                 }}
               >
-                Cancel
+                {t_qaPage("cancel")}
               </Button>
               <Button
                 className="bg-red-600 hover:bg-red-700 text-white"
                 onClick={handleDelete}
               >
-                Delete
+                {t_qaPage("deleteQuestion")}
               </Button>
             </div>
           </div>

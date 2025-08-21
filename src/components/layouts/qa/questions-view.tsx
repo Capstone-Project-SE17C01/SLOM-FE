@@ -539,7 +539,7 @@ export default function QuestionView({
                                     )}
                                   >
                                     <SquarePen className="mr-2 h-4 w-4" />
-                                    <span>Edit Question</span>
+                                    <span>{t_qaPage("editQuestion")}</span>
                                   </DropdownMenuItem>
                                 </button>
                               )}
@@ -551,7 +551,7 @@ export default function QuestionView({
                               >
                                 <DropdownMenuItem className="cursor-pointer text-red-600 hover:text-red-700 focus:text-red-700">
                                   <OctagonX className="mr-2 h-4 w-4" />
-                                  <span>Delete Question</span>
+                                  <span>{t_qaPage("deleteQuestion")}</span>
                                 </DropdownMenuItem>
                               </button>
                             </DropdownMenuContent>
@@ -639,7 +639,7 @@ export default function QuestionView({
                       <MessageSquare className="h-4 w-4" />
                       <span>
                         {element.answerAmount}{" "}
-                        {element.answerAmount === 1 ? "reply" : "replies"}
+                        {element.answerAmount === 1 ? t_qaPage("reply") : t_qaPage("replies")}
                       </span>
                     </button>
                   </div>
@@ -779,8 +779,8 @@ export default function QuestionView({
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-sm">
-            <h2 className="text-lg font-semibold mb-4">Delete Confirmation</h2>
-            <p>Are you sure you want to delete this question?</p>
+            <h2 className="text-lg font-semibold mb-4">{t_qaPage("deleteConfirmation")}</h2>
+            <p>{t_qaPage("areYouSureYouWantToDeleteThisQuestion")}</p>
             <div className="flex justify-end gap-2 mt-6">
               <Button
                 variant="outline"
@@ -789,13 +789,13 @@ export default function QuestionView({
                   setDeleteId(null);
                 }}
               >
-                Cancel
+                {t_qaPage("cancel")}
               </Button>
               <Button
                 className="bg-red-600 hover:bg-red-700 text-white"
                 onClick={handleDelete}
               >
-                Xóa
+                {t_qaPage("deleteQuestion")}
               </Button>
             </div>
           </div>

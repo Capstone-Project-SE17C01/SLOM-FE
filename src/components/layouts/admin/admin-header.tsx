@@ -2,15 +2,7 @@
 
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-import {
-  Menu,
-  Search,
-  Bell,
-  LogOut,
-  UserCircle,
-  Sun,
-  Moon,
-} from "lucide-react";
+import { Menu, LogOut, UserCircle, Sun, Moon } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -64,21 +56,6 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
         >
           <Menu className="h-5 w-5" />
         </button>
-
-        {/* Search */}
-        <div className="relative hidden md:block">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder={t_header("search")}
-            className={cn(
-              "pl-10 pr-4 py-2 w-64 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-[#6947A8] focus:border-transparent",
-              isDarkMode
-                ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                : "bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500"
-            )}
-          />
-        </div>
       </div>
 
       {/* Right side */}
@@ -98,19 +75,6 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
           ) : (
             <Moon className="h-5 w-5" />
           )}
-        </button>
-
-        {/* Notifications */}
-        <button
-          className={cn(
-            "p-2 rounded-lg transition-colors relative",
-            isDarkMode
-              ? "hover:bg-gray-700 text-gray-300"
-              : "hover:bg-gray-100 text-gray-600"
-          )}
-        >
-          <Bell className="h-5 w-5" />
-          <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
         </button>
 
         {/* User Menu */}

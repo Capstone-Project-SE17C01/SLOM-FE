@@ -15,6 +15,14 @@ import { ButtonCourse } from "@/components/ui/buttonCourse";
 import Spinner from "@/components/ui/spinner";
 import { ReminderDialog } from "./reminder-dialog";
 
+// Helper function to check if course is available
+const isCourseAvailable = (dashboardData: SummaryResponse | null): boolean => {
+  return (
+    (dashboardData?.totalModules ?? 0) > 0 &&
+    (dashboardData?.totalLessons ?? 0) > 0
+  );
+};
+
 function AccomplishmentCard({
   title,
   completed,
@@ -59,24 +67,25 @@ function ProgressBar({
     params?: Record<string, string | number | Date>
   ) => string;
 }) {
-  const percent =
-    ((dashboardData?.totalQuizzesCompleted ?? 0) /
-      (dashboardData?.totalLessons ?? 1)) *
-    100;
+  //If totalmodule is 0 or totallesson is 0, set percent to 0
+  const percent = isCourseAvailable(dashboardData)
+    ? ((dashboardData?.totalQuizzesCompleted ?? 0) /
+        (dashboardData?.totalLessons ?? 1)) *
+      100
+    : 0;
+
   return (
     <div className="mb-6">
       <div className="text-lg mb-2 font-semibold">
         {/* current module title */}
-        {dashboardData?.activeLesson?.module?.title &&
-        dashboardData?.totalModules !== 0 &&
-        dashboardData?.totalLessons !== 0
+        {isCourseAvailable(dashboardData) &&
+        dashboardData?.activeLesson?.module?.title
           ? dashboardData.activeLesson.module.title
           : tCourseDashBoard("moduleTitle")}
         <span className="inline-block bg-[#6947A8] dark:bg-[#4b2e6a] ml-2 text-white rounded-full px-2">
           {/*current lesson title */}
-          {dashboardData?.activeLesson?.orderNumber &&
-          dashboardData?.totalModules !== 0 &&
-          dashboardData?.totalLessons !== 0
+          {isCourseAvailable(dashboardData) &&
+          dashboardData?.activeLesson?.orderNumber
             ? dashboardData.activeLesson.orderNumber
             : "0"}
         </span>
@@ -156,7 +165,7 @@ export default function CourseDashboard() {
   if (isLoadingCourseSummary) {
     return (
       <div className="bg-black/50 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 w-screen h-screen fixed inset-0">
-        <Spinner text="Loading..." />
+        <Spinner />
       </div>
     );
   }
@@ -207,28 +216,25 @@ export default function CourseDashboard() {
         <div className="bg-gradient-to-r from-primary to-primary/80 dark:from-gray-800 dark:to-gray-700 rounded-xl p-6 mb-6 shadow-lg">
           <div className="flex justify-between items-center">
             {/* not show label if total module or total lesson is 0 */}
-            {dashboardData?.totalModules !== 0 &&
-              dashboardData?.totalLessons !== 0 && (
-                <div className="font-bold text-xl text-white dark:text-gray-200">
-                  {tCourseDashBoard("myAccomplishments")}
-                </div>
-              )}
+            {isCourseAvailable(dashboardData) && (
+              <div className="font-bold text-xl text-white dark:text-gray-200">
+                {tCourseDashBoard("myAccomplishments")}
+              </div>
+            )}
 
             {/* Reminder Dialog, not show if total module or total lesson is 0 */}
-            {dashboardData?.totalModules !== 0 &&
-              dashboardData?.totalLessons !== 0 && (
-                <ReminderDialog
-                  isOpen={isOpen}
-                  onOpenChange={setIsOpen}
-                  userEmail={userInfo?.email}
-                  userId={userInfo?.id}
-                  isActive={isActive}
-                />
-              )}
+            {isCourseAvailable(dashboardData) && (
+              <ReminderDialog
+                isOpen={isOpen}
+                onOpenChange={setIsOpen}
+                userEmail={userInfo?.email}
+                userId={userInfo?.id}
+                isActive={isActive}
+              />
+            )}
           </div>
           {/* if total module or total lesson is 0, show a message to user "This Course not available, Please choose other course" */}
-          {dashboardData?.totalModules === 0 ||
-          dashboardData?.totalLessons === 0 ? (
+          {!isCourseAvailable(dashboardData) ? (
             <div className="text-white dark:text-white text-center text-2xl font-bold">
               {tCourseDashBoard("thisCourseNotAvailable")}
             </div>
@@ -246,58 +252,56 @@ export default function CourseDashboard() {
         </div>
 
         {/* ActivityCard, not show if total module or total lesson is 0 */}
-        {dashboardData?.totalModules !== 0 &&
-          dashboardData?.totalLessons !== 0 && (
-            <div className="mb-6">
-              <ActivityCard
-                title={tCourseDashBoard("myActivity")}
-                activities={
-                  dashboardData?.activities ?? {
-                    recentLessonsCompleted: 0,
-                    recentModulesCompleted: 0,
-                    recentCoursesCompleted: 0,
-                  }
+        {isCourseAvailable(dashboardData) && (
+          <div className="mb-6">
+            <ActivityCard
+              title={tCourseDashBoard("myActivity")}
+              activities={
+                dashboardData?.activities ?? {
+                  recentLessonsCompleted: 0,
+                  recentModulesCompleted: 0,
+                  recentCoursesCompleted: 0,
                 }
-                subLabel={tCourseDashBoard("lessonsCompletedLast7Days")}
-              />
-            </div>
-          )}
+              }
+              subLabel={tCourseDashBoard("lessonsCompletedLast7Days")}
+            />
+          </div>
+        )}
 
         {/* BannerStartLearning, not show if total module or total lesson is 0 */}
-        {dashboardData?.totalModules !== 0 &&
-          dashboardData?.totalLessons !== 0 && (
-            <div className="bg-gradient-to-r from-primary/10 to-primary/5 dark:from-gray-800 dark:to-gray-700 rounded-xl p-6 flex items-center justify-between mb-6 border border-primary/20 dark:border-gray-700">
-              <div>
-                <div className="font-bold text-xl mb-2 text-gray-900 dark:text-gray-200">
-                  {tCourseDashBoard("learnNewSign")}
-                </div>
-                <div className="text-sm text-gray-600 dark:text-gray-300">
-                  {dashboardData?.activeLesson?.title && (
-                    <span>{dashboardData?.activeLesson?.title}</span>
-                  )}
-                </div>
+        {isCourseAvailable(dashboardData) && (
+          <div className="bg-gradient-to-r from-primary/10 to-primary/5 dark:from-gray-800 dark:to-gray-700 rounded-xl p-6 flex items-center justify-between mb-6 border border-primary/20 dark:border-gray-700">
+            <div>
+              <div className="font-bold text-xl mb-2 text-gray-900 dark:text-gray-200">
+                {tCourseDashBoard("learnNewSign")}
               </div>
-              <ButtonCourse
-                variant="super"
-                className="shadow-lg hover:shadow-xl transition-shadow"
-                onClick={() => {
-                  if (dashboardData?.activeLesson) {
-                    router.push(
-                      `/apprender/learn?lessonId=${
-                        dashboardData.activeLesson.id
-                      }&moduleId=${
-                        dashboardData.activeLesson.moduleId
-                      }&back=${encodeURIComponent("/course-dashboard")}`
-                    );
-                  } else {
-                    router.push("/learn");
-                  }
-                }}
-              >
-                {tCourseDashBoard("startLearning")}
-              </ButtonCourse>
+              <div className="text-sm text-gray-600 dark:text-gray-300">
+                {dashboardData?.activeLesson?.title && (
+                  <span>{dashboardData?.activeLesson?.title}</span>
+                )}
+              </div>
             </div>
-          )}
+            <ButtonCourse
+              variant="super"
+              className="shadow-lg hover:shadow-xl transition-shadow"
+              onClick={() => {
+                if (dashboardData?.activeLesson) {
+                  router.push(
+                    `/apprender/learn?lessonId=${
+                      dashboardData.activeLesson.id
+                    }&moduleId=${
+                      dashboardData.activeLesson.moduleId
+                    }&back=${encodeURIComponent("/course-dashboard")}`
+                  );
+                } else {
+                  router.push("/learn");
+                }
+              }}
+            >
+              {tCourseDashBoard("startLearning")}
+            </ButtonCourse>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ import { meetingService } from '@/services/firebase/meetingService'
 import { getCurrentBucketKey, formatBucketTime } from '@/utils/bucketTimeUtils'
 import { TimeBucket, UserBucketContent } from '@/types/IFirebaseMeeting'
 import { cn } from '@/utils/cn'
-import { ChevronDown, Clock, Users, ArrowDown } from 'lucide-react'
+import { ChevronDown, Clock, Users, ArrowDown, GripHorizontal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface FirebaseSubtitleDisplayProps {
@@ -35,10 +35,14 @@ export default function FirebaseSubtitleDisplay({
   const [currentBucketKey, setCurrentBucketKey] = useState<string>('')
   const [isAtCurrentBucket, setIsAtCurrentBucket] = useState(true)
   const [showBackToCurrentBtn, setShowBackToCurrentBtn] = useState(false)
+  const [containerHeight, setContainerHeight] = useState(256) // Default height in pixels
+  const [isResizing, setIsResizing] = useState(false)
 
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const currentBucketRef = useRef<HTMLDivElement>(null)
   const unsubscribeRef = useRef<(() => void) | null>(null)
+  const resizeStartY = useRef<number>(0)
+  const initialHeight = useRef<number>(0)
 
   // Update current bucket key every second
   useEffect(() => {
@@ -77,7 +81,7 @@ export default function FirebaseSubtitleDisplay({
   useEffect(() => {
     if (!meetingData || !currentBucketKey) return
 
-    const buckets = Object.keys(meetingData).sort((a, b) => parseInt(b) - parseInt(a)) // Latest first
+    const buckets = Object.keys(meetingData).sort((a, b) => parseInt(a) - parseInt(b)) // Oldest first, newest at bottom
 
     const displays: BucketDisplay[] = buckets.map((bucketKey) => {
       const userBucketContent: UserBucketContent = meetingData[bucketKey]
@@ -108,6 +112,32 @@ export default function FirebaseSubtitleDisplay({
     }
   }, [currentBucketKey, isAtCurrentBucket])
 
+  // Handle resize drag
+  const handleResizeStart = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      setIsResizing(true)
+      resizeStartY.current = e.clientY
+      initialHeight.current = containerHeight
+
+      const handleMouseMove = (e: MouseEvent) => {
+        const deltaY = resizeStartY.current - e.clientY // Inverted for natural drag feel
+        const newHeight = Math.max(150, Math.min(600, initialHeight.current + deltaY))
+        setContainerHeight(newHeight)
+      }
+
+      const handleMouseUp = () => {
+        setIsResizing(false)
+        document.removeEventListener('mousemove', handleMouseMove)
+        document.removeEventListener('mouseup', handleMouseUp)
+      }
+
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+    },
+    [containerHeight]
+  )
+
   // Handle scroll to detect if user is viewing older buckets
   const handleScroll = useCallback(() => {
     if (!scrollContainerRef.current || !currentBucketRef.current) return
@@ -116,9 +146,9 @@ export default function FirebaseSubtitleDisplay({
     const currentBucket = currentBucketRef.current
 
     const containerBottom = container.scrollTop + container.clientHeight
-    const currentBucketTop = currentBucket.offsetTop
+    const currentBucketBottom = currentBucket.offsetTop + currentBucket.offsetHeight
 
-    const isViewingCurrent = currentBucketTop <= containerBottom
+    const isViewingCurrent = currentBucketBottom <= containerBottom + 50 // Add some tolerance
 
     setIsAtCurrentBucket(isViewingCurrent)
     setShowBackToCurrentBtn(!isViewingCurrent)
@@ -156,7 +186,7 @@ export default function FirebaseSubtitleDisplay({
       >
         <div className="flex items-center gap-2">
           <Clock className="w-4 h-4 animate-pulse" />
-          <span className="text-sm">Waiting for subtitles...</span>
+          <span className="text-sm">Translating... Please speak or use sign language</span>
         </div>
       </div>
     )
@@ -174,17 +204,29 @@ export default function FirebaseSubtitleDisplay({
             className="bg-blue-600 text-white border-blue-500 hover:bg-blue-700 px-3 py-1 h-auto"
           >
             <ArrowDown className="w-3 h-3 mr-1" />
-            <span className="text-xs">Current</span>
+            <span className="text-xs">Latest</span>
           </Button>
         </div>
       )}
+
+      {/* Resize Handle */}
+      <div
+        className={cn(
+          'absolute top-0 left-0 right-0 h-2 cursor-ns-resize flex items-center justify-center z-20 hover:bg-blue-500/20 transition-colors',
+          isResizing && 'bg-blue-500/30'
+        )}
+        onMouseDown={handleResizeStart}
+      >
+        <GripHorizontal className="w-4 h-3 text-gray-400" />
+      </div>
 
       {/* Subtitle Container */}
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
-        className="bg-black/80 text-white rounded-lg backdrop-blur-sm max-h-64 overflow-y-auto"
+        className="bg-black/80 text-white rounded-lg backdrop-blur-sm overflow-y-auto mt-2"
         style={{
+          height: `${containerHeight}px`,
           scrollbarWidth: 'thin',
           scrollbarColor: '#4b5563 transparent'
         }}
@@ -194,87 +236,100 @@ export default function FirebaseSubtitleDisplay({
           <div className="flex items-center gap-2 border-b border-gray-700 pb-2">
             <Users className="w-4 h-4" />
             <span className="text-sm font-medium">Meeting Subtitles</span>
-            <span className="text-xs text-gray-400 ml-auto">{bucketDisplays.length} time periods</span>
+            <span className="text-xs text-gray-400 ml-auto">
+              {bucketDisplays.length} periods • {containerHeight}px
+            </span>
           </div>
 
           {/* Bucket List */}
           <div className="space-y-3">
-            {bucketDisplays.map(
-              (bucket, index) => (
-                console.log('index', index),
-                (
-                  <div
-                    key={bucket.bucketKey}
-                    ref={bucket.isCurrentBucket ? currentBucketRef : null}
-                    className={cn(
-                      'border-l-2 pl-3 transition-all duration-200',
-                      bucket.isCurrentBucket ? 'border-green-500 bg-green-900/20' : 'border-gray-600'
-                    )}
-                  >
-                    {/* Time Header */}
-                    <div className="flex items-center gap-2 mb-2">
-                      <Clock className="w-3 h-3 text-gray-400" />
-                      <span className="text-xs font-medium text-gray-300">{formatTimestamp(bucket.bucketKey)}</span>
-                      {bucket.isCurrentBucket && (
-                        <span className="text-xs bg-green-600 px-2 py-0.5 rounded text-white">LIVE</span>
-                      )}
-                    </div>
+            {bucketDisplays.map((bucket) => (
+              <div
+                key={bucket.bucketKey}
+                ref={bucket.isCurrentBucket ? currentBucketRef : null}
+                className={cn(
+                  'border-l-2 pl-3 transition-all duration-200',
+                  bucket.isCurrentBucket ? 'border-green-500 bg-green-900/20' : 'border-gray-600'
+                )}
+              >
+                {/* Time Header */}
+                <div className="flex items-center gap-2 mb-3">
+                  <Clock className="w-3 h-3 text-gray-400" />
+                  <span className="text-xs font-medium text-gray-300">{formatTimestamp(bucket.bucketKey)}</span>
+                  {bucket.isCurrentBucket && (
+                    <span className="text-xs bg-green-600 px-2 py-0.5 rounded text-white">LIVE</span>
+                  )}
+                </div>
 
-                    {/* User Contents */}
-                    <div className="space-y-2">
-                      {bucket.userContents.map((userContent, userIndex) => {
-                        console.log('userContent', userIndex)
-                        // Join all content pieces into one continuous text
-                        const fullContent = userContent.contents.join(' ').trim()
+                {/* User Contents - Separated by User */}
+                <div className="space-y-3">
+                  {bucket.userContents.map((userContent) => {
+                    // Join all content pieces into one continuous text
+                    const fullContent = userContent.contents.join(' ').trim()
 
-                        if (!fullContent) return null
+                    if (!fullContent) return null
 
-                        // Check if content contains sign language
-                        const isSignLanguage = fullContent.includes('[SIGN]')
-                        const displayContent = fullContent.replace(/\[SIGN\]\s*/g, '')
+                    // Check if content contains sign language
+                    const isSignLanguage = fullContent.includes('[SIGN]')
+                    const displayContent = fullContent.replace(/\[SIGN\]\s*/g, '')
 
-                        return (
-                          <div
-                            key={`${bucket.bucketKey}-${userContent.userId}`}
+                    // Get user display name
+                    const userDisplayName = userContent.isCurrentUser ? 'You' : `User ${userContent.userId.slice(-4)}`
+
+                    return (
+                      <div
+                        key={`${bucket.bucketKey}-${userContent.userId}`}
+                        className={cn(
+                          'border rounded-lg p-3 transition-all duration-200',
+                          userContent.isCurrentUser
+                            ? 'border-blue-500/30 bg-blue-900/20'
+                            : 'border-gray-600/30 bg-gray-800/20'
+                        )}
+                      >
+                        {/* User Header */}
+                        <div className="flex items-center gap-2 mb-2">
+                          {/* Content Type Indicator */}
+                          {isSignLanguage ? (
+                            <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center">
+                              <span className="text-xs text-white font-bold">🤟</span>
+                            </div>
+                          ) : (
+                            <div className="w-4 h-4 rounded-full bg-blue-500"></div>
+                          )}
+
+                          {/* User Name */}
+                          <span
                             className={cn(
-                              'text-sm leading-relaxed mb-2',
-                              userContent.isCurrentUser ? 'text-blue-300' : 'text-white'
+                              'text-xs font-medium',
+                              userContent.isCurrentUser ? 'text-blue-300' : 'text-gray-300'
                             )}
                           >
-                            <div className="flex items-start gap-2">
-                              {/* Content Type Indicator */}
-                              {isSignLanguage ? (
-                                <div className="flex-shrink-0 mt-0.5">
-                                  <div className="w-3 h-3 rounded-full bg-green-500 flex items-center justify-center">
-                                    <span className="text-xs text-white font-bold">🤟</span>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div className="flex-shrink-0 mt-0.5">
-                                  <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                                </div>
-                              )}
+                            {userDisplayName}
+                          </span>
 
-                              {/* Content */}
-                              <p className="flex-1">{displayContent}</p>
+                          {/* Content Type Label */}
+                          <span className="text-xs text-gray-500">{isSignLanguage ? 'Sign Language' : 'Speech'}</span>
+                        </div>
 
-                              {/* User Indicator */}
-                              {userContent.isCurrentUser && (
-                                <span className="text-xs text-blue-400 flex-shrink-0">You</span>
-                              )}
-                            </div>
-                          </div>
-                        )
-                      })}
+                        {/* User Content */}
+                        <p
+                          className={cn(
+                            'text-sm leading-relaxed',
+                            userContent.isCurrentUser ? 'text-blue-100' : 'text-white'
+                          )}
+                        >
+                          {displayContent}
+                        </p>
+                      </div>
+                    )
+                  })}
 
-                      {bucket.userContents.length === 0 && (
-                        <p className="text-xs text-gray-500 italic">No content in this period</p>
-                      )}
-                    </div>
-                  </div>
-                )
-              )
-            )}
+                  {bucket.userContents.length === 0 && (
+                    <p className="text-xs text-gray-500 italic text-center py-2">No content in this time period</p>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* Auto-scroll indicator */}
@@ -282,7 +337,7 @@ export default function FirebaseSubtitleDisplay({
             <div className="text-center py-2">
               <div className="inline-flex items-center gap-1 text-xs text-gray-400">
                 <ChevronDown className="w-3 h-3" />
-                <span>Viewing older messages</span>
+                <span>Scroll down for latest messages</span>
               </div>
             </div>
           )}

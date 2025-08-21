@@ -48,7 +48,7 @@ export default function ListCoursePage() {
             <h2 className="text-3xl font-extrabold mb-8 text-gray-900 dark:text-gray-100">
               {tDashboard("currentlyLearning")}
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {learningCourses.map((c, i) => (
                 <CourseCard key={i} course={c} />
               ))}

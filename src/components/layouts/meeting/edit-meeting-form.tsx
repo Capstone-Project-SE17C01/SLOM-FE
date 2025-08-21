@@ -72,9 +72,23 @@ export const MeetingEditModal: React.FC<MeetingEditModalProps> = ({
   };
   
   const handleDateSelect = (day: number) => {
-    const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+    // Tạo date với timezone local để tránh bị tăng thêm 1 ngày
+    const newDate = new Date(
+      currentDate.getFullYear(), 
+      currentDate.getMonth(), 
+      day,
+      12, // Đặt giờ là 12:00 để tránh vấn đề timezone
+      0,
+      0,
+      0
+    );
     setSelectedDate(newDate);
-    setDate(newDate.toISOString().split('T')[0]);
+    
+    // Format date theo local timezone
+    const year = newDate.getFullYear();
+    const month = String(newDate.getMonth() + 1).padStart(2, '0');
+    const dayStr = String(newDate.getDate()).padStart(2, '0');
+    setDate(`${year}-${month}-${dayStr}`);
   };
 
   const handleSubmit = (e: React.FormEvent) => {

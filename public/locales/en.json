@@ -482,7 +482,10 @@
     "searchPlaceholder": "Search",
     "empty": "After you learn lessons, they will appear here.",
     "yourLearnedLessons": "Your learned lessons",
-    "yourLearnedLessonsDesc": "Lessons you have completed"
+    "yourLearnedLessonsDesc": "Lessons you have completed",
+    "language": "Language",
+    "level": "Level",
+    "toLevel": "To level"
   },
   "immersePage": {
     "headerTitle": "Find videos on topics you love (#music), or situations you want to prepare for (#travel)",
@@ -520,7 +523,8 @@
     "finishedLesson": "Lesson completed!",
     "finishLesson": "Finish lesson",
     "finishQuiz": "Finish quiz",
-    "nextLesson": "Next lesson"
+    "nextLesson": "Next lesson",
+    "back": "Back to previous word"
   },
   "courseDashboard": {
     "myAccomplishments": "My Accomplishments",
@@ -651,7 +655,11 @@
     "deleteMeeting": "Delete Meeting",
     "areYouSureYouWantToDeleteTheMeeting": "Are you sure you want to delete the meeting",
     "thisActionCannotBeUndone": "This action cannot be undone.",
-    "processing": "Processing"
+    "processing": "Processing",
+    "recording": "Record",
+    "folders": "Folders",
+    "noSignDetected": "No sign detected",
+    "participants": "participants"
   },
   "translatorPage": {
     "signLanguageTranslator": "Sign Language Translator",
@@ -719,7 +727,11 @@
     "historyCleared": "History cleared",
     "stopped": "Stopped",
     "startingRecognition": "Starting recognition...",
-    "recognitionFinished": "Recognition finished."
+    "recognitionFinished": "Recognition finished.",
+    "error": "Failed to connect to translation server",
+    "duration": "Duration",
+    "uploadFailed": "Upload failed",
+    "noSignDetected": "No sign detected"
   },
   "qaPage": {
     "communityQ&A": "Community Q&A",
@@ -762,10 +774,56 @@
     "loadingAnswers": "Loading answers...",
     "noMoreAnswers": "No more answers.",
     "noAnswersYet": "No answers yet",
-    "beTheFirstToAnswer": "Be the first to answer"
+    "beTheFirstToAnswer": "Be the first to answer",
+    "deleteConfirmation": "Delete Confirmation",
+    "areYouSureYouWantToDeleteThisQuestion": "Are you sure you want to delete this question?",
+    "cancel": "Cancel",
+    "deleteQuestion": "Delete Question",
+    "replies": "replies",
+    "writeYourReplyHere": "Write your reply here...",
+    "updateAnswer": "Update Answer",
+    "postAnswer": "Post Answer",
+    "deleteAnswer": "Delete Answer",
+    "postReply": "Post Reply",
+    "replyToQuestion": "Reply to Question",
+    "editAnswer": "Edit Answer",
+    "updatingAnswer": "Updating Answer...",
+    "postingAnswer": "Posting Answer...",
+    "updatedAnswerSuccess": "Answer updated successfully",
+    "postedAnswerSuccess": "Answer posted successfully",
+    "updateAnswerError": "Update answer failed",
+    "postAnswerError": "Post answer failed",
+    "answer": "Answer",
+    "answers": "Answers"
   },
   "meaningCard": {
     "meaning": "Meaning",
     "label": "English"
+  },
+  "videoViewer": {
+    "aiSummary": "AI Summary",
+    "poweredByAI": "Powered by AI",
+    "analyzingVideo": "Analyzing Video...",
+    "noSummaryYet": "No Summary Yet",
+    "ourAIProcessingVideo": "Our AI is processing the video content to extract key insights, action items, and important discussion points.",
+    "generateSummary": "Generate an AI-powered summary to quickly understand the key points, decisions, and action items from this recording.",
+    "generateNewSummary": "Generate New Summary",
+    "downloadWord": "Download Word",
+    "videoRecording": "Video Recording",
+    "backToMeetingRoom": "Back to Meeting Room",
+    "invalidVideoURL": "Invalid video URL",
+    "generateButton": "Generate"
+  },
+  "chatbot": {
+    "typeYourMessage": "Type your message...",
+    "failedToConnect": "Failed to connect to OpenRouter API.",
+    "noResponse": "No response received.",
+    "error": "An error occurred while sending the message.",
+    "hello": "Hello! How can I help you?",
+    "send": "Send",
+    "chatbotAI": "Chatbot AI"
+  },
+  "spinner": {
+    "loading": "Loading..."
   }
 }

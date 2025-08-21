@@ -67,7 +67,7 @@ export default function CourseCard({ course }: CourseCardProps) {
       <div className="flex-1 flex flex-col justify-between h-full w-full">
         <div
           className={cn(
-            "font-bold text-xl mb-1",
+            "font-bold text-3xl mb-1",
             isDarkMode ? "text-white" : "text-[#1a2a32]"
           )}
         >
@@ -81,6 +81,16 @@ export default function CourseCard({ course }: CourseCardProps) {
             )}
           >
             {course.courseCategory?.name}
+          </div>
+        )}
+        {course.description && (
+          <div
+            className={cn(
+              "text-sm mb-3",
+              isDarkMode ? "text-gray-300" : "text-gray-600"
+            )}
+          >
+            {course.description}
           </div>
         )}
         <div className="flex items-center">

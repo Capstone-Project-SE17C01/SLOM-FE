@@ -256,7 +256,12 @@ export default function MeetingRoomPage() {
 
   const handleDateSelection = (date: Date) => {
     setSelectedDate(date);
-    setSelectedDateString(date.toISOString().split("T")[0]);
+    
+    // Format date theo local timezone để tránh bị tăng thêm 1 ngày
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const dayStr = String(date.getDate()).padStart(2, '0');
+    setSelectedDateString(`${year}-${month}-${dayStr}`);
   };
 
   const handleEditMeeting = async (meetingId: string) => {
@@ -540,7 +545,7 @@ export default function MeetingRoomPage() {
     for (let i = 0; i < firstDay; i++) calendarDays.push(null);
     for (let day = 1; day <= daysInMonth; day++) {
       calendarDays.push(
-        new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day)
+        new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day, 12, 0, 0, 0)
       );
     }
 
@@ -549,12 +554,26 @@ export default function MeetingRoomPage() {
         {calendarDays.map((day, index) => {
           if (day === null)
             return <div key={`empty-${index}`} className="h-8"></div>;
-          const formattedDate = day.toISOString().split("T")[0];
+          
+          // Format date theo local timezone
+          const year = day.getFullYear();
+          const month = String(day.getMonth() + 1).padStart(2, '0');
+          const dayStr = String(day.getDate()).padStart(2, '0');
+          const formattedDate = `${year}-${month}-${dayStr}`;
+          
           const hasMeetings = monthMeetings.some(
-            (meeting) =>
-              meeting.isDeleted == false &&
-              new Date(meeting.startTime).toISOString().split("T")[0] ===
-                formattedDate
+            (meeting) => {
+              if (meeting.isDeleted) return false;
+              
+              // Format meeting date theo local timezone
+              const meetingDate = new Date(meeting.startTime);
+              const mYear = meetingDate.getFullYear();
+              const mMonth = String(meetingDate.getMonth() + 1).padStart(2, '0');
+              const mDay = String(meetingDate.getDate()).padStart(2, '0');
+              const meetingFormattedDate = `${mYear}-${mMonth}-${mDay}`;
+              
+              return meetingFormattedDate === formattedDate;
+            }
           );
           const isSelected =
             selectedDate?.toDateString() === day.toDateString();

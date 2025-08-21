@@ -425,7 +425,7 @@ export default function MeetingPage() {
       )}
 
       {/* Firebase Real-time Subtitle Display */}
-      {hasJoinedRoom && !meetingExpired && roomID && userInfo?.vipUser && (
+      {hasJoinedRoom && !meetingExpired && roomID && userInfo?.vipUser && (isListening || signLanguageRecognition.isActive) && (
         <div className="fixed bottom-20 left-5 right-5 z-[997] max-w-2xl mx-auto">
           <FirebaseSubtitleDisplay meetingCode={roomID} currentUserId={userInfo?.id || ''} />
         </div>

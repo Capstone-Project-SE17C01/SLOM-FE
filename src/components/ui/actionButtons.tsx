@@ -1,14 +1,21 @@
 import { ButtonCourse } from "./buttonCourse";
 import { useTranslations } from "next-intl";
+import { cn } from "@/utils/cn";
+import { useTheme } from "@/contexts/ThemeContext";
+
 export default function ActionButtons({
   onContinue,
-  onAlreadyKnow,
+  onBack,
+  canGoBack,
   t_learn,
 }: {
   onContinue: () => void;
-  onAlreadyKnow: () => void;
+  onBack: () => void;
+  canGoBack: boolean;
   t_learn: ReturnType<typeof useTranslations>;
 }) {
+  const { isDarkMode } = useTheme();
+  
   return (
     <div className="flex flex-col items-center justify-center gap-4 w-full">
       <ButtonCourse
@@ -19,11 +26,17 @@ export default function ActionButtons({
         {t_learn("continue")}
       </ButtonCourse>
       <ButtonCourse
-        onClick={onAlreadyKnow}
+        onClick={onBack}
         variant="ghost"
-        className="w-full border-2 border-gray-300 rounded-xl py-3 font-semibold text-lg text-[#0a2233] flex items-center justify-center gap-2"
+        className={cn(
+          "w-full border-2 rounded-xl py-3 font-semibold text-lg flex items-center justify-center gap-2",
+          isDarkMode 
+            ? "border-gray-600 text-gray-200 hover:bg-gray-700" 
+            : "border-gray-300 text-[#0a2233] hover:bg-gray-100"
+        )}
+        disabled={!canGoBack}
       >
-        {t_learn("alreadyKnow")}
+        {t_learn("back")}
       </ButtonCourse>
     </div>
   );
