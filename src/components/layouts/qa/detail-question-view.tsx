@@ -256,7 +256,7 @@ export default function DetailQuestionView({
               isDarkMode ? "text-gray-200" : "text-gray-700"
             )}
           >
-            {totalAnswers} {totalAnswers === 1 ? "Answer" : "Answers"}
+            {totalAnswers} {totalAnswers === 1 ? t_qaPage("answer") : t_qaPage("answers")}
           </h3>
         </div>
       )}
