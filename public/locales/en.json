@@ -730,7 +730,8 @@
     "recognitionFinished": "Recognition finished.",
     "error": "Failed to connect to translation server",
     "duration": "Duration",
-    "uploadFailed": "Upload failed"
+    "uploadFailed": "Upload failed",
+    "noSignDetected": "No sign detected"
   },
   "qaPage": {
     "communityQ&A": "Community Q&A",

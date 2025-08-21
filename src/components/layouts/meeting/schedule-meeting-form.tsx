@@ -67,17 +67,28 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
   };
 
   const handleDateSelect = (day: number) => {
+    // Tạo date với timezone local để tránh bị tăng thêm 1 ngày
     const newDate = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth(),
-      day
+      day,
+      12, // Đặt giờ là 12:00 để tránh vấn đề timezone
+      0,
+      0,
+      0
     );
+    
     // Check if selected date is in the past
     if (newDate < new Date(new Date().setHours(0, 0, 0, 0))) {
       return;
     }
     setSelectedDate(newDate);
-    setDate(newDate.toISOString().split("T")[0]);
+    
+    // Format date theo local timezone
+    const year = newDate.getFullYear();
+    const month = String(newDate.getMonth() + 1).padStart(2, '0');
+    const dayStr = String(newDate.getDate()).padStart(2, '0');
+    setDate(`${year}-${month}-${dayStr}`);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
