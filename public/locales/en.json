@@ -482,7 +482,10 @@
     "searchPlaceholder": "Search",
     "empty": "After you learn lessons, they will appear here.",
     "yourLearnedLessons": "Your learned lessons",
-    "yourLearnedLessonsDesc": "Lessons you have completed"
+    "yourLearnedLessonsDesc": "Lessons you have completed",
+    "language": "Language",
+    "level": "Level",
+    "toLevel": "To level"
   },
   "immersePage": {
     "headerTitle": "Find videos on topics you love (#music), or situations you want to prepare for (#travel)",
@@ -654,7 +657,9 @@
     "thisActionCannotBeUndone": "This action cannot be undone.",
     "processing": "Processing",
     "recording": "Record",
-    "folders": "Folders"
+    "folders": "Folders",
+    "noSignDetected": "No sign detected",
+    "participants": "participants"
   },
   "translatorPage": {
     "signLanguageTranslator": "Sign Language Translator",
@@ -776,6 +781,8 @@
     "replies": "replies",
     "writeYourReplyHere": "Write your reply here...",
     "updateAnswer": "Update Answer",
+    "postAnswer": "Post Answer",
+    "deleteAnswer": "Delete Answer",
     "postReply": "Post Reply",
     "replyToQuestion": "Reply to Question",
     "editAnswer": "Edit Answer",
@@ -784,10 +791,38 @@
     "updatedAnswerSuccess": "Answer updated successfully",
     "postedAnswerSuccess": "Answer posted successfully",
     "updateAnswerError": "Update answer failed",
-    "postAnswerError": "Post answer failed"
+    "postAnswerError": "Post answer failed",
+    "answer": "Answer",
+    "answers": "Answers"
   },
   "meaningCard": {
     "meaning": "Meaning",
     "label": "English"
+  },
+  "videoViewer": {
+    "aiSummary": "AI Summary",
+    "poweredByAI": "Powered by AI",
+    "analyzingVideo": "Analyzing Video...",
+    "noSummaryYet": "No Summary Yet",
+    "ourAIProcessingVideo": "Our AI is processing the video content to extract key insights, action items, and important discussion points.",
+    "generateSummary": "Generate an AI-powered summary to quickly understand the key points, decisions, and action items from this recording.",
+    "generateNewSummary": "Generate New Summary",
+    "downloadWord": "Download Word",
+    "videoRecording": "Video Recording",
+    "backToMeetingRoom": "Back to Meeting Room",
+    "invalidVideoURL": "Invalid video URL",
+    "generateButton": "Generate"
+  },
+  "chatbot": {
+    "typeYourMessage": "Type your message...",
+    "failedToConnect": "Failed to connect to OpenRouter API.",
+    "noResponse": "No response received.",
+    "error": "An error occurred while sending the message.",
+    "hello": "Hello! How can I help you?",
+    "send": "Send",
+    "chatbotAI": "Chatbot AI"
+  },
+  "spinner": {
+    "loading": "Loading..."
   }
 }

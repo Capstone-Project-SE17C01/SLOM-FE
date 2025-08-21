@@ -1,6 +1,8 @@
+import { useTranslations } from "next-intl";
 import React from "react";
 
 export default function CourseDashboardPage() {
+  const t_practice = useTranslations("practicePage");
   return (
     <div className="flex min-h-screen bg-[#FFFCF3]">
       {/* Main Content */}
@@ -14,12 +16,14 @@ export default function CourseDashboardPage() {
             {/* ProgressBar */}
             <div className="mb-6">
               <div className="text-lg font-semibold">
-                Tiếng Hàn - Cấp độ{" "}
+                {t_practice("language")} - {t_practice("level")}{" "}
                 <span className="inline-block bg-yellow-400 text-white rounded-full px-2">
                   1
                 </span>
               </div>
-              <div className="text-sm text-gray-500 mb-1">Tới cấp độ 2</div>
+              <div className="text-sm text-gray-500 mb-1">
+                {t_practice("toLevel")} {t_practice("level")} 2
+              </div>
               <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
                 <div
                   className="bg-yellow-400 h-2.5 rounded-full"

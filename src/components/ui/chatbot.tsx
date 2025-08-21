@@ -1,7 +1,8 @@
-'use client';
+"use client";
 import React, { useState, useRef, useEffect } from "react";
 import { OPENROUTER_CONFIG } from "@/services/openrouter/config";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useTranslations } from "next-intl";
 
 interface Message {
   role: "user" | "assistant";
@@ -9,6 +10,7 @@ interface Message {
 }
 
 const Chatbot: React.FC = () => {
+  const t_chatbot = useTranslations("chatbot");
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -30,53 +32,56 @@ const Chatbot: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${OPENROUTER_CONFIG.baseURL}/chat/completions`, {
-        method: "POST",
-        headers: {
-          ...OPENROUTER_CONFIG.headers,
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || ""}`,
-        },
-        body: JSON.stringify({
-          model: OPENROUTER_CONFIG.model,
-          messages: [
-            {
-              role: "system",
-              content: `You are a friendly AI assistant for SLOM app (Sign Language Online meeting). Our app have components: 
+      const response = await fetch(
+        `${OPENROUTER_CONFIG.baseURL}/chat/completions`,
+        {
+          method: "POST",
+          headers: {
+            ...OPENROUTER_CONFIG.headers,
+            Authorization: `Bearer ${
+              process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || ""
+            }`,
+          },
+          body: JSON.stringify({
+            model: OPENROUTER_CONFIG.model,
+            messages: [
+              {
+                role: "system",
+                content: `You are a friendly AI assistant for SLOM app (Sign Language Online meeting). Our app have components: 
               online meeting allow user meeting and translate sign language, message for chat,
               course for course learning deaf language, translator ...., QA for User to ask questions 
               Just answer the questions about the system and deaf related problems.
               If user ask questions not related, answer just: Sorry, your question is out of my scope, please ask others question..
-              Answer concisely and clearly in English`
-            },
-            ...[...messages, userMessage].map((m) => ({
-              role: m.role,
-              content: m.content,
-            })),
-          ],
-          temperature: 0.7,
-          max_tokens: 1000,
-        }),
-      });
+              Answer concisely and clearly in English`,
+              },
+              ...[...messages, userMessage].map((m) => ({
+                role: m.role,
+                content: m.content,
+              })),
+            ],
+            temperature: 0.7,
+            max_tokens: 1000,
+          }),
+        }
+      );
 
       if (!response.ok) {
         setMessages((prev) => [
           ...prev,
-          { role: "assistant", content: "Failed to connect to OpenRouter API." },
+          { role: "assistant", content: t_chatbot("failedToConnect") },
         ]);
         setLoading(false);
         return;
       }
 
       const data = await response.json();
-      const reply = data.choices?.[0]?.message?.content?.trim() || "No response received.";
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: reply },
-      ]);
+      const reply =
+        data.choices?.[0]?.message?.content?.trim() || t_chatbot("noResponse");
+      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "An error occurred while sending the message." },
+        { role: "assistant", content: t_chatbot("error") },
       ]);
     }
     setLoading(false);
@@ -117,14 +122,38 @@ const Chatbot: React.FC = () => {
           >
             {/* Icon chat bubble tím, nhỏ */}
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="12" fill="#a259ff" opacity="0.15"/>
-              <path d="M7 8h10M7 12h6m-6 4h4" stroke="#a259ff" strokeWidth="2" strokeLinecap="round"/>
-              <path d="M5 19l2.5-2.5" stroke="#a259ff" strokeWidth="2" strokeLinecap="round"/>
-              <ellipse cx="12" cy="12" rx="7" ry="6" fill="#fff" opacity="0.7"/>
-              <ellipse cx="12" cy="12" rx="5" ry="4" fill="#a259ff" opacity="0.15"/>
-              <circle cx="9.5" cy="12" r="1" fill="#a259ff"/>
-              <circle cx="12" cy="12" r="1" fill="#a259ff"/>
-              <circle cx="14.5" cy="12" r="1" fill="#a259ff"/>
+              <circle cx="12" cy="12" r="12" fill="#a259ff" opacity="0.15" />
+              <path
+                d="M7 8h10M7 12h6m-6 4h4"
+                stroke="#a259ff"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+              <path
+                d="M5 19l2.5-2.5"
+                stroke="#a259ff"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+              <ellipse
+                cx="12"
+                cy="12"
+                rx="7"
+                ry="6"
+                fill="#fff"
+                opacity="0.7"
+              />
+              <ellipse
+                cx="12"
+                cy="12"
+                rx="5"
+                ry="4"
+                fill="#a259ff"
+                opacity="0.15"
+              />
+              <circle cx="9.5" cy="12" r="1" fill="#a259ff" />
+              <circle cx="12" cy="12" r="1" fill="#a259ff" />
+              <circle cx="14.5" cy="12" r="1" fill="#a259ff" />
             </svg>
           </button>
         )}
@@ -160,16 +189,41 @@ const Chatbot: React.FC = () => {
                 justifyContent: "space-between",
               }}
             >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style={{marginRight: 8}}>
-                <circle cx="12" cy="12" r="12" fill="#fff" opacity="0.15"/>
-                <path d="M7 8h10M7 12h6m-6 4h4" stroke="#fff" strokeWidth="2" strokeLinecap="round"/>
-                <ellipse cx="12" cy="12" rx="7" ry="6" fill="#fff" opacity="0.7"/>
-                <ellipse cx="12" cy="12" rx="5" ry="4" fill="#a259ff" opacity="0.15"/>
-                <circle cx="9.5" cy="12" r="1" fill="#a259ff"/>
-                <circle cx="12" cy="12" r="1" fill="#a259ff"/>
-                <circle cx="14.5" cy="12" r="1" fill="#a259ff"/>
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                style={{ marginRight: 8 }}
+              >
+                <circle cx="12" cy="12" r="12" fill="#fff" opacity="0.15" />
+                <path
+                  d="M7 8h10M7 12h6m-6 4h4"
+                  stroke="#fff"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+                <ellipse
+                  cx="12"
+                  cy="12"
+                  rx="7"
+                  ry="6"
+                  fill="#fff"
+                  opacity="0.7"
+                />
+                <ellipse
+                  cx="12"
+                  cy="12"
+                  rx="5"
+                  ry="4"
+                  fill="#a259ff"
+                  opacity="0.15"
+                />
+                <circle cx="9.5" cy="12" r="1" fill="#a259ff" />
+                <circle cx="12" cy="12" r="1" fill="#a259ff" />
+                <circle cx="14.5" cy="12" r="1" fill="#a259ff" />
               </svg>
-              Chatbot AI
+              {t_chatbot("chatbotAI")}
               <button
                 aria-label="Close chatbot"
                 onClick={() => setOpen(false)}
@@ -200,7 +254,7 @@ const Chatbot: React.FC = () => {
                   textAlign: "center", 
                   marginTop: 40 
                 }}>
-                  Hello! How can I help you?
+                  {t_chatbot("hello")}
                 </div>
               )}
               {messages.map((msg, idx) => (
@@ -240,7 +294,7 @@ const Chatbot: React.FC = () => {
             >
               <input
                 type="text"
-                placeholder="Type your message..."
+                placeholder={t_chatbot("typeYourMessage")}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
@@ -261,7 +315,8 @@ const Chatbot: React.FC = () => {
                 disabled={loading || !input.trim()}
                 style={{
                   marginLeft: 8,
-                  background: "linear-gradient(135deg, #a259ff 0%, #6d28d9 100%)",
+                  background:
+                    "linear-gradient(135deg, #a259ff 0%, #6d28d9 100%)",
                   color: "white",
                   border: "none",
                   borderRadius: 8,
@@ -270,7 +325,7 @@ const Chatbot: React.FC = () => {
                   cursor: loading ? "not-allowed" : "pointer",
                 }}
               >
-                Send
+                {t_chatbot("send")}
               </button>
             </div>
           </div>

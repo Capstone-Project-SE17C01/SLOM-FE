@@ -165,7 +165,7 @@ export default function CourseDashboard() {
   if (isLoadingCourseSummary) {
     return (
       <div className="bg-black/50 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 w-screen h-screen fixed inset-0">
-        <Spinner text="Loading..." />
+        <Spinner />
       </div>
     );
   }

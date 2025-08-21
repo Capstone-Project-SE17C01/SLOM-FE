@@ -22,7 +22,7 @@ export const MeetingRoomGrid: React.FC<MeetingRoomGridProps> = ({
   onRoomClick,
 }) => {
   const { isDarkMode } = useTheme();
-
+  const t_meetingPage = useTranslations("meetingPage");
   const renderCard = (room: {
     id: string;
     name: string;
@@ -67,7 +67,7 @@ export const MeetingRoomGrid: React.FC<MeetingRoomGridProps> = ({
               isDarkMode ? "text-gray-400" : "text-gray-500"
             )}
           >
-            {room.participantCount} participants
+            {room.participantCount} {t_meetingPage("participants")}
           </p>
 
           {room.description && (
@@ -106,7 +106,7 @@ export const MeetingRoomGrid: React.FC<MeetingRoomGridProps> = ({
               size="sm"
               className="w-full border-[#6947A8] text-[#6947A8] hover:bg-[#6947A8] hover:text-white"
             >
-              Join
+              {t_meetingPage("join")}
             </Button>
           </div>
         </div>

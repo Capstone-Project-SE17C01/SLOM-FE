@@ -73,7 +73,7 @@ export default function TranslationDisplay({
           "text-xl font-semibold leading-relaxed",
           isDarkMode ? "text-gray-100" : "text-gray-900"
         )}>
-          {prediction || "No sign detected"}
+          {prediction || t_translatorPage("noSignDetected")}
         </p>
       </div>
 

@@ -460,7 +460,10 @@
     "searchPlaceholder": "Tìm kiếm",
     "empty": "Sau khi bạn hoàn thành các tình huống, chúng sẽ xuất hiện trong phần này.",
     "yourLearnedLessons": "Bài học bạn đã học",
-    "yourLearnedLessonsDesc": "Các bài học bạn đã hoàn thành"
+    "yourLearnedLessonsDesc": "Các bài học bạn đã hoàn thành",
+    "language": "Ngôn ngữ",
+    "level": "Cấp độ",
+    "toLevel": "Đến cấp độ"
   },
   "immersePage": {
     "headerTitle": "Tìm kiếm các video về những chủ đề bạn yêu thích (#amnhac), hoặc những tình huống bạn muốn chuẩn bị cho (#dulich)",
@@ -637,7 +640,9 @@
     "thisActionCannotBeUndone": "Hành động này không thể được hoàn tác.",
     "processing": "Đang xử lý",
     "recording": "bản ghi",
-    "folders": "Thư mục"
+    "folders": "Thư mục",
+    "noSignDetected": "Không nhận dạng được ký hiệu",
+    "participants": "người tham gia"
   },
   "translatorPage": {
     "signLanguageTranslator": "Trình dịch ngôn ngữ ký hiệu",
@@ -708,7 +713,8 @@
     "recognitionFinished": "Nhận dạng đã hoàn thành.",
     "error": "Không thể kết nối với máy dịch ngôn ngữ ký hiệu",
     "duration": "Thời lượng",
-    "uploadFailed": "Tải lên thất bại"
+    "uploadFailed": "Tải lên thất bại",
+    "noSignDetected": "Không nhận dạng được ký hiệu"
   },
   "qaPage": {
     "communityQ&A": "Cộng đồng Q&A",
@@ -759,6 +765,8 @@
     "replies": "trả lời",
     "writeYourReplyHere": "Viết câu trả lời của bạn ở đây...",
     "updateAnswer": "Cập nhật câu trả lời",
+    "postAnswer": "Đăng câu trả lời",
+    "deleteAnswer": "Xóa câu trả lời",
     "postReply": "Đăng câu trả lời",
     "replyToQuestion": "Trả lời câu hỏi",
     "editAnswer": "Sửa câu trả lời",
@@ -767,10 +775,38 @@
     "updatedAnswerSuccess": "Cập nhật câu trả lời thành công",
     "postedAnswerSuccess": "Đăng câu trả lời thành công",
     "updateAnswerError": "Cập nhật câu trả lời thất bại",
-    "postAnswerError": "Đăng câu trả lời thất bại"
+    "postAnswerError": "Đăng câu trả lời thất bại",
+    "answer": "Câu trả lời",
+    "answers": "Câu trả lời"
   },
   "meaningCard": {
     "meaning": "Ý nghĩa",
     "label": "Tiếng Anh"
+  },
+  "videoViewer": {
+    "aiSummary": "Tóm tắt AI",
+    "poweredByAI": "Cung cấp bởi AI",
+    "analyzingVideo": "Đang phân tích video...",
+    "noSummaryYet": "Chưa có tóm tắt",
+    "ourAIProcessingVideo": "AI của chúng tôi đang phân tích nội dung video để trích xuất các điểm chính, các hành động cần thực hiện và các điểm quan trọng trong cuộc hội thoại.",
+    "generateSummary": "Tạo tóm tắt AI để hiểu nhanh các điểm chính, quyết định và các hành động cần thực hiện từ bản ghi này.",
+    "generateNewSummary": "Tạo tóm tắt mới",
+    "downloadWord": "Tải xuống từ vựng",
+    "videoRecording": "Video ghi hội thoại",
+    "backToMeetingRoom": "Quay lại phòng hội thoại",
+    "invalidVideoURL": "URL video không hợp lệ",
+    "generateButton": "Tạo"
+  },
+  "chatbot": {
+    "typeYourMessage": "Nhập tin nhắn của bạn...",
+    "failedToConnect": "Không thể kết nối với OpenRouter API.",
+    "noResponse": "Không có phản hồi.",
+    "error": "Đã xảy ra lỗi khi gửi tin nhắn.",
+    "hello": "Xin chào! Tôi có thể giúp gì cho bạn?",
+    "send": "Gửi",
+    "chatbotAI": "Trợ lý AI"
+  },
+  "spinner": {
+    "loading": "Đang tải..."
   }
 }

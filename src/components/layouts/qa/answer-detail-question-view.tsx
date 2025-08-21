@@ -1,7 +1,12 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { AnswerDetailQuestionViewProps, AnswerResponseDTO } from "@/types/IQa";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { CircleEllipsis, SquarePen, OctagonX } from "lucide-react";
 import { useDeleteAnswerMutation } from "@/api/QaApi";
 import { cn } from "@/utils/cn";
@@ -9,262 +14,318 @@ import Image from "next/image";
 import { useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import React from "react";
+import { useTranslations } from "next-intl";
 
+export default function AnswerDetailQuestionView({
+  specificThread,
+  userInfo,
+  questionOwner,
+  setIsResponseQuestion,
+  setIsUpdateAnswer,
+  setAnswer,
+  onAnswerDeleted,
+  setAnswerOfQuestion,
+}: Readonly<AnswerDetailQuestionViewProps>) {
+  const [fullScreenImageIndex, setFullScreenImageIndex] = useState<number>(0);
+  const [theElement, setTheElement] = useState<AnswerResponseDTO | undefined>();
+  const [deleteAnswer] = useDeleteAnswerMutation();
+  const [answers, setAnswers] = useState(specificThread);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const { isDarkMode } = useTheme();
+  const t_qa = useTranslations("qaPage");
+  React.useEffect(() => {
+    setAnswers(specificThread);
+  }, [specificThread]);
 
-export default function AnswerDetailQuestionView({ specificThread, userInfo, questionOwner, setIsResponseQuestion, setIsUpdateAnswer, setAnswer, onAnswerDeleted, setAnswerOfQuestion }: Readonly<AnswerDetailQuestionViewProps>) {
-    const [fullScreenImageIndex, setFullScreenImageIndex] = useState<number>(0);
-    const [theElement, setTheElement] = useState<AnswerResponseDTO | undefined>();
-    const [deleteAnswer] = useDeleteAnswerMutation();
-    const [answers, setAnswers] = useState(specificThread);
-    const [deleteId, setDeleteId] = useState<string | null>(null);
-    const [showModal, setShowModal] = useState(false);
-    const { isDarkMode } = useTheme();
+  const handleImageClick = (imgIndex: number) => {
+    setFullScreenImageIndex(imgIndex);
+  };
 
-    React.useEffect(() => {
-        setAnswers(specificThread);
-    }, [specificThread]);
+  const closeFullScreen = () => {
+    setFullScreenImageIndex(0);
+    setTheElement(undefined);
+  };
 
-    const handleImageClick = (imgIndex: number) => {
-        setFullScreenImageIndex(imgIndex);
-    };
+  const goToPreviousImage = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    if (fullScreenImageIndex > 0) {
+      setFullScreenImageIndex(fullScreenImageIndex - 1);
+    } else {
+      if (theElement != null)
+        setFullScreenImageIndex(theElement.images.length - 1);
+    }
+  };
 
-    const closeFullScreen = () => {
+  const goToNextImage = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    if (theElement != null) {
+      if (fullScreenImageIndex < theElement.images.length - 1) {
+        setFullScreenImageIndex(fullScreenImageIndex + 1);
+      } else {
         setFullScreenImageIndex(0);
-        setTheElement(undefined)
-    };
+      }
+    }
+  };
 
-    const goToPreviousImage = (event: React.MouseEvent<HTMLButtonElement>) => {
-        event.stopPropagation();
-        if (fullScreenImageIndex > 0) {
-            setFullScreenImageIndex(fullScreenImageIndex - 1);
-        } else {
-            if (theElement != null)
-                setFullScreenImageIndex(theElement.images.length - 1);
-        }
-    };
+  const currentFullScreenImageSrc =
+    fullScreenImageIndex !== null && theElement != null
+      ? theElement.images[fullScreenImageIndex]
+      : null;
 
-    const goToNextImage = (event: React.MouseEvent<HTMLButtonElement>) => {
-        event.stopPropagation();
-        if (theElement != null) {
-            if (fullScreenImageIndex < theElement.images.length - 1) {
-                setFullScreenImageIndex(fullScreenImageIndex + 1);
-            } else {
-                setFullScreenImageIndex(0);
-            }
-        }
-    };
+  const canEditDelete = (answerElement: AnswerResponseDTO) => {
+    const isAuthor = answerElement.author.username === userInfo?.username;
+    const isAdmin = userInfo?.role === "1803f630-a383-48fb-9a95-c192eba772db";
+    const isQuestionOwner = userInfo?.username === questionOwner;
 
-    const currentFullScreenImageSrc =
-        fullScreenImageIndex !== null && theElement != null ? theElement.images[fullScreenImageIndex] : null;
+    return isAuthor || isAdmin || isQuestionOwner;
+  };
 
-    const canEditDelete = (answerElement: AnswerResponseDTO) => {
-        const isAuthor = answerElement.author.username === userInfo?.username;
-        const isAdmin = userInfo?.role === "1803f630-a383-48fb-9a95-c192eba772db";
-        const isQuestionOwner = userInfo?.username === questionOwner;
+  const handleEditAnswer = (answer: AnswerResponseDTO) => {
+    if (setAnswer && setIsUpdateAnswer && setIsResponseQuestion) {
+      setAnswer(answer);
+      setIsUpdateAnswer(true);
+      setIsResponseQuestion(true);
+    }
+  };
 
-        return isAuthor || isAdmin || isQuestionOwner;
-    };
+  const handleDeleteAnswer = async (answerId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDeleteId(answerId);
+    setShowModal(true);
+  };
 
-    const handleEditAnswer = (answer: AnswerResponseDTO) => {
-        if (setAnswer && setIsUpdateAnswer && setIsResponseQuestion) {
-            setAnswer(answer);
-            setIsUpdateAnswer(true);
-            setIsResponseQuestion(true);
-        }
-    };
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await deleteAnswer(deleteId).unwrap();
+      const updatedAnswers = answers?.filter(
+        (answer) => answer.answerId !== deleteId
+      );
+      setAnswers(updatedAnswers);
+      // Update parent component state
+      if (setAnswerOfQuestion) {
+        setAnswerOfQuestion(updatedAnswers);
+      }
+      if (onAnswerDeleted) {
+        onAnswerDeleted();
+      }
+      setShowModal(false);
+      setDeleteId(null);
+    } catch (error) {
+      console.error("Failed to delete answer:", error);
+    }
+  };
 
-    const handleDeleteAnswer = async (answerId: string, e: React.MouseEvent) => {
-        e.stopPropagation();
-        setDeleteId(answerId);
-        setShowModal(true);
-    };
-
-    const handleDelete = async () => {
-        if (!deleteId) return;
-        try {
-            await deleteAnswer(deleteId).unwrap();
-            const updatedAnswers = answers?.filter(answer => answer.answerId !== deleteId);
-            setAnswers(updatedAnswers);
-            // Update parent component state
-            if (setAnswerOfQuestion) {
-                setAnswerOfQuestion(updatedAnswers);
-            }
-            if (onAnswerDeleted) {
-                onAnswerDeleted();
-            }
-            setShowModal(false);
-            setDeleteId(null);
-        } catch (error) {
-            console.error("Failed to delete answer:", error);
-        }
-    };
-
-    return (
-        <div>
-            {(answers != null && answers != undefined) && answers.map((ele, index, array) => {
-                return (
-                    <div key={ele.answerId} className={cn(
-                        "py-4 px-4 w-full",
-                        index === array.length - 1 ? '' : (isDarkMode ? 'border-b border-gray-700' : 'border-b border-gray-200')
-                    )}>
-                        <div className="flex w-full">
-                            <div className="mr-2">
-                                <Avatar>
-                                    <AvatarImage
-                                        src={ele.author.profileImage}
-                                        alt={`${ele.author.username}`}
-                                    />
-                                    <AvatarFallback>{ele.author.username}</AvatarFallback>
-                                </Avatar>
-                            </div>
-                            <div className="w-[93%]">
-                                <div className="flex justify-between items-center">
-                                    <div className="font-bold">
-                                        {ele.author.username}
-                                    </div>
-                                    {canEditDelete(ele) && (
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <button
-                                                    className={cn(
-                                                        "flex items-center justify-center rounded-full overflow-hidden",
-                                                        "h-8 w-8 focus:outline-none focus:ring-2 focus:ring-primary",
-                                                        isDarkMode 
-                                                            ? "text-gray-400 hover:bg-gray-700 hover:text-gray-200" 
-                                                            : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-                                                    )}
-                                                    onClick={(e) => e.stopPropagation()}
-                                                >
-                                                    <CircleEllipsis className="h-5 w-5" />
-                                                </button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className={cn(
-                                                "w-48",
-                                                isDarkMode ? "bg-gray-800 border-gray-700" : ""
-                                            )}>
-                                                {ele.author.username === userInfo?.username &&
-                                                    (<button className="w-full" onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleEditAnswer(ele);
-                                                    }}>
-                                                        <DropdownMenuItem className={cn(
-                                                            "cursor-pointer",
-                                                            isDarkMode ? "text-gray-200 hover:bg-gray-700" : ""
-                                                        )}>
-                                                            <SquarePen className="mr-2 h-4 w-4" />
-                                                            <span>Edit Answer</span>
-                                                        </DropdownMenuItem>
-                                                    </button>)
-                                                }
-                                                <button
-                                                    className="w-full"
-                                                    onClick={(e) => handleDeleteAnswer(ele.answerId, e)}
-                                                >
-                                                    <DropdownMenuItem className="cursor-pointer text-red-600 hover:text-red-700 focus:text-red-700">
-                                                        <OctagonX className="mr-2 h-4 w-4" />
-                                                        <span>Delete Answer</span>
-                                                    </DropdownMenuItem>
-                                                </button>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    )}
-                                </div>
-                                <div className={cn(
-                                    isDarkMode ? "text-gray-200" : "text-gray-800"
-                                )}>{ele.content}</div>
-                                <div className="relative w-full overflow-x-auto">
-                                    <div className="flex">
-                                        {ele.images.map((image, imgIndex) => (
-                                            <div
-                                                key={imgIndex}
-                                                className="min-w-[50%] px-1 cursor-pointer"
-                                            >
-                                                <Image
-                                                    src={image}
-                                                    alt={`image-${imgIndex}`}
-                                                    height={0}
-                                                    width={0}
-                                                    sizes="50vw"
-                                                    className="w-full h-[20vh] object-cover rounded-xl"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleImageClick(imgIndex);
-                                                        setTheElement(ele)
-                                                    }}
-                                                />
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {currentFullScreenImageSrc && (
-                            <div
-                                className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
-                                onClick={closeFullScreen}
-                            >
-                                {/* Previous Button */}
-                                <button
-                                    className="absolute left-4 h-10 w-10 bg-white bg-opacity-25 rounded-full text-white text-center text-2xl z-50 hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center"
-                                    onClick={goToPreviousImage}
-                                    aria-label="Previous image"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-                                    </svg>
-                                </button>
-
-                                <div className="relative w-[80%] max-h-[90%]">
-                                    <Image
-                                        src={currentFullScreenImageSrc}
-                                        alt="Full screen"
-                                        fill
-                                        className="object-contain"
-                                        sizes="80vw"
-                                    />
-                                </div>
-
-                                {/* Next Button */}
-                                <button
-                                    className="absolute right-4 h-10 w-10 bg-white bg-opacity-25 rounded-full text-white text-2xl z-50 hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center"
-                                    onClick={goToNextImage}
-                                    aria-label="Next image"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                                    </svg>
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                )
-            })}
-
-            {showModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-sm">
-                        <h2 className="text-lg font-semibold mb-4">Delete Confirmation</h2>
-                        <p>Are you sure you want to delete this answer?</p>
-                        <div className="flex justify-end gap-2 mt-6">
-                            <Button
-                                variant="outline"
-                                onClick={() => {
-                                    setShowModal(false);
-                                    setDeleteId(null);
-                                }}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                className="bg-red-600 hover:bg-red-700 text-white"
-                                onClick={handleDelete}
-                            >
-                                Delete
-                            </Button>
-                        </div>
-                    </div>
+  return (
+    <div>
+      {answers != null &&
+        answers != undefined &&
+        answers.map((ele, index, array) => {
+          return (
+            <div
+              key={ele.answerId}
+              className={cn(
+                "py-4 px-4 w-full",
+                index === array.length - 1
+                  ? ""
+                  : isDarkMode
+                  ? "border-b border-gray-700"
+                  : "border-b border-gray-200"
+              )}
+            >
+              <div className="flex w-full">
+                <div className="mr-2">
+                  <Avatar>
+                    <AvatarImage
+                      src={ele.author.profileImage}
+                      alt={`${ele.author.username}`}
+                    />
+                    <AvatarFallback>{ele.author.username}</AvatarFallback>
+                  </Avatar>
                 </div>
-            )}
+                <div className="w-[93%]">
+                  <div className="flex justify-between items-center">
+                    <div className="font-bold">{ele.author.username}</div>
+                    {canEditDelete(ele) && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            className={cn(
+                              "flex items-center justify-center rounded-full overflow-hidden",
+                              "h-8 w-8 focus:outline-none focus:ring-2 focus:ring-primary",
+                              isDarkMode
+                                ? "text-gray-400 hover:bg-gray-700 hover:text-gray-200"
+                                : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                            )}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <CircleEllipsis className="h-5 w-5" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          align="end"
+                          className={cn(
+                            "w-48",
+                            isDarkMode ? "bg-gray-800 border-gray-700" : ""
+                          )}
+                        >
+                          {ele.author.username === userInfo?.username && (
+                            <button
+                              className="w-full"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditAnswer(ele);
+                              }}
+                            >
+                              <DropdownMenuItem
+                                className={cn(
+                                  "cursor-pointer",
+                                  isDarkMode
+                                    ? "text-gray-200 hover:bg-gray-700"
+                                    : ""
+                                )}
+                              >
+                                <SquarePen className="mr-2 h-4 w-4" />
+                                <span>{t_qa("editAnswer")}</span>
+                              </DropdownMenuItem>
+                            </button>
+                          )}
+                          <button
+                            className="w-full"
+                            onClick={(e) => handleDeleteAnswer(ele.answerId, e)}
+                          >
+                            <DropdownMenuItem className="cursor-pointer text-red-600 hover:text-red-700 focus:text-red-700">
+                              <OctagonX className="mr-2 h-4 w-4" />
+                              <span>{t_qa("deleteAnswer")}</span>
+                            </DropdownMenuItem>
+                          </button>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
+                  <div
+                    className={cn(
+                      isDarkMode ? "text-gray-200" : "text-gray-800"
+                    )}
+                  >
+                    {ele.content}
+                  </div>
+                  <div className="relative w-full overflow-x-auto">
+                    <div className="flex">
+                      {ele.images.map((image, imgIndex) => (
+                        <div
+                          key={imgIndex}
+                          className="min-w-[50%] px-1 cursor-pointer"
+                        >
+                          <Image
+                            src={image}
+                            alt={`image-${imgIndex}`}
+                            height={0}
+                            width={0}
+                            sizes="50vw"
+                            className="w-full h-[20vh] object-cover rounded-xl"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleImageClick(imgIndex);
+                              setTheElement(ele);
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {currentFullScreenImageSrc && (
+                <div
+                  className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+                  onClick={closeFullScreen}
+                >
+                  {/* Previous Button */}
+                  <button
+                    className="absolute left-4 h-10 w-10 bg-white bg-opacity-25 rounded-full text-white text-center text-2xl z-50 hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center"
+                    onClick={goToPreviousImage}
+                    aria-label="Previous image"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="size-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15.75 19.5 8.25 12l7.5-7.5"
+                      />
+                    </svg>
+                  </button>
+
+                  <div className="relative w-[80%] max-h-[90%]">
+                    <Image
+                      src={currentFullScreenImageSrc}
+                      alt="Full screen"
+                      fill
+                      className="object-contain"
+                      sizes="80vw"
+                    />
+                  </div>
+
+                  {/* Next Button */}
+                  <button
+                    className="absolute right-4 h-10 w-10 bg-white bg-opacity-25 rounded-full text-white text-2xl z-50 hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center"
+                    onClick={goToNextImage}
+                    aria-label="Next image"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="size-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-sm">
+            <h2 className="text-lg font-semibold mb-4">Delete Confirmation</h2>
+            <p>Are you sure you want to delete this answer?</p>
+            <div className="flex justify-end gap-2 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowModal(false);
+                  setDeleteId(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={handleDelete}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
         </div>
-    )
+      )}
+    </div>
+  );
 }
