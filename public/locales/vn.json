@@ -46,7 +46,7 @@
       "features": {
         "feature1": "Thời lượng họp: 30 phút/lượt",
         "feature2": "Tạo phòng: 3 lượt/ngày",
-        "feature3": "Được ghi hình, lưu trữ và tóm tắt cuộc họp",
+        "feature3": "Không được ghi hình, lưu trữ và tóm tắt cuộc họp",
         "feature4": "Dịch thuật: Tải lên tối đa 5 file/ngày",
         "feature5": "Dịch thuật: Không dùng camera thời gian thực"
       }
@@ -57,7 +57,7 @@
       "features": {
         "feature1": "Thời lượng họp: Không giới hạn",
         "feature2": "Tạo phòng: Không giới hạn",
-        "feature3": "Không được ghi hình, lưu trữ và tóm tắt cuộc họp",
+        "feature3": "Được ghi hình, lưu trữ và tóm tắt cuộc họp",
         "feature4": "Dịch thuật: Tải lên không giới hạn",
         "feature5": "Dịch thuật: Dùng được camera thời gian thực"
       }
