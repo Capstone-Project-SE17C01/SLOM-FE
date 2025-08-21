@@ -156,15 +156,6 @@ export interface TranslatorSettings {
 }
 
 // Hook return types
-export interface UseRealTimeTranslatorReturn {
-  state: RealTimeTranslationState;
-  connect: () => void;
-  disconnect: () => void;
-  startRecognition: () => boolean;
-  stopRecognition: () => void;
-  toggleRecognition: () => void;
-  clearHistory: () => void;
-}
 
 export interface UseVideoUploadReturn {
   state: VideoUploadState;
@@ -180,11 +171,7 @@ export interface PredictionResult {
   timestamp: string;
 }
 
-export interface UseFakeTranslatorOptions {
-  words?: string[];
-  initialDelay?: number;
-  translationInterval?: number;
-}
+
 
 // Component props types
 export interface RealTimeTranslatorProps {
