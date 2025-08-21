@@ -10,7 +10,7 @@ export default function QuestionNewAnswer({question} : QuestionNewAnswerProps) {
     return (
         question != undefined && 
         <div key={question.questionId} className={cn(
-            "border-b py-4 px-4 w-full",
+            "border-b w-full pb-6",
             isDarkMode ? "border-gray-700" : "border-gray-200"
         )}>
             <div className="flex w-full cursor-pointer">
@@ -27,7 +27,7 @@ export default function QuestionNewAnswer({question} : QuestionNewAnswerProps) {
                     <div className="font-bold">
                         {question.author.username}
                     </div>
-                    <div>{question.content}</div>
+                    <div className="mb-2">{question.content}</div>
                     <div className="relative w-full overflow-x-auto">
                         <div className="flex">
                             {question.images.map((image, index) => (

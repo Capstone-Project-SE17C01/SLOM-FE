@@ -11,7 +11,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import React from "react";
 
 
-export default function AnswerDetailQuestionView({ specificThread, userInfo, questionOwner, setIsResponseQuestion, setIsUpdateAnswer, setAnswer, onAnswerDeleted, setAnswerOfQuestion }: Readonly<AnswerDetailQuestionViewProps>) {
+export default function AnswerDetailQuestionView({ specificThread, userInfo, questionOwner, setIsResponseQuestion, setIsUpdateAnswer, setAnswer, onAnswerDeleted, setAnswerOfQuestion, isAdmin }: Readonly<AnswerDetailQuestionViewProps>) {
     const [fullScreenImageIndex, setFullScreenImageIndex] = useState<number>(0);
     const [theElement, setTheElement] = useState<AnswerResponseDTO | undefined>();
     const [deleteAnswer] = useDeleteAnswerMutation();
@@ -59,7 +59,6 @@ export default function AnswerDetailQuestionView({ specificThread, userInfo, que
 
     const canEditDelete = (answerElement: AnswerResponseDTO) => {
         const isAuthor = answerElement.author.username === userInfo?.username;
-        const isAdmin = userInfo?.role === "1803f630-a383-48fb-9a95-c192eba772db";
         const isQuestionOwner = userInfo?.username === questionOwner;
 
         return isAuthor || isAdmin || isQuestionOwner;

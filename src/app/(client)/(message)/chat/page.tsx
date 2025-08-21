@@ -148,7 +148,7 @@ function Page() {
   }
 
   return (
-    <div className="h-[70vh] flex">
+    <div className="h-[78vh] flex">
       <div className="bg-white dark:bg-[#23272f] rounded-xl w-[40vw] sm:w-[40vw] md:w-[40vw] lg:w-[30vw] xl:w-[25vw] 2xl:w-[20vw] pl-2.5 pr-2.5 pt-2.5 mr-5 shadow-md flex flex-col border border-1">
         <div className="pr-4 h-[80px] mb-[3%]">
           <h3 className="h-[50%] text-3xl font-bold dark:text-white">{t_chatPage("chat")}</h3>

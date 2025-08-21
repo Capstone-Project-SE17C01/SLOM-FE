@@ -1,4 +1,4 @@
-import MessageLayout from "@/components/layouts/message/message-layout";
+import DashboardLayout from "@/components/layouts/dashboard/dashboard-layout";
 import { MessageProvider } from "@/contexts/MessageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Metadata } from "next";
@@ -10,9 +10,7 @@ export const metadata: Metadata = {
 export default function Layout({ children }: { readonly children: React.ReactNode }) {
   return <ThemeProvider>
   <MessageProvider>
-    <MessageLayout>
-      {children}
-    </MessageLayout>
+    <DashboardLayout>{children}</DashboardLayout>
   </MessageProvider>
-</ThemeProvider>;
+</ThemeProvider>
 }

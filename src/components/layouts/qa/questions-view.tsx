@@ -130,7 +130,9 @@ export default function QuestionView({
 
           let newQuestions = res.data?.result;
           if (newQuestions && newQuestions.length > 0) {
-            newQuestions = newQuestions.filter(question => !allQuestion?.some(q => q.questionId === question.questionId));
+            if (questionPagination != 1) {
+              newQuestions = newQuestions.filter(question => !allQuestion?.some(q => q.questionId === question.questionId));
+            }
             const updatedQuestions =
               questionPagination === 1
                 ? newQuestions
@@ -158,7 +160,9 @@ export default function QuestionView({
           const res = await getQuestionApi(request);
           let newQuestions = res.data?.result;
           if (newQuestions && newQuestions.length > 0) {
-            newQuestions = newQuestions.filter(question => !allQuestion?.some(q => q.questionId === question.questionId));
+            if (questionPagination != 1) {
+              newQuestions = newQuestions.filter(question => !allQuestion?.some(q => q.questionId === question.questionId));
+            }
             const updatedQuestions = questionPagination === 1 ? newQuestions : [...(allQuestion || []), ...newQuestions];
             setAllQuestion(updatedQuestions);
             if (newQuestions[0].isFull) {

@@ -42,6 +42,7 @@ export default function NewQuestionPopup({
   setIsUpdateQuestion,
   setQuestion,
   setAllQuestion,
+  setDetailQuestion,
 }: Readonly<NewQuestionPopupProps>) {
   const [newQuestion, setNewQuestion] = useState<string | undefined>("");
   const t_qaPage = useTranslations("qaPage");
@@ -159,6 +160,17 @@ export default function NewQuestionPopup({
     if (!files?.length) {
       request.images = allImages;
       await updateQuestionAPI(request).unwrap();
+      setDetailQuestion((prev) =>
+        prev?.questionId === question.questionId
+          ? {
+              ...prev,
+              content: newQuestion ?? question.content,
+              privacy: privacy,
+              tags: tags.length > 0 ? tags : undefined,
+              images: allImages || [],
+            }
+          : prev
+      );
 
       setAllQuestion(
         (prev) =>
@@ -178,6 +190,17 @@ export default function NewQuestionPopup({
       const resUrls = await uploadImage();
       request.images = [...(allImages || []), ...resUrls];
       await updateQuestionAPI(request).unwrap();
+      setDetailQuestion((prev) =>
+        prev?.questionId === question.questionId
+          ? {
+              ...prev,
+              content: newQuestion ?? question.content,
+              privacy: privacy,
+              tags: tags.length > 0 ? tags : undefined,
+              images: [...(allImages || []), ...resUrls],
+            }
+          : prev
+      );
 
       // Update the question in the list in real-time
       setAllQuestion(
@@ -281,7 +304,7 @@ export default function NewQuestionPopup({
                 onChange={handleChange}
                 placeholder={t_qaPage("whatWouldYouLikeToAsk")}
                 className={cn(
-                  "w-full min-h-[120px] p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none",
+                  "w-full min-h-[120px] p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none",
                   isDarkMode
                     ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                     : "bg-white border-gray-300 text-gray-800"
@@ -307,13 +330,13 @@ export default function NewQuestionPopup({
                       isDarkMode ? "text-gray-300" : "text-gray-700"
                     )}
                   >
-                    <Tag className="h-4 w-4 mr-1.5 text-blue-600" />
+                    <Tag className="h-4 w-4 mr-1.5 text-purple-600" />
                     {t_qaPage("topics")}
                   </label>
                   <button
                     type="button"
                     onClick={generateTags}
-                    className="text-xs text-blue-600 hover:text-blue-800 flex items-center bg-blue-50 px-2.5 py-1 rounded-md transition-colors"
+                    className="text-xs text-purple-600 hover:text-purple-800 flex items-center bg-purple-50 px-2.5 py-1 rounded-md transition-colors"
                     disabled={
                       isGeneratingTags ||
                       !newQuestion ||
@@ -350,7 +373,7 @@ export default function NewQuestionPopup({
                         onKeyDown={handleKeyDown}
                         placeholder={t_qaPage("enterOrSelectTopics")}
                         className={cn(
-                          "w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500",
+                          "w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500",
                           isDarkMode
                             ? "bg-gray-700 border-gray-600 text-white"
                             : "bg-white border-gray-300 text-gray-800"
@@ -384,11 +407,11 @@ export default function NewQuestionPopup({
                                 "px-3 py-2 cursor-pointer flex items-center",
                                 isDarkMode
                                   ? "hover:bg-gray-700 text-gray-200"
-                                  : "hover:bg-blue-50 text-gray-800"
+                                  : "hover:bg-purple-50 text-gray-800"
                               )}
                               onClick={() => handleExistingTagClick(tag)}
                             >
-                              <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                              <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
                               {tag}
                             </div>
                           ))}
@@ -399,7 +422,7 @@ export default function NewQuestionPopup({
                       type="button"
                       onClick={handleAddCustomTag}
                       disabled={!customTag}
-                      className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-300 flex items-center"
+                      className="px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:bg-purple-300 flex items-center"
                     >
                       <Plus className="h-5 w-5" />
                     </button>
@@ -526,7 +549,7 @@ export default function NewQuestionPopup({
                       <ListboxOption
                         value={t_qaPage("allCanViewAndAnswerYourQuestion")}
                         className={cn(
-                          "px-4 py-2.5 text-sm cursor-pointer hover:bg-blue-50 hover:text-blue-700 transition-colors ui-selected:bg-blue-50 ui-selected:text-blue-700 flex items-center justify-between",
+                          "px-4 py-2.5 text-sm cursor-pointer hover:bg-purple-50 hover:text-purple-700 transition-colors ui-selected:bg-purple-50 ui-selected:text-purple-700 flex items-center justify-between",
                           isDarkMode ? "text-gray-200" : "text-gray-700"
                         )}
                       >
@@ -534,7 +557,7 @@ export default function NewQuestionPopup({
                           {t_qaPage("allCanViewAndAnswerYourQuestion")}
                         </span>
                         <svg
-                          className="h-4 w-4 text-blue-600 opacity-0 ui-selected:opacity-100"
+                          className="h-4 w-4 text-purple-600 opacity-0 ui-selected:opacity-100"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -550,13 +573,13 @@ export default function NewQuestionPopup({
                       <ListboxOption
                         value={t_qaPage("onlyAdminCanViewAndAnswer")}
                         className={cn(
-                          "px-4 py-2.5 text-sm cursor-pointer hover:bg-blue-50 hover:text-blue-700 transition-colors ui-selected:bg-blue-50 ui-selected:text-blue-700 flex items-center justify-between",
+                          "px-4 py-2.5 text-sm cursor-pointer hover:bg-purple-50 hover:text-purple-700 transition-colors ui-selected:bg-purple-50 ui-selected:text-purple-700 flex items-center justify-between",
                           isDarkMode ? "text-gray-200" : "text-gray-700"
                         )}
                       >
                         <span>{t_qaPage("onlyAdminCanViewAndAnswer")}</span>
                         <svg
-                          className="h-4 w-4 text-blue-600 opacity-0 ui-selected:opacity-100"
+                          className="h-4 w-4 text-purple-600 opacity-0 ui-selected:opacity-100"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -577,7 +600,7 @@ export default function NewQuestionPopup({
           </div>
 
           <button
-            className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
+            className="px-5 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:bg-purple-300 disabled:cursor-not-allowed"
             onClick={async () => {
               if (isUpdateQuestion) {
                 toast.promise(updateQuestion(existImages), {

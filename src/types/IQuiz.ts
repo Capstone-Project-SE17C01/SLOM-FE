@@ -58,6 +58,27 @@ export interface QuizOption {
 
 export interface Lesson {
   id: string;
+  moduleId: string;
+  title: string;
+  content?: string;
+  videoUrl?: string | null;
+  durationMinutes?: number;
+  orderNumber: number;
+  createdAt: string;
+  module?: Module | null;
+  quizzes?: unknown[] | null;
+  words?: unknown[] | null;
+  userLessonProgress?: unknown[] | null;
+}
+
+export interface Module {
+  id: string;
+  courseId: string;
   title: string;
   description?: string;
+  orderNumber: number;
+  createdAt: string;
+  course?: unknown | null;
+  lessons?: unknown[] | null;
+  userModuleProgress?: unknown[] | null;
 }

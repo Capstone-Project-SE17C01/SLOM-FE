@@ -11,7 +11,7 @@ import { cn } from "@/utils/cn";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 
-export default function NewAnswer({ userInfo, setIsResponseQuestion, question, setAnswerOfQuestion, setNewAnswerAmount, newAnswerAmount, isUpdateAnswer = false, answer, setIsUpdateAnswer, setAnswer, updateQuestionAnswerCount }: Readonly<NewAnswerProps>) {
+export default function NewAnswer({ userInfo, setIsResponseQuestion, question, setAnswerOfQuestion, setNewAnswerAmount, newAnswerAmount, isUpdateAnswer = false, answer, setIsUpdateAnswer, setAnswer, updateQuestionAnswerCount, setAllQuestion, allQuestion, isAdmin }: Readonly<NewAnswerProps>) {
     const [newAnswer, setNewAnswer] = useState(isUpdateAnswer ? (answer?.content || "") : "");
     const [files, setFiles] = useState<File[]>([])
     const [existImages, setExistImages] = useState<string[] | undefined>(isUpdateAnswer ? answer?.images : undefined);
@@ -103,6 +103,12 @@ export default function NewAnswer({ userInfo, setIsResponseQuestion, question, s
                             // Update the question's answer count in allQuestion
                             if (updateQuestionAnswerCount && question?.questionId) {
                                 updateQuestionAnswerCount(question.questionId, 1);
+                            }
+                            
+                            // If admin is adding an answer and we're in "My Questions" view, remove the question from unanswered list
+                            if (isAdmin && setAllQuestion && allQuestion && question?.questionId) {
+                                const updatedQuestions = allQuestion.filter((q) => q.questionId !== question.questionId);
+                                setAllQuestion(updatedQuestions);
                             }
                         }
                     }

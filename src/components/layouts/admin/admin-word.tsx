@@ -16,7 +16,7 @@ import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
-import { useGetAllCourseMutation } from "@/api/CourseApi";
+import { useGetAllCourseMutation, useGetAllModuleByCourseIdMutation } from "@/api/CourseApi";
 
 export default function AdminWord() {
   const router = useRouter();
@@ -35,7 +35,9 @@ export default function AdminWord() {
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<string>("");
   const [getAllCourse] = useGetAllCourseMutation();
+  const [getAllModuleByCourseId] = useGetAllModuleByCourseIdMutation();
   const [coursesSelect, setCoursesSelect] = useState<{ id: string; title: string }[]>([]);
+  const [modulesSelect, setModulesSelect] = useState<{ id: string; title: string }[]>([]);
 
   // Config fields for word
   const wordFields: FieldConfig[] = [
@@ -53,7 +55,7 @@ export default function AdminWord() {
       name: "moduleId",
       type: "select",
       required: true,
-      options: [],
+      options: modulesSelect.map((m) => ({ label: m.title, value: m.id })),
     },
     {
       label: "Lesson",
@@ -102,17 +104,43 @@ export default function AdminWord() {
   }, [getAllWord]);
 
   // Modal logic
-  const openModal = (word?: Word) => {
+  const openModal = async (word?: Word) => {
     if (word) {
       setEditWord(word);
-      setModalFields(wordFields);
       setModalTitle("Update Word");
       setDeleteWord(null);
+      
+      // Use the nested data from the API response
+      if (word.lesson?.module?.courseId) {
+        try {
+          // Fetch modules for the course
+          const courseModules = await getAllModuleByCourseId(word.lesson.module.courseId).unwrap();
+          setModulesSelect(Array.isArray(courseModules.result) ? courseModules.result : []);
+          
+          // Update modal fields with course and module data
+          const updatedFields = wordFields.map(field => {
+            if (field.name === 'courseId') {
+              return { ...field, options: coursesSelect.map((c) => ({ label: c.title, value: c.id })) };
+            }
+            if (field.name === 'moduleId') {
+              return { ...field, options: modulesSelect.map((m) => ({ label: m.title, value: m.id })) };
+            }
+            return field;
+          });
+          
+          setModalFields(updatedFields);
+        } catch (error) {
+          console.error("Error fetching modules:", error);
+          setModalFields(wordFields);
+        }
+      } else {
+        setModalFields(wordFields);
+      }
     } else {
       setEditWord(null);
-      setModalFields(wordFields);
       setModalTitle("Add Word");
       setDeleteWord(null);
+      setModalFields(wordFields);
     }
     setModalOpen(true);
   };
@@ -322,6 +350,8 @@ export default function AdminWord() {
                 id: editWord.id,
                 text: editWord.text || "",
                 videoSrc: editWord.videoSrc || "",
+                courseId: editWord.lesson?.module?.courseId || "",
+                moduleId: editWord.lesson?.moduleId || "",
                 lessonId: editWord.lessonId || "",
               }
             : {}

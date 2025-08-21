@@ -108,6 +108,7 @@ export default function QAPage() {
           setIsUpdateQuestion={setIsUpdateQuestion}
           setQuestion={setQuestion}
           setAllQuestion={setAllQuestion}
+          setDetailQuestion={setDetailQuestion}
         />
       )}
 
@@ -167,6 +168,11 @@ export default function QAPage() {
           setAnswer={setAnswer}
           setHasInitialLoad={setHasInitialLoad}
           updateQuestionAnswerCount={updateQuestionAnswerCount}
+          setAllQuestion={setAllQuestion}
+          allQuestion={allQuestion}
+          setIsNewQuestion={setIsNewQuestion}
+          setIsUpdateQuestion={setIsUpdateQuestion}
+          setQuestion={setQuestion}
         />
       )}
     </>
