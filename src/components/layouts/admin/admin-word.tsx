@@ -243,8 +243,8 @@ export default function AdminWord() {
     return (
       <tr key={word.id}>
         <td className="px-6 py-4 w-1/4">
-          <div className="text-sm font-medium text-gray-900 dark:text-white">
-            {word.text}
+          <div className="font-medium text-gray-900 dark:text-white">
+            <span>{word.text}</span>
           </div>
         </td>
         <td className="px-6 py-4">
@@ -271,9 +271,9 @@ export default function AdminWord() {
         <td className="px-6 py-4">
           <span>{new Date().toLocaleDateString()}</span>
         </td>
-        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-          <div className="flex space-x-2 justify-end">
-            <Button size="sm" variant="ghost" onClick={() => openModal(word)}>
+        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+          <div className="flex space-x-2">
+            <Button size="sm" variant="ghost" onClick={() => openModal(word)} className="px-0">
               <Edit className="h-4 w-4" />
             </Button>
             <Button
