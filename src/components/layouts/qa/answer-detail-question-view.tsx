@@ -313,13 +313,13 @@ export default function AnswerDetailQuestionView({ specificThread, userInfo, que
                 setDeleteId(null);
               }}
             >
-              Cancel
+              {t_qa("cancel")}
             </Button>
             <Button
               className="bg-red-600 hover:bg-red-700 text-white"
               onClick={handleDelete}
             >
-              Delete
+              {t_qa("deleteAnswer")}
             </Button>
           </DialogFooter>
         </DialogContent>

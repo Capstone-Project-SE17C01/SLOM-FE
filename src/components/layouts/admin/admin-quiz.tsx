@@ -290,9 +290,9 @@ export default function AdminQuiz() {
         <td className="px-6 py-4">
           <span>{new Date(quiz.createdAt).toLocaleDateString()}</span>
         </td>
-        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-          <div className="flex space-x-2 justify-end">
-            <Button size="sm" variant="ghost" onClick={() => openModal(quiz)}>
+        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+          <div className="flex space-x-2">
+            <Button size="sm" variant="ghost" onClick={() => openModal(quiz)} className="px-0">
               <Edit className="h-4 w-4" />
             </Button>
             <Button

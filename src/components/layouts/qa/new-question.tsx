@@ -34,7 +34,7 @@ export default function NewQuestion({ userInfo, setIsNewQuestion }: Readonly<New
             </div>
             <div className="flex-none">
                 <button
-                    className="ml-4 px-5 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-1.5"
+                    className="ml-4 px-5 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-900 transition-colors flex items-center gap-1.5"
                     onClick={() => setIsNewQuestion(true)}
                 >
                     <PlusCircle className="h-4 w-4" />
