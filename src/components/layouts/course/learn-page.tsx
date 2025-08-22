@@ -36,7 +36,7 @@ export default function LearnPage() {
     if (!userInfo?.id || !userInfo?.courseId) return;
     Promise.all([
       getAllModuleByCourseId(userInfo.courseId).unwrap(),
-      getOngoingLesson(userInfo.id).unwrap(),
+      getOngoingLesson({ userId: userInfo.id, courseId: userInfo.courseId }).unwrap(),
     ])
       .then(([modulesRes, lessonRes]) => {
         if (modulesRes.result) setModules(modulesRes.result);

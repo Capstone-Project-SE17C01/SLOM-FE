@@ -175,7 +175,7 @@ export default function AdminLesson() {
   // Table header and renderRow for lesson
   const lessonTableHeaders = (
     <>
-      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+      <th className="px-6 py-3 text-left !text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
         Lesson Title
       </th>
       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -190,7 +190,7 @@ export default function AdminLesson() {
       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
         Created At
       </th>
-      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
         Actions
       </th>
     </>
@@ -212,12 +212,12 @@ export default function AdminLesson() {
             {lesson.title}
           </div>
         </td>
-        <td className="px-6 py-4">{lesson.content}</td>
-        <td className="px-6 py-4">{lesson.module?.title}</td>
-        <td className="px-6 py-4">{lesson.orderNumber}</td>
-        <td className="px-6 py-4">{lesson.createdAt}</td>
+        <td className="text-sm px-6 py-4">{lesson.content}</td>
+        <td className="text-sm px-6 py-4">{lesson.module?.title}</td>
+        <td className="text-sm px-6 py-4">{lesson.orderNumber}</td>
+        <td className="text-sm px-6 py-4">{lesson.createdAt}</td>
         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-          <div className="flex space-x-2 justify-end">
+          <div className="flex space-x-2 justify-center">
             <Button size="sm" variant="ghost" onClick={() => openModal(lesson)}>
               <Edit className="h-4 w-4" />
             </Button>
