@@ -15,6 +15,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function DetailQuestionView({
   setIsResponseQuestion,
@@ -267,7 +274,7 @@ export default function DetailQuestionView({
                             )}
                           >
                             <SquarePen className="mr-2 h-4 w-4" />
-                            <span>Edit Question</span>
+                            <span>{t_qaPage("editQuestion")}</span>
                           </DropdownMenuItem>
                         </button>
                       )}
@@ -279,7 +286,7 @@ export default function DetailQuestionView({
                       >
                         <DropdownMenuItem className="cursor-pointer text-red-600 hover:text-red-700 focus:text-red-700">
                           <OctagonX className="mr-2 h-4 w-4" />
-                          <span>Delete Question</span>
+                          <span>{t_qaPage("deleteQuestion")}</span>
                         </DropdownMenuItem>
                       </button>
                     </DropdownMenuContent>
@@ -436,31 +443,31 @@ export default function DetailQuestionView({
         </div>
       )}
 
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-sm">
-            <h2 className="text-lg font-semibold mb-4">Delete Confirmation</h2>
-            <p>{t_qaPage("areYouSureYouWantToDeleteThisQuestion")}</p>
-            <div className="flex justify-end gap-2 mt-6">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowModal(false);
-                  setDeleteId(null);
-                }}
-              >
-                {t_qaPage("cancel")}
-              </Button>
-              <Button
-                className="bg-red-600 hover:bg-red-700 text-white"
-                onClick={handleDelete}
-              >
-                {t_qaPage("deleteQuestion")}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Dialog open={showModal} onOpenChange={(open) => !open && setShowModal(false)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{t_qaPage("deleteConfirmation")}</DialogTitle>
+          </DialogHeader>
+          <p>{t_qaPage("areYouSureYouWantToDeleteThisQuestion")}</p>
+          <DialogFooter className="mt-6">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowModal(false);
+                setDeleteId(null);
+              }}
+            >
+              {t_qaPage("cancel")}
+            </Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={handleDelete}
+            >
+              {t_qaPage("deleteQuestion")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

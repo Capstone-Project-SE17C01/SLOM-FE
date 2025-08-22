@@ -20,6 +20,9 @@ import { useGetAllLessonsQuery } from "@/api/QuizApi";
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { useGetAllCourseMutation, useGetAllModuleByCourseIdMutation } from "@/api/CourseApi";
 
@@ -125,16 +128,15 @@ export default function AdminWord() {
         try {
           // Fetch modules for the course
           const courseModules = await getAllModuleByCourseId(word.lesson.module.courseId).unwrap();
-          const fetchedModules = Array.isArray(courseModules.result) ? courseModules.result : [];
-          setModulesSelect(fetchedModules);
+          setModulesSelect(Array.isArray(courseModules.result) ? courseModules.result : []);
           
-          // Update modal fields with course and module data using the fetched modules directly
+          // Update modal fields with course and module data
           const updatedFields = wordFields.map(field => {
             if (field.name === 'courseId') {
               return { ...field, options: coursesSelect.map((c) => ({ label: c.title, value: c.id })) };
             }
             if (field.name === 'moduleId') {
-              return { ...field, options: fetchedModules.map((m) => ({ label: m.title, value: m.id })) };
+              return { ...field, options: modulesSelect.map((m) => ({ label: m.title, value: m.id })) };
             }
             return field;
           });
@@ -373,31 +375,31 @@ export default function AdminWord() {
       />
 
       {/* Delete Confirmation Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-sm">
-            <h2 className="text-lg font-semibold mb-4">Delete Confirmation</h2>
-            <p>Are you sure you want to delete this word?</p>
-            <div className="flex justify-end gap-2 mt-6">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowModal(false);
-                  setDeleteWord(null);
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                className="bg-red-600 hover:bg-red-700 text-white"
-                onClick={handleDelete}
-              >
-                Delete
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Dialog open={showModal} onOpenChange={(open) => !open && setShowModal(false)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Delete Confirmation</DialogTitle>
+          </DialogHeader>
+          <p>Are you sure you want to delete this word?</p>
+          <DialogFooter className="mt-6">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowModal(false);
+                setDeleteWord(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={handleDelete}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Video Modal */}
       <Dialog

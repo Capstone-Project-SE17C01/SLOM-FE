@@ -794,7 +794,8 @@
     "updateAnswerError": "Update answer failed",
     "postAnswerError": "Post answer failed",
     "answer": "Answer",
-    "answers": "Answers"
+    "answers": "Answers",
+    "areYouSureYouWantToDeleteThisAnswer": "Are you sure you want to delete this answer?"
   },
   "meaningCard": {
     "meaning": "Meaning",
