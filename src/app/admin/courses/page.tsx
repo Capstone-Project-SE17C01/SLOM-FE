@@ -211,7 +211,9 @@ export default function CoursePage() {
             className="w-20 h-12 object-cover rounded"
           />
         </td>
-        <td className="text-sm px-6 py-4">{course.createdAt}</td>
+        <td className="text-sm px-6 py-4">
+          {new Date(course.createdAt).toLocaleDateString()}
+        </td>
         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
           <div className="flex space-x-2 justify-center">
             <Button

@@ -468,6 +468,7 @@
     "tabPractice": "Practice",
     "reviewed": "Reviewed",
     "ready": "Ready to review",
+    "difficult": "Difficult words",
     "difficultTooltip": "Sentences you struggle with will be marked as 'Difficult'. Practice these to strengthen your memory and remove them from the Difficult Words list. You can also manually mark/unmark difficult words using the lightning icon in lessons.",
     "readyTooltip": "After you learn a new word, our smart spaced repetition system will calculate when you should review it and remind you at the right time. If you answer subsequent quizzes correctly, the interval will increase before you see that word again.",
     "practiceBtnTooltip": "Review learned words with various test types including typing.",
@@ -485,7 +486,8 @@
     "yourLearnedLessonsDesc": "Lessons you have completed",
     "language": "Language",
     "level": "Level",
-    "toLevel": "To level"
+    "toLevel": "To level",
+    "practiceTitle": "Practice Page"
   },
   "immersePage": {
     "headerTitle": "Find videos on topics you love (#music), or situations you want to prepare for (#travel)",
@@ -501,7 +503,9 @@
     "card1": "Breakup on my birthday?",
     "card2": "Jangjorim Mushrooms",
     "card3": "A mysterious trip",
-    "card4": "Definitely yes!"
+    "card4": "Definitely yes!",
+    "videoLibrary": "Video Library",
+    "noVideosFound": "No videos found"
   },
   "learnPage": {
     "start": "Start",
@@ -527,13 +531,14 @@
     "back": "Back to previous word"
   },
   "courseDashboard": {
+    "dashboard": "Dashboard",
     "myAccomplishments": "My Accomplishments",
     "myActivity": "My Activities",
     "startLearning": "Start learning",
     "continue": "Continue: Learning the alphabet",
     "learnNewSign": "Learn new sign",
-    "percentage": "{percentage}%",
-    "progress": "Progress {progress}%",
+    "percentage": "{percentage}",
+    "progress": "Progress {progress}",
     "lessons": "Lessons",
     "modules": "Modules",
     "course": "Course",

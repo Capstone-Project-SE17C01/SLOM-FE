@@ -215,7 +215,7 @@ export default function AdminLesson() {
         <td className="text-sm px-6 py-4">{lesson.content}</td>
         <td className="text-sm px-6 py-4">{lesson.module?.title}</td>
         <td className="text-sm px-6 py-4">{lesson.orderNumber}</td>
-        <td className="text-sm px-6 py-4">{lesson.createdAt}</td>
+        <td className="text-sm px-6 py-4">{new Date(lesson.createdAt).toLocaleDateString()}</td>
         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
           <div className="flex space-x-2 justify-center">
             <Button size="sm" variant="ghost" onClick={() => openModal(lesson)}>

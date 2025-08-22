@@ -463,7 +463,8 @@
     "yourLearnedLessonsDesc": "Các bài học bạn đã hoàn thành",
     "language": "Ngôn ngữ",
     "level": "Cấp độ",
-    "toLevel": "Đến cấp độ"
+    "toLevel": "Đến cấp độ",
+    "practiceTitle": "Trang ôn tập"
   },
   "immersePage": {
     "headerTitle": "Tìm kiếm các video về những chủ đề bạn yêu thích (#amnhac), hoặc những tình huống bạn muốn chuẩn bị cho (#dulich)",
@@ -479,7 +480,9 @@
     "card1": "Chia tay vào ngày sinh nhật của tôi?",
     "card2": "Nấm Jangjorim",
     "card3": "Một chuyến đi bí ẩn",
-    "card4": "Chắc chắn là có!"
+    "card4": "Chắc chắn là có!",
+    "videoLibrary": "Thư viện video",
+    "noVideosFound": "Không tìm thấy video nào"
   },
   "learnPage": {
     "start": "Bắt đầu",
@@ -510,13 +513,14 @@
     "nextLesson": "Bài học tiếp theo"
   },
   "courseDashboard": {
+    "dashboard": "Bảng điều khiển",
     "myAccomplishments": "Thành tựu của tôi",
     "myActivity": "Hoạt động của tôi",
     "startLearning": "Bắt đầu học",
     "continue": "Tiếp tục: Giải mã bảng chữ cái",
     "learnNewSign": "Học ký hiệu mới",
-    "percentage": "{percentage}%",
-    "progress": "Tiến độ {progress}%",
+    "percentage": "{percentage}",
+    "progress": "Tiến độ {progress}",
     "lessons": "Bài học",
     "modules": "Chủ đề",
     "course": "Khóa học",
@@ -809,5 +813,35 @@
   },
   "spinner": {
     "loading": "Đang tải..."
+  },
+  "welcomePage": {
+    "welcomeBack": "Chào mừng trở lại, {name}!",
+    "title": "Sẵn sàng học tập & kết nối",
+    "subtitle": "Chọn lộ trình học tập hoặc kết nối với người khác thông qua nền tảng họp trực tuyến tiên tiến của chúng tôi.",
+    "course": {
+      "title": "Bắt đầu học tập",
+      "description": "Khám phá các khóa học ngôn ngữ ký hiệu toàn diện được thiết kế cho mọi trình độ.",
+      "feature1": "Bài học tương tác",
+      "feature2": "Nội dung video HD",
+      "action": "Xem khóa học"
+    },
+    "meetingRoom": {
+      "title": "Tham gia cuộc họp",
+      "description": "Kết nối với người khác thông qua hội nghị video được tối ưu hóa cho ngôn ngữ ký hiệu.",
+      "feature1": "Video chất lượng cao",
+      "feature2": "Trò chuyện thời gian thực",
+      "action": "Vào phòng họp"
+    },
+    "stats": {
+      "availability": "Khả dụng",
+      "quality": "Chất lượng",
+      "learning": "Khả năng"
+    }
+  },
+  "dashboard": {
+    "title": "Bảng điều khiển",
+    "welcome": "Chào mừng trở lại",
+    "overview": "Tổng quan",
+    "recentActivity": "Hoạt động gần đây"
   }
 }

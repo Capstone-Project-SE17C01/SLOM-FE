@@ -35,10 +35,10 @@ export default function CourseLayout({
     {
       name: "progress",
       href: "/course-dashboard",
-      icon: <FaClipboardList size={18} />,
+      icon: <FaClipboardList size={20} />,
     },
-    { name: "scenario", href: "/learn", icon: <FaRocket size={18} /> },
-    { name: "video", href: "/immerse", icon: <FaRegPlayCircle size={18} /> },
+    { name: "scenario", href: "/learn", icon: <FaRocket size={20} /> },
+    { name: "video", href: "/immerse", icon: <FaRegPlayCircle size={20} /> },
   ];
 
   return (
@@ -59,15 +59,17 @@ export default function CourseLayout({
           setMenuOpen={setMenuOpen}
         />
 
-        <main className="flex-1 bg-gray-50 dark:bg-gray-900 min-h-screen">
+        <main className="flex-1 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div
               className={cn(
-                "rounded-xl shadow-sm border min-h-[calc(100vh-200px)] bg-white border-gray-200 text-black dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                "rounded-xl shadow-lg border min-h-[calc(100vh-200px)] bg-white border-gray-200 text-black dark:bg-gray-800 dark:border-gray-700 dark:text-white overflow-hidden"
               )}
             >
               <CourseTopNav navItems={courseNavItems} />
-              {children}
+              <div className="h-full">
+                {children}
+              </div>
             </div>
           </div>
         </main>

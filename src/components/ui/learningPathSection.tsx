@@ -2,6 +2,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { CardLesson } from "./cardCourse";
+import { BookOpen } from "lucide-react";
 
 export interface Lesson {
   title: string;
@@ -14,6 +15,7 @@ export interface LearningPathSectionProps {
   sectionDescription?: string;
   lessons: Lesson[];
   isReview: boolean;
+  icon?: React.ReactNode;
 }
 
 export default function LearningPathSection({
@@ -21,6 +23,7 @@ export default function LearningPathSection({
   sectionDescription,
   lessons,
   isReview,
+  icon = <BookOpen className="h-5 w-5" />,
 }: LearningPathSectionProps) {
   const router = useRouter();
 
@@ -49,17 +52,22 @@ export default function LearningPathSection({
   };
 
   return (
-    <div className="mb-8">
+    <div className="mb-10 w-full">
       {sectionTitle && (
-        <div className="text-2xl font-extrabold mb-1 text-gray-900 dark:text-gray-100">{sectionTitle}</div>
-      )}
-      {sectionDescription && (
-        <div className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-3">
-          {sectionDescription}
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 bg-primary/10 rounded-lg text-primary">
+            {icon}
+          </div>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{sectionTitle}</h3>
+          {sectionDescription && (
+            <span className="bg-primary text-white rounded-full px-3 py-1 text-sm font-medium ml-2">
+              {sectionDescription}
+            </span>
+          )}
         </div>
       )}
-      <div className="overflow-x-auto pb-2">
-        <div className="flex gap-4">
+      <div className="overflow-x-auto pb-4 ml-11 w-full">
+        <div className="flex gap-6 flex-wrap">
           {lessons.map((lesson, i) => (
             <CardLesson
               key={i}

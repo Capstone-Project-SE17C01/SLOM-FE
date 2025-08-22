@@ -14,6 +14,7 @@ import ActivityCard from "@/components/ui/activityCard";
 import { ButtonCourse } from "@/components/ui/buttonCourse";
 import Spinner from "@/components/ui/spinner";
 import { ReminderDialog } from "./reminder-dialog";
+import { ArrowRight, Award, BookOpen, CheckCircle } from "lucide-react";
 
 // Helper function to check if course is available
 const isCourseAvailable = (dashboardData: SummaryResponse | null): boolean => {
@@ -30,6 +31,7 @@ function AccomplishmentCard({
   percentage,
   totalLabel,
   tCourseDashBoard,
+  icon,
 }: {
   title: string;
   completed: number;
@@ -40,18 +42,30 @@ function AccomplishmentCard({
     key: string,
     params?: Record<string, string | number | Date>
   ) => string;
+  icon: React.ReactNode;
 }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
-      <div className="font-semibold ">{title}</div>
-      <div className="text-sm text-gray-600 dark:text-gray-300">
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100 dark:border-gray-700">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="p-2 bg-primary/10 rounded-lg text-primary">
+          {icon}
+        </div>
+        <div className="font-semibold text-lg">{title}</div>
+      </div>
+      <div className="text-sm text-gray-600 dark:text-gray-300 mb-1">
         {tCourseDashBoard("numberCompleted", { count: completed })}
       </div>
-      <div className="text-sm text-gray-600 dark:text-gray-300">
+      <div className="text-sm text-gray-600 dark:text-gray-300 mb-3">
         {tCourseDashBoard(totalLabel, { count: total })}
       </div>
-      <div className="font-bold text-right mt-2">
-        {tCourseDashBoard("percentage", { percentage: percentage.toFixed(2) })}
+      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-2">
+        <div
+          className="bg-primary h-2 rounded-full transition-all duration-700 ease-in-out"
+          style={{ width: `${percentage}%` }}
+        ></div>
+      </div>
+      <div className="font-bold text-right mt-2 text-primary">
+        {tCourseDashBoard("percentage", { percentage: percentage.toFixed(0) })}%
       </div>
     </div>
   );
@@ -75,14 +89,14 @@ function ProgressBar({
     : 0;
 
   return (
-    <div className="mb-6">
-      <div className="text-lg mb-2 font-semibold">
+    <div className="mb-8 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md border border-gray-100 dark:border-gray-700">
+      <div className="text-xl mb-3 font-bold flex items-center gap-2">
         {/* current module title */}
         {isCourseAvailable(dashboardData) &&
         dashboardData?.activeLesson?.module?.title
           ? dashboardData.activeLesson.module.title
           : tCourseDashBoard("moduleTitle")}
-        <span className="inline-block bg-[#6947A8] dark:bg-[#4b2e6a] ml-2 text-white rounded-full px-2">
+        <span className="inline-block bg-primary dark:bg-primary/80 ml-2 text-white rounded-full px-3 py-1 text-sm">
           {/*current lesson title */}
           {isCourseAvailable(dashboardData) &&
           dashboardData?.activeLesson?.orderNumber
@@ -90,14 +104,14 @@ function ProgressBar({
             : "0"}
         </span>
       </div>
-      <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+      <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
         {tCourseDashBoard("progress", {
-          progress: percent.toFixed(2),
-        })}
+          progress: percent.toFixed(0)
+        })}%
       </div>
-      <div className="w-full bg-primary/30 rounded-full h-2.5 mb-2">
+      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-2">
         <div
-          className="bg-primary h-2.5 rounded-full"
+          className="bg-primary h-3 rounded-full transition-all duration-1000 ease-in-out"
           style={{ width: `${percent}%` }}
         ></div>
       </div>
@@ -180,6 +194,7 @@ export default function CourseDashboard() {
           (dashboardData?.totalLessons ?? 1)) *
         100,
       totalLabel: "totalLessons",
+      icon: <BookOpen size={24} />,
     },
     {
       title: tCourseDashBoard("quizzes"),
@@ -190,6 +205,7 @@ export default function CourseDashboard() {
           (dashboardData?.totalQuizzes ?? 1)) *
         100,
       totalLabel: "totalQuizzes",
+      icon: <CheckCircle size={24} />,
     },
     {
       title: tCourseDashBoard("modules"),
@@ -200,12 +216,17 @@ export default function CourseDashboard() {
           (dashboardData?.totalModules ?? 1)) *
         100,
       totalLabel: "totalModules",
+      icon: <Award size={24} />,
     },
   ];
 
   return (
-    <div className="p-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
-      <div className="max-w-4xl mx-auto">
+    <div className="p-6 md:p-8 bg-white dark:bg-gray-900">
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">
+          {tCourseDashBoard("dashboard")}
+        </h1>
+        
         {/* ProgressBar */}
         <ProgressBar
           dashboardData={dashboardData}
@@ -213,11 +234,12 @@ export default function CourseDashboard() {
         />
 
         {/* Accomplishments, not show if total module or total lesson is 0 */}
-        <div className="bg-gradient-to-r from-primary to-primary/80 dark:from-gray-800 dark:to-gray-700 rounded-xl p-6 mb-6 shadow-lg">
+        <div className="bg-gradient-to-r from-primary/90 to-primary dark:from-gray-800 dark:to-gray-700 rounded-xl p-8 mb-8 shadow-lg">
           <div className="flex justify-between items-center">
             {/* not show label if total module or total lesson is 0 */}
             {isCourseAvailable(dashboardData) && (
-              <div className="font-bold text-xl text-white dark:text-gray-200">
+              <div className="font-bold text-2xl text-white dark:text-gray-100 flex items-center gap-2">
+                <Award className="h-6 w-6" />
                 {tCourseDashBoard("myAccomplishments")}
               </div>
             )}
@@ -235,11 +257,11 @@ export default function CourseDashboard() {
           </div>
           {/* if total module or total lesson is 0, show a message to user "This Course not available, Please choose other course" */}
           {!isCourseAvailable(dashboardData) ? (
-            <div className="text-white dark:text-white text-center text-2xl font-bold">
+            <div className="text-white dark:text-white text-center text-2xl font-bold mt-4">
               {tCourseDashBoard("thisCourseNotAvailable")}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
               {accomplishmentConfigs.map((cfg) => (
                 <AccomplishmentCard
                   key={cfg.title}
@@ -253,7 +275,7 @@ export default function CourseDashboard() {
 
         {/* ActivityCard, not show if total module or total lesson is 0 */}
         {isCourseAvailable(dashboardData) && (
-          <div className="mb-6">
+          <div className="mb-8">
             <ActivityCard
               title={tCourseDashBoard("myActivity")}
               activities={
@@ -270,20 +292,20 @@ export default function CourseDashboard() {
 
         {/* BannerStartLearning, not show if total module or total lesson is 0 */}
         {isCourseAvailable(dashboardData) && (
-          <div className="bg-gradient-to-r from-primary/10 to-primary/5 dark:from-gray-800 dark:to-gray-700 rounded-xl p-6 flex items-center justify-between mb-6 border border-primary/20 dark:border-gray-700">
+          <div className="bg-gradient-to-r from-primary/10 to-primary/5 dark:from-gray-800 dark:to-gray-700 rounded-xl p-8 flex items-center justify-between mb-6 border border-primary/20 dark:border-gray-700 shadow-md hover:shadow-lg transition-shadow duration-300">
             <div>
-              <div className="font-bold text-xl mb-2 text-gray-900 dark:text-gray-200">
+              <div className="font-bold text-2xl mb-3 text-gray-900 dark:text-gray-100">
                 {tCourseDashBoard("learnNewSign")}
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">
+              <div className="text-base text-gray-700 dark:text-gray-300">
                 {dashboardData?.activeLesson?.title && (
-                  <span>{dashboardData?.activeLesson?.title}</span>
+                  <span className="font-medium">{dashboardData?.activeLesson?.title}</span>
                 )}
               </div>
             </div>
             <ButtonCourse
               variant="super"
-              className="shadow-lg hover:shadow-xl transition-shadow"
+              className="shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center gap-2"
               onClick={() => {
                 if (dashboardData?.activeLesson) {
                   router.push(
@@ -299,6 +321,7 @@ export default function CourseDashboard() {
               }}
             >
               {tCourseDashBoard("startLearning")}
+              <ArrowRight className="h-4 w-4" />
             </ButtonCourse>
           </div>
         )}

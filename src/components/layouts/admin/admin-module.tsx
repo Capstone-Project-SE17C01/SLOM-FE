@@ -222,7 +222,7 @@ export default function AdminModule() {
         </td>
         <td className="text-sm px-6 py-4">{module.course?.title}</td>
         <td className="text-sm px-6 py-4">{module.orderNumber}</td>
-        <td className="text-sm px-6 py-4">{module.createdAt}</td>
+        <td className="text-sm px-6 py-4">{new Date(module.createdAt).toLocaleDateString()}</td>
         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
           <div className="flex space-x-2 justify-center">
             <Button size="sm" variant="ghost" onClick={() => openModal(module)}>

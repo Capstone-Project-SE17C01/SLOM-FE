@@ -12,6 +12,7 @@ import { useMarkLessonAsCompletedMutation } from "../../../api/CourseApi";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import Spinner from "@/components/ui/spinner";
+
 export default function QuizPractice({
   quizList,
   lessonTitle,
@@ -121,7 +122,7 @@ export default function QuizPractice({
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       <LessonHeader title={lessonTitle} onClose={() => router.push(back)} />
       <ProgressBar
         className="mt-2 max-w-5xl"
@@ -132,7 +133,7 @@ export default function QuizPractice({
         <div className="text-center mt-20 text-2xl font-bold flex flex-col items-center gap-6">
           {t_learn("finishedQuiz")}
           <button
-            className="bg-gray-200 text-[#0a2233] font-bold px-8 py-3 rounded-xl text-lg shadow mt-6"
+            className="bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-bold px-8 py-3 rounded-xl text-lg shadow-md hover:shadow-lg transition-shadow duration-300 mt-6"
             onClick={handleFinish}
           >
             {t_learn("finishQuiz")}
@@ -146,7 +147,7 @@ export default function QuizPractice({
               currentQuiz.question.startsWith("http") ? (
                 <VideoSquare videoUrl={currentQuiz.question} />
               ) : (
-                <div className="font-bold text-lg mb-2 text-center">
+                <div className="font-bold text-lg mb-2 text-center text-gray-900 dark:text-gray-100">
                   {currentQuiz?.question}
                 </div>
               )}

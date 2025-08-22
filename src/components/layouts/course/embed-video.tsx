@@ -6,38 +6,49 @@ import { useSelector } from "react-redux";
 import { ListVideoSuggestResult, VideoSuggest } from "../../../types/ICourse";
 import { RootState } from "@/redux/store";
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { motion } from "framer-motion";
+import { Play, Calendar } from "lucide-react";
+import { cn } from "@/utils/cn";
 
 function SideBarVideo(card: Readonly<ListVideoSuggestResult>) {
     return (
-        <button
-            className={`relative rounded-2xl overflow-hidden flex flex-col justify-between min-w-[260px] w-full h-[30%] bg-white dark:bg-gray-800 shadow-sm cursor-pointer transition-transform duration-200 mb-2 border border-gray-200 dark:border-gray-700`}
-            onClick={() => { window.location.replace(`/video?videoId=${card.videoId}`) }}
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+            className="mb-4"
         >
-            <div className="flex h-full">
-                <div className="relative w-[60%] h-full">
+            <div
+                className={cn(
+                    "relative rounded-xl overflow-hidden flex bg-white dark:bg-gray-800 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer border border-gray-200 dark:border-gray-700",
+                )}
+                onClick={() => { window.location.replace(`/video?videoId=${card.videoId}`) }}
+            >
+                <div className="relative w-[120px] h-[80px] overflow-hidden">
                     <Image
                         src={card.videoThumbnail}
                         alt={card.title}
                         fill
-                        className="object-cover h-full"
+                        className="object-cover"
                     />
-                </div>
-                <div className="flex flex-col flex-1 p-4 pt-3">
-                    {/* <div
-                            className={`inline-block px-3 py-1 rounded-md text-sm font-semibold mb-2 ${card.tagColor} bg-opacity-80`}
-                        >
-                            {card.tag}
-                        </div> */}
-                    <div className="font-semibold text-[#0a2233] dark:text-gray-200 text-sm mb-4 line-clamp-2">
-                        {card.title}
+                    <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+                        <Play className="h-8 w-8 text-white" />
                     </div>
-                    {/* <button className="mt-auto w-fit px-5 py-2 rounded-xl border-2 border-[#0a2233] font-bold text-[#0a2233] bg-white hover:bg-gray-50 transition text-base">
-                            {t("btn")}
-                        </button> */}
+                </div>
+                <div className="flex flex-col flex-1 p-3">
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-1 line-clamp-2">
+                        {card.title}
+                    </h4>
+                    {card.publishDate && (
+                        <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-auto">
+                            <Calendar className="h-3 w-3 mr-1" />
+                            {new Date(card.publishDate).toLocaleDateString()}
+                        </div>
+                    )}
                 </div>
             </div>
-
-        </button>
+        </motion.div>
     );
 }
 
@@ -126,26 +137,49 @@ export default function EmbedVideo() {
     ]);
 
     return (
-        <div className="flex w-full h-[calc(100vh-200px)] justify-between rounded-xl">
-            <div className="w-[70%] h-[calc(100vh-200px)] p-4 mr-4 border rounded-xl">
-                <iframe src={`https://www.youtube.com/embed/${videoId}`}
+        <div className="flex flex-col md:flex-row w-full h-[calc(100vh-200px)] justify-between gap-6">
+            <motion.div 
+                className="w-full md:w-[70%] h-full md:h-[calc(100vh-200px)] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+            >
+                <iframe 
+                    src={`https://www.youtube.com/embed/${videoId}`}
                     allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                    title="Video: Rickroll" allowFullScreen
-                    className="rounded-xl w-[100%] h-full"></iframe>
-            </div>
-            <div className="w-[28%] overflow-y-auto p-4 border rounded-xl p-white" ref={chatContainerRef}>
-                {videoList?.videoSuggest != null ? videoList.videoSuggest.map((card) => (
-                    <SideBarVideo key={card.id}
-                        videoThumbnail={card.videoThumbnail}
-                        id={card.id}
-                        title={card.title}
-                        description={card.description}
-                        videoUrl={card.videoUrl}
-                        publishDate={card.publishDate}
-                        videoId={card.videoId}
-                    />
-                )) : ""}
-            </div>
+                    title="Video Player" 
+                    allowFullScreen
+                    className="w-full h-full"
+                ></iframe>
+            </motion.div>
+            
+            <motion.div 
+                className="w-full md:w-[30%] h-[300px] md:h-[calc(100vh-200px)] overflow-y-auto p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md bg-gray-50 dark:bg-gray-800"
+                ref={chatContainerRef}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+            >
+                <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-gray-100">Suggested Videos</h3>
+                
+                {videoList?.videoSuggest != null && videoList.videoSuggest.length > 0 ? (
+                    videoList.videoSuggest.map((card) => (
+                        <SideBarVideo key={card.id}
+                            videoThumbnail={card.videoThumbnail}
+                            id={card.id}
+                            title={card.title}
+                            description={card.description}
+                            videoUrl={card.videoUrl}
+                            publishDate={card.publishDate}
+                            videoId={card.videoId}
+                        />
+                    ))
+                ) : (
+                    <div className="text-center py-8">
+                        <p className="text-gray-500 dark:text-gray-400">No suggested videos available</p>
+                    </div>
+                )}
+            </motion.div>
         </div>
     )
 }

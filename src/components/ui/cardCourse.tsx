@@ -221,23 +221,27 @@ const CardLesson = ({
 }) => (
   <div
     className={cn(
-      "relative rounded-xl min-w-[210px] h-[120px] flex flex-col justify-end shadow-sm border-b-4 border-primary overflow-hidden cursor-pointer hover:bg-primary hover:text-white transition",
-      "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100",
+      "relative rounded-xl w-[230px] min-w-[230px] h-[140px] flex flex-col justify-end shadow-md border-b-4 border-primary overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1",
+      "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100",
       className
     )}
     onClick={onClick}
   >
-    {/* Ảnh hình tròn, chỉ lộ nửa trái, nằm cạnh phải */}
+    {/* Background pattern */}
+    <div className="absolute inset-0 opacity-10 bg-gradient-to-br from-primary/30 to-transparent" />
+    
+    {/* Circle image */}
     <div
       className="absolute top-1/2"
       style={{
-        right: "-50px",
+        right: "-30px",
         transform: "translateY(-50%)",
         width: "100px",
         height: "100px",
         borderRadius: "9999px",
         overflow: "hidden",
-        clipPath: "inset(0 50% 0 0)",
+        background: "rgba(255,255,255,0.1)",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
       }}
     >
       <Image
@@ -247,11 +251,12 @@ const CardLesson = ({
         height={100}
         quality={100}
         className="object-cover w-full h-full"
-        style={{ objectPosition: "left center" }}
       />
     </div>
-    <div className="relative z-10 p-3 pr-24">
-      <span className="font-semibold text-sm block whitespace-normal">
+    
+    {/* Content */}
+    <div className="relative z-10 p-4 pr-24">
+      <span className="font-semibold text-base block whitespace-normal">
         {title}
       </span>
     </div>
