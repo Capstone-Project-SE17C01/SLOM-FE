@@ -59,7 +59,7 @@ export const courseAPI = baseApi.injectEndpoints({
         flashError: false,
       }),
     }),
-    
+
     getAllCourse: build.mutation<APIResponse<Course[]>, void>({
       query: () => ({
         url: `/api/Course/GetAllCourse`,
@@ -76,24 +76,28 @@ export const courseAPI = baseApi.injectEndpoints({
       }),
     }),
 
-    getOngoingLessonByUserId: build.mutation<APIResponse<Lesson>, string>({
-      query: (userId: string) => ({
-        url: `/api/Lesson/OngoingLesson?userId=${userId}`,
+    getOngoingLessonByUserId: build.mutation<
+      APIResponse<Lesson>,
+      { userId: string; courseId: string }
+    >({
+      query: ({ userId, courseId }) => ({
+        url: `/api/Lesson/OngoingLesson?userId=${userId}&courseId=${courseId}`,
         method: "GET",
         flashError: false,
       }),
     }),
 
-    getListLearnedLessonByUserId: build.mutation<APIResponse<Lesson[]>, string>(
-      {
-        query: (userId: string) => ({
-          url: `/api/Lesson/GetListLearnedLesson?userId=${userId}`,
-          method: "GET",
-          flashError: false,
-        }),
-      }
-    ),
-    
+    getListLearnedLessonByUserId: build.mutation<
+      APIResponse<Lesson[]>,
+      { userId: string; courseId: string }
+    >({
+      query: ({ userId, courseId }) => ({
+        url: `/api/Lesson/GetListLearnedLesson?userId=${userId}&courseId=${courseId}`,
+        method: "GET",
+        flashError: false,
+      }),
+    }),
+
     getLessonByModuleId: build.mutation<APIResponse<Lesson[]>, string>({
       query: (moduleId: string) => ({
         url: `/api/Lesson/GetLessonByModule?moduleId=${moduleId}`,

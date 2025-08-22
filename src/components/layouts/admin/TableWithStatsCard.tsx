@@ -59,14 +59,16 @@ export default function TableWithStatsCard<T>({
           <table className="w-full">
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
-                {Array.isArray(tableHeaders) 
+                {Array.isArray(tableHeaders)
                   ? tableHeaders.map((header, index) => (
-                      <th key={index} className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      <th
+                        key={index}
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                      >
                         {header}
                       </th>
                     ))
-                  : tableHeaders
-                }
+                  : tableHeaders}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
@@ -86,12 +88,12 @@ export default function TableWithStatsCard<T>({
         >
           Previous
         </button>
-        
+
         {(() => {
           const pages = [];
           const totalPages = pagination.totalPages;
           const currentPage = pagination.currentPage;
-          
+
           if (totalPages <= 5) {
             // Show all pages if 5 or fewer
             for (let i = 1; i <= totalPages; i++) {
@@ -214,10 +216,10 @@ export default function TableWithStatsCard<T>({
               );
             }
           }
-          
+
           return pages;
         })()}
-        
+
         <button
           className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 disabled:opacity-50"
           onClick={() =>

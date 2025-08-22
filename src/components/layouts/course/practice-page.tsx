@@ -36,7 +36,7 @@ function SectionList({
 }) {
   const t_practice = useTranslations("practicePage");
   const { isDarkMode } = useTheme();
-  
+
   return (
     <>
       <div className="flex items-center gap-3 mb-3 max-md:flex-col max-md:gap-2 max-md:items-start">
@@ -55,12 +55,14 @@ function SectionList({
           }))}
         />
       ) : (
-        <div className={cn(
-          "my-4 rounded-xl p-4 text-base",
-          isDarkMode 
-            ? "bg-gray-800 text-gray-300" 
-            : "bg-[#f5f6f7] text-[#0a2233]"
-        )}>
+        <div
+          className={cn(
+            "my-4 rounded-xl p-4 text-base",
+            isDarkMode
+              ? "bg-gray-800 text-gray-300"
+              : "bg-[#f5f6f7] text-[#0a2233]"
+          )}
+        >
           {emptyText}
         </div>
       )}
@@ -68,15 +70,15 @@ function SectionList({
   );
 }
 
-function useLessons(userId?: string) {
+function useLessons(userId?: string, courseId?: string) {
   const [learnedLesson, setLearnedLesson] = useState<Lesson[]>([]);
   const [reviewedLesson, setReviewedLesson] = useState<Lesson[]>([]);
   const [getListLearnedLessonByUserId, { isLoading }] =
     useGetListLearnedLessonByUserIdMutation();
 
   useEffect(() => {
-    if (!userId) return;
-    getListLearnedLessonByUserId(userId)
+    if (!userId || !courseId) return;
+    getListLearnedLessonByUserId({ userId, courseId })
       .unwrap()
       .then((res) => {
         const listLearnedLesson = res.result;
@@ -93,7 +95,7 @@ function useLessons(userId?: string) {
       .catch((err) => {
         console.error(err);
       });
-  }, [userId, getListLearnedLessonByUserId]);
+  }, [userId, courseId, getListLearnedLessonByUserId]);
 
   return { learnedLesson, reviewedLesson, isLoading };
 }
@@ -105,7 +107,10 @@ export default function PracticePage() {
   const router = useRouter();
   const { userInfo } = useSelector((state: RootState) => state.auth);
 
-  const { learnedLesson, reviewedLesson, isLoading } = useLessons(userInfo?.id);
+  const { learnedLesson, reviewedLesson, isLoading } = useLessons(
+    userInfo?.id,
+    userInfo?.courseId
+  );
 
   useEffect(() => {
     if (!userInfo?.id) {
