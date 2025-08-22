@@ -777,7 +777,8 @@
     "updateAnswerError": "Cập nhật câu trả lời thất bại",
     "postAnswerError": "Đăng câu trả lời thất bại",
     "answer": "Câu trả lời",
-    "answers": "Câu trả lời"
+    "answers": "Câu trả lời",
+    "areYouSureYouWantToDeleteThisAnswer": "Bạn có chắc chắn muốn xóa câu trả lời này?"
   },
   "meaningCard": {
     "meaning": "Ý nghĩa",

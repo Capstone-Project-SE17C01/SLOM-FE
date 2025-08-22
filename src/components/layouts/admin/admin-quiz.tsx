@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Plus, Edit, Trash2, Book, Play, X } from "lucide-react";
+import { Plus, Edit, Trash2, Book, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TableWithStatsCard from "@/components/layouts/admin/TableWithStatsCard";
 import { useRouter } from "next/navigation";
 import EntityModal, {
   FieldConfig,
 } from "@/components/layouts/admin/EntityModal";
+import { useGetAllCourseMutation, useGetAllModuleByCourseIdMutation } from "@/api/CourseApi";
 import {
   useGetAllQuizzesQuery,
   useCreateQuizMutation,
@@ -15,7 +16,13 @@ import {
   useDeleteQuizMutation,
   useGetAllLessonsQuery,
 } from "@/api/QuizApi";
-import { useGetAllCourseMutation } from "@/api/CourseApi";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Quiz } from "@/types/IQuiz";
 import { toast } from "sonner";
 
@@ -27,9 +34,9 @@ export default function AdminQuiz() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalFields, setModalFields] = useState<FieldConfig[]>([]);
   const [modalTitle, setModalTitle] = useState("");
-  const [coursesSelect, setCoursesSelect] = useState<
-    { id: string; title: string }[]
-  >([]);
+  const [coursesSelect, setCoursesSelect] = useState<{ id: string; title: string }[]>([]);
+  const [modulesSelect, setModulesSelect] = useState<{ id: string; title: string }[]>([]);
+  const [lessonsSelect, setLessonsSelect] = useState<{ id: string; title: string }[]>([]);
   const [updateQuiz] = useUpdateQuizMutation();
   const [editQuiz, setEditQuiz] = useState<Quiz | null>(null);
   const [deleteQuizApi] = useDeleteQuizMutation();
@@ -37,6 +44,7 @@ export default function AdminQuiz() {
   const [showModal, setShowModal] = useState(false);
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<string>("");
+  const [getAllModuleByCourseId] = useGetAllModuleByCourseIdMutation();
 
   // Config fields for quiz
   const quizFields: FieldConfig[] = [
@@ -60,14 +68,14 @@ export default function AdminQuiz() {
       name: "moduleId",
       type: "select",
       required: true,
-      options: [],
+      options: modulesSelect.map((m) => ({ label: m.title, value: m.id })),
     },
     {
       label: "Lesson",
       name: "lessonId",
       type: "select",
       required: true,
-      options: [],
+      options: lessonsSelect.map((l) => ({ label: l.title, value: l.id })),
     },
     { label: "Max Score", name: "maxScore", type: "number" },
   ];
@@ -93,6 +101,13 @@ export default function AdminQuiz() {
     fetchCourses();
   }, [getAllCourse]);
 
+  // Fetch lessons for select
+  useEffect(() => {
+    if (lessonsResponse?.result) {
+      setLessonsSelect(Array.isArray(lessonsResponse.result) ? lessonsResponse.result : []);
+    }
+  }, [lessonsResponse]);
+
   const getAllQuiz = useCallback(async () => {
     if (quizzesResponse?.result) {
       setQuizzes(
@@ -107,17 +122,47 @@ export default function AdminQuiz() {
   }, [getAllQuiz]);
 
   // Modal logic
-  const openModal = (quiz?: Quiz) => {
+  const openModal = async (quiz?: Quiz) => {
     if (quiz) {
       setEditQuiz(quiz);
-      setModalFields(quizFields);
       setModalTitle("Update Quiz");
       setDeleteQuiz(null);
+      
+      // Use the nested data from the API response
+      if (quiz.lesson?.module?.courseId) {
+        try {
+          // Fetch modules for the course
+          const courseModules = await getAllModuleByCourseId(quiz.lesson.module.courseId).unwrap();
+          const fetchedModules = Array.isArray(courseModules.result) ? courseModules.result : [];
+          setModulesSelect(fetchedModules);
+          
+          // Update modal fields with course and module data using the fetched modules directly
+          const updatedFields = quizFields.map(field => {
+            if (field.name === 'courseId') {
+              return { ...field, options: coursesSelect.map((c) => ({ label: c.title, value: c.id })) };
+            }
+            if (field.name === 'moduleId') {
+              return { ...field, options: fetchedModules.map((m) => ({ label: m.title, value: m.id })) };
+            }
+            if (field.name === 'lessonId') {
+              return { ...field, options: lessonsSelect.map((l) => ({ label: l.title, value: l.id })) };
+            }
+            return field;
+          });
+          
+          setModalFields(updatedFields);
+        } catch (error) {
+          console.error("Error fetching modules:", error);
+          setModalFields(quizFields);
+        }
+      } else {
+        setModalFields(quizFields);
+      }
     } else {
       setEditQuiz(null);
-      setModalFields(quizFields);
       setModalTitle("Add Quiz");
       setDeleteQuiz(null);
+      setModalFields(quizFields);
     }
     setModalOpen(true);
   };
@@ -341,6 +386,8 @@ export default function AdminQuiz() {
                 question: editQuiz.question,
                 correctAnswer: editQuiz.correctAnswer,
                 explanation: editQuiz.explanation || "",
+                courseId: editQuiz.lesson?.module?.courseId || "",
+                moduleId: editQuiz.lesson?.moduleId || "",
                 lessonId: editQuiz.lessonId,
                 maxScore: editQuiz.maxScore?.toString() || "0",
                 createdAt: editQuiz.createdAt,
@@ -350,44 +397,36 @@ export default function AdminQuiz() {
       />
 
       {/* Delete Confirmation Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-sm">
-            <h2 className="text-lg font-semibold mb-4">Delete Confirmation</h2>
-            <p>Are you sure you want to delete this quiz?</p>
-            <div className="flex justify-end gap-2 mt-6">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowModal(false);
-                  setDeleteQuiz(null);
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                className="bg-red-600 hover:bg-red-700 text-white"
-                onClick={handleDelete}
-              >
-                Delete
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Dialog open={showModal} onOpenChange={(open) => !open && setShowModal(false)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Delete Confirmation</DialogTitle>
+          </DialogHeader>
+          <p>Are you sure you want to delete this quiz?</p>
+          <DialogFooter className="mt-6">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowModal(false);
+                setDeleteQuiz(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={handleDelete}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Video Modal */}
-      {videoModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="relative w-4/5 h-4/5 max-w-4xl">
-            <Button
-              onClick={closeVideoModal}
-              className="absolute -top-10 right-0 text-white hover:text-gray-300 z-10"
-              variant="ghost"
-              size="sm"
-            >
-              <X className="h-6 w-6" />
-            </Button>
+      <Dialog open={videoModalOpen} onOpenChange={(open) => !open && closeVideoModal()}>
+        <DialogContent className="sm:max-w-4xl w-[90vw] h-[80vh] p-0 border-0">
+          <div className="relative w-full h-full">
             <iframe
               src={selectedVideo.replace("watch?v=", "embed/")}
               className="w-full h-full rounded-lg"
@@ -397,8 +436,8 @@ export default function AdminQuiz() {
               allowFullScreen
             />
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

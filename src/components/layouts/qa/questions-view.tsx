@@ -20,6 +20,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   CircleEllipsis,
   MessageSquare,
   OctagonX,
@@ -130,7 +137,9 @@ export default function QuestionView({
 
           let newQuestions = res.data?.result;
           if (newQuestions && newQuestions.length > 0) {
-            newQuestions = newQuestions.filter(question => !allQuestion?.some(q => q.questionId === question.questionId));
+            if (questionPagination != 1) {
+              newQuestions = newQuestions.filter(question => !allQuestion?.some(q => q.questionId === question.questionId));
+            }
             const updatedQuestions =
               questionPagination === 1
                 ? newQuestions
@@ -158,7 +167,9 @@ export default function QuestionView({
           const res = await getQuestionApi(request);
           let newQuestions = res.data?.result;
           if (newQuestions && newQuestions.length > 0) {
-            newQuestions = newQuestions.filter(question => !allQuestion?.some(q => q.questionId === question.questionId));
+            if (questionPagination != 1) {
+              newQuestions = newQuestions.filter(question => !allQuestion?.some(q => q.questionId === question.questionId));
+            }
             const updatedQuestions = questionPagination === 1 ? newQuestions : [...(allQuestion || []), ...newQuestions];
             setAllQuestion(updatedQuestions);
             if (newQuestions[0].isFull) {
@@ -687,64 +698,65 @@ export default function QuestionView({
             </div>
           )}
 
-        {currentFullScreenImageSrc && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
-            onClick={closeFullScreen}
-          >
-            <button
-              className="absolute left-4 h-10 w-10 bg-white bg-opacity-25 rounded-full text-white z-50 hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center"
-              onClick={goToPreviousImage}
-              aria-label="Previous image"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="size-6"
+        <Dialog open={!!currentFullScreenImageSrc} onOpenChange={(open) => !open && closeFullScreen()}>
+          <DialogContent className="p-0 border-0 bg-transparent max-w-[95vw] w-[95vw] h-[95vh]" onClick={(e) => e.stopPropagation()}>
+            <div className="relative w-full h-full flex items-center justify-center">
+              <button
+                className="absolute left-4 h-10 w-10 bg-white bg-opacity-25 rounded-full text-white z-50 hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center"
+                onClick={goToPreviousImage}
+                aria-label="Previous image"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 19.5 8.25 12l7.5-7.5"
-                />
-              </svg>
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="size-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15.75 19.5 8.25 12l7.5-7.5"
+                  />
+                </svg>
+              </button>
 
-            <div className="relative w-[85%] h-[85%]">
-              <Image
-                src={currentFullScreenImageSrc}
-                alt="Full screen"
-                fill
-                sizes="85vw"
-                className="object-contain"
-              />
+              <div className="relative w-[85%] h-[85%]">
+                {currentFullScreenImageSrc && (
+                  <Image
+                    src={currentFullScreenImageSrc}
+                    alt="Full screen"
+                    fill
+                    sizes="85vw"
+                    className="object-contain"
+                  />
+                )}
+              </div>
+
+              <button
+                className="absolute right-4 h-10 w-10 bg-white bg-opacity-25 rounded-full text-white z-50 hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center"
+                onClick={goToNextImage}
+                aria-label="Next image"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="size-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                  />
+                </svg>
+              </button>
             </div>
-
-            <button
-              className="absolute right-4 h-10 w-10 bg-white bg-opacity-25 rounded-full text-white z-50 hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center"
-              onClick={goToNextImage}
-              aria-label="Next image"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="size-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m8.25 4.5 7.5 7.5-7.5 7.5"
-                />
-              </svg>
-            </button>
-          </div>
-        )}
+          </DialogContent>
+        </Dialog>
 
         {isLoading && (
           <div className="text-center py-6">
@@ -772,31 +784,31 @@ export default function QuestionView({
         )}
       </div>
 
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-sm">
-            <h2 className="text-lg font-semibold mb-4">{t_qaPage("deleteConfirmation")}</h2>
-            <p>{t_qaPage("areYouSureYouWantToDeleteThisQuestion")}</p>
-            <div className="flex justify-end gap-2 mt-6">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowModal(false);
-                  setDeleteId(null);
-                }}
-              >
-                {t_qaPage("cancel")}
-              </Button>
-              <Button
-                className="bg-red-600 hover:bg-red-700 text-white"
-                onClick={handleDelete}
-              >
-                Xóa
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Dialog open={showModal} onOpenChange={(open) => !open && setShowModal(false)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t_qaPage("deleteConfirmation")}</DialogTitle>
+          </DialogHeader>
+          <p>{t_qaPage("areYouSureYouWantToDeleteThisQuestion")}</p>
+          <DialogFooter className="mt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowModal(false);
+                setDeleteId(null);
+              }}
+            >
+              {t_qaPage("cancel")}
+            </Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={handleDelete}
+            >
+              {t_qaPage("deleteQuestion")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

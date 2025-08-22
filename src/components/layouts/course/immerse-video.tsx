@@ -1,28 +1,12 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FaPlay, FaSearch } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { RootState } from "@/redux/store";
 import { useGetVideoSuggestMutation } from "../../../api/CourseApi";
 import { useSelector } from "react-redux";
-import { ListVideoSuggestResult, VideoHeaderInput, VideoSuggest } from "../../../types/ICourse";
-
-function VideoHeader(input: Readonly<VideoHeaderInput>) {
-  return (
-    <div className="bg-primary/10 dark:bg-gray-800 rounded-xl flex items-center gap-4 px-6 py-5 mb-6">
-      <div className="bg-primary/10 dark:bg-gray-700 rounded-lg p-3 flex items-center justify-center">
-        <FaPlay className="text-primary text-3xl" />
-      </div>
-      <div>
-        <div className="font-bold text-2xl text-primary dark:text-primary leading-snug">
-          {input.headerTitle}
-        </div>
-        <div className="text-primary dark:text-primary text-base mt-1">{input.headerDesc}</div>
-      </div>
-    </div>
-  );
-}
+import { ListVideoSuggestResult, VideoSuggest } from "../../../types/ICourse";
 
 function VideoCard(card: Readonly<ListVideoSuggestResult>) {
   return (
@@ -137,7 +121,6 @@ export default function ImmerseVideo() {
 
   return (
     <div className="p-8 pt-4 max-h-[90vh] overflow-scroll" ref={chatContainerRef}>
-      <VideoHeader headerTitle={t("headerTitle")} headerDesc={t("headerDesc")} />
       <div className="flex items-center justify-between mb-2">
         <div className="relative w-[260px]">
           <input
@@ -145,7 +128,7 @@ export default function ImmerseVideo() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t("searchPlaceholder")}
-            className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-base focus:outline-none focus:ring-2 focus:ring-primary text-black dark:text-white"
+            className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-base focus:outline-none focus:ring-2 focus:ring-primary text-black dark:text-white mb-2"
           />
           <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-lg" />
         </div>

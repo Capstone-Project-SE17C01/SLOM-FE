@@ -7,6 +7,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { CircleEllipsis, SquarePen, OctagonX } from "lucide-react";
 import { useDeleteAnswerMutation } from "@/api/QaApi";
 import { cn } from "@/utils/cn";
@@ -16,31 +23,21 @@ import { useTheme } from "@/contexts/ThemeContext";
 import React from "react";
 import { useTranslations } from "next-intl";
 
-export default function AnswerDetailQuestionView({
-  specificThread,
-  userInfo,
-  questionOwner,
-  setIsResponseQuestion,
-  setIsUpdateAnswer,
-  setAnswer,
-  onAnswerDeleted,
-  setAnswerOfQuestion,
-}: Readonly<AnswerDetailQuestionViewProps>) {
-  const [fullScreenImageIndex, setFullScreenImageIndex] = useState<number>(0);
-  const [theElement, setTheElement] = useState<AnswerResponseDTO | undefined>();
-  const [deleteAnswer] = useDeleteAnswerMutation();
-  const [answers, setAnswers] = useState(specificThread);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [showModal, setShowModal] = useState(false);
-  const { isDarkMode } = useTheme();
-  const t_qa = useTranslations("qaPage");
-  React.useEffect(() => {
-    setAnswers(specificThread);
-  }, [specificThread]);
-
-  const handleImageClick = (imgIndex: number) => {
-    setFullScreenImageIndex(imgIndex);
-  };
+export default function AnswerDetailQuestionView({ specificThread, userInfo, questionOwner, setIsResponseQuestion, setIsUpdateAnswer, setAnswer, onAnswerDeleted, setAnswerOfQuestion, isAdmin }: Readonly<AnswerDetailQuestionViewProps>) {
+    const [fullScreenImageIndex, setFullScreenImageIndex] = useState<number>(0);
+    const [theElement, setTheElement] = useState<AnswerResponseDTO | undefined>();
+    const [deleteAnswer] = useDeleteAnswerMutation();
+    const [answers, setAnswers] = useState(specificThread);
+    const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [showModal, setShowModal] = useState(false);
+    const { isDarkMode } = useTheme();
+    const t_qa = useTranslations("qaPage");
+    React.useEffect(() => {
+      setAnswers(specificThread);
+    }, [specificThread]);
+    const handleImageClick = (imgIndex: number) => {
+        setFullScreenImageIndex(imgIndex);
+    };
 
   const closeFullScreen = () => {
     setFullScreenImageIndex(0);
@@ -73,9 +70,9 @@ export default function AnswerDetailQuestionView({
       ? theElement.images[fullScreenImageIndex]
       : null;
 
-  const canEditDelete = (answerElement: AnswerResponseDTO) => {
+  
+    const canEditDelete = (answerElement: AnswerResponseDTO) => {
     const isAuthor = answerElement.author.username === userInfo?.username;
-    const isAdmin = userInfo?.role === "1803f630-a383-48fb-9a95-c192eba772db";
     const isQuestionOwner = userInfo?.username === questionOwner;
 
     return isAuthor || isAdmin || isQuestionOwner;
@@ -238,94 +235,95 @@ export default function AnswerDetailQuestionView({
                 </div>
               </div>
               {currentFullScreenImageSrc && (
-                <div
-                  className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
-                  onClick={closeFullScreen}
-                >
-                  {/* Previous Button */}
-                  <button
-                    className="absolute left-4 h-10 w-10 bg-white bg-opacity-25 rounded-full text-white text-center text-2xl z-50 hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center"
-                    onClick={goToPreviousImage}
-                    aria-label="Previous image"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                      stroke="currentColor"
-                      className="size-6"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M15.75 19.5 8.25 12l7.5-7.5"
-                      />
-                    </svg>
-                  </button>
+                <Dialog open={!!currentFullScreenImageSrc} onOpenChange={(open) => !open && closeFullScreen()}>
+                  <DialogContent className="sm:max-w-7xl w-[95vw] h-[90vh] p-0 border-0 bg-transparent shadow-none">
+                    <div className="relative w-full h-full" onClick={(e) => e.stopPropagation()}>
+                      {/* Previous Button */}
+                      <button
+                        className="absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 bg-white bg-opacity-25 rounded-full text-white text-center text-2xl z-50 hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center"
+                        onClick={goToPreviousImage}
+                        aria-label="Previous image"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="size-6"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M15.75 19.5 8.25 12l7.5-7.5"
+                          />
+                        </svg>
+                      </button>
 
-                  <div className="relative w-[80%] max-h-[90%]">
-                    <Image
-                      src={currentFullScreenImageSrc}
-                      alt="Full screen"
-                      fill
-                      className="object-contain"
-                      sizes="80vw"
-                    />
-                  </div>
+                      <div className="relative w-full h-full">
+                        <Image
+                          src={currentFullScreenImageSrc}
+                          alt="Full screen"
+                          fill
+                          className="object-contain"
+                          sizes="95vw"
+                        />
+                      </div>
 
-                  {/* Next Button */}
-                  <button
-                    className="absolute right-4 h-10 w-10 bg-white bg-opacity-25 rounded-full text-white text-2xl z-50 hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center"
-                    onClick={goToNextImage}
-                    aria-label="Next image"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                      stroke="currentColor"
-                      className="size-6"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="m8.25 4.5 7.5 7.5-7.5 7.5"
-                      />
-                    </svg>
-                  </button>
-                </div>
+                      {/* Next Button */}
+                      <button
+                        className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 bg-white bg-opacity-25 rounded-full text-white text-2xl z-50 hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center"
+                        onClick={goToNextImage}
+                        aria-label="Next image"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="size-6"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               )}
             </div>
           );
         })}
 
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-sm">
-            <h2 className="text-lg font-semibold mb-4">Delete Confirmation</h2>
-            <p>Are you sure you want to delete this answer?</p>
-            <div className="flex justify-end gap-2 mt-6">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowModal(false);
-                  setDeleteId(null);
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                className="bg-red-600 hover:bg-red-700 text-white"
-                onClick={handleDelete}
-              >
-                Delete
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Dialog open={showModal} onOpenChange={(open) => !open && setShowModal(false)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{t_qa("deleteConfirmation")}</DialogTitle>
+          </DialogHeader>
+          <p>{t_qa("areYouSureYouWantToDeleteThisAnswer")}</p>
+          <DialogFooter className="mt-6">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowModal(false);
+                setDeleteId(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={handleDelete}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

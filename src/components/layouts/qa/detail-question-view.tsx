@@ -2,12 +2,26 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 import AnswerDetailQuestionView from "./answer-detail-question-view";
 import { AnswerRequestDTO, DetailQuestionViewProps } from "@/types/IQa";
-import { useGetAnswerMutation } from "../../../api/QaApi";
+import { useDeleteQuestionMutation, useGetAnswerMutation } from "../../../api/QaApi";
 import { useEffect, useState } from "react";
-import { ArrowLeft, MessageCircle } from "lucide-react";
+import { ArrowLeft, MessageCircle, CircleEllipsis, OctagonX, SquarePen } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/utils/cn";
 import { useTranslations } from "next-intl";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function DetailQuestionView({
   setIsResponseQuestion,
@@ -20,12 +34,21 @@ export default function DetailQuestionView({
   setAnswer,
   setHasInitialLoad,
   updateQuestionAnswerCount,
+  setAllQuestion,
+  allQuestion,
+  isAdmin,
+  setIsNewQuestion,
+  setIsUpdateQuestion,
+  setQuestion,
 }: Readonly<DetailQuestionViewProps>) {
   const [getAnswerApi] = useGetAnswerMutation();
   const [pagination, setPagination] = useState<number>(1);
   const { isDarkMode } = useTheme();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadFull, setIsLoadFull] = useState<boolean>(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [deleteQuestionAPI] = useDeleteQuestionMutation();
   const t_qaPage = useTranslations("qaPage");
 
   useEffect(() => {
@@ -126,6 +149,29 @@ export default function DetailQuestionView({
     setHasInitialLoad(true);
   };
 
+  const handleDeleteQuestion = async (
+    questionId: string,
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation(); setDeleteId(questionId);
+    setShowModal(true);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await deleteQuestionAPI(deleteId).unwrap();
+      // Update UI after successful deletion
+      const updatedQuestions =
+        allQuestion?.filter((q) => q.questionId !== deleteId) || [];
+      setAllQuestion(updatedQuestions);
+      setShowModal(false);
+      setDeleteId(null);
+    } catch (error) {
+      console.error("Failed to delete question:", error);
+    }
+  };
+
   return (
     <div className="pb-8">
       <div
@@ -173,13 +219,78 @@ export default function DetailQuestionView({
                 <div className="font-bold text-lg">
                   {question.author.username}
                 </div>
-                <div
-                  className={cn(
-                    "text-sm",
-                    isDarkMode ? "text-gray-400" : "text-gray-500"
-                  )}
-                >
-                  {new Date(question.createdAt).toLocaleDateString()}
+                <div className="flex items-center gap-2">
+                  <div
+                    className={cn(
+                      "text-sm",
+                      isDarkMode ? "text-gray-400" : "text-gray-500"
+                    )}
+                  >
+                    {new Date(question.createdAt).toLocaleDateString()}
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        className={cn(
+                          "flex items-center justify-center rounded-full overflow-hidden",
+                          "h-8 w-8 focus:outline-none focus:ring-2 focus:ring-primary",
+                          isDarkMode
+                            ? "text-gray-400 hover:bg-gray-700 hover:text-gray-200"
+                            : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                        )}
+                      >
+                        <CircleEllipsis className="h-5 w-5" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="end"
+                      className={cn(
+                        "w-48",
+                        isDarkMode ? "bg-gray-800 border-gray-700" : ""
+                      )}
+                    >
+                      {!isAdmin && (
+                        <button
+                          className="w-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (
+                              setIsNewQuestion &&
+                              setIsUpdateQuestion &&
+                              setQuestion
+                            ) {
+                              setIsNewQuestion(true);
+                              setIsUpdateQuestion(true);
+                              setQuestion(question);
+                            }
+                          }}
+                        >
+                          <DropdownMenuItem
+                            className={cn(
+                              "cursor-pointer",
+                              isDarkMode
+                                ? "text-gray-200 hover:bg-gray-700"
+                                : ""
+                            )}
+                          >
+                            <SquarePen className="mr-2 h-4 w-4" />
+                            <span>{t_qaPage("editQuestion")}</span>
+                          </DropdownMenuItem>
+                        </button>
+                      )}
+                      <button
+                        className="w-full"
+                        onClick={(e) =>
+                          handleDeleteQuestion(question.questionId, e)
+                        }
+                      >
+                        <DropdownMenuItem className="cursor-pointer text-red-600 hover:text-red-700 focus:text-red-700">
+                          <OctagonX className="mr-2 h-4 w-4" />
+                          <span>{t_qaPage("deleteQuestion")}</span>
+                        </DropdownMenuItem>
+                      </button>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
               <div className="text-base mb-6">{question.content}</div>
@@ -281,6 +392,7 @@ export default function DetailQuestionView({
               }
             }}
             setAnswerOfQuestion={setAnswerOfQuestion}
+            isAdmin={isAdmin || false}
           />
         )}
       </div>
@@ -330,6 +442,32 @@ export default function DetailQuestionView({
           </button>
         </div>
       )}
+
+      <Dialog open={showModal} onOpenChange={(open) => !open && setShowModal(false)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{t_qaPage("deleteConfirmation")}</DialogTitle>
+          </DialogHeader>
+          <p>{t_qaPage("areYouSureYouWantToDeleteThisQuestion")}</p>
+          <DialogFooter className="mt-6">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowModal(false);
+                setDeleteId(null);
+              }}
+            >
+              {t_qaPage("cancel")}
+            </Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={handleDelete}
+            >
+              {t_qaPage("deleteQuestion")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

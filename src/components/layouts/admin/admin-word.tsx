@@ -17,8 +17,14 @@ import {
 import { Word } from "@/types/IWord";
 import { toast } from "sonner";
 import { useGetAllLessonsQuery } from "@/api/QuizApi";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { useGetAllCourseMutation } from "@/api/CourseApi";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useGetAllCourseMutation, useGetAllModuleByCourseIdMutation } from "@/api/CourseApi";
 
 export default function AdminWord() {
   const router = useRouter();
@@ -39,9 +45,9 @@ export default function AdminWord() {
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<string>("");
   const [getAllCourse] = useGetAllCourseMutation();
-  const [coursesSelect, setCoursesSelect] = useState<
-    { id: string; title: string }[]
-  >([]);
+  const [getAllModuleByCourseId] = useGetAllModuleByCourseIdMutation();
+  const [coursesSelect, setCoursesSelect] = useState<{ id: string; title: string }[]>([]);
+  const [modulesSelect, setModulesSelect] = useState<{ id: string; title: string }[]>([]);
 
   // Config fields for word
   const wordFields: FieldConfig[] = [
@@ -59,7 +65,7 @@ export default function AdminWord() {
       name: "moduleId",
       type: "select",
       required: true,
-      options: [],
+      options: modulesSelect.map((m) => ({ label: m.title, value: m.id })),
     },
     {
       label: "Lesson",
@@ -111,17 +117,43 @@ export default function AdminWord() {
   }, [getAllWord]);
 
   // Modal logic
-  const openModal = (word?: Word) => {
+  const openModal = async (word?: Word) => {
     if (word) {
       setEditWord(word);
-      setModalFields(wordFields);
       setModalTitle("Update Word");
       setDeleteWord(null);
+      
+      // Use the nested data from the API response
+      if (word.lesson?.module?.courseId) {
+        try {
+          // Fetch modules for the course
+          const courseModules = await getAllModuleByCourseId(word.lesson.module.courseId).unwrap();
+          setModulesSelect(Array.isArray(courseModules.result) ? courseModules.result : []);
+          
+          // Update modal fields with course and module data
+          const updatedFields = wordFields.map(field => {
+            if (field.name === 'courseId') {
+              return { ...field, options: coursesSelect.map((c) => ({ label: c.title, value: c.id })) };
+            }
+            if (field.name === 'moduleId') {
+              return { ...field, options: modulesSelect.map((m) => ({ label: m.title, value: m.id })) };
+            }
+            return field;
+          });
+          
+          setModalFields(updatedFields);
+        } catch (error) {
+          console.error("Error fetching modules:", error);
+          setModalFields(wordFields);
+        }
+      } else {
+        setModalFields(wordFields);
+      }
     } else {
       setEditWord(null);
-      setModalFields(wordFields);
       setModalTitle("Add Word");
       setDeleteWord(null);
+      setModalFields(wordFields);
     }
     setModalOpen(true);
   };
@@ -334,6 +366,8 @@ export default function AdminWord() {
                 id: editWord.id,
                 text: editWord.text || "",
                 videoSrc: editWord.videoSrc || "",
+                courseId: editWord.lesson?.module?.courseId || "",
+                moduleId: editWord.lesson?.moduleId || "",
                 lessonId: editWord.lessonId || "",
               }
             : {}
@@ -341,31 +375,31 @@ export default function AdminWord() {
       />
 
       {/* Delete Confirmation Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-sm">
-            <h2 className="text-lg font-semibold mb-4">Delete Confirmation</h2>
-            <p>Are you sure you want to delete this word?</p>
-            <div className="flex justify-end gap-2 mt-6">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowModal(false);
-                  setDeleteWord(null);
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                className="bg-red-600 hover:bg-red-700 text-white"
-                onClick={handleDelete}
-              >
-                Delete
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Dialog open={showModal} onOpenChange={(open) => !open && setShowModal(false)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Delete Confirmation</DialogTitle>
+          </DialogHeader>
+          <p>Are you sure you want to delete this word?</p>
+          <DialogFooter className="mt-6">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowModal(false);
+                setDeleteWord(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={handleDelete}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Video Modal */}
       <Dialog

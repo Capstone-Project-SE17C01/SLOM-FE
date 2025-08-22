@@ -37,6 +37,7 @@ export interface AnswerDetailQuestionViewProps {
   setAnswer?: Dispatch<SetStateAction<AnswerResponseDTO | undefined>>;
   onAnswerDeleted?: () => void;
   setAnswerOfQuestion?: Dispatch<SetStateAction<AnswerResponseDTO[] | null | undefined>>;
+  isAdmin: boolean;
 }
 
 export interface NewAnswerProps {
@@ -51,6 +52,9 @@ export interface NewAnswerProps {
   setIsUpdateAnswer?: Dispatch<SetStateAction<boolean>>;
   setAnswer?: Dispatch<SetStateAction<AnswerResponseDTO | undefined>>;
   updateQuestionAnswerCount?: (questionId: string, increment?: number) => void;
+  setAllQuestion?: Dispatch<SetStateAction<QuestionResponseDTO[] | null | undefined>>;
+  allQuestion?: QuestionResponseDTO[] | null | undefined;
+  isAdmin?: boolean;
 }
 
 export interface NewQuestionPopupProps {
@@ -61,6 +65,7 @@ export interface NewQuestionPopupProps {
   setIsUpdateQuestion: Dispatch<SetStateAction<boolean>>
   setQuestion: Dispatch<SetStateAction<QuestionResponseDTO | undefined>>
   setAllQuestion: Dispatch<SetStateAction<QuestionResponseDTO[] | null | undefined>>
+  setDetailQuestion: Dispatch<SetStateAction<QuestionResponseDTO | undefined>>
 }
 
 export interface DetailQuestionViewProps {
@@ -74,6 +79,12 @@ export interface DetailQuestionViewProps {
   setAnswer?: Dispatch<SetStateAction<AnswerResponseDTO | undefined>>;
   setHasInitialLoad: Dispatch<SetStateAction<boolean>>;
   updateQuestionAnswerCount?: (questionId: string, increment?: number) => void;
+  setAllQuestion: Dispatch<SetStateAction<QuestionResponseDTO[] | null | undefined>>
+  allQuestion: QuestionResponseDTO[] | null | undefined
+  isAdmin?: boolean
+  setIsNewQuestion?: Dispatch<SetStateAction<boolean>>
+  setIsUpdateQuestion?: Dispatch<SetStateAction<boolean>>
+  setQuestion?: Dispatch<SetStateAction<QuestionResponseDTO | undefined>>
 }
 
 export interface Author {

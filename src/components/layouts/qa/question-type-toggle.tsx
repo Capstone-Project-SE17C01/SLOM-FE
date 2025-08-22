@@ -41,7 +41,7 @@ export default function QuestionTypeToggle({
           className={cn(
             "relative flex items-center gap-2.5 rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200 ease-in-out",
             !isCurrentUser 
-              ? "bg-blue-50 text-blue-600 shadow-sm" 
+              ? "bg-purple-50 text-purple-600 shadow-sm" 
               : isDarkMode
                 ? "text-gray-300 hover:text-gray-100 hover:bg-gray-700"
                 : "text-gray-700 hover:text-gray-900 hover:bg-gray-50",
@@ -57,7 +57,7 @@ export default function QuestionTypeToggle({
           className={cn(
             "relative flex items-center gap-2.5 rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200 ease-in-out",
             isCurrentUser 
-              ? "bg-blue-50 text-blue-600 shadow-sm" 
+              ? "bg-purple-50 text-purple-600 shadow-sm" 
               : isDarkMode
                 ? "text-gray-300 hover:text-gray-100 hover:bg-gray-700"
                 : "text-gray-700 hover:text-gray-900 hover:bg-gray-50",

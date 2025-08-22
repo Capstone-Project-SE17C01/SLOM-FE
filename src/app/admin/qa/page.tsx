@@ -105,6 +105,9 @@ export default function QAPage() {
             setIsUpdateAnswer={setIsUpdateAnswer}
             setAnswer={setAnswer}
             updateQuestionAnswerCount={updateQuestionAnswerCount}
+            setAllQuestion={setAllQuestion}
+            allQuestion={allQuestion}
+            isAdmin={true}
           />
         </div>
       )}
@@ -169,6 +172,9 @@ export default function QAPage() {
             setIsUpdateAnswer={setIsUpdateAnswer}
             setAnswer={setAnswer}
             setHasInitialLoad={setHasInitialLoad}
+            setAllQuestion={setAllQuestion}
+            allQuestion={allQuestion}
+            isAdmin={true}
           />
         )}
       </div>
