@@ -119,16 +119,23 @@ export default function MeetingPage() {
     ) {
       let contentToSend = ''
       
-      // Priority: currentPrediction (real-time) over fullTranscript (batch)
-      if (signLanguageRecognition.currentPrediction && !signLanguageRecognition.useFakeMode) {
-        contentToSend = signLanguageRecognition.currentPrediction.trim()
-      } else if (signLanguageRecognition.fullTranscript && signLanguageRecognition.useFakeMode) {
-        // Only use fullTranscript for fake mode or when no currentPrediction
-        if (signLanguageRecognition.fullTranscript !== lastSentSignRef.current) {
-          if (signLanguageRecognition.fullTranscript.startsWith(lastSentSignRef.current)) {
-            contentToSend = signLanguageRecognition.fullTranscript.slice(lastSentSignRef.current.length).trim()
-          } else {
-            contentToSend = signLanguageRecognition.fullTranscript.trim()
+      // Check if fake mode is completed first
+      const fakeModeCompleted = !signLanguageRecognition.useFakeMode || 
+        (signLanguageRecognition.fullTranscript && signLanguageRecognition.fullTranscript.trim())
+      
+      // Only allow real ASL if fake mode is completed
+      if (fakeModeCompleted) {
+        // Priority: currentPrediction (real-time) over fullTranscript (batch)
+        if (signLanguageRecognition.currentPrediction && !signLanguageRecognition.useFakeMode) {
+          contentToSend = signLanguageRecognition.currentPrediction.trim()
+        } else if (signLanguageRecognition.fullTranscript && signLanguageRecognition.useFakeMode) {
+          // Only use fullTranscript for fake mode or when no currentPrediction
+          if (signLanguageRecognition.fullTranscript !== lastSentSignRef.current) {
+            if (signLanguageRecognition.fullTranscript.startsWith(lastSentSignRef.current)) {
+              contentToSend = signLanguageRecognition.fullTranscript.slice(lastSentSignRef.current.length).trim()
+            } else {
+              contentToSend = signLanguageRecognition.fullTranscript.trim()
+            }
           }
         }
       }
@@ -141,7 +148,7 @@ export default function MeetingPage() {
           if (signLanguageRecognition.useFakeMode) {
             lastSentSignRef.current = signLanguageRecognition.fullTranscript
           }
-          console.log(`🤖 Firebase push: ${contentToSend}`)
+          console.log(`🤖 Firebase push: ${contentToSend} (fakeMode: ${signLanguageRecognition.useFakeMode})`)
         }, 100)
 
         return () => clearTimeout(timeoutId)
