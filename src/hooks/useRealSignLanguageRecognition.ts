@@ -1,355 +1,347 @@
-import { random } from "lodash";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { random } from 'lodash'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 export interface SignLanguageRecognitionResult {
-  prediction: string;
-  confidence: number;
-  timestamp: string;
+  prediction: string
+  confidence: number
+  timestamp: string
 }
 
 export interface UseRealSignLanguageRecognitionOptions {
-  confidenceThreshold?: number; 
-  maxRecentPredictions?: number; 
+  confidenceThreshold?: number
+  maxRecentPredictions?: number
+  onTemporaryPrediction?: (gesture: string, confidence: number) => void // Real-time callback
+  onConfirmedPrediction?: (gesture: string, confidence: number) => void // Final callback
 }
 
-
 const fakeSentences = [
-  "hello we are S L O M we help everybody can communicate with each other we hope everybody always happy"
-];
+  'hello we are S L O M we help everybody can communicate with each other we hope everybody always happy'
+]
 
-export const useRealSignLanguageRecognition = (
-  options: UseRealSignLanguageRecognitionOptions = {}
-) => {
-  const { confidenceThreshold = 70, maxRecentPredictions = 10 } = options;
-  const t_translatorPage = useTranslations("translatorPage");
-  const [isActive, setIsActive] = useState(false);
-  const [currentPrediction, setCurrentPrediction] = useState("");
-  const [fullTranscript, setFullTranscript] = useState("");
-  const [confidence, setConfidence] = useState(0);
-  const [recentPredictions, setRecentPredictions] = useState<
-    SignLanguageRecognitionResult[]
-  >([]);
-  const [lastUpdate, setLastUpdate] = useState("");
-  const [useFakeMode, setUseFakeMode] = useState(false);
-  const [handDetected, setHandDetected] = useState(false);
+export const useRealSignLanguageRecognition = (options: UseRealSignLanguageRecognitionOptions = {}) => {
+  const { confidenceThreshold = 70, maxRecentPredictions = 10, onTemporaryPrediction, onConfirmedPrediction } = options
+  const t_translatorPage = useTranslations('translatorPage')
+  const [isActive, setIsActive] = useState(false)
+  const [currentPrediction, setCurrentPrediction] = useState('')
+  const [fullTranscript, setFullTranscript] = useState('')
+  const [confidence, setConfidence] = useState(0)
+  const [recentPredictions, setRecentPredictions] = useState<SignLanguageRecognitionResult[]>([])
+  const [lastUpdate, setLastUpdate] = useState('')
+  const [useFakeMode, setUseFakeMode] = useState(false)
+  const [handDetected, setHandDetected] = useState(false)
 
-  
-  const lastGestureRef = useRef<string>("");
-  const gestureCountRef = useRef<number>(0);
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const fakeTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const fakeWordIndexRef = useRef<number>(0);
-  const currentFakeSentenceRef = useRef<string[]>([]);
-  const fakeIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const lastHandStateRef = useRef<boolean>(false); 
+  const lastGestureRef = useRef<string>('')
+  const gestureCountRef = useRef<number>(0)
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const fakeTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const fakeWordIndexRef = useRef<number>(0)
+  const currentFakeSentenceRef = useRef<string[]>([])
+  const fakeIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const lastHandStateRef = useRef<boolean>(false)
 
-  
-  const handleHandDetection = useCallback((detected: boolean) => {
-    
-    setHandDetected(detected);
-    
-    
-    const previousHandState = lastHandStateRef.current;
-    lastHandStateRef.current = detected;
-    
-    
-    if (useFakeMode) {
-      
-      if (!detected && fakeIntervalRef.current) {
-        clearInterval(fakeIntervalRef.current);
-        fakeIntervalRef.current = null;
-        console.log("Hand removed - pausing fake display");
+  const handleHandDetection = useCallback(
+    (detected: boolean) => {
+      setHandDetected(detected)
+
+      const previousHandState = lastHandStateRef.current
+      lastHandStateRef.current = detected
+
+      if (useFakeMode) {
+        if (!detected && fakeIntervalRef.current) {
+          clearInterval(fakeIntervalRef.current)
+          fakeIntervalRef.current = null
+          console.log('Hand removed - pausing fake display')
+        }
+
+        if (
+          detected &&
+          !previousHandState &&
+          !fakeIntervalRef.current &&
+          fakeWordIndexRef.current < currentFakeSentenceRef.current.length
+        ) {
+          console.log('Hand detected - resuming fake display')
+          startFakeSentenceDisplay()
+        }
       }
-      
-      
-      if (detected && !previousHandState && !fakeIntervalRef.current && 
-          fakeWordIndexRef.current < currentFakeSentenceRef.current.length) {
-        console.log("Hand detected - resuming fake display");
-        startFakeSentenceDisplay();
-      }
-    }
-  }, [useFakeMode]);
+    },
+    [useFakeMode]
+  )
 
-  
   const startFakeSentenceDisplay = useCallback(() => {
-    
     if (!handDetected) {
-      console.log("Cannot start fake display - no hand detected");
-      return;
+      console.log('Cannot start fake display - no hand detected')
+      return
     }
-    
-    console.log("Starting fake sentence display");
-    
-    
-    if (fakeIntervalRef.current) {
-      clearInterval(fakeIntervalRef.current);
-    }
-    
-    
-    fakeIntervalRef.current = setInterval(() => {
-      
-      if (!handDetected) {
-        console.log("Hand no longer detected during interval");
-        if (fakeIntervalRef.current) {
-          clearInterval(fakeIntervalRef.current);
-          fakeIntervalRef.current = null;
-        }
-        return;
-      }
-      
-      if (fakeWordIndexRef.current < currentFakeSentenceRef.current.length) {
-        
-        const nextWord = currentFakeSentenceRef.current[fakeWordIndexRef.current];
-        console.log(`AI Response: ${nextWord}`);
-        
-        
-        setFullTranscript(prev => {
-          return prev ? `${prev} ${nextWord}` : nextWord;
-        });
-        
-        
-        setCurrentPrediction(nextWord);
-        
-        
-        fakeWordIndexRef.current += 1;
-      } else {
-        
-        console.log("Reached end of sentence");
-        if (fakeIntervalRef.current) {
-          clearInterval(fakeIntervalRef.current);
-          fakeIntervalRef.current = null;
-        }
-      }
-    }, random(700, 1500)); 
-  }, [handDetected]);
 
-  
+    console.log('Starting fake sentence display')
+
+    if (fakeIntervalRef.current) {
+      clearInterval(fakeIntervalRef.current)
+    }
+
+    fakeIntervalRef.current = setInterval(() => {
+      if (!handDetected) {
+        console.log('Hand no longer detected during interval')
+        if (fakeIntervalRef.current) {
+          clearInterval(fakeIntervalRef.current)
+          fakeIntervalRef.current = null
+        }
+        return
+      }
+
+      if (fakeWordIndexRef.current < currentFakeSentenceRef.current.length) {
+        const nextWord = currentFakeSentenceRef.current[fakeWordIndexRef.current]
+        console.log(`AI Response: ${nextWord}`)
+
+        setFullTranscript((prev) => {
+          return prev ? `${prev} ${nextWord}` : nextWord
+        })
+
+        setCurrentPrediction(nextWord)
+
+        fakeWordIndexRef.current += 1
+      } else {
+        console.log('Reached end of sentence')
+        if (fakeIntervalRef.current) {
+          clearInterval(fakeIntervalRef.current)
+          fakeIntervalRef.current = null
+        }
+      }
+    }, random(700, 1500))
+  }, [handDetected])
+
   const handleGestureDetected = useCallback(
     (gesture: string, gestureConfidence: number) => {
-      if (!isActive || gestureConfidence < confidenceThreshold) return;
+      if (!isActive || gestureConfidence < confidenceThreshold) return
 
       // Console log thay vì hiển thị
-      console.log(`AI Response: ${gesture} (${gestureConfidence}% confidence)`);
-      
-      setCurrentPrediction(gesture);
-      setConfidence(gestureConfidence);
-      setLastUpdate(new Date().toLocaleTimeString());
+      console.log(`AI Response: ${gesture} (${gestureConfidence}% confidence)`)
 
-      
-      if (gesture === "Hello" && !useFakeMode) {
-        console.log("Hello gesture detected - activating fake mode");
-        setUseFakeMode(true);
-        
-        
-        setFullTranscript("");
-        
-        
-        const selectedSentence = fakeSentences[0]; 
-        currentFakeSentenceRef.current = selectedSentence.split(" ");
-        fakeWordIndexRef.current = 0;
-        
-        
-        if (handDetected) {
-          console.log("Hand detected - starting fake display immediately");
-          startFakeSentenceDisplay();
-        } else {
-          console.log("No hand detected - waiting for hand to start display");
-        }
-        
-        
-        if (fakeTimerRef.current) {
-          clearTimeout(fakeTimerRef.current);
-        }
-        
-        fakeTimerRef.current = setTimeout(() => {
-          console.log("Fake mode timeout - deactivating");
-          if (fakeIntervalRef.current) {
-            clearInterval(fakeIntervalRef.current);
-            fakeIntervalRef.current = null;
-          }
-          setUseFakeMode(false);
-        }, 30000); 
-        
-        return;
+      setCurrentPrediction(gesture)
+      setConfidence(gestureConfidence)
+      setLastUpdate(new Date().toLocaleTimeString())
+
+      // 🔥 REAL-TIME: Call temporary prediction callback immediately for high confidence
+      if (gestureConfidence >= 60 && onTemporaryPrediction && !useFakeMode) {
+        onTemporaryPrediction(gesture, gestureConfidence)
       }
-      
-      
-      if (useFakeMode) return;
 
-      
-      if (gesture === lastGestureRef.current) {
-        gestureCountRef.current += 1;
+      if (gesture === 'Hello' && !useFakeMode) {
+        console.log('Hello gesture detected - activating fake mode')
+        setUseFakeMode(true)
 
-        
-        if (debounceTimerRef.current) {
-          clearTimeout(debounceTimerRef.current);
+        setFullTranscript('')
+
+        const selectedSentence = fakeSentences[0]
+        currentFakeSentenceRef.current = selectedSentence.split(' ')
+        fakeWordIndexRef.current = 0
+
+        if (handDetected) {
+          console.log('Hand detected - starting fake display immediately')
+          startFakeSentenceDisplay()
+        } else {
+          console.log('No hand detected - waiting for hand to start display')
         }
 
-        
+        if (fakeTimerRef.current) {
+          clearTimeout(fakeTimerRef.current)
+        }
+
+        fakeTimerRef.current = setTimeout(() => {
+          console.log('Fake mode timeout - deactivating')
+          if (fakeIntervalRef.current) {
+            clearInterval(fakeIntervalRef.current)
+            fakeIntervalRef.current = null
+          }
+          setUseFakeMode(false)
+        }, 30000)
+
+        return
+      }
+
+      if (useFakeMode) return
+
+      if (gesture === lastGestureRef.current) {
+        gestureCountRef.current += 1
+
+        if (debounceTimerRef.current) {
+          clearTimeout(debounceTimerRef.current)
+        }
+
         debounceTimerRef.current = setTimeout(() => {
           if (gestureCountRef.current >= 2) {
-            
             const newResult: SignLanguageRecognitionResult = {
               prediction: gesture,
               confidence: gestureConfidence,
-              timestamp: new Date().toLocaleTimeString(),
-            };
+              timestamp: new Date().toLocaleTimeString()
+            }
 
-            
             setRecentPredictions((prev) => {
-              const updated = [newResult, ...prev];
-              console.log(`Recent predictions updated: ${newResult.prediction} (${newResult.confidence}%)`);
-              return updated.slice(0, maxRecentPredictions);
-            });
+              const updated = [newResult, ...prev]
+              console.log(`Recent predictions updated: ${newResult.prediction} (${newResult.confidence}%)`)
+              return updated.slice(0, maxRecentPredictions)
+            })
 
-            
             setFullTranscript((prev) => {
-              const words = prev.trim().split(" ");
-              const lastWord = words[words.length - 1];
+              const words = prev.trim().split(' ')
+              const lastWord = words[words.length - 1]
 
               if (lastWord !== gesture) {
-                return prev ? `${prev} ${gesture}` : gesture;
-              }
-              return prev;
-            });
+                const newTranscript = prev ? `${prev} ${gesture}` : gesture
 
-            gestureCountRef.current = 0;
+                // 🔥 CONFIRMED: Call confirmed prediction callback
+                if (onConfirmedPrediction) {
+                  onConfirmedPrediction(gesture, gestureConfidence)
+                }
+
+                return newTranscript
+              }
+              return prev
+            })
+
+            gestureCountRef.current = 0
           }
-        }, 150); 
+        }, 150)
       } else {
-        
         if (lastGestureRef.current && gestureCountRef.current >= 2) {
           const newResult: SignLanguageRecognitionResult = {
             prediction: lastGestureRef.current,
             confidence: gestureConfidence,
-            timestamp: new Date().toLocaleTimeString(),
-          };
+            timestamp: new Date().toLocaleTimeString()
+          }
 
-          
           setRecentPredictions((prev) => {
-            const updated = [newResult, ...prev];
-            console.log(`Recent predictions updated: ${newResult.prediction} (${newResult.confidence}%)`);
-            return updated.slice(0, maxRecentPredictions);
-          });
+            const updated = [newResult, ...prev]
+            console.log(`Recent predictions updated: ${newResult.prediction} (${newResult.confidence}%)`)
+            return updated.slice(0, maxRecentPredictions)
+          })
 
-          
           setFullTranscript((prev) => {
-            const words = prev.trim().split(" ");
-            const lastWord = words[words.length - 1];
+            const words = prev.trim().split(' ')
+            const lastWord = words[words.length - 1]
 
             if (lastWord !== lastGestureRef.current) {
-              return prev
-                ? `${prev} ${lastGestureRef.current}`
-                : lastGestureRef.current;
+              const newTranscript = prev ? `${prev} ${lastGestureRef.current}` : lastGestureRef.current
+
+              // 🔥 CONFIRMED: Call confirmed prediction callback
+              if (onConfirmedPrediction) {
+                onConfirmedPrediction(lastGestureRef.current, gestureConfidence)
+              }
+
+              return newTranscript
             }
-            return prev;
-          });
+            return prev
+          })
         }
 
-        
-        lastGestureRef.current = gesture;
-        gestureCountRef.current = 1;
+        lastGestureRef.current = gesture
+        gestureCountRef.current = 1
 
-        
         if (debounceTimerRef.current) {
-          clearTimeout(debounceTimerRef.current);
+          clearTimeout(debounceTimerRef.current)
         }
       }
     },
-    [isActive, confidenceThreshold, maxRecentPredictions, useFakeMode, handDetected, startFakeSentenceDisplay]
-  );
+    [
+      isActive,
+      confidenceThreshold,
+      maxRecentPredictions,
+      useFakeMode,
+      handDetected,
+      startFakeSentenceDisplay,
+      onTemporaryPrediction,
+      onConfirmedPrediction
+    ]
+  )
 
   const startRecognition = useCallback(() => {
-    console.log("Starting recognition");
-    setIsActive(true);
-    setCurrentPrediction("");
-    setFullTranscript("");
-    setConfidence(0);
-    setRecentPredictions([]);
-    setUseFakeMode(false);
-    lastGestureRef.current = "";
-    gestureCountRef.current = 0;
-    fakeWordIndexRef.current = 0;
-    currentFakeSentenceRef.current = [];
-    lastHandStateRef.current = false;
-  }, []);
+    console.log('Starting recognition')
+    setIsActive(true)
+    setCurrentPrediction('')
+    setFullTranscript('')
+    setConfidence(0)
+    setRecentPredictions([])
+    setUseFakeMode(false)
+    lastGestureRef.current = ''
+    gestureCountRef.current = 0
+    fakeWordIndexRef.current = 0
+    currentFakeSentenceRef.current = []
+    lastHandStateRef.current = false
+  }, [])
 
   const stopRecognition = useCallback(() => {
-    console.log("Stopping recognition");
-    setIsActive(false);
-    setCurrentPrediction("");
-    setConfidence(0);
-    setUseFakeMode(false);
+    console.log('Stopping recognition')
+    setIsActive(false)
+    setCurrentPrediction('')
+    setConfidence(0)
+    setUseFakeMode(false)
 
-    
     if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-      debounceTimerRef.current = null;
+      clearTimeout(debounceTimerRef.current)
+      debounceTimerRef.current = null
     }
-    
-    
+
     if (fakeTimerRef.current) {
-      clearTimeout(fakeTimerRef.current);
-      fakeTimerRef.current = null;
+      clearTimeout(fakeTimerRef.current)
+      fakeTimerRef.current = null
     }
-    
+
     if (fakeIntervalRef.current) {
-      clearInterval(fakeIntervalRef.current);
-      fakeIntervalRef.current = null;
+      clearInterval(fakeIntervalRef.current)
+      fakeIntervalRef.current = null
     }
-  }, []);
+  }, [])
 
   const toggleRecognition = useCallback(() => {
     if (isActive) {
-      stopRecognition();
+      stopRecognition()
     } else {
-      startRecognition();
+      startRecognition()
     }
-  }, [isActive, startRecognition, stopRecognition]);
+  }, [isActive, startRecognition, stopRecognition])
 
   const resetTranscript = useCallback(() => {
-    console.log("Resetting transcript");
-    setFullTranscript("");
-    setCurrentPrediction("");
-    setRecentPredictions([]);
-    setConfidence(0);
-    setUseFakeMode(false);
-    fakeWordIndexRef.current = 0;
-    currentFakeSentenceRef.current = [];
-  }, []);
+    console.log('Resetting transcript')
+    setFullTranscript('')
+    setCurrentPrediction('')
+    setRecentPredictions([])
+    setConfidence(0)
+    setUseFakeMode(false)
+    fakeWordIndexRef.current = 0
+    currentFakeSentenceRef.current = []
+  }, [])
 
-  
   useEffect(() => {
     return () => {
       if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
+        clearTimeout(debounceTimerRef.current)
       }
       if (fakeTimerRef.current) {
-        clearTimeout(fakeTimerRef.current);
+        clearTimeout(fakeTimerRef.current)
       }
       if (fakeIntervalRef.current) {
-        clearInterval(fakeIntervalRef.current);
+        clearInterval(fakeIntervalRef.current)
       }
-    };
-  }, []);
+    }
+  }, [])
 
-  
   useEffect(() => {
     if (useFakeMode) {
       if (!handDetected && fakeIntervalRef.current) {
-        
-        console.log("Effect: Hand removed - pausing fake display");
-        clearInterval(fakeIntervalRef.current);
-        fakeIntervalRef.current = null;
-      } else if (handDetected && !fakeIntervalRef.current && 
-                fakeWordIndexRef.current < currentFakeSentenceRef.current.length) {
-        
-        console.log("Effect: Hand detected - resuming fake display");
-        startFakeSentenceDisplay();
+        console.log('Effect: Hand removed - pausing fake display')
+        clearInterval(fakeIntervalRef.current)
+        fakeIntervalRef.current = null
+      } else if (
+        handDetected &&
+        !fakeIntervalRef.current &&
+        fakeWordIndexRef.current < currentFakeSentenceRef.current.length
+      ) {
+        console.log('Effect: Hand detected - resuming fake display')
+        startFakeSentenceDisplay()
       }
     }
-  }, [handDetected, useFakeMode, startFakeSentenceDisplay]);
+  }, [handDetected, useFakeMode, startFakeSentenceDisplay])
 
   return {
     isActive,
@@ -362,13 +354,13 @@ export const useRealSignLanguageRecognition = (
     recentPredictions,
     lastUpdate,
     resetTranscript,
-    handleGestureDetected, 
-    handleHandDetection, 
-    useFakeMode, 
-    handDetected, 
+    handleGestureDetected,
+    handleHandDetection,
+    useFakeMode,
+    handDetected,
     isConnected: isActive,
-    connectionStatus: isActive ? t_translatorPage("recognizing") : t_translatorPage("disconnected"),
+    connectionStatus: isActive ? t_translatorPage('recognizing') : t_translatorPage('disconnected'),
     connect: startRecognition,
-    disconnect: stopRecognition,
-  };
-};
+    disconnect: stopRecognition
+  }
+}

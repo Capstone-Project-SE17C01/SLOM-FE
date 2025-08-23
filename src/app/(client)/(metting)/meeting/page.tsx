@@ -58,17 +58,54 @@ export default function MeetingPage() {
     toLang
   })
 
-  // Real AI Sign Language Recognition hook
-  const signLanguageRecognition = useRealSignLanguageRecognition({
-    confidenceThreshold: 70, // Only accept gestures with >70% confidence
-    maxRecentPredictions: 20 // Keep last 20 predictions
-  })
-
   // Firebase hooks
   const meetingFirebase = useMeetingFirebase({
     meetingCode: roomID,
     userId: userInfo?.id || '',
     enabled: hasJoinedRoom && !meetingExpired && userInfo?.vipUser
+  })
+
+  // Track previously sent speech content to avoid duplicates
+  const lastSentSpeechRef = React.useRef<string>('')
+  const lastSentSignRef = React.useRef<string>('')
+  const lastSentTemporarySignRef = React.useRef<string>('')
+
+  // Callback for temporary sign language predictions (real-time)
+  const handleTemporarySignPrediction = React.useCallback(
+    (gesture: string, confidence: number) => {
+      if (!hasJoinedRoom || meetingExpired || !userInfo?.vipUser) return
+
+      // Debounce temporary predictions to avoid spam
+      const debounceTimeout = setTimeout(() => {
+        if (gesture !== lastSentTemporarySignRef.current) {
+          meetingFirebase.sendSignContent(`[TEMP] ${gesture} (${confidence}%)`)
+          lastSentTemporarySignRef.current = gesture
+          console.log(`🔄 Sent temporary sign prediction: ${gesture}`)
+        }
+      }, 300) // Short debounce for real-time feel
+
+      return () => clearTimeout(debounceTimeout)
+    },
+    [hasJoinedRoom, meetingExpired, userInfo?.vipUser, meetingFirebase]
+  )
+
+  // Callback for confirmed sign language predictions (final)
+  const handleConfirmedSignPrediction = React.useCallback(
+    (gesture: string, confidence: number) => {
+      if (!hasJoinedRoom || meetingExpired || !userInfo?.vipUser) return
+
+      meetingFirebase.sendSignContent(`[CONFIRMED] ${gesture}`)
+      console.log(`✅ Sent confirmed sign prediction: ${gesture}`)
+    },
+    [hasJoinedRoom, meetingExpired, userInfo?.vipUser, meetingFirebase]
+  )
+
+  // Real AI Sign Language Recognition hook
+  const signLanguageRecognition = useRealSignLanguageRecognition({
+    confidenceThreshold: 70, // Only accept gestures with >70% confidence
+    maxRecentPredictions: 20, // Keep last 20 predictions
+    onTemporaryPrediction: handleTemporarySignPrediction, // Real-time callback
+    onConfirmedPrediction: handleConfirmedSignPrediction // Final callback
   })
 
   // Auto show overlay when sign language recognition is activated
@@ -77,10 +114,6 @@ export default function MeetingPage() {
       setSignLanguageVisible(true)
     }
   }, [signLanguageRecognition.isActive, signLanguageVisible])
-
-  // Track previously sent speech content to avoid duplicates
-  const lastSentSpeechRef = React.useRef<string>('')
-  const lastSentSignRef = React.useRef<string>('')
 
   // Auto-send speech transcript to Firebase when it changes (only new content)
   React.useEffect(() => {
@@ -108,7 +141,9 @@ export default function MeetingPage() {
     }
   }, [transcript, hasJoinedRoom, meetingExpired, userInfo?.vipUser, meetingFirebase])
 
-  // Auto-send sign language transcript to Firebase when it changes (only new content)
+  // 🔥 DEPRECATED: Auto-send sign language transcript to Firebase when it changes (only new content)
+  // This has been replaced by the new hybrid approach with onTemporaryPrediction & onConfirmedPrediction callbacks
+  /*
   React.useEffect(() => {
     if (signLanguageRecognition.fullTranscript && hasJoinedRoom && !meetingExpired && userInfo?.vipUser) {
       // Only send if content is different from what was last sent
@@ -136,6 +171,7 @@ export default function MeetingPage() {
       }
     }
   }, [signLanguageRecognition.fullTranscript, hasJoinedRoom, meetingExpired, userInfo?.vipUser, meetingFirebase])
+  */
 
   const handleRecordingSave = React.useCallback(
     async (recordingPath: string, duration: number) => {
@@ -425,11 +461,15 @@ export default function MeetingPage() {
       )}
 
       {/* Firebase Real-time Subtitle Display */}
-      {hasJoinedRoom && !meetingExpired && roomID && userInfo?.vipUser && (isListening || signLanguageRecognition.isActive) && (
-        <div className="fixed bottom-20 left-5 right-5 z-[997] max-w-2xl mx-auto">
-          <FirebaseSubtitleDisplay meetingCode={roomID} currentUserId={userInfo?.id || ''} />
-        </div>
-      )}
+      {hasJoinedRoom &&
+        !meetingExpired &&
+        roomID &&
+        userInfo?.vipUser &&
+        (isListening || signLanguageRecognition.isActive) && (
+          <div className="fixed bottom-20 left-5 right-5 z-[997] max-w-2xl mx-auto">
+            <FirebaseSubtitleDisplay meetingCode={roomID} currentUserId={userInfo?.id || ''} />
+          </div>
+        )}
 
       {hasJoinedRoom && !meetingExpired && (
         <SignLanguageDetector
