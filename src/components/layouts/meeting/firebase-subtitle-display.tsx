@@ -100,17 +100,50 @@ export default function FirebaseSubtitleDisplay({
     })
 
     setBucketDisplays(displays)
+
+    // Auto-scroll when new content is added to current bucket
+    const hasCurrentBucketContent = displays.some(bucket => bucket.isCurrentBucket && bucket.userContents.length > 0)
+    if (hasCurrentBucketContent) {
+      // Check if user is near bottom before auto-scrolling
+      if (scrollContainerRef.current) {
+        const container = scrollContainerRef.current
+        const containerBottom = container.scrollTop + container.clientHeight
+        const containerScrollHeight = container.scrollHeight
+        const isNearBottom = containerScrollHeight - containerBottom <= 100
+
+        if (isNearBottom) {
+          setTimeout(() => {
+            // Scroll to the very bottom of the container
+            container.scrollTo({
+              top: container.scrollHeight,
+              behavior: 'smooth'
+            })
+          }, 100) // Small delay to ensure content is rendered
+        }
+      }
+    }
   }, [meetingData, currentBucketKey, currentUserId])
 
-  // Auto-scroll to current bucket when new current bucket appears
+  // Auto-scroll to bottom when new current bucket appears (only if user is near bottom)
   useEffect(() => {
-    if (isAtCurrentBucket && currentBucketRef.current) {
-      currentBucketRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'end'
+    if (!scrollContainerRef.current) return
+
+    const container = scrollContainerRef.current
+
+    // Check if user is near the bottom (within 100px of bottom)
+    const containerBottom = container.scrollTop + container.clientHeight
+    const containerScrollHeight = container.scrollHeight
+    const isNearBottom = containerScrollHeight - containerBottom <= 100
+
+    // Only auto-scroll if user is near bottom or if it's the first time
+    if ((isAtCurrentBucket && isNearBottom) || bucketDisplays.length === 1) {
+      // Scroll to the very bottom of the container
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: 'smooth'
       })
     }
-  }, [currentBucketKey, isAtCurrentBucket])
+  }, [currentBucketKey, isAtCurrentBucket, bucketDisplays.length])
 
   // Handle resize drag
   const handleResizeStart = useCallback(
