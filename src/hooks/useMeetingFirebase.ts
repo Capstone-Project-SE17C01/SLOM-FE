@@ -51,64 +51,70 @@ export const useMeetingFirebase = ({
   }, [meetingCode, userId, enabled])
 
   // Send speech content to Firebase
-  const sendSpeechContent = useCallback(async (content: string) => {
-    if (!enabled || !content.trim() || !meetingCode || !userId) return
+  const sendSpeechContent = useCallback(
+    async (content: string) => {
+      if (!enabled || !content.trim() || !meetingCode || !userId) return
 
-    try {
-      console.log('🗣️ Sending speech content to Firebase:', content)
-      
-      const entry: ContentEntry = {
-        meetingCode,
-        userId,
-        content: content.trim(),
-        timestamp: Date.now()
-      }
+      try {
+        console.log('🗣️ Sending speech content to Firebase:', content)
 
-      const result = await meetingService.addContent(entry)
-      
-      if (result.success) {
-        console.log('✅ Speech content sent successfully')
-        isConnectedRef.current = true
-        errorRef.current = null
-      } else {
-        throw new Error(result.error || 'Failed to send speech content')
+        const entry: ContentEntry = {
+          meetingCode,
+          userId,
+          content: content.trim(),
+          timestamp: Date.now()
+        }
+
+        const result = await meetingService.addContent(entry)
+
+        if (result.success) {
+          console.log('✅ Speech content sent successfully')
+          isConnectedRef.current = true
+          errorRef.current = null
+        } else {
+          throw new Error(result.error || 'Failed to send speech content')
+        }
+      } catch (error) {
+        console.error('❌ Error sending speech content:', error)
+        isConnectedRef.current = false
+        errorRef.current = error instanceof Error ? error.message : 'Unknown error'
       }
-    } catch (error) {
-      console.error('❌ Error sending speech content:', error)
-      isConnectedRef.current = false
-      errorRef.current = error instanceof Error ? error.message : 'Unknown error'
-    }
-  }, [meetingCode, userId, enabled])
+    },
+    [meetingCode, userId, enabled]
+  )
 
   // Send sign language content to Firebase
-  const sendSignContent = useCallback(async (content: string) => {
-    if (!enabled || !content.trim() || !meetingCode || !userId) return
+  const sendSignContent = useCallback(
+    async (content: string) => {
+      if (!enabled || !content.trim() || !meetingCode || !userId) return
 
-    try {
-      console.log('👋 Sending sign language content to Firebase:', content)
-      
-      const entry: ContentEntry = {
-        meetingCode,
-        userId,
-        content: `[SIGN] ${content.trim()}`, // Prefix to distinguish from speech
-        timestamp: Date.now()
-      }
+      try {
+        console.log('👋 Sending sign language content to Firebase:', content)
 
-      const result = await meetingService.addContent(entry)
-      
-      if (result.success) {
-        console.log('✅ Sign language content sent successfully')
-        isConnectedRef.current = true
-        errorRef.current = null
-      } else {
-        throw new Error(result.error || 'Failed to send sign content')
+        const entry: ContentEntry = {
+          meetingCode,
+          userId,
+          content: content.trim(), // 🔥 NO PREFIX - clean natural subtitle
+          timestamp: Date.now()
+        }
+
+        const result = await meetingService.addContent(entry)
+
+        if (result.success) {
+          console.log('✅ Sign language content sent successfully')
+          isConnectedRef.current = true
+          errorRef.current = null
+        } else {
+          throw new Error(result.error || 'Failed to send sign content')
+        }
+      } catch (error) {
+        console.error('❌ Error sending sign language content:', error)
+        isConnectedRef.current = false
+        errorRef.current = error instanceof Error ? error.message : 'Unknown error'
       }
-    } catch (error) {
-      console.error('❌ Error sending sign language content:', error)
-      isConnectedRef.current = false
-      errorRef.current = error instanceof Error ? error.message : 'Unknown error'
-    }
-  }, [meetingCode, userId, enabled])
+    },
+    [meetingCode, userId, enabled]
+  )
 
   return {
     sendSpeechContent,

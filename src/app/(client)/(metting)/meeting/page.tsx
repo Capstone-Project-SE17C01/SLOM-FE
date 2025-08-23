@@ -102,18 +102,19 @@ export default function MeetingPage() {
             meetingFirebase.sendSpeechContent(transcript)
             lastSentSpeechRef.current = transcript
           }
-        }, 200) // Increased debounce to 1 second for better stability
+        }, 200)
 
         return () => clearTimeout(timeoutId)
       }
     }
   }, [transcript, hasJoinedRoom, meetingExpired, userInfo?.vipUser, meetingFirebase])
 
-  // 🔥 NEW: Real-time Firebase push for currentPrediction (instant push)
+  // 🔥 Real-time Firebase push for currentPrediction (only when NOT in fake mode)
   React.useEffect(() => {
     if (
       signLanguageRecognition.currentPrediction &&
       signLanguageRecognition.isActive &&
+      !signLanguageRecognition.useFakeMode && // Only push when NOT in fake mode
       hasJoinedRoom &&
       !meetingExpired &&
       userInfo?.vipUser
@@ -123,9 +124,9 @@ export default function MeetingPage() {
       // Only send if different from last sent prediction
       if (prediction && prediction !== lastSentPredictionRef.current) {
         const timeoutId = setTimeout(() => {
-          meetingFirebase.sendSignContent(`[REAL-TIME] ${prediction}`)
+          meetingFirebase.sendSignContent(prediction) // 🔥 NO PREFIX - clean subtitle
           lastSentPredictionRef.current = prediction
-          console.log(`🚀 Real-time push: ${prediction}`)
+          console.log(`🤖 Real-time push: ${prediction}`)
         }, 100) // Almost instant push
 
         return () => clearTimeout(timeoutId)
@@ -134,13 +135,14 @@ export default function MeetingPage() {
   }, [
     signLanguageRecognition.currentPrediction,
     signLanguageRecognition.isActive,
+    signLanguageRecognition.useFakeMode,
     hasJoinedRoom,
     meetingExpired,
     userInfo?.vipUser,
     meetingFirebase
   ])
 
-  // Auto-send sign language transcript to Firebase when it changes (batch push)
+  // Auto-send sign language transcript to Firebase when it changes (batch push for confirmed gestures and fake content)
   React.useEffect(() => {
     if (signLanguageRecognition.fullTranscript && hasJoinedRoom && !meetingExpired && userInfo?.vipUser) {
       // Only send if content is different from what was last sent
@@ -154,15 +156,15 @@ export default function MeetingPage() {
             // Extract only the new part
             const newContent = signLanguageRecognition.fullTranscript.slice(lastSentSignRef.current.length).trim()
             if (newContent) {
-              meetingFirebase.sendSignContent(`[BATCH] ${newContent}`)
+              meetingFirebase.sendSignContent(newContent) // 🔥 NO PREFIX - clean subtitle
               lastSentSignRef.current = signLanguageRecognition.fullTranscript
             }
           } else {
             // Completely new transcript (user started a new sign language session)
-            meetingFirebase.sendSignContent(`[BATCH] ${signLanguageRecognition.fullTranscript}`)
+            meetingFirebase.sendSignContent(signLanguageRecognition.fullTranscript) // 🔥 NO PREFIX - clean subtitle
             lastSentSignRef.current = signLanguageRecognition.fullTranscript
           }
-        }, 200) // 🔥 FASTER: Reduced from 1000ms to 200ms like speech
+        }, 200)
 
         return () => clearTimeout(timeoutId)
       }
@@ -240,10 +242,12 @@ export default function MeetingPage() {
     return () => {
       if (isListening) stopListening()
       resetTranscript()
+
       // Reset tracking refs on cleanup
       lastSentSpeechRef.current = ''
       lastSentSignRef.current = ''
       lastSentPredictionRef.current = ''
+
       if (roomID && userInfo?.id) {
         leaveMeeting({ id: roomID, request: { userId: userInfo.id } })
       }

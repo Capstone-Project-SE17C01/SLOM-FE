@@ -269,9 +269,13 @@ export default function FirebaseSubtitleDisplay({
 
                     if (!fullContent) return null
 
-                    // Check if content contains sign language
-                    const isSignLanguage = fullContent.includes('[SIGN]')
-                    const displayContent = fullContent.replace(/\[SIGN\]\s*/g, '')
+                    // Clean display content - remove any remaining prefixes
+                    const displayContent = fullContent
+                      .replace(/\[SIGN\]\s*/g, '')
+                      .replace(/\[AI.*?\]\s*/g, '')
+                      .replace(/\[SCRIPT.*?\]\s*/g, '')
+                      .replace(/\[BATCH.*?\]\s*/g, '')
+                      .trim()
 
                     // Get user display name
                     const userDisplayName = userContent.isCurrentUser ? 'You' : `User ${userContent.userId.slice(-4)}`
@@ -286,16 +290,15 @@ export default function FirebaseSubtitleDisplay({
                             : 'border-gray-600/30 bg-gray-800/20'
                         )}
                       >
-                        {/* User Header */}
+                        {/* User Header - Clean without type indicators */}
                         <div className="flex items-center gap-2 mb-2">
-                          {/* Content Type Indicator */}
-                          {isSignLanguage ? (
-                            <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center">
-                              <span className="text-xs text-white font-bold">🤟</span>
-                            </div>
-                          ) : (
-                            <div className="w-4 h-4 rounded-full bg-blue-500"></div>
-                          )}
+                          {/* Simple User Indicator */}
+                          <div
+                            className={cn(
+                              'w-4 h-4 rounded-full',
+                              userContent.isCurrentUser ? 'bg-blue-500' : 'bg-gray-500'
+                            )}
+                          ></div>
 
                           {/* User Name */}
                           <span
@@ -306,12 +309,9 @@ export default function FirebaseSubtitleDisplay({
                           >
                             {userDisplayName}
                           </span>
-
-                          {/* Content Type Label */}
-                          <span className="text-xs text-gray-500">{isSignLanguage ? 'Sign Language' : 'Speech'}</span>
                         </div>
 
-                        {/* User Content */}
+                        {/* User Content - Natural subtitle display */}
                         <p
                           className={cn(
                             'text-sm leading-relaxed',
