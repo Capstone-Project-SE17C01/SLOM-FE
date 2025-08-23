@@ -10,17 +10,21 @@ export interface UseSpeechToTextOptions {
 export function useSpeechToText(options: UseSpeechToTextOptions) {
   const [transcript, setTranscript] = useState("");
   const [isListening, setIsListening] = useState(false);
+  const [isTranslated, setIsTranslated] = useState(false);
   const recognizerRef = useRef<SpeechSDK.SpeechRecognizer | null>(null);
   const startListening = () => {
     if (isListening) return;
     setTranscript("");
     setIsListening(true);
+    setIsTranslated(false);
     const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(options.subscriptionKey, options.region);
     speechConfig.speechRecognitionLanguage = options.fromLang;
     const audioConfig = SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
     const recognizer = new SpeechSDK.SpeechRecognizer(speechConfig, audioConfig);
     recognizer.recognizing = (_s, e) => {
+      // Only show original text for UI feedback, don't mark as translated
       setTranscript(e.result.text);
+      setIsTranslated(false);
     };
     recognizer.recognized = async (_s, e) => {
       if (e.result.text) {
@@ -32,6 +36,7 @@ export function useSpeechToText(options: UseSpeechToTextOptions) {
           options.region
         );
         setTranscript(translated);
+        setIsTranslated(true); // Mark as translated for Firebase push
       }
     };
     recognizer.sessionStopped = () => {
@@ -57,9 +62,13 @@ export function useSpeechToText(options: UseSpeechToTextOptions) {
   return {
     transcript,
     isListening,
+    isTranslated,
     startListening,
     stopListening,
-    resetTranscript: () => setTranscript(""),
+    resetTranscript: () => {
+      setTranscript("");
+      setIsTranslated(false);
+    },
   };
 }
 async function translateText(

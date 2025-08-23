@@ -50,7 +50,7 @@ export default function MeetingPage() {
   })
 
   // Speech-to-text hook
-  const { transcript, isListening, startListening, stopListening, resetTranscript } = useSpeechToText({
+  const { transcript, isListening, isTranslated, startListening, stopListening, resetTranscript } = useSpeechToText({
     subscriptionKey,
     region,
     translatorKey,
@@ -83,9 +83,9 @@ export default function MeetingPage() {
   const lastSentSignRef = React.useRef<string>('')
   const lastSentPredictionRef = React.useRef<string>('')
 
-  // Auto-send speech transcript to Firebase when it changes (only new content)
+  // Auto-send speech transcript to Firebase when it changes (only translated content)
   React.useEffect(() => {
-    if (transcript && hasJoinedRoom && !meetingExpired && userInfo?.vipUser) {
+    if (transcript && isTranslated && hasJoinedRoom && !meetingExpired && userInfo?.vipUser) {
       // Only send if content is different from what was last sent
       if (transcript !== lastSentSpeechRef.current && transcript.trim()) {
         const timeoutId = setTimeout(() => {
@@ -107,7 +107,7 @@ export default function MeetingPage() {
         return () => clearTimeout(timeoutId)
       }
     }
-  }, [transcript, hasJoinedRoom, meetingExpired, userInfo?.vipUser, meetingFirebase])
+  }, [transcript, isTranslated, hasJoinedRoom, meetingExpired, userInfo?.vipUser, meetingFirebase])
 
   // 🔥 Single Firebase push for sign language recognition (real-time + fake mode)
   React.useEffect(() => {
