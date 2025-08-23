@@ -81,6 +81,7 @@ export default function MeetingPage() {
   // Track previously sent speech content to avoid duplicates
   const lastSentSpeechRef = React.useRef<string>('')
   const lastSentSignRef = React.useRef<string>('')
+  const lastSentPredictionRef = React.useRef<string>('')
 
   // Auto-send speech transcript to Firebase when it changes (only new content)
   React.useEffect(() => {
@@ -108,7 +109,38 @@ export default function MeetingPage() {
     }
   }, [transcript, hasJoinedRoom, meetingExpired, userInfo?.vipUser, meetingFirebase])
 
-  // Auto-send sign language transcript to Firebase when it changes (only new content)
+  // 🔥 NEW: Real-time Firebase push for currentPrediction (instant push)
+  React.useEffect(() => {
+    if (
+      signLanguageRecognition.currentPrediction &&
+      signLanguageRecognition.isActive &&
+      hasJoinedRoom &&
+      !meetingExpired &&
+      userInfo?.vipUser
+    ) {
+      const prediction = signLanguageRecognition.currentPrediction.trim()
+
+      // Only send if different from last sent prediction
+      if (prediction && prediction !== lastSentPredictionRef.current) {
+        const timeoutId = setTimeout(() => {
+          meetingFirebase.sendSignContent(`[REAL-TIME] ${prediction}`)
+          lastSentPredictionRef.current = prediction
+          console.log(`🚀 Real-time push: ${prediction}`)
+        }, 100) // Almost instant push
+
+        return () => clearTimeout(timeoutId)
+      }
+    }
+  }, [
+    signLanguageRecognition.currentPrediction,
+    signLanguageRecognition.isActive,
+    hasJoinedRoom,
+    meetingExpired,
+    userInfo?.vipUser,
+    meetingFirebase
+  ])
+
+  // Auto-send sign language transcript to Firebase when it changes (batch push)
   React.useEffect(() => {
     if (signLanguageRecognition.fullTranscript && hasJoinedRoom && !meetingExpired && userInfo?.vipUser) {
       // Only send if content is different from what was last sent
@@ -122,15 +154,15 @@ export default function MeetingPage() {
             // Extract only the new part
             const newContent = signLanguageRecognition.fullTranscript.slice(lastSentSignRef.current.length).trim()
             if (newContent) {
-              meetingFirebase.sendSignContent(newContent)
+              meetingFirebase.sendSignContent(`[BATCH] ${newContent}`)
               lastSentSignRef.current = signLanguageRecognition.fullTranscript
             }
           } else {
             // Completely new transcript (user started a new sign language session)
-            meetingFirebase.sendSignContent(signLanguageRecognition.fullTranscript)
+            meetingFirebase.sendSignContent(`[BATCH] ${signLanguageRecognition.fullTranscript}`)
             lastSentSignRef.current = signLanguageRecognition.fullTranscript
           }
-        }, 1000) // Increased debounce to 1 second for better stability
+        }, 200) // 🔥 FASTER: Reduced from 1000ms to 200ms like speech
 
         return () => clearTimeout(timeoutId)
       }
@@ -200,6 +232,7 @@ export default function MeetingPage() {
   React.useEffect(() => {
     if (!signLanguageRecognition.isActive) {
       lastSentSignRef.current = ''
+      lastSentPredictionRef.current = ''
     }
   }, [signLanguageRecognition.isActive])
 
@@ -210,6 +243,7 @@ export default function MeetingPage() {
       // Reset tracking refs on cleanup
       lastSentSpeechRef.current = ''
       lastSentSignRef.current = ''
+      lastSentPredictionRef.current = ''
       if (roomID && userInfo?.id) {
         leaveMeeting({ id: roomID, request: { userId: userInfo.id } })
       }
@@ -425,11 +459,15 @@ export default function MeetingPage() {
       )}
 
       {/* Firebase Real-time Subtitle Display */}
-      {hasJoinedRoom && !meetingExpired && roomID && userInfo?.vipUser && (isListening || signLanguageRecognition.isActive) && (
-        <div className="fixed bottom-20 left-5 right-5 z-[997] max-w-2xl mx-auto">
-          <FirebaseSubtitleDisplay meetingCode={roomID} currentUserId={userInfo?.id || ''} />
-        </div>
-      )}
+      {hasJoinedRoom &&
+        !meetingExpired &&
+        roomID &&
+        userInfo?.vipUser &&
+        (isListening || signLanguageRecognition.isActive) && (
+          <div className="fixed bottom-20 left-5 right-5 z-[997] max-w-2xl mx-auto">
+            <FirebaseSubtitleDisplay meetingCode={roomID} currentUserId={userInfo?.id || ''} />
+          </div>
+        )}
 
       {hasJoinedRoom && !meetingExpired && (
         <SignLanguageDetector
