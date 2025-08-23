@@ -95,7 +95,7 @@ export default function MeetingPage() {
       if (!hasJoinedRoom || meetingExpired || !userInfo?.vipUser) return
 
       meetingFirebase.sendSignContent(`[CONFIRMED] ${gesture}`)
-      console.log(`✅ Sent confirmed sign prediction: ${gesture}`)
+      console.log(`✅ Sent confirmed sign prediction: ${gesture} (${confidence}%)`)
     },
     [hasJoinedRoom, meetingExpired, userInfo?.vipUser, meetingFirebase]
   )

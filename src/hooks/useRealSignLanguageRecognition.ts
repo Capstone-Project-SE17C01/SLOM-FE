@@ -40,34 +40,6 @@ export const useRealSignLanguageRecognition = (options: UseRealSignLanguageRecog
   const fakeIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const lastHandStateRef = useRef<boolean>(false)
 
-  const handleHandDetection = useCallback(
-    (detected: boolean) => {
-      setHandDetected(detected)
-
-      const previousHandState = lastHandStateRef.current
-      lastHandStateRef.current = detected
-
-      if (useFakeMode) {
-        if (!detected && fakeIntervalRef.current) {
-          clearInterval(fakeIntervalRef.current)
-          fakeIntervalRef.current = null
-          console.log('Hand removed - pausing fake display')
-        }
-
-        if (
-          detected &&
-          !previousHandState &&
-          !fakeIntervalRef.current &&
-          fakeWordIndexRef.current < currentFakeSentenceRef.current.length
-        ) {
-          console.log('Hand detected - resuming fake display')
-          startFakeSentenceDisplay()
-        }
-      }
-    },
-    [useFakeMode]
-  )
-
   const startFakeSentenceDisplay = useCallback(() => {
     if (!handDetected) {
       console.log('Cannot start fake display - no hand detected')
@@ -110,6 +82,34 @@ export const useRealSignLanguageRecognition = (options: UseRealSignLanguageRecog
       }
     }, random(700, 1500))
   }, [handDetected])
+
+  const handleHandDetection = useCallback(
+    (detected: boolean) => {
+      setHandDetected(detected)
+
+      const previousHandState = lastHandStateRef.current
+      lastHandStateRef.current = detected
+
+      if (useFakeMode) {
+        if (!detected && fakeIntervalRef.current) {
+          clearInterval(fakeIntervalRef.current)
+          fakeIntervalRef.current = null
+          console.log('Hand removed - pausing fake display')
+        }
+
+        if (
+          detected &&
+          !previousHandState &&
+          !fakeIntervalRef.current &&
+          fakeWordIndexRef.current < currentFakeSentenceRef.current.length
+        ) {
+          console.log('Hand detected - resuming fake display')
+          startFakeSentenceDisplay()
+        }
+      }
+    },
+    [useFakeMode, startFakeSentenceDisplay]
+  )
 
   const handleGestureDetected = useCallback(
     (gesture: string, gestureConfidence: number) => {
