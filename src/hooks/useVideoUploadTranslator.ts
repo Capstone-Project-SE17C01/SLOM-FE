@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import {
   VideoUploadState,
   UseVideoUploadReturn,
@@ -6,15 +6,17 @@ import {
 } from "@/types/ITranslator";
 import {
   useUploadVideoForTranslationMutation,
-  useProcessVideoTranslationMutation,
 } from "@/api/TranslatorApi";
 import { useTranslations } from "next-intl";
+import { useVideoSignLanguageProcessor } from "./useVideoSignLanguageProcessor";
+
 interface UseVideoUploadTranslatorOptions {
   onResult?: (result: VideoTranslationResult) => void;
   language?: "en" | "vi";
   maxFileSize?: number; // in MB
   userId?: string;
 }
+
 export const useVideoUploadTranslator = ({
   onResult,
   language = "en",
@@ -23,7 +25,31 @@ export const useVideoUploadTranslator = ({
 }: UseVideoUploadTranslatorOptions = {}): UseVideoUploadReturn => {
   const t_translatorPage = useTranslations("translatorPage");
   const [uploadVideo] = useUploadVideoForTranslationMutation();
-  const [processVideo] = useProcessVideoTranslationMutation();
+  
+  // Sử dụng AI processor
+  const videoProcessor = useVideoSignLanguageProcessor({
+    language,
+    onProgress: (progress) => {
+      setState(prev => ({
+        ...prev,
+        isProcessing: progress < 100,
+        uploadProgress: Math.min(50 + progress / 2, 99) // Map 0-100 to 50-99
+      }));
+    },
+    onResult: (result) => {
+      setState(prev => ({
+        ...prev,
+        isProcessing: false,
+        uploadProgress: 100,
+        translationResult: result
+      }));
+      
+      if (onResult) {
+        onResult(result);
+      }
+    }
+  });
+  
   const [state, setState] = useState<VideoUploadState>({
     isUploading: false,
     isProcessing: false,
@@ -33,41 +59,19 @@ export const useVideoUploadTranslator = ({
     translationResult: null,
     error: null,
   });
-  const processVideoFile = useCallback(
-    async (videoId: string) => {
-      try {
-        setState((prev) => ({
-          ...prev,
-          isProcessing: true,
-          error: null,
-        }));
-        const processResult = await processVideo({
-          videoId,
-          language,
-        }).unwrap();
-        if (processResult.result) {
-          setState((prev) => ({
-            ...prev,
-            isProcessing: false,
-            translationResult: processResult.result!,
-          }));
-          if (onResult) {
-            onResult(processResult.result);
-          }
-        } else {
-          throw new Error("Processing failed - no result returned");
-        }
-      } catch (error) {
-        console.error("Processing error:", error);
-        setState((prev) => ({
-          ...prev,
-          isProcessing: false,
-          error: error instanceof Error ? error.message : "Processing failed",
-        }));
-      }
-    },
-    [processVideo, language, onResult]
-  );
+  
+  // Theo dõi lỗi từ processor
+  useEffect(() => {
+    if (videoProcessor.state.error) {
+      setState(prev => ({
+        ...prev,
+        isProcessing: false,
+        error: videoProcessor.state.error
+      }));
+    }
+  }, [videoProcessor.state.error]);
+  
+  // Upload và xử lý video
   const uploadVideoFile = useCallback(
     async (file: File) => {
       try {
@@ -99,22 +103,30 @@ export const useVideoUploadTranslator = ({
           videoUrl,
           uploadProgress: 25,
         }));
+        
+        // Upload video (chỉ để lấy ID)
         const uploadResult = await uploadVideo({
           file,
           language,
           userId,
         }).unwrap();
+        
         setState((prev) => ({
           ...prev,
-          uploadProgress: 100,
+          uploadProgress: 50,
           isUploading: false,
+          isProcessing: true,
         }));
-        await processVideoFile(uploadResult.id);
+        
+        // Xử lý video bằng AI thật
+        await videoProcessor.processVideo(file, uploadResult.id);
+        
       } catch (error) {
         console.error("Upload error:", error);
         setState((prev) => ({
           ...prev,
           isUploading: false,
+          isProcessing: false,
           uploadProgress: 0,
           error:
             error instanceof Error
@@ -123,8 +135,9 @@ export const useVideoUploadTranslator = ({
         }));
       }
     },
-    [uploadVideo, language, userId, maxFileSize, processVideoFile]
+    [uploadVideo, language, userId, maxFileSize, videoProcessor, t_translatorPage]
   );
+  
   const clearState = useCallback(() => {
     if (state.videoUrl) {
       URL.revokeObjectURL(state.videoUrl);
@@ -139,6 +152,7 @@ export const useVideoUploadTranslator = ({
       error: null,
     });
   }, [state.videoUrl]);
+  
   const removeFile = useCallback(() => {
     if (state.videoUrl) {
       URL.revokeObjectURL(state.videoUrl);
@@ -152,10 +166,13 @@ export const useVideoUploadTranslator = ({
       error: null,
     }));
   }, [state.videoUrl]);
+  
   return {
     state,
     uploadVideo: uploadVideoFile,
-    processVideo: processVideoFile,
+    processVideo: async (videoId: string): Promise<void> => {
+      await videoProcessor.processVideo(state.file!, videoId);
+    },
     clearState,
     removeFile,
   };

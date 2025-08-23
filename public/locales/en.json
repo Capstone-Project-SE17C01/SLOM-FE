@@ -1,4 +1,11 @@
 {
+  "common": {
+    "searchPlaceholder": "Search...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit"
+  },
   "welcomePage": {
     "welcomeBack": "Welcome back, {name}!",
     "title": "Ready to Learn & Connect",
@@ -473,8 +480,8 @@
     "readyTooltip": "After you learn a new word, our smart spaced repetition system will calculate when you should review it and remind you at the right time. If you answer subsequent quizzes correctly, the interval will increase before you see that word again.",
     "practiceBtnTooltip": "Review learned words with various test types including typing.",
     "speedBtnTooltip": "Quickly review learned words by answering timed multiple-choice questions.",
-    "statLabelLearned": "learned lessons",
-    "statLabelReviewed": "reviewed lessons",
+    "statLabelLearned": "Learned lessons",
+    "statLabelReviewed": "Reviewed lessons",
     "practice": "Review",
     "speedReview": "Speed Review",
     "learnedSituations": "Your learned lessons",
@@ -736,7 +743,15 @@
     "error": "Failed to connect to translation server",
     "duration": "Duration",
     "uploadFailed": "Upload failed",
-    "noSignDetected": "No sign detected"
+    "noSignDetected": "No sign detected",
+    "preparing": "Preparing video...",
+    "detectingGestures": "Detecting sign language gestures...",
+    "finalizingResults": "Finalizing results...",
+    "autoSpeak": "Auto Speak",
+    "speechOff": "Speech Off",
+    "speechEnabled": "Automatic speech is enabled",
+    "speechDisabled": "Automatic speech is disabled",
+    "exportToWord": "Export to Word"
   },
   "qaPage": {
     "communityQ&A": "Community Q&A",

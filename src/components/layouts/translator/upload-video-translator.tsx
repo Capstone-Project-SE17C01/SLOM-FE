@@ -11,7 +11,7 @@ import {
   Upload,
   FileVideo,
   Languages,
-  Download,
+  FileText,
   Clock,
   CheckCircle,
   AlertCircle,
@@ -25,6 +25,7 @@ import {
   TranslationSegment,
 } from "../../../types/ITranslator";
 import { useTranslations } from "next-intl";
+import { exportVideoTranslationToDocx } from "@/utils/docxExport";
 
 export default function UploadVideoTranslator({
   onResult,
@@ -99,28 +100,14 @@ export default function UploadVideoTranslator({
   const exportResults = () => {
     if (!translator.state.translationResult) return;
 
-    const data = {
-      filename: translator.state.translationResult.filename,
-      timestamp: new Date().toISOString(),
-      language,
-      duration: translator.state.translationResult.duration,
-      summary: translator.state.translationResult.summary,
-      translations: translator.state.translationResult.translations,
-    };
-
-    const blob = new Blob([JSON.stringify(data, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `video-translation-${
-      translator.state.file?.name?.split(".")[0] || "result"
-    }.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // Xuất ra file Word thay vì JSON
+    exportVideoTranslationToDocx(
+      translator.state.translationResult.filename,
+      translator.state.translationResult.translations,
+      translator.state.translationResult.summary,
+      translator.state.translationResult.duration,
+      language
+    );
   };
 
   return (
@@ -141,7 +128,7 @@ export default function UploadVideoTranslator({
               isDarkMode ? "text-white" : "text-gray-900"
             )}
           >
-            <FileVideo className="w-6 h-6 text-green-500" />
+            <FileVideo className="w-6 h-6 text-purple-500" />
             {t_translatorPage("uploadVideoForTranslation")}
           </CardTitle>
         </CardHeader>
@@ -184,7 +171,7 @@ export default function UploadVideoTranslator({
                     className={cn(
                       "w-16 h-16 mx-auto mb-4",
                       dragActive
-                        ? "text-blue-500"
+                        ? "text-purple-500"
                         : isDarkMode
                         ? "text-gray-400"
                         : "text-gray-500"
@@ -194,7 +181,7 @@ export default function UploadVideoTranslator({
                     className={cn(
                       "text-lg font-semibold mb-2",
                       dragActive
-                        ? "text-blue-600"
+                        ? "text-purple-600 dark:text-purple-400"
                         : isDarkMode
                         ? "text-white"
                         : "text-gray-900"
@@ -215,10 +202,9 @@ export default function UploadVideoTranslator({
                   <Button
                     variant="outline"
                     className={cn(
-                      "border-blue-500 text-blue-500",
                       isDarkMode 
-                        ? "hover:bg-blue-900/20 dark:border-blue-400 dark:text-blue-400" 
-                        : "hover:bg-blue-50"
+                        ? "border-purple-600 text-purple-400 hover:bg-purple-900/20" 
+                        : "border-purple-500 text-purple-500 hover:bg-purple-50"
                     )}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -255,8 +241,8 @@ export default function UploadVideoTranslator({
                       )}
                     >
                       <div className="flex items-center gap-3 mb-2">
-                        <Upload className="w-5 h-5 text-blue-500 animate-pulse" />
-                        <span className="font-medium text-blue-600">
+                        <Upload className="w-5 h-5 text-purple-500 animate-pulse" />
+                        <span className="font-medium text-purple-600 dark:text-purple-400">
                           {t_translatorPage("uploading")}...
                         </span>
                       </div>
@@ -303,6 +289,30 @@ export default function UploadVideoTranslator({
                           )}>
                             {t_translatorPage("analyzingSignLanguageContent")}
                           </p>
+                        </div>
+                      </div>
+                      
+                      {/* Hiển thị tiến độ xử lý AI */}
+                      <div className="mt-3">
+                        <div className="flex justify-between text-xs mb-1">
+                          <span className={isDarkMode ? "text-gray-300" : "text-gray-600"}>
+                            {translator.state.uploadProgress < 50 
+                              ? t_translatorPage("preparing") 
+                              : translator.state.uploadProgress < 80
+                                ? t_translatorPage("detectingGestures")
+                                : t_translatorPage("finalizingResults")}
+                          </span>
+                          <span className={isDarkMode ? "text-gray-300" : "text-gray-600"}>
+                            {translator.state.uploadProgress}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div
+                            className="bg-purple-500 h-2 rounded-full transition-all duration-300"
+                            style={{
+                              width: `${translator.state.uploadProgress}%`,
+                            }}
+                          />
                         </div>
                       </div>
                     </div>
@@ -378,7 +388,12 @@ export default function UploadVideoTranslator({
                     <Button
                       variant="outline"
                       onClick={translator.removeFile}
-                      className="flex-1"
+                      className={cn(
+                        "flex-1",
+                        isDarkMode
+                          ? "border-gray-600 text-gray-300 hover:bg-gray-800"
+                          : "border-gray-300 hover:bg-gray-100"
+                      )}
                     >
                       <RotateCcw className="w-4 h-4 mr-2" />
                       {t_translatorPage("uploadNew")}
@@ -387,10 +402,15 @@ export default function UploadVideoTranslator({
                     {translator.state.translationResult && (
                       <Button
                         onClick={exportResults}
-                        className="flex-1 bg-green-500 hover:bg-green-600 text-white"
+                        className={cn(
+                          "flex-1",
+                          isDarkMode
+                            ? "bg-purple-600 hover:bg-purple-700 text-white"
+                            : "bg-purple-500 hover:bg-purple-600 text-white"
+                        )}
                       >
-                        <Download className="w-4 h-4 mr-2" />
-                        {t_translatorPage("exportResults")}
+                        <FileText className="w-4 h-4 mr-2" />
+                        {t_translatorPage("exportToWord")}
                       </Button>
                     )}
                   </div>
@@ -408,7 +428,7 @@ export default function UploadVideoTranslator({
                         )}
                       >
                         <div className="flex items-center gap-3">
-                          <FileVideo className="w-5 h-5 text-gray-500" />
+                          <FileVideo className="w-5 h-5 text-purple-500" />
                           <div className="truncate">
                             <p
                               className={cn(
@@ -482,12 +502,12 @@ export default function UploadVideoTranslator({
                     "p-4 rounded-lg border",
                     isDarkMode
                       ? "bg-gray-700 border-gray-600"
-                      : "bg-blue-50 border-blue-200"
+                      : "bg-purple-50 border-purple-200"
                   )}
                 >
                   <h4 className={cn(
                     "font-semibold mb-2",
-                    isDarkMode ? "text-blue-400" : "text-blue-600"
+                    isDarkMode ? "text-purple-400" : "text-purple-600"
                   )}>
                     {t_translatorPage("summary")}
                   </h4>
@@ -507,13 +527,18 @@ export default function UploadVideoTranslator({
                 <h4
                   className={cn(
                     "font-semibold mb-4",
-                    isDarkMode ? "text-white" : "text-gray-900"
+                    isDarkMode ? "text-purple-300" : "text-purple-700"
                   )}
                 >
                   {t_translatorPage("translationTimeline")}
                 </h4>
 
-                <div className="space-y-3 max-h-96 overflow-y-auto">
+                <div className={cn(
+                  "max-h-96 overflow-y-auto space-y-3",
+                  isDarkMode
+                    ? "scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
+                    : "scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+                )}>
                   {translator.state.translationResult.translations.map(
                     (segment: TranslationSegment, index: number) => (
                       <div
@@ -527,7 +552,7 @@ export default function UploadVideoTranslator({
                       >
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-gray-500" />
+                            <Clock className="w-4 h-4 text-purple-500" />
                             <span className={cn(
                               "text-sm font-medium",
                               isDarkMode ? "text-gray-400" : "text-gray-500"

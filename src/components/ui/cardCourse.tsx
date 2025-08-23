@@ -221,8 +221,8 @@ const CardLesson = ({
 }) => (
   <div
     className={cn(
-      "relative rounded-xl w-[230px] min-w-[230px] h-[140px] flex flex-col justify-end shadow-md border-b-4 border-primary overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1",
-      "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100",
+      "relative rounded-xl min-w-[210px] h-[110px] flex flex-col justify-end shadow-sm border-b-4 border-primary overflow-hidden cursor-pointer hover:bg-primary hover:text-white transition",
+      "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100",
       className
     )}
     onClick={onClick}
@@ -234,10 +234,10 @@ const CardLesson = ({
     <div
       className="absolute top-1/2"
       style={{
-        right: "-30px",
+        right: "-45px",
         transform: "translateY(-50%)",
-        width: "100px",
-        height: "100px",
+        width: "90px",
+        height: "90px",
         borderRadius: "9999px",
         overflow: "hidden",
         background: "rgba(255,255,255,0.1)",
@@ -247,16 +247,14 @@ const CardLesson = ({
       <Image
         src={image}
         alt={title}
-        width={100}
-        height={100}
+        width={90}
+        height={90}
         quality={100}
         className="object-cover w-full h-full"
       />
     </div>
-    
-    {/* Content */}
-    <div className="relative z-10 p-4 pr-24">
-      <span className="font-semibold text-base block whitespace-normal">
+    <div className="relative z-10 p-3 pr-22">
+      <span className="font-semibold text-sm block whitespace-normal">
         {title}
       </span>
     </div>

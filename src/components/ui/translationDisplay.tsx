@@ -48,7 +48,7 @@ export default function TranslationDisplay({
       {/* Header with timestamp */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Zap className="w-4 h-4 text-blue-500" />
+          <Zap className="w-4 h-4 text-purple-500" />
           <span className={cn(
             "text-sm font-medium",
             isDarkMode ? "text-gray-300" : "text-gray-600"
@@ -106,6 +106,7 @@ export default function TranslationDisplay({
                   "h-2 rounded-full transition-all duration-500",
                   confidence >= 80 ? "bg-green-500" : 
                   confidence >= 60 ? "bg-yellow-500" : 
+                  confidence >= 40 ? "bg-orange-500" :
                   "bg-red-500"
                 )}
                 style={{ width: `${Math.max(confidence, 5)}%` }}
