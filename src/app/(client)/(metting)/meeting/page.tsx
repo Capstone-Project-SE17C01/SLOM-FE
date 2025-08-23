@@ -109,31 +109,47 @@ export default function MeetingPage() {
     }
   }, [transcript, hasJoinedRoom, meetingExpired, userInfo?.vipUser, meetingFirebase])
 
-  // 🔥 Real-time Firebase push for currentPrediction (only when NOT in fake mode)
+  // 🔥 Single Firebase push for sign language recognition (real-time + fake mode)
   React.useEffect(() => {
     if (
-      signLanguageRecognition.currentPrediction &&
       signLanguageRecognition.isActive &&
-      !signLanguageRecognition.useFakeMode && // Only push when NOT in fake mode
       hasJoinedRoom &&
       !meetingExpired &&
       userInfo?.vipUser
     ) {
-      const prediction = signLanguageRecognition.currentPrediction.trim()
+      let contentToSend = ''
+      
+      // Priority: currentPrediction (real-time) over fullTranscript (batch)
+      if (signLanguageRecognition.currentPrediction && !signLanguageRecognition.useFakeMode) {
+        contentToSend = signLanguageRecognition.currentPrediction.trim()
+      } else if (signLanguageRecognition.fullTranscript && signLanguageRecognition.useFakeMode) {
+        // Only use fullTranscript for fake mode or when no currentPrediction
+        if (signLanguageRecognition.fullTranscript !== lastSentSignRef.current) {
+          if (signLanguageRecognition.fullTranscript.startsWith(lastSentSignRef.current)) {
+            contentToSend = signLanguageRecognition.fullTranscript.slice(lastSentSignRef.current.length).trim()
+          } else {
+            contentToSend = signLanguageRecognition.fullTranscript.trim()
+          }
+        }
+      }
 
-      // Only send if different from last sent prediction
-      if (prediction && prediction !== lastSentPredictionRef.current) {
+      // Send content if different from last sent
+      if (contentToSend && contentToSend !== lastSentPredictionRef.current) {
         const timeoutId = setTimeout(() => {
-          meetingFirebase.sendSignContent(prediction) // 🔥 NO PREFIX - clean subtitle
-          lastSentPredictionRef.current = prediction
-          console.log(`🤖 Real-time push: ${prediction}`)
-        }, 100) // Almost instant push
+          meetingFirebase.sendSignContent(contentToSend)
+          lastSentPredictionRef.current = contentToSend
+          if (signLanguageRecognition.useFakeMode) {
+            lastSentSignRef.current = signLanguageRecognition.fullTranscript
+          }
+          console.log(`🤖 Firebase push: ${contentToSend}`)
+        }, 100)
 
         return () => clearTimeout(timeoutId)
       }
     }
   }, [
     signLanguageRecognition.currentPrediction,
+    signLanguageRecognition.fullTranscript,
     signLanguageRecognition.isActive,
     signLanguageRecognition.useFakeMode,
     hasJoinedRoom,
@@ -141,35 +157,6 @@ export default function MeetingPage() {
     userInfo?.vipUser,
     meetingFirebase
   ])
-
-  // Auto-send sign language transcript to Firebase when it changes (batch push for confirmed gestures and fake content)
-  React.useEffect(() => {
-    if (signLanguageRecognition.fullTranscript && hasJoinedRoom && !meetingExpired && userInfo?.vipUser) {
-      // Only send if content is different from what was last sent
-      if (
-        signLanguageRecognition.fullTranscript !== lastSentSignRef.current &&
-        signLanguageRecognition.fullTranscript.trim()
-      ) {
-        const timeoutId = setTimeout(() => {
-          // Check if transcript is longer than last sent content (new content added)
-          if (signLanguageRecognition.fullTranscript.startsWith(lastSentSignRef.current)) {
-            // Extract only the new part
-            const newContent = signLanguageRecognition.fullTranscript.slice(lastSentSignRef.current.length).trim()
-            if (newContent) {
-              meetingFirebase.sendSignContent(newContent) // 🔥 NO PREFIX - clean subtitle
-              lastSentSignRef.current = signLanguageRecognition.fullTranscript
-            }
-          } else {
-            // Completely new transcript (user started a new sign language session)
-            meetingFirebase.sendSignContent(signLanguageRecognition.fullTranscript) // 🔥 NO PREFIX - clean subtitle
-            lastSentSignRef.current = signLanguageRecognition.fullTranscript
-          }
-        }, 200)
-
-        return () => clearTimeout(timeoutId)
-      }
-    }
-  }, [signLanguageRecognition.fullTranscript, hasJoinedRoom, meetingExpired, userInfo?.vipUser, meetingFirebase])
 
   const handleRecordingSave = React.useCallback(
     async (recordingPath: string, duration: number) => {
