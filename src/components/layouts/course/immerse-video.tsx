@@ -1,53 +1,33 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Search, Video, Play, Calendar } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { RootState } from "@/redux/store";
 import { useGetVideoSuggestMutation } from "../../../api/CourseApi";
 import { useSelector } from "react-redux";
 import { ListVideoSuggestResult, VideoSuggest } from "../../../types/ICourse";
-import { motion } from "framer-motion";
-import { cn } from "@/utils/cn";
+import SearchInput from "@/components/ui/searchInput";
 
 function VideoCard(card: Readonly<ListVideoSuggestResult>) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
+    <button
+      className={`relative rounded-2xl overflow-hidden flex flex-col justify-between min-w-[260px] max-w-[320px] bg-white dark:bg-gray-800 shadow-sm hover:scale-105 transition-transform duration-200 border border-gray-200 dark:border-gray-700 cursor-pointer`}
+      onClick={() => { window.location.replace(`/video?videoId=${card.videoId}`) }}
     >
-      <div
-        className={cn(
-          "relative rounded-xl overflow-hidden flex flex-col justify-between min-w-[260px] max-w-[320px] bg-white dark:bg-gray-800 shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 cursor-pointer h-full"
-        )}
-        onClick={() => { window.location.replace(`/video?videoId=${card.videoId}`) }}
-      >
-        <div className="relative w-full h-[180px] overflow-hidden group">
-          <Image
-            src={card.videoThumbnail}
-            alt={card.title}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <Play className="h-12 w-12 text-white" />
-          </div>
-        </div>
-        <div className="flex flex-col flex-1 p-5">
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-lg mb-3 line-clamp-2">
-            {card.title}
-          </h3>
-          {card.publishDate && (
-            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-auto">
-              <Calendar className="h-4 w-4 mr-2" />
-              {new Date(card.publishDate).toLocaleDateString()}
-            </div>
-          )}
+      <div className="relative w-full h-[220px]">
+        <Image
+          src={card.videoThumbnail}
+          alt={card.title}
+          fill
+          className="object-cover"
+        />
+      </div>
+      <div className="flex flex-col flex-1 p-4 pt-3">
+        <div className="font-semibold text-[#0a2233] dark:text-gray-200 text-base mb-4 line-clamp-2">
+          {card.title}
         </div>
       </div>
-    </motion.div>
+    </button>
   );
 }
 
@@ -139,64 +119,30 @@ export default function ImmerseVideo() {
     search
   ]);
 
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
   return (
-    <div className="p-6 md:p-8 bg-white dark:bg-gray-900 max-h-[90vh] overflow-auto" ref={chatContainerRef}>
-      <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg text-primary">
-              <Video className="h-6 w-6" />
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              {t("videoLibrary")}
-            </h1>
-          </div>
-          <div className="relative">
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={t("searchPlaceholder")}
-              className="pl-12 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent min-w-[280px] shadow-sm text-black dark:text-gray-100 transition-all duration-300"
-            />
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
-          </div>
-        </div>
-        
-        <motion.div 
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-          variants={container}
-          initial="hidden"
-          animate="show"
-        >
-          {videoList?.videoSuggest != null && videoList.videoSuggest.length > 0 ? (
-            videoList.videoSuggest.map((card) => (
-              <VideoCard key={card.id}
-                videoThumbnail={card.videoThumbnail}
-                id={card.id}
-                title={card.title}
-                description={card.description}
-                videoUrl={card.videoUrl}
-                publishDate={card.publishDate}
-                videoId={card.videoId}
-              />
-            ))
-          ) : (
-            <div className="col-span-full text-center py-20">
-              <p className="text-xl text-gray-500 dark:text-gray-400">{t("noVideosFound")}</p>
-            </div>
-          )}
-        </motion.div>
+    <div className="p-8 pt-4 max-h-[90vh] overflow-y-auto" ref={chatContainerRef}>
+      <div className="flex items-center justify-between mb-2">
+        <SearchInput
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={t("searchPlaceholder")}
+          size="md"
+          minWidth="260px"
+          className="mb-2"
+        />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-2">
+        {videoList?.videoSuggest != null ? videoList.videoSuggest.map((card) => (
+          <VideoCard key={card.id}
+            videoThumbnail={card.videoThumbnail}
+            id={card.id}
+            title={card.title}
+            description={card.description}
+            videoUrl={card.videoUrl}
+            publishDate={card.publishDate}
+            videoId={card.videoId}
+          />
+        )) : ""}
       </div>
     </div>
   );

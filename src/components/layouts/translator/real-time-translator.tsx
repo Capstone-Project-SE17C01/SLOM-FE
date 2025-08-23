@@ -11,15 +11,18 @@ import {
   Pause,
   RotateCcw,
   History,
-  Download,
+  Volume2,
+  VolumeX,
+  FileText,
 } from "lucide-react";
 
-import { useRealSignLanguageRecognition } from "@/hooks/useRealSignLanguageRecognition";
 import SignLanguageDetector from "@/components/SignLanguageDetector/SignLanguageDetector";
 import TranslationDisplay from "@/components/ui/translationDisplay";
 import ConnectionStatus from "@/components/ui/connectionStatus";
 import { RealTimeTranslatorProps } from "../../../types/ITranslator";
 import { useTranslations } from "next-intl";
+import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
+import { exportRealTimeTranslationToDocx } from "@/utils/docxExport";
 
 export default function RealTimeTranslator({
   language = "en",
@@ -33,19 +36,32 @@ export default function RealTimeTranslator({
   const [cameraLoading, setCameraLoading] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
-
-  // Initialize real sign language recognition
-  const signLanguageRecognition = useRealSignLanguageRecognition({
-    confidenceThreshold: 70, // Only accept gestures with >70% confidence
-    maxRecentPredictions: 20 // Keep last 20 predictions
+  const [isDetectorActive, setIsDetectorActive] = useState(false);
+  const [currentPrediction, setCurrentPrediction] = useState("");
+  const [confidence, setConfidence] = useState(0);
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const [fullTranscript, setFullTranscript] = useState("");
+  const [recentPredictions, setRecentPredictions] = useState<Array<{
+    prediction: string;
+    confidence: number;
+    timestamp: string;
+  }>>([]);
+  const [isSpeechEnabled, setIsSpeechEnabled] = useState(true);
+  
+  // Khởi tạo speech synthesis
+  const speechSynthesis = useSpeechSynthesis({
+    language: language === 'en' ? 'en-US' : 'vi-VN',
+    rate: 1,
+    pitch: 1,
+    volume: 1
   });
 
   // Auto-start if requested
   useEffect(() => {
-    if (autoStart && !signLanguageRecognition.isActive) {
-      signLanguageRecognition.startRecognition();
+    if (autoStart && !isDetectorActive) {
+      startTranslation();
     }
-  }, [autoStart, signLanguageRecognition.isActive, signLanguageRecognition]);
+  }, [autoStart, isDetectorActive]);
 
   // Check camera permissions and available devices on mount
   useEffect(() => {
@@ -90,20 +106,53 @@ export default function RealTimeTranslator({
     checkCameraAvailability();
   }, []);
 
+  // Handle gesture detection from the SignLanguageDetector
+  const handleGestureDetected = (gesture: string, detectedConfidence: number) => {
+    console.log(`🔤 Gesture detected: "${gesture}" with ${detectedConfidence}% confidence`);
+    setCurrentPrediction(gesture);
+    setConfidence(detectedConfidence);
+    const now = new Date();
+    setLastUpdate(now);
+    
+    // Add to full transcript if it's a new word
+    if (gesture && gesture !== currentPrediction) {
+      setFullTranscript(prev => 
+        prev ? `${prev} ${gesture}` : gesture
+      );
+      
+      // Tự động phát âm nếu đã bật chức năng này
+      if (isSpeechEnabled && detectedConfidence >= 70) {
+        speechSynthesis.speak(gesture);
+      }
+    }
+    
+    // Add to recent predictions
+    const timestamp = now.toLocaleTimeString();
+    
+    setRecentPredictions(prev => [
+      {
+        prediction: gesture,
+        confidence: detectedConfidence,
+        timestamp
+      },
+      ...prev.slice(0, 19) // Keep only the 20 most recent predictions
+    ]);
+  };
+
+  // Handle hand detection status
+  const handleHandDetection = (detected: boolean) => {
+    console.log(`👋 Hand detection status changed: ${detected ? "Detected" : "Not detected"}`);
+    // This could be used to show a visual indicator when hands are detected
+  };
+
   // Start camera and sign language recognition
   const startTranslation = async () => {
-    // Start real sign language recognition
-    if (!signLanguageRecognition.isActive) {
-      signLanguageRecognition.startRecognition();
-    }
-
-    // --- Try to Start Camera for Visuals ---
     setCameraActive(true); // Optimistically show the video view
     setCameraLoading(true);
     setCameraError(null);
 
     try {
-      console.log("🎥 Trying to start camera (for visual effect)...");
+      console.log("🎥 Starting camera and sign language detection...");
 
       if (!videoRef.current) throw new Error("Video element not found");
       if (!navigator.mediaDevices?.getUserMedia)
@@ -118,18 +167,29 @@ export default function RealTimeTranslator({
         audio: false,
       });
 
-      console.log("✅ Camera stream obtained");
+      console.log("✅ Camera stream obtained for main video");
       const video = videoRef.current;
       video.srcObject = stream;
-      await video.play();
+      
+      try {
+        await video.play();
+        console.log("▶️ Main video started playing");
+      } catch (playError) {
+        console.error("❌ Error playing main video:", playError);
+        // Continue anyway as the detector has its own video element
+      }
 
       setMediaStream(stream);
       setCameraLoading(false);
+      
+      // Slight delay before activating detector to ensure everything is ready
+      setTimeout(() => {
+        console.log("🚀 Activating sign language detector");
+        setIsDetectorActive(true);
+      }, 500);
+      
     } catch (error) {
-      console.error(
-        "❌ Camera failed, but fake subtitles will continue:",
-        error
-      );
+      console.error("❌ Camera failed:", error);
       setCameraLoading(false);
 
       let errorMessage = "Could not access camera. ";
@@ -146,59 +206,57 @@ export default function RealTimeTranslator({
 
   // Stop translation and camera
   const stopTranslation = () => {
-    console.log("🛑 Stopping translation...");
+    console.log("🛑 Stopping translation and camera...");
+    
+    // First stop the detector to ensure clean shutdown
+    setIsDetectorActive(false);
+    
+    // Then stop camera after a small delay to ensure detector is fully stopped
+    setTimeout(() => {
+      if (mediaStream) {
+        console.log("📹 Stopping camera stream...");
+        mediaStream.getTracks().forEach((track) => {
+          track.stop();
+          console.log(`🔌 Stopped track: ${track.kind} (${track.label})`);
+        });
+        setMediaStream(null);
+      }
 
-    // Stop sign language recognition
-    signLanguageRecognition.stopRecognition();
+      setCameraActive(false);
+      setCameraLoading(false);
+      setCameraError(null);
 
-    // Stop camera
-    if (mediaStream) {
-      console.log("📹 Stopping camera stream...");
-      mediaStream.getTracks().forEach((track) => {
-        track.stop();
-        console.log("🔌 Stopped track:", track.kind, track.label);
-      });
-      setMediaStream(null);
-    }
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
 
-    setCameraActive(false);
-    setCameraLoading(false);
-    setCameraError(null);
-
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-    }
-
-    console.log("✅ Translation stopped");
+      console.log("✅ Translation stopped completely");
+    }, 200);
   };
 
   // Clear translation history
   const clearHistory = () => {
-    signLanguageRecognition.resetTranscript();
+    setRecentPredictions([]);
+    setFullTranscript("");
+    setCurrentPrediction("");
   };
 
   // Export translation history
   const exportHistory = () => {
-    const history = signLanguageRecognition.recentPredictions;
-    const data = {
-      timestamp: new Date().toISOString(),
-      language,
-      predictions: history,
-    };
+    // Xuất ra file Word thay vì JSON
+    exportRealTimeTranslationToDocx(
+      recentPredictions,
+      fullTranscript,
+      language
+    );
+  };
 
-    const blob = new Blob([JSON.stringify(data, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `translation-history-${
-      new Date().toISOString().split("T")[0]
-    }.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  // Toggle speech synthesis
+  const toggleSpeech = () => {
+    setIsSpeechEnabled(!isSpeechEnabled);
+    if (speechSynthesis.isSpeaking) {
+      speechSynthesis.cancel();
+    }
   };
 
   // Cleanup on unmount
@@ -207,9 +265,9 @@ export default function RealTimeTranslator({
       if (mediaStream) {
         mediaStream.getTracks().forEach((track) => track.stop());
       }
-      signLanguageRecognition.stopRecognition();
+      setIsDetectorActive(false);
     };
-  }, [mediaStream, signLanguageRecognition]);
+  }, [mediaStream]);
 
   return (
     <div className="space-y-6 max-w-full">
@@ -229,7 +287,7 @@ export default function RealTimeTranslator({
               isDarkMode ? "text-white" : "text-gray-900"
             )}
           >
-            <Camera className="w-6 h-6 text-blue-500" />
+            <Camera className="w-6 h-6 text-purple-500" />
             {t_translatorPage("cameraFeed")}
           </CardTitle>
         </CardHeader>
@@ -359,19 +417,35 @@ export default function RealTimeTranslator({
               )}
 
               {/* Processing indicator overlay */}
-              {signLanguageRecognition.isActive && (
-                <div className="absolute top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium animate-pulse">
+              {isDetectorActive && (
+                <div className="absolute top-4 right-4 bg-purple-500 dark:bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-medium animate-pulse">
                   {t_translatorPage("processing")}...
                 </div>
+              )}
+              
+              {/* Inline SignLanguageDetector */}
+              {isDetectorActive && (
+                <SignLanguageDetector
+                  isActive={isDetectorActive}
+                  onGestureDetected={handleGestureDetected}
+                  onHandDetection={handleHandDetection}
+                  inlineMode={true}
+                  position="bottom-right"
+                />
               )}
             </div>
 
             {/* Control buttons */}
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-              {!signLanguageRecognition.isActive && !cameraActive ? (
+              {!isDetectorActive && !cameraActive ? (
                 <Button
                   size="lg"
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-6"
+                  className={cn(
+                    "px-6",
+                    isDarkMode 
+                      ? "bg-purple-600 hover:bg-purple-700 text-white" 
+                      : "bg-purple-500 hover:bg-purple-600 text-white"
+                  )}
                   onClick={startTranslation}
                   disabled={cameraLoading}
                 >
@@ -391,7 +465,12 @@ export default function RealTimeTranslator({
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-red-500 text-red-500 hover:bg-red-50 px-6"
+                  className={cn(
+                    "px-6",
+                    isDarkMode
+                      ? "border-red-500 text-red-400 hover:bg-red-900/20"
+                      : "border-red-500 text-red-500 hover:bg-red-50"
+                  )}
                   onClick={stopTranslation}
                 >
                   <Pause className="w-5 h-5 mr-2" />
@@ -399,15 +478,33 @@ export default function RealTimeTranslator({
                 </Button>
               )}
 
-              <Button variant="outline" size="lg" onClick={clearHistory}>
+              <Button 
+                variant="outline" 
+                size="lg" 
+                onClick={clearHistory}
+                className={cn(
+                  isDarkMode
+                    ? "border-gray-600 text-gray-300 hover:bg-gray-800"
+                    : "border-gray-300 hover:bg-gray-100"
+                )}
+              >
                 <RotateCcw className="w-5 h-5 mr-2" />
                 {t_translatorPage("clear")}
               </Button>
 
-              {signLanguageRecognition.recentPredictions.length > 0 && (
-                <Button variant="outline" size="lg" onClick={exportHistory}>
-                  <Download className="w-5 h-5 mr-2" />
-                  {t_translatorPage("export")}
+              {recentPredictions.length > 0 && (
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  onClick={exportHistory}
+                  className={cn(
+                    isDarkMode
+                      ? "border-purple-600 text-purple-400 hover:bg-purple-900/20"
+                      : "border-purple-500 text-purple-500 hover:bg-purple-50"
+                  )}
+                >
+                  <FileText className="w-5 h-5 mr-2" />
+                  {t_translatorPage("exportToWord")}
                 </Button>
               )}
             </div>
@@ -429,26 +526,58 @@ export default function RealTimeTranslator({
           </h3>
 
           <TranslationDisplay
-            prediction={signLanguageRecognition.currentPrediction}
-            confidence={signLanguageRecognition.confidence}
-            timestamp={signLanguageRecognition.lastUpdate}
+            prediction={currentPrediction}
+            confidence={confidence}
+            timestamp={lastUpdate ? lastUpdate.toLocaleTimeString() : ""}
             showConfidence={showConfidence}
+            className={isDarkMode ? "border-purple-800" : "border-purple-200"}
           />
+          
+          {/* Speech Indicator */}
+          {currentPrediction && (
+            <div className="flex items-center justify-end mt-1">
+              <div 
+                className={cn(
+                  "flex items-center gap-1 text-xs px-2 py-1 rounded-full cursor-pointer",
+                  isSpeechEnabled 
+                    ? isDarkMode ? "bg-purple-900/30 text-purple-300" : "bg-purple-100 text-purple-700"
+                    : isDarkMode ? "bg-gray-800 text-gray-400" : "bg-gray-100 text-gray-500"
+                )}
+                onClick={toggleSpeech}
+                title={isSpeechEnabled ? t_translatorPage("speechEnabled") : t_translatorPage("speechDisabled")}
+              >
+                {isSpeechEnabled ? (
+                  <>
+                    <Volume2 className="w-3 h-3" />
+                    <span>{t_translatorPage("autoSpeak")}</span>
+                  </>
+                ) : (
+                  <>
+                    <VolumeX className="w-3 h-3" />
+                    <span>{t_translatorPage("speechOff")}</span>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Full Transcript Subtitle */}
-          {signLanguageRecognition.isActive && signLanguageRecognition.fullTranscript && (
+          {isDetectorActive && fullTranscript && (
             <div className="space-y-2 pt-2">
               <h4
                 className={cn(
                   "text-md font-semibold",
-                  isDarkMode ? "text-gray-300" : "text-gray-700"
+                  isDarkMode ? "text-purple-300" : "text-purple-700"
                 )}
               >
                 {t_translatorPage("fullTranscript")}
               </h4>
-              <div className="p-4 bg-gray-100 dark:bg-gray-900 rounded-lg min-h-[60px]">
+              <div className={cn(
+                "p-4 rounded-lg min-h-[60px]",
+                isDarkMode ? "bg-gray-900 border border-gray-800" : "bg-gray-100"
+              )}>
                 <p className="text-gray-800 dark:text-gray-200 leading-relaxed">
-                  {signLanguageRecognition.fullTranscript}
+                  {fullTranscript}
                 </p>
               </div>
             </div>
@@ -457,13 +586,18 @@ export default function RealTimeTranslator({
           {/* Connection Status */}
           <ConnectionStatus
             connectionStatus={
-              signLanguageRecognition.isActive 
+              isDetectorActive 
                 ? "Recognizing..." 
-                : signLanguageRecognition.isConnected 
+                : mediaStream 
                 ? "Connected" 
                 : "Disconnected"
             }
-            isActive={signLanguageRecognition.isActive}
+            isActive={isDetectorActive}
+            className={cn(
+              isDetectorActive 
+                ? isDarkMode ? "bg-purple-900/30 text-purple-300" : "bg-purple-100 text-purple-700"
+                : null
+            )}
           />
         </div>
 
@@ -479,9 +613,9 @@ export default function RealTimeTranslator({
               {t_translatorPage("recentTranslations")}
             </h3>
             <div className="flex items-center gap-2">
-              <History className="w-4 h-4 text-gray-500" />
+              <History className="w-4 h-4 text-purple-500" />
               <span className="text-sm text-gray-500">
-                {signLanguageRecognition.recentPredictions.length}{" "}
+                {recentPredictions.length}{" "}
                 {t_translatorPage("results")}
               </span>
             </div>
@@ -489,14 +623,14 @@ export default function RealTimeTranslator({
 
           <div
             className={cn(
-              "max-h-80 overflow-y-auto space-y-3 p-10 rounded-lg border",
+              "max-h-[340px] overflow-y-auto space-y-3 p-10 rounded-lg border",
               isDarkMode
                 ? "bg-gray-800 border-gray-700"
                 : "bg-gray-50 border-gray-200"
             )}
           >
-            {signLanguageRecognition.recentPredictions.length > 0 ? (
-              signLanguageRecognition.recentPredictions.map((result, index) => (
+            {recentPredictions.length > 0 ? (
+              recentPredictions.map((result, index) => (
                 <div
                   key={index}
                   className={cn(
@@ -515,10 +649,10 @@ export default function RealTimeTranslator({
                       className={cn(
                         "text-xs px-2 py-1 rounded-full",
                         result.confidence >= 80
-                          ? "bg-green-100 text-green-600"
+                          ? isDarkMode ? "bg-green-900/30 text-green-400" : "bg-green-100 text-green-600"
                           : result.confidence >= 60
-                          ? "bg-yellow-100 text-yellow-600"
-                          : "bg-red-100 text-red-600"
+                          ? isDarkMode ? "bg-yellow-900/30 text-yellow-400" : "bg-yellow-100 text-yellow-600"
+                          : isDarkMode ? "bg-red-900/30 text-red-400" : "bg-red-100 text-red-600"
                       )}
                     >
                       {result.confidence}%
@@ -552,14 +686,7 @@ export default function RealTimeTranslator({
         </div>
       </div>
 
-      {/* Sign Language Detector */}
-      {signLanguageRecognition.isActive && (
-        <SignLanguageDetector
-          isActive={signLanguageRecognition.isActive}
-          onGestureDetected={signLanguageRecognition.handleGestureDetected}
-          onHandDetection={signLanguageRecognition.handleHandDetection}
-        />
-      )}
+      {/* Không cần đoạn SignLanguageDetector riêng ở cuối nữa vì đã đặt trong UI camera */}
     </div>
   );
 }

@@ -1,4 +1,11 @@
 {
+  "common": {
+    "searchPlaceholder": "Tìm kiếm...",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "edit": "Sửa"
+  },
   "header": {
     "search": "Tìm kiếm",
     "notifications": "Thông báo",
@@ -718,7 +725,15 @@
     "error": "Không thể kết nối với máy dịch ngôn ngữ ký hiệu",
     "duration": "Thời lượng",
     "uploadFailed": "Tải lên thất bại",
-    "noSignDetected": "Không nhận dạng được ký hiệu"
+    "preparing": "Đang chuẩn bị video...",
+    "detectingGestures": "Đang phát hiện ngôn ngữ ký hiệu...",
+    "finalizingResults": "Đang hoàn thiện kết quả...",
+    "noSignDetected": "Không nhận dạng được ký hiệu",
+    "autoSpeak": "Tự động đọc",
+    "speechOff": "Tắt âm thanh",
+    "speechEnabled": "Đã bật tự động đọc",
+    "speechDisabled": "Đã tắt tự động đọc",
+    "exportToWord": "Xuất ra Word"
   },
   "qaPage": {
     "communityQ&A": "Cộng đồng Q&A",

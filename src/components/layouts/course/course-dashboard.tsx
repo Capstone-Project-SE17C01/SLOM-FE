@@ -221,12 +221,8 @@ export default function CourseDashboard() {
   ];
 
   return (
-    <div className="p-6 md:p-8 bg-white dark:bg-gray-900">
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">
-          {tCourseDashBoard("dashboard")}
-        </h1>
-        
+    <div className="p-8 bg-gray-50 dark:bg-gray-900 min-h-screen rounded-b-xl">
+      <div className="max-w-4xl mx-auto">
         {/* ProgressBar */}
         <ProgressBar
           dashboardData={dashboardData}

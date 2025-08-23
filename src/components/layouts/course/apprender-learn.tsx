@@ -14,6 +14,7 @@ import WordPractice from "../course/word-practice";
 import { RootState } from "@/redux/store";
 import QuizPractice from "../course/quiz-practice";
 import { useSelector } from "react-redux";
+import { useTheme } from "@/contexts/ThemeContext";
 export default function ApprenderLearnPractice() {
   const searchParams = useSearchParams();
   const lessonId = decodeURIComponent(searchParams.get("lessonId") || "");
@@ -23,6 +24,7 @@ export default function ApprenderLearnPractice() {
   const t_learn = useTranslations("learnPage");
   const [listWords, setListWords] = useState<Word[]>([]);
   const [listQuizzes, setListQuizzes] = useState<Quiz[]>([]);
+  useTheme(); // Initialize theme context to enable dark mode
 
   const [getListWordByLessonId, { isLoading: isLoadingWord }] =
     useGetListWordByLessonIdMutation();
