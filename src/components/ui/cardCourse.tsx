@@ -227,10 +227,7 @@ const CardLesson = ({
     )}
     onClick={onClick}
   >
-    {/* Background pattern */}
-    <div className="absolute inset-0 opacity-10 bg-gradient-to-br from-primary/30 to-transparent" />
-    
-    {/* Circle image */}
+    {/* Ảnh hình tròn, chỉ lộ nửa trái, nằm cạnh phải */}
     <div
       className="absolute top-1/2"
       style={{
@@ -240,8 +237,7 @@ const CardLesson = ({
         height: "90px",
         borderRadius: "9999px",
         overflow: "hidden",
-        background: "rgba(255,255,255,0.1)",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+        clipPath: "inset(0 50% 0 0)",
       }}
     >
       <Image
@@ -251,6 +247,7 @@ const CardLesson = ({
         height={90}
         quality={100}
         className="object-cover w-full h-full"
+        style={{ objectPosition: "left center" }}
       />
     </div>
     <div className="relative z-10 p-3 pr-22">

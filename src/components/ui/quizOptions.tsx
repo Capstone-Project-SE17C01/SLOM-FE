@@ -1,6 +1,5 @@
 import React from "react";
 import { QuizOption } from "@/types/ICourse";
-import { cn } from "@/utils/cn";
 
 interface QuizOptionsProps {
   options: QuizOption[];
@@ -22,13 +21,15 @@ export default function QuizOptions({
       {Object.entries(options).map(([key, opt]) => (
         <button
           key={key}
-          className={cn(
-            "border rounded-xl px-5 py-3 font-semibold shadow transition-all duration-300",
-            "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100",
-            "hover:bg-gray-50 dark:hover:bg-gray-700",
-            selectedOption === opt.id && isCorrect && "border-green-500 dark:border-green-400",
-            selectedOption === opt.id && !isCorrect && "border-red-500 dark:border-red-400"
-          )}
+          className={`bg-white border border-gray-300 rounded-xl px-5 py-3 font-semibold text-[#0a2233] shadow hover:bg-gray-50 transition
+            ${
+              selectedOption === opt.id
+                ? isCorrect
+                  ? "border-green-500"
+                  : "border-red-500"
+                : ""
+            }
+          `}
           disabled={disabled}
           onClick={() => onSelect(opt.id, opt.isCorrect)}
         >

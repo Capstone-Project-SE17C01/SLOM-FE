@@ -443,8 +443,8 @@ export default function RealTimeTranslator({
                   className={cn(
                     "px-6",
                     isDarkMode 
-                      ? "bg-purple-600 hover:bg-purple-700 text-white" 
-                      : "bg-purple-500 hover:bg-purple-600 text-white"
+                      ? "bg-purple-700 hover:bg-purple-800 text-white" 
+                      : "bg-purple-700 hover:bg-purple-800 text-white"
                   )}
                   onClick={startTranslation}
                   disabled={cameraLoading}
