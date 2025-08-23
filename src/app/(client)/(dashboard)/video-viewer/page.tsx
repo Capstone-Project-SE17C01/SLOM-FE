@@ -201,12 +201,12 @@ export default function VideoViewerPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 min-h-[60vh]">
-          <div className="lg:col-span-1 h-full flex flex-col">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+          <div className="lg:col-span-1">
             <div
               id="video-container"
               className={cn(
-                "relative rounded-2xl overflow-hidden shadow-2xl ring-1 flex-grow",
+                "relative rounded-2xl overflow-hidden shadow-2xl ring-1 h-[500px]",
                 isDarkMode
                   ? "bg-gray-800 ring-gray-700/50"
                   : "bg-black ring-gray-200/50"
@@ -234,7 +234,7 @@ export default function VideoViewerPage() {
                     max={duration || 0}
                     value={currentTime}
                     onChange={handleSeek}
-                    className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+                    className="w-full h-1.5 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
                   />
                   <div className="flex justify-between text-xs text-white mt-1.5">
                     <span>{formatTime(currentTime) || "00:00"}</span>
@@ -291,10 +291,10 @@ export default function VideoViewerPage() {
             </div>
           </div>
 
-          <div className="lg:col-span-1 h-full">
+          <div className="lg:col-span-1">
             <div
               className={cn(
-                "rounded-2xl border backdrop-blur-sm h-full flex flex-col transition-all duration-300",
+                "rounded-2xl border backdrop-blur-sm h-[500px] flex flex-col transition-all duration-300",
                 isDarkMode
                   ? "bg-gray-800/80 border-gray-700/50 shadow-2xl"
                   : "bg-white/80 border-gray-200/50 shadow-xl"
@@ -362,7 +362,7 @@ export default function VideoViewerPage() {
                   <div className="space-y-4 h-full flex flex-col">
                     <div
                       className={cn(
-                        "prose prose-sm max-w-none flex-grow",
+                        "prose prose-sm max-w-none flex-grow overflow-y-auto",
                         isDarkMode ? "prose-invert" : "",
                         "prose-headings:text-[#6947A8] prose-headings:font-bold",
                         "prose-strong:text-[#6947A8] prose-strong:font-semibold",
