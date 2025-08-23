@@ -19,6 +19,7 @@ export interface QuizRequestDTO {
   correctAnswer: string;
   explanation?: string;
   maxScore?: number;
+  quizOptions?: string[]; // Backend expects array of strings
 }
 
 export interface QuizResponseDTO {
@@ -51,8 +52,8 @@ export interface WordQuiz {
 
 export interface QuizOption {
   id: string;
-  quizId: string;
-  optionText: string;
+  quizId?: string;
+  text: string;
   isCorrect: boolean;
 }
 
