@@ -814,7 +814,7 @@ export default function MeetingRoomPage() {
 
         <div className="flex-grow">
           <Tabs defaultValue="available" className="w-full">
-            <TabsList className="mb-4">
+            <TabsList className="mb-1">
               <TabsTrigger value="available">
                 {t_meetingPage("availableRooms")}
               </TabsTrigger>
