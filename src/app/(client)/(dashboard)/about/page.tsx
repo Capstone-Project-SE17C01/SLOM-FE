@@ -13,29 +13,35 @@ export default function AboutPage() {
 
   const team = [
     {
-      name: "Nguyen Van Minh",
+      name: "Phung Vu An Quan",
       role: t("ceo"),
-      image: "https://i.pravatar.cc/150?u=minh",
-      initials: "NVM",
+      image: "/images/anquan.jpg",
+      initials: "PVAQ",
     },
     {
-      name: "Tran Thi Lan",
-      role: t("expert"),
-      image: "https://i.pravatar.cc/150?u=lan",
-      initials: "TTL",
-    },
-    {
-      name: "Le Quoc Bao",
+      name: "Nguyen Duc",
       role: t("leadDev"),
-      image: "https://i.pravatar.cc/150?u=bao",
-      initials: "LQB",
+      image: "/images/nguyenduc.jpg",
+      initials: "ND",
     },
     {
-      name: "Pham Mai Anh",
-      role: t("accessibility"),
-      image: "https://i.pravatar.cc/150?u=anh",
-      initials: "PMA",
+      name: "Huynh Ngoc Bao Khanh",
+      role: t("developer"),
+      image: "/images/hnbkhanh.jpg",
+      initials: "HNBK",
     },
+    {
+      name: "Nguyen Tien Thanh",
+      role: t("developer"),
+      image: "/images/nguyentienthanh.jpg",
+      initials: "NTT",
+    },
+    {
+      name: "Tran Tien Thanh",
+      role: t("developer"),
+      image: "/images/trantienthanh.jpg",
+      initials: "TTT",
+    }
   ];
 
   return (
@@ -98,17 +104,23 @@ export default function AboutPage() {
       <section>
         <div className="mb-10">
           <h2 className="text-3xl font-bold">{t("meetTeam")}</h2>
-          <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
+          <p className="text-muted-foreground mt-4 max-w-3xl mx-auto">
             {t("teamDesc")}
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+        <div className="grid grid-cols-5 md:grid-cols-5 gap-6 max-w-5xl mx-auto">
           {team.map((member, index) => (
             <div key={index} className="flex flex-col items-center">
               <Avatar className="h-24 w-24 mb-3">
-                <AvatarImage src={member.image} alt={member.name} />
-                <AvatarFallback>{member.initials}</AvatarFallback>
+                <AvatarImage 
+                  src={member.image} 
+                  alt={member.name} 
+                  className="object-cover w-full h-full"
+                />
+                <AvatarFallback className="text-lg font-semibold bg-primary/10 text-primary">
+                  {member.initials}
+                </AvatarFallback>
               </Avatar>
               <h3 className="font-medium text-lg">{member.name}</h3>
               <p className="text-sm text-muted-foreground">{member.role}</p>
