@@ -128,15 +128,21 @@ export default function AdminWord() {
         try {
           // Fetch modules for the course
           const courseModules = await getAllModuleByCourseId(word.lesson.module.courseId).unwrap();
-          setModulesSelect(Array.isArray(courseModules.result) ? courseModules.result : []);
+          const fetchedModules = Array.isArray(courseModules.result) ? courseModules.result : [];
+          setModulesSelect(fetchedModules);
           
-          // Update modal fields with course and module data
+          // Update modal fields with course and module data - use fetchedModules directly
           const updatedFields = wordFields.map(field => {
             if (field.name === 'courseId') {
               return { ...field, options: coursesSelect.map((c) => ({ label: c.title, value: c.id })) };
             }
             if (field.name === 'moduleId') {
-              return { ...field, options: modulesSelect.map((m) => ({ label: m.title, value: m.id })) };
+              return { ...field, options: fetchedModules.map((m) => ({ label: m.title, value: m.id })) };
+            }
+            if (field.name === 'lessonId') {
+              // Filter lessons by the current module
+              const filteredLessons = lessons.filter(lesson => lesson.moduleId === word.lesson?.moduleId);
+              return { ...field, options: filteredLessons.map((l) => ({ label: l.title, value: l.id })) };
             }
             return field;
           });
@@ -153,6 +159,8 @@ export default function AdminWord() {
       setEditWord(null);
       setModalTitle("Add Word");
       setDeleteWord(null);
+      // Reset modules for new word
+      setModulesSelect([]);
       setModalFields(wordFields);
     }
     setModalOpen(true);
