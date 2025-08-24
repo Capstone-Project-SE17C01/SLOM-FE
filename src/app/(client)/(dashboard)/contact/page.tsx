@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -96,31 +95,34 @@ export default function ContactPage() {
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-8 mb-12 max-w-5xl mx-auto">
-        {contactInfo.map((item, index) => (
-          <div
-            key={index}
-            className={cn(
-              "p-6 rounded-lg flex gap-4 border",
-              isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white"
-            )}
-          >
+      {/* Contact Information Section */}
+      <div className="mb-16">
+        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          {contactInfo.map((item, index) => (
             <div
+              key={index}
               className={cn(
-                "p-3 h-12 w-12 rounded-full flex items-center justify-center shrink-0",
-                isDarkMode
-                  ? "bg-gray-700 text-primary"
-                  : "bg-primary/10 text-primary"
+                "p-6 rounded-lg flex gap-4 border hover:shadow-md transition-shadow",
+                isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white"
               )}
             >
-              {item.icon}
+              <div
+                className={cn(
+                  "p-3 h-12 w-12 rounded-full flex items-center justify-center shrink-0",
+                  isDarkMode
+                    ? "bg-gray-700 text-primary"
+                    : "bg-primary/10 text-primary"
+                )}
+              >
+                {item.icon}
+              </div>
+              <div className="text-left">
+                <h3 className="font-medium text-lg mb-1">{item.title}</h3>
+                <p className="text-muted-foreground">{item.details}</p>
+              </div>
             </div>
-            <div className="text-left">
-              <h3 className="font-medium text-lg mb-1">{item.title}</h3>
-              <p className="text-muted-foreground">{item.details}</p>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       <Card
@@ -130,8 +132,7 @@ export default function ContactPage() {
         )}
       >
         <CardHeader>
-          <CardTitle>{t("formTitle")}</CardTitle>
-          <CardDescription>{t("formDesc")}</CardDescription>
+          <CardTitle>{t("sendFeedback")}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -179,6 +180,7 @@ export default function ContactPage() {
                 value={formData.message}
                 onChange={handleChange}
                 required
+                placeholder={t("messagePlaceholder")}
               />
             </div>
 
@@ -189,14 +191,6 @@ export default function ContactPage() {
                 disabled={isSubmitting}
               >
                 {isSubmitting ? t("sending") : t("send")}
-              </Button>
-
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full md:w-auto"
-              >
-                {t("schedule")}
               </Button>
             </div>
           </form>
