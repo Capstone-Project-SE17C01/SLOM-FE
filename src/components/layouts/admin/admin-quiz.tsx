@@ -5,6 +5,13 @@ import { Plus, Edit, Trash2, Book, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem
+} from "@/components/ui/select";
 import TableWithStatsCard from "@/components/layouts/admin/TableWithStatsCard";
 import { useRouter } from "next/navigation";
 import { useGetAllCourseMutation, useGetAllModuleByCourseIdMutation } from "@/api/CourseApi";
@@ -55,7 +62,7 @@ export default function AdminQuiz() {
 
   const handleFormChange = async (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    
+
     // Handle course change - fetch modules for selected course
     if (field === 'courseId' && value) {
       try {
@@ -76,7 +83,7 @@ export default function AdminQuiz() {
       setLessonsSelect([]);
       setFormData(prev => ({ ...prev, moduleId: '', lessonId: '' }));
     }
-    
+
     // Handle module change - filter lessons for selected module
     if (field === 'moduleId' && value) {
       // Filter lessons by selected module from all available lessons
@@ -138,7 +145,7 @@ export default function AdminQuiz() {
       setEditQuiz(quiz);
       setModalTitle("Update Quiz");
       setDeleteQuiz(null);
-      
+
       // Populate form data for editing
       setFormData({
         question: quiz.question || "",
@@ -148,7 +155,7 @@ export default function AdminQuiz() {
         moduleId: quiz.lesson?.moduleId || "",
         lessonId: quiz.lessonId || "",
       });
-      
+
       // Use the nested data from the API response
       if (quiz.lesson?.module?.courseId) {
         try {
@@ -156,16 +163,16 @@ export default function AdminQuiz() {
           const courseModules = await getAllModuleByCourseId(quiz.lesson.module.courseId).unwrap();
           const fetchedModules = Array.isArray(courseModules.result) ? courseModules.result : [];
           setModulesSelect(fetchedModules);
-          
+
           // Filter lessons by module from all available lessons
           const filteredLessons = lessons.filter(lesson => lesson.moduleId === quiz.lesson?.moduleId);
           setLessonsSelect(filteredLessons);
-          
+
           // Set quiz options from existing quiz
           if (quiz.quizOptions && quiz.quizOptions.length > 0) {
             setQuizOptions(quiz.quizOptions);
           }
-          
+
         } catch (error) {
           console.error("Error fetching modules:", error);
         }
@@ -174,7 +181,7 @@ export default function AdminQuiz() {
       setEditQuiz(null);
       setModalTitle("Add Quiz");
       setDeleteQuiz(null);
-      
+
       // Reset form data for new quiz
       setFormData({
         question: "",
@@ -184,11 +191,11 @@ export default function AdminQuiz() {
         moduleId: "",
         lessonId: "",
       });
-      
+
       // Reset selections
       setModulesSelect([]);
       setLessonsSelect(Array.isArray(lessonsResponse?.result) ? lessonsResponse.result : []);
-      
+
       // Reset quiz options
       setQuizOptions([
         { id: "1", text: "", isCorrect: false },
@@ -253,11 +260,11 @@ export default function AdminQuiz() {
       const quizOptionsStrings = quizOptions
         .filter(option => option.text && option.text.trim()) // Only include non-empty options
         .map(option => option.text.trim()); // Just the text strings
-      
+
       // Get the correct answer from the selected option
       const correctOption = quizOptions.find(option => option.isCorrect);
       const correctAnswer = correctOption ? correctOption.text.trim() : "";
-      
+
       if (!correctAnswer) {
         toast.error("Please select a correct answer option");
         return;
@@ -434,130 +441,145 @@ export default function AdminQuiz() {
           onPageChange: setCurrentPage,
         }}
       />
-             {/* Custom Quiz Modal */}
-       <Dialog open={modalOpen} onOpenChange={(open) => !open && closeModal()}>
-         <DialogContent className="sm:max-w-4xl">
-           <DialogHeader>
-             <DialogTitle className="text-xl">{modalTitle}</DialogTitle>
-           </DialogHeader>
-           
-           <div className="py-4">
-             <form onSubmit={(e) => {
-               e.preventDefault();
-               handleModalSubmit(formData);
-             }} className="space-y-6">
-               <div className="grid grid-cols-2 gap-6">
-                 <div className="space-y-4">
-                   <div>
-                     <Label htmlFor="question" className="text-sm font-medium">Question</Label>
-                     <Input
-                       id="question"
-                       value={formData.question || ""}
-                       onChange={(e) => handleFormChange("question", e.target.value)}
-                       placeholder="Enter question"
-                       required
-                     />
-                   </div>
-                   
-                   
-                   <div>
-                     <Label htmlFor="explanation" className="text-sm font-medium">Explanation</Label>
-                     <Input
-                       id="explanation"
-                       value={formData.explanation || ""}
-                       onChange={(e) => handleFormChange("explanation", e.target.value)}
-                       placeholder="Enter explanation"
-                     />
-                   </div>
-                   
-                   <div>
-                     <Label htmlFor="maxScore" className="text-sm font-medium">Max Score</Label>
-                     <Input
-                       id="maxScore"
-                       type="number"
-                       value={formData.maxScore || "0"}
-                       onChange={(e) => handleFormChange("maxScore", e.target.value)}
-                       placeholder="Enter max score"
-                     />
-                   </div>
-                   
-                   <div>
-                     <Label htmlFor="courseId" className="text-sm font-medium">Course</Label>
-                     <select
-                       id="courseId"
-                       value={formData.courseId || ""}
-                       onChange={(e) => handleFormChange("courseId", e.target.value)}
-                       className="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-                       required
-                     >
-                       <option value="">Select Course</option>
-                       {coursesSelect.map((course) => (
-                         <option key={course.id} value={course.id}>
-                           {course.title}
-                         </option>
-                       ))}
-                     </select>
-                   </div>
-                   
-                   <div>
-                     <Label htmlFor="moduleId" className="text-sm font-medium">Module</Label>
-                     <select
-                       id="moduleId"
-                       value={formData.moduleId || ""}
-                       onChange={(e) => handleFormChange("moduleId", e.target.value)}
-                       className="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-                       required
-                       disabled={!formData.courseId}
-                     >
-                       <option value="">Select Module</option>
-                       {modulesSelect.map((module) => (
-                         <option key={module.id} value={module.id}>
-                           {module.title}
-                         </option>
-                       ))}
-                     </select>
-                   </div>
-                   
-                   <div>
-                     <Label htmlFor="lessonId" className="text-sm font-medium">Lesson</Label>
-                     <select
-                       id="lessonId"
-                       value={formData.lessonId || ""}
-                       onChange={(e) => handleFormChange("lessonId", e.target.value)}
-                       className="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-                       required
-                       disabled={!formData.moduleId}
-                     >
-                       <option value="">Select Lesson</option>
-                       {lessonsSelect.map((lesson) => (
-                         <option key={lesson.id} value={lesson.id}>
-                           {lesson.title}
-                         </option>
-                       ))}
-                     </select>
-                   </div>
-                 </div>
-                 
-                 <div>
-                   <QuizOptionsInput
-                     quizOptions={quizOptions}
-                     onQuizOptionsChange={setQuizOptions}
-                   />
-                 </div>
-               </div>
-               
-               <DialogFooter>
-                 <Button type="button" variant="outline" onClick={closeModal}>
-                   Cancel
-                 </Button>
-                 <Button type="submit">
-                   {editQuiz ? "Update Quiz" : "Create Quiz"}
-                 </Button>
-               </DialogFooter>
-             </form>
-           </div>
-         </DialogContent>
-       </Dialog>
+      {/* Custom Quiz Modal */}
+      <Dialog open={modalOpen} onOpenChange={(open) => !open && closeModal()}>
+        <DialogContent className="sm:max-w-4xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl">{modalTitle}</DialogTitle>
+          </DialogHeader>
+
+          <div className="py-4">
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              handleModalSubmit(formData);
+            }} className="space-y-6">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="question" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                      Question
+                    </Label>
+                    <Input
+                      id="question"
+                      value={formData.question || ""}
+                      onChange={(e) => handleFormChange("question", e.target.value)}
+                      placeholder="Enter question"
+                      required
+                      className="w-full border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="explanation" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                      Explanation
+                    </Label>
+                    <Input
+                      id="explanation"
+                      value={formData.explanation || ""}
+                      onChange={(e) => handleFormChange("explanation", e.target.value)}
+                      placeholder="Enter explanation"
+                      className="w-full border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="maxScore" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                      Max Score
+                    </Label>
+                    <Input
+                      id="maxScore"
+                      type="number"
+                      value={formData.maxScore || "0"}
+                      onChange={(e) => handleFormChange("maxScore", e.target.value)}
+                      placeholder="Enter max score"
+                      className="w-full border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="courseId" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                      Course
+                    </Label>
+                    <Select
+                      value={formData.courseId || undefined}
+                      onValueChange={(value) => handleFormChange("courseId", value)}
+                    >
+                      <SelectTrigger className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+                        <SelectValue placeholder="Select Course" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 shadow-lg">
+                        {coursesSelect.map((course) => (
+                          <SelectItem key={course.id} value={course.id}>
+                            {course.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="moduleId" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                      Module
+                    </Label>
+                    <Select
+                      value={formData.moduleId || undefined}
+                      onValueChange={(value) => handleFormChange("moduleId", value)}
+                      disabled={!formData.courseId}
+                    >
+                      <SelectTrigger className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+                        <SelectValue placeholder="Select Module" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 shadow-lg">
+                        {modulesSelect.map((module) => (
+                          <SelectItem key={module.id} value={module.id}>
+                            {module.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="lessonId" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                      Lesson
+                    </Label>
+                    <Select
+                      value={formData.lessonId || undefined}
+                      onValueChange={(value) => handleFormChange("lessonId", value)}
+                      disabled={!formData.moduleId}
+                    >
+                      <SelectTrigger className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+                        <SelectValue placeholder="Select Lesson" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 shadow-lg">
+                        {lessonsSelect.map((lesson) => (
+                          <SelectItem key={lesson.id} value={lesson.id}>
+                            {lesson.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <QuizOptionsInput
+                  quizOptions={quizOptions}
+                  onQuizOptionsChange={setQuizOptions}
+                />
+              </div>
+
+              <DialogFooter className="pt-4">
+                <Button type="button" variant="outline" onClick={closeModal} className="mr-2">
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  {editQuiz ? "Update Quiz" : "Create Quiz"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirmation Modal */}
       <Dialog open={showModal} onOpenChange={(open) => !open && setShowModal(false)}>
@@ -588,16 +610,27 @@ export default function AdminQuiz() {
 
       {/* Video Modal */}
       <Dialog open={videoModalOpen} onOpenChange={(open) => !open && closeVideoModal()}>
-        <DialogContent className="sm:max-w-4xl w-[90vw] h-[80vh] p-0 border-0">
-          <div className="relative w-full h-full">
-            <iframe
-              src={selectedVideo.replace("watch?v=", "embed/")}
-              className="w-full h-full rounded-lg"
-              title="Video Player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+        <DialogContent className="sm:max-w-6xl w-[95vw] h-[90vh] p-0 border-0 bg-black">
+          <DialogHeader className="absolute top-4 right-4 z-10">
+            <DialogTitle className="sr-only">Video Player</DialogTitle>
+          </DialogHeader>
+          <div className="relative w-full h-full bg-black rounded-lg overflow-hidden">
+            {selectedVideo ? (
+              <iframe
+                src={selectedVideo.replace("watch?v=", "embed/")}
+                className="w-full h-full"
+                title="Video Player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-white">
+                <div className="text-center">
+                  <Play className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                  <p className="text-lg">No video available</p>
+                </div>
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>

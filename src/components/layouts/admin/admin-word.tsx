@@ -414,16 +414,27 @@ export default function AdminWord() {
         open={videoModalOpen}
         onOpenChange={(open) => !open && closeVideoModal()}
       >
-        <DialogContent className="sm:max-w-4xl w-[90vw] h-[80vh] p-0 border-0">
-          <div className="relative w-full h-full">
-            <iframe
-              src={selectedVideo.replace("watch?v=", "embed/")}
-              className="w-full h-full rounded-lg"
-              title="Video Player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+        <DialogContent className="sm:max-w-6xl w-[95vw] h-[90vh] p-0 border-0 bg-black">
+          <DialogHeader className="absolute top-4 right-4 z-10">
+            <DialogTitle className="sr-only">Video Player</DialogTitle>
+          </DialogHeader>
+          <div className="relative w-full h-full bg-black rounded-lg overflow-hidden">
+            {selectedVideo ? (
+              <iframe
+                src={selectedVideo.replace("watch?v=", "embed/")}
+                className="w-full h-full"
+                title="Video Player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-white">
+                <div className="text-center">
+                  <Play className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                  <p className="text-lg">No video available</p>
+                </div>
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>

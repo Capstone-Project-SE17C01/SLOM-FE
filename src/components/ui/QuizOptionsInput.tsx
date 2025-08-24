@@ -51,16 +51,16 @@ export default function QuizOptionsInput({
   };
 
   return (
-    <div className="space-y-4">
-      <Label className="text-sm font-medium">Quiz Options</Label>
-      <div className="space-y-3">
+    <div>
+      <Label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Quiz Options</Label>
+      <div className="space-y-4 max-h-[388px] overflow-y-auto p-1">
         {quizOptions.map((option, index) => (
           <div key={option.id} className="flex items-center space-x-3">
             <Input
               placeholder={`Option ${index + 1}`}
               value={option.text}
               onChange={(e) => updateOption(index, "text", e.target.value)}
-              className="flex-1"
+              className="w-full border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
             />
             <div className="flex items-center space-x-2">
               <input
@@ -70,7 +70,7 @@ export default function QuizOptionsInput({
                 onChange={() => updateOption(index, "isCorrect", true)}
                 className="w-4 h-4 text-blue-600"
               />
-              <Label className="text-sm">Correct</Label>
+              <Label className="text-sm text-gray-700 dark:text-gray-300">Correct</Label>
             </div>
             {quizOptions.length > 2 && (
               <Button
@@ -78,7 +78,7 @@ export default function QuizOptionsInput({
                 variant="ghost"
                 size="sm"
                 onClick={() => removeOption(index)}
-                className="text-red-600 hover:text-red-700"
+                className="text-red-600 hover:text-red-700 h-9 px-3"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -86,16 +86,18 @@ export default function QuizOptionsInput({
           </div>
         ))}
       </div>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={addOption}
-        className="w-full"
-      >
-        <Plus className="h-4 w-4 mr-2" />
-        Add Option
-      </Button>
+      <div className="mt-4">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={addOption}
+          className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 h-9"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Option
+        </Button>
+      </div>
     </div>
   );
 }
