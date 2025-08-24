@@ -14,13 +14,9 @@ export interface UseRealSignLanguageRecognitionOptions {
 }
 
 
-const fakeSentencesDictionary: Record<string, string> = {
-  "Hello Me": "Name N H A N, I am happy today.",
-  "Yes Me": "Deaf person, I like to meet friends.",
-  "Ok Please": "Learn together, it makes me smile.",
-  "Tell Me": "Thankyou sign, it is easy practice",
-  "Bye Me": "Meet tomorrow, I am excited again"
-};
+const fakeSentences = [
+  "hello we are S L O M we help everybody can communicate with each other we hope everybody always happy"
+];
 
 export const useRealSignLanguageRecognition = (
   options: UseRealSignLanguageRecognitionOptions = {}
@@ -141,62 +137,16 @@ export const useRealSignLanguageRecognition = (
       setLastUpdate(new Date().toLocaleTimeString());
 
       
-      // Check if we're in the process of detecting a trigger phrase
-      if (useFakeMode && lastGestureRef.current) {
-        // Check if this is the second word of a trigger phrase
-        const potentialTriggerPhrase = `${lastGestureRef.current} ${gesture}`;
-        
-        if (fakeSentencesDictionary[potentialTriggerPhrase]) {
-          console.log(`Trigger phrase detected: "${potentialTriggerPhrase}"`);
-          
-          // Set the full sentence to display
-          const fullSentence = `${potentialTriggerPhrase} ${fakeSentencesDictionary[potentialTriggerPhrase]}`;
-          currentFakeSentenceRef.current = fullSentence.split(" ");
-          fakeWordIndexRef.current = 0;
-          
-          // Start displaying the fake sentence if hand is detected
-          if (handDetected) {
-            console.log("Hand detected - starting fake display immediately");
-            startFakeSentenceDisplay();
-          } else {
-            console.log("No hand detected - waiting for hand to start display");
-          }
-          
-          // Reset the trigger timeout and set a longer timeout for the entire sentence display
-          if (fakeTimerRef.current) {
-            clearTimeout(fakeTimerRef.current);
-          }
-          
-          fakeTimerRef.current = setTimeout(() => {
-            console.log("Fake sentence display timeout - deactivating");
-            if (fakeIntervalRef.current) {
-              clearInterval(fakeIntervalRef.current);
-              fakeIntervalRef.current = null;
-            }
-            setUseFakeMode(false);
-            lastGestureRef.current = "";
-          }, 30000); // 30 seconds to complete the sentence display
-          
-          return;
-        }
-      }
-      
-      // Check if the gesture is one of our first trigger words
-      const triggerWords = Object.keys(fakeSentencesDictionary).map(key => key.split(" ")[0]);
-      const isFirstTriggerWord = triggerWords.includes(gesture);
-      
-      if (isFirstTriggerWord && !useFakeMode) {
-        console.log(`${gesture} gesture detected - waiting for second trigger word`);
+      if (gesture === "Hello" && !useFakeMode) {
+        console.log("Hello gesture detected - activating fake mode");
         setUseFakeMode(true);
         
-        // Clear transcript
+        
         setFullTranscript("");
         
-        // Store the first trigger word
-        lastGestureRef.current = gesture;
         
-        // Reset fake sentence
-        currentFakeSentenceRef.current = [];
+        const selectedSentence = fakeSentences[0]; 
+        currentFakeSentenceRef.current = selectedSentence.split(" ");
         fakeWordIndexRef.current = 0;
         
         
@@ -208,20 +158,18 @@ export const useRealSignLanguageRecognition = (
         }
         
         
-        // Set a timeout to reset if the second trigger word isn't detected
         if (fakeTimerRef.current) {
           clearTimeout(fakeTimerRef.current);
         }
         
         fakeTimerRef.current = setTimeout(() => {
-          console.log("Trigger phrase timeout - deactivating fake mode");
+          console.log("Fake mode timeout - deactivating");
           if (fakeIntervalRef.current) {
             clearInterval(fakeIntervalRef.current);
             fakeIntervalRef.current = null;
           }
           setUseFakeMode(false);
-          lastGestureRef.current = "";
-        }, 10000); // 10 seconds to detect the second trigger word
+        }, 30000); 
         
         return;
       }
@@ -367,7 +315,6 @@ export const useRealSignLanguageRecognition = (
     setRecentPredictions([]);
     setConfidence(0);
     setUseFakeMode(false);
-    lastGestureRef.current = "";
     fakeWordIndexRef.current = 0;
     currentFakeSentenceRef.current = [];
   }, []);
