@@ -24,7 +24,7 @@ interface ProcessingState {
 export const useVideoSignLanguageProcessor = ({
   onResult,
   onProgress,
-  confidenceThreshold = 60,
+  confidenceThreshold = 70,
 }: UseVideoSignLanguageProcessorOptions = {}) => {
   const [state, setState] = useState<ProcessingState>({
     isLoading: true,
