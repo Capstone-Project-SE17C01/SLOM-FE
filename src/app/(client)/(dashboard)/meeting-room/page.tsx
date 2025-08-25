@@ -266,7 +266,7 @@ export default function MeetingRoomPage() {
 
   const handleEditMeeting = async (meetingId: string) => {
     try {
-      const loadingToast = toast.loading("Loading meeting details...");
+      const loadingToast = toast.loading(t_meetingPage("loadingMeetingDetails"));
       const result = await store.dispatch(
         meetingApi.endpoints.getMeeting.initiate(meetingId)
       );
@@ -289,15 +289,15 @@ export default function MeetingRoomPage() {
   const handleUpdateMeeting = async (updatedDetails: UpdateMeetingRequest) => {
     if (!selectedMeeting) return;
     try {
-      const loadingToast = toast.loading("Updating meeting information...");
+      const loadingToast = toast.loading(t_meetingPage("updatingMeetingInformation"));
       await updateMeeting({
         id: selectedMeeting.id,
         request: updatedDetails,
       }).unwrap();
       toast.dismiss(loadingToast);
-      toast.success("Meeting updated successfully", {
+      toast.success(t_meetingPage("meetingUpdatedSuccessfully"), {
         icon: <Check className="h-4 w-4 text-green-500" />,
-        description: "All meeting details have been saved and updated.",
+        description: t_meetingPage("allMeetingDetailsHaveBeenSavedAndUpdated"),
       });
       setShowEditModal(false);
       setSelectedMeeting(undefined);
@@ -328,10 +328,10 @@ export default function MeetingRoomPage() {
 
   const handleDeleteMeeting = async (meetingId: string, userId: string) => {
     try {
-      const loadingToast = toast.loading("Deleting meeting...");
+      const loadingToast = toast.loading(t_meetingPage("deletingMeeting"));
       await deleteMeeting({ id: meetingId, userId: userId }).unwrap();
       toast.dismiss(loadingToast);
-      toast.success("Meeting deleted successfully", {
+      toast.success(t_meetingPage("meetingDeletedSuccessfully"), {
         icon: <Check className="h-4 w-4 text-green-500" />,
       });
       if (selectedDateString) {
@@ -379,10 +379,10 @@ export default function MeetingRoomPage() {
         }`
       );
 
-      const loadingToast = toast.loading("Deleting recording...");
+      const loadingToast = toast.loading(t_meetingPage("deletingRecording"));
       await deleteRecording({ recordingId, meetingId }).unwrap();
       toast.dismiss(loadingToast);
-      toast.success("Recording deleted successfully", {
+      toast.success(t_meetingPage("recordingDeletedSuccessfully"), {
         icon: <Check className="h-4 w-4 text-green-500" />,
       });
 
@@ -427,13 +427,14 @@ export default function MeetingRoomPage() {
   const renderDropdownActions = (meeting: {
     id: string;
     title: string;
-    startTime?: string;
+    endTime?: string;
   }) => {
-    const meetingStartTime = meeting.startTime
-      ? new Date(meeting.startTime)
+    const meetingEndTime = meeting.endTime
+      ? new Date(meeting.endTime)
       : null;
-    const isPastMeeting = meetingStartTime
-      ? meetingStartTime < new Date()
+
+    const isPastMeeting = meetingEndTime
+      ? meetingEndTime < new Date()
       : false;
     return (
       <DropdownMenu>
@@ -453,7 +454,7 @@ export default function MeetingRoomPage() {
                 className="flex items-center gap-1"
                 disabled={isDeleting || isUpdating}
               >
-                <Share2 size={14} /> Join
+                <Share2 size={14} /> {t_meetingPage("joinSchedule")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={(e) => {
@@ -463,15 +464,14 @@ export default function MeetingRoomPage() {
                 className="flex items-center gap-1"
                 disabled={isDeleting || isUpdating}
               >
-                <Edit size={14} /> Edit
+                <Edit size={14} /> {t_meetingPage("edit")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={(e) => {
                   e.stopPropagation();
                   const meetingLink = `${window.location.origin}/meeting?roomID=${meeting.id}`;
                   copyToClipboard(
-                    meetingLink,
-                    "Meeting link copied to clipboard"
+                    meetingLink                    
                   );
                 }}
                 className="flex items-center gap-1"
@@ -481,7 +481,7 @@ export default function MeetingRoomPage() {
                   size={14}
                   className={isCopying ? "animate-pulse" : ""}
                 />
-                {isCopying ? "Copying..." : "Copy Link"}
+                {isCopying ? t_meetingPage("copying") : t_meetingPage("copyLink")}
               </DropdownMenuItem>
             </>
           )}
@@ -494,7 +494,7 @@ export default function MeetingRoomPage() {
             className="flex items-center gap-1 text-red-500 focus:bg-red-50 dark:focus:bg-red-900/20"
             disabled={isDeleting || isUpdating}
           >
-            <Trash2 size={14} /> {isDeleting ? "Deleting..." : "Delete"}
+            <Trash2 size={14} /> {isDeleting ? t_meetingPage("deleting") : t_meetingPage("delete")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -521,7 +521,7 @@ export default function MeetingRoomPage() {
             disabled={isDeletingRecording}
           >
             <Trash2 size={14} />{" "}
-            {isDeletingRecording ? "Deleting..." : "Delete"}
+            {isDeletingRecording ? t_meetingPage("deleting") : t_meetingPage("delete")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -786,7 +786,7 @@ export default function MeetingRoomPage() {
                               {renderDropdownActions({
                                 id: meeting.id,
                                 title: meeting.title,
-                                startTime: meeting.startTime,
+                                endTime: meeting.endTime,
                               })}
                             </div>
                           </div>
@@ -814,7 +814,7 @@ export default function MeetingRoomPage() {
 
         <div className="flex-grow">
           <Tabs defaultValue="available" className="w-full">
-            <TabsList className="mb-4">
+            <TabsList className="mb-1">
               <TabsTrigger value="available">
                 {t_meetingPage("availableRooms")}
               </TabsTrigger>
@@ -1294,7 +1294,7 @@ export default function MeetingRoomPage() {
                   isDeleting && "opacity-0"
                 )}
               >
-                <Trash2 size={16} /> Delete
+                <Trash2 size={16} /> {t_meetingPage("delete")}
               </span>
               {isDeleting && (
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -1311,13 +1311,13 @@ export default function MeetingRoomPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-red-500">Delete Recording</DialogTitle>
+            <DialogTitle className="text-red-500">{t_meetingPage("deleteRecording")}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete the recording{" "}
+              {t_meetingPage("areYouSureYouWantToDeleteTheRecording")}
               <span className="font-medium">
                 {recordingToDelete?.meetingTitle}
               </span>
-              ? This action cannot be undone.
+              ? {t_meetingPage("thisActionCannotBeUndone")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-4">
@@ -1348,7 +1348,7 @@ export default function MeetingRoomPage() {
                   isDeletingRecording && "opacity-0"
                 )}
               >
-                <Trash2 size={16} /> Delete
+                <Trash2 size={16} /> {t_meetingPage("delete")}
               </span>
               {isDeletingRecording && (
                 <div className="absolute inset-0 flex items-center justify-center">

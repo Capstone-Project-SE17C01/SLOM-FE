@@ -12,53 +12,140 @@ export function useSpeechToText(options: UseSpeechToTextOptions) {
   const [isListening, setIsListening] = useState(false);
   const [isTranslated, setIsTranslated] = useState(false);
   const recognizerRef = useRef<SpeechSDK.SpeechRecognizer | null>(null);
+  
   const startListening = () => {
     if (isListening) return;
-    setTranscript("");
-    setIsListening(true);
-    setIsTranslated(false);
-    const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(options.subscriptionKey, options.region);
-    speechConfig.speechRecognitionLanguage = options.fromLang;
-    const audioConfig = SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
-    const recognizer = new SpeechSDK.SpeechRecognizer(speechConfig, audioConfig);
-    recognizer.recognizing = (_s, e) => {
-      // Only show original text for UI feedback, don't mark as translated
-      setTranscript(e.result.text);
-      setIsTranslated(false);
-    };
-    recognizer.recognized = async (_s, e) => {
-      if (e.result.text) {
-        const translated = await translateText(
-          e.result.text,
-          options.fromLang,
-          options.toLang,
-          options.translatorKey,
-          options.region
-        );
-        setTranscript(translated);
-        setIsTranslated(true); // Mark as translated for Firebase push
+    
+    try {
+      // Đảm bảo dừng và dọn dẹp recognizer cũ nếu còn tồn tại
+      if (recognizerRef.current) {
+        try {
+          recognizerRef.current.stopContinuousRecognitionAsync();
+          recognizerRef.current.close();
+          recognizerRef.current = null;
+        } catch (err) {
+          console.warn("Error cleaning up previous recognizer:", err);
+        }
       }
-    };
-    recognizer.sessionStopped = () => {
+      
+      // Reset state
+      setTranscript("");
+      setIsTranslated(false);
+      
+      // Khởi tạo cấu hình
+      const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(options.subscriptionKey, options.region);
+      speechConfig.speechRecognitionLanguage = options.fromLang;
+      
+      // Kiểm tra quyền truy cập microphone trước khi khởi tạo
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(() => {
+          const audioConfig = SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
+          const recognizer = new SpeechSDK.SpeechRecognizer(speechConfig, audioConfig);
+          
+          // Đặt các event handlers
+          recognizer.recognizing = (_s, e) => {
+            // Only show original text for UI feedback, don't mark as translated
+            setTranscript(e.result.text);
+            setIsTranslated(false);
+          };
+          
+          recognizer.recognized = async (_s, e) => {
+            if (e.result.text) {
+              const translated = await translateText(
+                e.result.text,
+                options.fromLang,
+                options.toLang,
+                options.translatorKey,
+                options.region
+              );
+              setTranscript(translated);
+              setIsTranslated(true); // Mark as translated for Firebase push
+            }
+          };
+          
+          recognizer.sessionStopped = () => {
+            setIsListening(false);
+            if (recognizerRef.current) {
+              recognizerRef.current.close();
+              recognizerRef.current = null;
+            }
+          };
+          
+          recognizer.canceled = (s, e) => {
+            console.log(`CANCELED: Reason=${e.reason}`);
+            if (e.reason === SpeechSDK.CancellationReason.Error) {
+              console.error(`ERROR: ${e.errorCode} - ${e.errorDetails}`);
+            }
+            setIsListening(false);
+            if (recognizerRef.current) {
+              recognizerRef.current.close();
+              recognizerRef.current = null;
+            }
+          };
+          
+          // Lưu tham chiếu trước khi bắt đầu nhận diện
+          recognizerRef.current = recognizer;
+          
+          // Bắt đầu nhận diện và cập nhật state sau khi đã bắt đầu thành công
+          recognizer.startContinuousRecognitionAsync(
+            () => {
+              console.log("Speech recognition started successfully");
+              setIsListening(true);
+            },
+            (err) => {
+              console.error("Error starting speech recognition:", err);
+              setIsListening(false);
+              if (recognizerRef.current) {
+                recognizerRef.current.close();
+                recognizerRef.current = null;
+              }
+            }
+          );
+        })
+        .catch(err => {
+          console.error("Microphone access denied or not available:", err);
+          setIsListening(false);
+        });
+    } catch (error) {
+      console.error("Failed to start speech recognition:", error);
       setIsListening(false);
-      recognizer.close();
-      recognizerRef.current = null;
-    };
-    recognizer.canceled = () => {
-      setIsListening(false);
-      recognizer.close();
-      recognizerRef.current = null;
-    };
-    recognizer.startContinuousRecognitionAsync();
-    recognizerRef.current = recognizer;
+    }
   };
+  
   const stopListening = () => {
+    if (!isListening || !recognizerRef.current) return;
+    
     setIsListening(false);
-    recognizerRef.current?.stopContinuousRecognitionAsync(() => {
-      recognizerRef.current?.close();
-      recognizerRef.current = null;
-    });
+    try {
+      recognizerRef.current.stopContinuousRecognitionAsync(
+        () => {
+          console.log("Speech recognition stopped successfully");
+          if (recognizerRef.current) {
+            recognizerRef.current.close();
+            recognizerRef.current = null;
+          }
+        },
+        (err) => {
+          console.error("Error stopping speech recognition:", err);
+          if (recognizerRef.current) {
+            recognizerRef.current.close();
+            recognizerRef.current = null;
+          }
+        }
+      );
+    } catch (error) {
+      console.error("Error during stopListening:", error);
+      if (recognizerRef.current) {
+        try {
+          recognizerRef.current.close();
+        } catch (e) {
+          console.warn("Error closing recognizer:", e);
+        }
+        recognizerRef.current = null;
+      }
+    }
   };
+  
   return {
     transcript,
     isListening,
@@ -71,6 +158,7 @@ export function useSpeechToText(options: UseSpeechToTextOptions) {
     },
   };
 }
+
 async function translateText(
   text: string,
   from: string,

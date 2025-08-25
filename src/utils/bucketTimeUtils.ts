@@ -40,11 +40,12 @@ export function getBucketTimeInfo(timestamp?: number): BucketTimeInfo {
  * Parse bucket key back to readable time
  * 
  * @param bucketKey - Bucket key string
+ * @param endTimeOverride - Optional override for end time (for merged buckets)
  * @returns Formatted time range string
  */
-export function formatBucketTime(bucketKey: string): string {
+export function formatBucketTime(bucketKey: string, endTimeOverride?: number): string {
   const startTime = parseInt(bucketKey)
-  const endTime = startTime + 14
+  const endTime = endTimeOverride || startTime + 14
   
   const startDate = new Date(startTime * 1000)
   const endDate = new Date(endTime * 1000)

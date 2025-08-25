@@ -5,8 +5,7 @@ import { meetingService } from '@/services/firebase/meetingService'
 import { getCurrentBucketKey, formatBucketTime } from '@/utils/bucketTimeUtils'
 import { TimeBucket, UserBucketContent } from '@/types/IFirebaseMeeting'
 import { cn } from '@/utils/cn'
-import { ChevronDown, Clock, Users, ArrowDown, GripHorizontal } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { ChevronDown, Clock, Users, GripHorizontal } from 'lucide-react'
 
 interface FirebaseSubtitleDisplayProps {
   meetingCode: string
@@ -18,6 +17,7 @@ interface BucketDisplay {
   bucketKey: string
   timeRange: string
   isCurrentBucket: boolean
+  hasLiveContent?: boolean
   userContents: Array<{
     userId: string
     contents: string[]
@@ -34,15 +34,16 @@ export default function FirebaseSubtitleDisplay({
   const [bucketDisplays, setBucketDisplays] = useState<BucketDisplay[]>([])
   const [currentBucketKey, setCurrentBucketKey] = useState<string>('')
   const [isAtCurrentBucket, setIsAtCurrentBucket] = useState(true)
-  const [showBackToCurrentBtn, setShowBackToCurrentBtn] = useState(false)
   const [containerHeight, setContainerHeight] = useState(256) // Default height in pixels
   const [isResizing, setIsResizing] = useState(false)
+  const [hasNewContent, setHasNewContent] = useState(false)
 
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const currentBucketRef = useRef<HTMLDivElement>(null)
   const unsubscribeRef = useRef<(() => void) | null>(null)
   const resizeStartY = useRef<number>(0)
   const initialHeight = useRef<number>(0)
+  const previousBucketsLength = useRef<number>(0)
 
   // Update current bucket key every second
   useEffect(() => {
@@ -83,67 +84,134 @@ export default function FirebaseSubtitleDisplay({
 
     const buckets = Object.keys(meetingData).sort((a, b) => parseInt(a) - parseInt(b)) // Oldest first, newest at bottom
 
-    const displays: BucketDisplay[] = buckets.map((bucketKey) => {
+    // 🔥 FIX: Nhóm nội dung theo người dùng, kết hợp các bucket liên tiếp
+    const displays: BucketDisplay[] = []
+    
+    // Theo dõi nội dung người dùng cuối cùng cho mỗi bucket để nhóm lại
+    const lastUserContentByBucket: Record<string, Record<string, string[]>> = {}
+    
+    // 🔥 FIX: Tìm bucket mới nhất cho mỗi người dùng để hiển thị LIVE
+    // Đây là bucket thực sự đang active, có thể khác với currentBucketKey
+    const userLatestBuckets = new Map<string, string>()
+    
+    // Đầu tiên, xác định bucket mới nhất cho mỗi người dùng
+    buckets.forEach((bucketKey) => {
       const userBucketContent: UserBucketContent = meetingData[bucketKey]
-      const userContents = Object.entries(userBucketContent).map(([userId, content]) => ({
-        userId,
-        contents: meetingService.parseUserContent(content),
-        isCurrentUser: userId === currentUserId
-      }))
-
-      return {
-        bucketKey,
-        timeRange: formatBucketTime(bucketKey),
-        isCurrentBucket: bucketKey === currentBucketKey,
-        userContents
-      }
+      Object.keys(userBucketContent).forEach((userId) => {
+        userLatestBuckets.set(userId, bucketKey)
+      })
+    })
+    
+    buckets.forEach((bucketKey) => {
+      const userBucketContent: UserBucketContent = meetingData[bucketKey]
+      // 🔥 FIX: Bucket hiện tại là bucket mặc định theo thời gian hoặc bucket mới nhất của người dùng
+      const isCurrentTimelineBucket = bucketKey === currentBucketKey
+      
+      // Xử lý từng người dùng trong bucket
+      Object.entries(userBucketContent).forEach(([userId, content]) => {
+        const parsedContents = meetingService.parseUserContent(content)
+        if (parsedContents.length === 0) return
+        
+        const isCurrentUser = userId === currentUserId
+        // 🔥 FIX: Kiểm tra xem đây có phải bucket mới nhất của người dùng không
+        const isLatestUserBucket = userLatestBuckets.get(userId) === bucketKey
+        
+        // Kiểm tra xem có thể gộp với bucket trước đó không
+        const prevBucketIndex = displays.length - 1
+        const prevBucket = prevBucketIndex >= 0 ? displays[prevBucketIndex] : null
+        
+        // Điều kiện để gộp:
+        // 1. Bucket trước đó tồn tại
+        // 2. Bucket trước đó có nội dung của cùng người dùng
+        // 3. Thời gian giữa hai bucket không quá 30 giây (2 bucket liên tiếp)
+        const canMerge = prevBucket && 
+                         prevBucket.userContents.some(u => u.userId === userId) &&
+                         Math.abs(parseInt(bucketKey) - parseInt(prevBucket.bucketKey)) <= 30
+        
+        if (canMerge) {
+          // Tìm nội dung của người dùng trong bucket trước đó để gộp
+          const userContentIndex = prevBucket.userContents.findIndex(u => u.userId === userId)
+          if (userContentIndex >= 0) {
+            // Gộp nội dung
+            prevBucket.userContents[userContentIndex].contents = [
+              ...prevBucket.userContents[userContentIndex].contents,
+              ...parsedContents
+            ]
+            
+            // 🔥 FIX: Cập nhật trạng thái LIVE nếu đây là bucket mới nhất của người dùng
+            if (isLatestUserBucket) {
+              prevBucket.isCurrentBucket = true
+              prevBucket.hasLiveContent = true
+            }
+            
+            // Cập nhật thời gian hiển thị
+            const endTime = parseInt(bucketKey) + 14
+            prevBucket.timeRange = formatBucketTime(prevBucket.bucketKey, endTime)
+            
+            // Lưu lại để kiểm tra cho lần tiếp theo
+            if (!lastUserContentByBucket[bucketKey]) {
+              lastUserContentByBucket[bucketKey] = {}
+            }
+            lastUserContentByBucket[bucketKey][userId] = parsedContents
+            
+            return // Không tạo bucket mới
+          }
+        }
+        
+        // Nếu không thể gộp, tạo bucket mới
+        const newBucketDisplay: BucketDisplay = {
+          bucketKey,
+          timeRange: formatBucketTime(bucketKey),
+          // 🔥 FIX: Bucket hiện tại là bucket mặc định theo thời gian HOẶC bucket mới nhất của người dùng
+          isCurrentBucket: isCurrentTimelineBucket || isLatestUserBucket,
+          // 🔥 FIX: Thêm flag để đánh dấu bucket có nội dung LIVE
+          hasLiveContent: isLatestUserBucket,
+          userContents: [
+            {
+              userId,
+              contents: parsedContents,
+              isCurrentUser
+            }
+          ]
+        }
+        
+        displays.push(newBucketDisplay)
+        
+        // Lưu lại để kiểm tra cho lần tiếp theo
+        if (!lastUserContentByBucket[bucketKey]) {
+          lastUserContentByBucket[bucketKey] = {}
+        }
+        lastUserContentByBucket[bucketKey][userId] = parsedContents
+      })
     })
 
-    setBucketDisplays(displays)
-
-    // Auto-scroll when new content is added to current bucket
-    const hasCurrentBucketContent = displays.some(bucket => bucket.isCurrentBucket && bucket.userContents.length > 0)
-    if (hasCurrentBucketContent) {
-      // Check if user is near bottom before auto-scrolling
-      if (scrollContainerRef.current) {
-        const container = scrollContainerRef.current
-        const containerBottom = container.scrollTop + container.clientHeight
-        const containerScrollHeight = container.scrollHeight
-        const isNearBottom = containerScrollHeight - containerBottom <= 100
-
-        if (isNearBottom) {
-          setTimeout(() => {
-            // Scroll to the very bottom of the container
-            container.scrollTo({
-              top: container.scrollHeight,
-              behavior: 'smooth'
-            })
-          }, 100) // Small delay to ensure content is rendered
-        }
-      }
+    // Kiểm tra nếu có bucket mới hoặc nội dung mới
+    if (displays.length > previousBucketsLength.current) {
+      setHasNewContent(true);
+      previousBucketsLength.current = displays.length;
     }
+
+    setBucketDisplays(displays)
   }, [meetingData, currentBucketKey, currentUserId])
 
-  // Auto-scroll to bottom when new current bucket appears (only if user is near bottom)
+  // Auto-scroll to bottom when new content appears
   useEffect(() => {
-    if (!scrollContainerRef.current) return
+    if (!scrollContainerRef.current) return;
 
-    const container = scrollContainerRef.current
-
-    // Check if user is near the bottom (within 100px of bottom)
-    const containerBottom = container.scrollTop + container.clientHeight
-    const containerScrollHeight = container.scrollHeight
-    const isNearBottom = containerScrollHeight - containerBottom <= 100
-
-    // Only auto-scroll if user is near bottom or if it's the first time
-    if ((isAtCurrentBucket && isNearBottom) || bucketDisplays.length === 1) {
-      // Scroll to the very bottom of the container
-      container.scrollTo({
-        top: container.scrollHeight,
-        behavior: 'smooth'
-      })
+    // Tự động cuộn xuống khi có nội dung mới hoặc bucket mới
+    if (hasNewContent || bucketDisplays.some(bucket => bucket.hasLiveContent)) {
+      setTimeout(() => {
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollTo({
+            top: scrollContainerRef.current.scrollHeight,
+            behavior: 'smooth'
+          });
+          setHasNewContent(false);
+          setIsAtCurrentBucket(true);
+        }
+      }, 100);
     }
-  }, [currentBucketKey, isAtCurrentBucket, bucketDisplays.length])
+  }, [bucketDisplays, hasNewContent]);
 
   // Handle resize drag
   const handleResizeStart = useCallback(
@@ -184,29 +252,23 @@ export default function FirebaseSubtitleDisplay({
     const isViewingCurrent = currentBucketBottom <= containerBottom + 50 // Add some tolerance
 
     setIsAtCurrentBucket(isViewingCurrent)
-    setShowBackToCurrentBtn(!isViewingCurrent)
-  }, [])
+  }, [setIsAtCurrentBucket])
 
-  // Scroll back to current bucket
-  const scrollToCurrentBucket = useCallback(() => {
-    if (currentBucketRef.current) {
-      currentBucketRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'end'
-      })
-      setIsAtCurrentBucket(true)
-      setShowBackToCurrentBtn(false)
-    }
-  }, [])
-
-  // Format timestamp for display
-  const formatTimestamp = (bucketKey: string): string => {
-    const timestamp = parseInt(bucketKey) * 1000
-    return new Date(timestamp).toLocaleTimeString('vi-VN', {
+  // Format timestamp for display - Thêm tham số endTime để hỗ trợ hiển thị bucket gộp
+  const formatTimestamp = (bucketKey: string, endTimestamp?: number): string => {
+    const startTimestamp = parseInt(bucketKey) * 1000
+    const endTime = endTimestamp ? endTimestamp * 1000 : startTimestamp + 14000
+    
+    const startDate = new Date(startTimestamp)
+    const endDate = new Date(endTime)
+    
+    const formatOptions: Intl.DateTimeFormatOptions = {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit'
-    })
+    }
+    
+    return `${startDate.toLocaleTimeString('vi-VN', formatOptions)} - ${endDate.toLocaleTimeString('vi-VN', formatOptions)}`
   }
 
   if (!meetingData || bucketDisplays.length === 0) {
@@ -227,21 +289,6 @@ export default function FirebaseSubtitleDisplay({
 
   return (
     <div className={cn('relative', className)}>
-      {/* Back to Current Button */}
-      {showBackToCurrentBtn && (
-        <div className="absolute top-2 right-2 z-10">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={scrollToCurrentBucket}
-            className="bg-blue-600 text-white border-blue-500 hover:bg-blue-700 px-3 py-1 h-auto"
-          >
-            <ArrowDown className="w-3 h-3 mr-1" />
-            <span className="text-xs">Latest</span>
-          </Button>
-        </div>
-      )}
-
       {/* Resize Handle */}
       <div
         className={cn(
@@ -279,17 +326,17 @@ export default function FirebaseSubtitleDisplay({
             {bucketDisplays.map((bucket) => (
               <div
                 key={bucket.bucketKey}
-                ref={bucket.isCurrentBucket ? currentBucketRef : null}
+                ref={bucket.hasLiveContent ? currentBucketRef : null}
                 className={cn(
                   'border-l-2 pl-3 transition-all duration-200',
-                  bucket.isCurrentBucket ? 'border-green-500 bg-green-900/20' : 'border-gray-600'
+                  bucket.hasLiveContent ? 'border-green-500 bg-green-900/20' : 'border-gray-600'
                 )}
               >
                 {/* Time Header */}
                 <div className="flex items-center gap-2 mb-3">
                   <Clock className="w-3 h-3 text-gray-400" />
                   <span className="text-xs font-medium text-gray-300">{formatTimestamp(bucket.bucketKey)}</span>
-                  {bucket.isCurrentBucket && (
+                  {bucket.hasLiveContent && (
                     <span className="text-xs bg-green-600 px-2 py-0.5 rounded text-white">LIVE</span>
                   )}
                 </div>

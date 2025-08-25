@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import { OPENROUTER_CONFIG } from "@/services/openrouter/config";
+import { GeminiService } from "@/services/gemini/config";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslations } from "next-intl";
 
@@ -32,52 +32,38 @@ const Chatbot: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        `${OPENROUTER_CONFIG.baseURL}/chat/completions`,
-        {
-          method: "POST",
-          headers: {
-            ...OPENROUTER_CONFIG.headers,
-            Authorization: `Bearer ${
-              process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || ""
-            }`,
-          },
-          body: JSON.stringify({
-            model: OPENROUTER_CONFIG.model,
-            messages: [
-              {
-                role: "system",
-                content: `You are a friendly AI assistant for SLOM app (Sign Language Online meeting). Our app have components: 
-              online meeting allow user meeting and translate sign language, message for chat,
-              course for course learning deaf language, translator ...., QA for User to ask questions 
-              Just answer the questions about the system and deaf related problems.
-              If user ask questions not related, answer just: Sorry, your question is out of my scope, please ask others question..
-              Answer concisely and clearly in English`,
-              },
-              ...[...messages, userMessage].map((m) => ({
-                role: m.role,
-                content: m.content,
-              })),
-            ],
-            temperature: 0.7,
-            max_tokens: 1000,
-          }),
-        }
+      const gemini = new GeminiService(
+        process.env.NEXT_PUBLIC_GEMINI_KEY || "free"
       );
 
-      if (!response.ok) {
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", content: t_chatbot("failedToConnect") },
-        ]);
-        setLoading(false);
-        return;
-      }
+      const language =
+        typeof window !== "undefined" && localStorage.getItem("language") === "vn"
+          ? "Vietnamese"
+          : "English";
 
-      const data = await response.json();
-      const reply =
-        data.choices?.[0]?.message?.content?.trim() || t_chatbot("noResponse");
-      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+      const systemMessage = {
+        role: "system" as const,
+        content:
+          "You are a friendly AI assistant for SLOM app (Sign Language Online meeting). Our app have components: online meeting allow user meeting and translate sign language, message for chat, course for course learning deaf language, translator ...., QA for User to ask questions Just answer the questions about the system and deaf related problems. If user ask questions not related, answer just: Sorry, your question is out of my scope, please ask others question.Answer concisely and clearly in" + language,
+      };
+
+      const chatMessages = [
+        systemMessage,
+        ...[...messages, userMessage].map((m) => ({
+          role: m.role,
+          content: m.content,
+        })),
+      ];
+
+      const reply = await gemini.chat(chatMessages, {
+        temperature: 0.7,
+        maxTokens: 1000,
+      });
+
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: reply || t_chatbot("noResponse") },
+      ]);
     } catch {
       setMessages((prev) => [
         ...prev,
