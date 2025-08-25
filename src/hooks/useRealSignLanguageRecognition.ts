@@ -14,10 +14,7 @@ export interface UseRealSignLanguageRecognitionOptions {
 }
 
 const fakeSentencesDictionary: Record<string, string> = {
-  'Hello Me': 'Name K H A N H I am happy today.',
-  'Yes Me': 'Deaf person I like to meet friends.',
-  'Yes Please': 'Learn together it makes me smile.',
-  'Bye Me': 'Meet tomorrow I am excited again'
+  'Healadoeknfsnd quan': '124'
 }
 
 export const useRealSignLanguageRecognition = (options: UseRealSignLanguageRecognitionOptions = {}) => {
