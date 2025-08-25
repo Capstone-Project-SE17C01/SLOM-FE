@@ -14,7 +14,7 @@ import {
   FileText,
   Loader2,
 } from "lucide-react";
-import { OpenRouterService } from "@/services/openrouter/config";
+import { GeminiService } from "@/services/gemini/config";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useExtractTextMutation } from "@/api/TranscriptApi";
 import { Input } from "@/components/ui/input";
@@ -105,9 +105,8 @@ export default function VideoViewerPage() {
   const generateSummary = async () => {
     setIsGeneratingSummary(true);
     try {
-      const openRouterApiKey = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
-      if (!openRouterApiKey)
-        throw new Error("OpenRouter API key not configured");
+      const geminiApiKey = process.env.NEXT_PUBLIC_GEMINI_KEY;
+      if (!geminiApiKey) throw new Error("Gemini API key not configured");
       if (!videoUrl) throw new Error("Video URL not found");
 
       const transcriptResult = await extractText({ videoUrl }).unwrap();
@@ -118,8 +117,8 @@ export default function VideoViewerPage() {
 
       const transcriptText = transcriptResult.result.text;
 
-      const openRouterService = new OpenRouterService(openRouterApiKey);
-      const summaryText = await openRouterService.summarizeText({
+      const geminiService = new GeminiService(geminiApiKey);
+      const summaryText = await geminiService.summarizeText({
         content: transcriptText,
         maxWords: 100,
       });
