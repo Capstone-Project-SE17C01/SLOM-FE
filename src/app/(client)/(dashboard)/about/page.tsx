@@ -33,13 +33,13 @@ export default function AboutPage() {
     {
       name: "Nguyen Tien Thanh",
       role: t("developer"),
-      image: "/images/nguyentienthanh.jpg",
+      image: "/images/ntthanh.jpg",
       initials: "NTT",
     },
     {
       name: "Tran Tien Thanh",
       role: t("developer"),
-      image: "/images/trantienthanh.jpg",
+      image: "/images/ttthanh.jpg",
       initials: "TTT",
     }
   ];
