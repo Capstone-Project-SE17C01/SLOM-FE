@@ -164,31 +164,29 @@ export default function VideoViewerPage() {
   return (
     <div
       className={cn(
-        "min-h-screen",
+        "min-h-screen py-8",
         isDarkMode
           ? "bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800"
           : "bg-gradient-to-br from-gray-50 via-white to-gray-100"
       )}
     >
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              onClick={() => router.push("/meeting-room")}
-              className={cn(
-                "flex items-center gap-2 transition-all duration-200 hover:scale-105",
-                isDarkMode
-                  ? "border-gray-600 hover:border-[#6947A8] hover:bg-[#6947A8]/10"
-                  : "border-gray-300 hover:border-[#6947A8] hover:bg-[#6947A8]/5"
-              )}
-            >
-              <ArrowLeft className="h-4 w-4" />
-              {t_videoViewer("backToMeetingRoom")}
-            </Button>
-          </div>
-          <div className="text-right">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-[#6947A8] to-[#8B6CC7] bg-clip-text text-transparent">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+          <Button
+            variant="outline"
+            onClick={() => router.push("/meeting-room")}
+            className={cn(
+              "flex items-center gap-2 transition-all duration-200 hover:scale-105",
+              isDarkMode
+                ? "border-gray-600 hover:border-[#6947A8] hover:bg-[#6947A8]/10"
+                : "border-gray-300 hover:border-[#6947A8] hover:bg-[#6947A8]/5"
+            )}
+          >
+            <ArrowLeft className="h-4 w-4" />
+            {t_videoViewer("backToMeetingRoom")}
+          </Button>
+          <div className="text-left sm:text-right">
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-[#6947A8] to-[#8B6CC7] bg-clip-text text-transparent">
               {title}
             </h1>
             <p
@@ -203,12 +201,12 @@ export default function VideoViewerPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           <div className="lg:col-span-1">
             <div
               id="video-container"
               className={cn(
-                "relative rounded-2xl overflow-hidden shadow-2xl ring-1",
+                "relative rounded-2xl overflow-hidden shadow-2xl ring-1 h-[500px]",
                 isDarkMode
                   ? "bg-gray-800 ring-gray-700/50"
                   : "bg-black ring-gray-200/50"
@@ -216,7 +214,7 @@ export default function VideoViewerPage() {
             >
               <video
                 id="main-video"
-                className="w-full aspect-video"
+                className="w-full h-full object-contain"
                 src={videoUrl}
                 onTimeUpdate={() =>
                   setCurrentTime(getVideo()?.currentTime || 0)
@@ -228,7 +226,7 @@ export default function VideoViewerPage() {
                 controls={false}
               />
 
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-4 pt-8 pb-4">
                 <div className="mb-4">
                   <Input
                     type="range"
@@ -236,9 +234,9 @@ export default function VideoViewerPage() {
                     max={duration || 0}
                     value={currentTime}
                     onChange={handleSeek}
-                    className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+                    className="w-full h-1.5 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
                   />
-                  <div className="flex justify-between text-xs text-white mt-1">
+                  <div className="flex justify-between text-xs text-white mt-1.5">
                     <span>{formatTime(currentTime) || "00:00"}</span>
                     <span>{formatTime(duration) || "00:00"}</span>
                   </div>
@@ -248,42 +246,44 @@ export default function VideoViewerPage() {
                   <div className="flex items-center gap-4">
                     <button
                       onClick={handlePlayPause}
-                      className="text-white hover:text-gray-300 transition-colors"
+                      className="text-white hover:text-gray-300 transition-colors p-1.5 rounded-full hover:bg-white/10"
                     >
                       {isPlaying ? (
-                        <Pause className="h-6 w-6" />
+                        <Pause className="h-5 w-5" />
                       ) : (
-                        <Play className="h-6 w-6" />
+                        <Play className="h-5 w-5" />
                       )}
                     </button>
-                    <button
-                      onClick={handleMute}
-                      className="text-white hover:text-gray-300 transition-colors"
-                    >
-                      {isMuted ? (
-                        <VolumeX className="h-5 w-5" />
-                      ) : (
-                        <Volume2 className="h-5 w-5" />
-                      )}
-                    </button>
-                    <Input
-                      type="range"
-                      min="0"
-                      max="1"
-                      step="0.1"
-                      value={volume}
-                      onChange={handleVolumeChange}
-                      className="w-20 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
-                    />
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={handleMute}
+                        className="text-white hover:text-gray-300 transition-colors p-1.5 rounded-full hover:bg-white/10"
+                      >
+                        {isMuted ? (
+                          <VolumeX className="h-4 w-4" />
+                        ) : (
+                          <Volume2 className="h-4 w-4" />
+                        )}
+                      </button>
+                      <Input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        value={volume}
+                        onChange={handleVolumeChange}
+                        className="w-20 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+                      />
+                    </div>
                   </div>
                   <button
                     onClick={toggleFullscreen}
-                    className="text-white hover:text-gray-300 transition-colors"
+                    className="text-white hover:text-gray-300 transition-colors p-1.5 rounded-full hover:bg-white/10"
                   >
                     {isFullscreen ? (
-                      <Minimize2 className="h-5 w-5" />
+                      <Minimize2 className="h-4 w-4" />
                     ) : (
-                      <Maximize2 className="h-5 w-5" />
+                      <Maximize2 className="h-4 w-4" />
                     )}
                   </button>
                 </div>
@@ -294,7 +294,7 @@ export default function VideoViewerPage() {
           <div className="lg:col-span-1">
             <div
               className={cn(
-                "rounded-2xl border backdrop-blur-sm h-full flex flex-col transition-all duration-300",
+                "rounded-2xl border backdrop-blur-sm h-[500px] flex flex-col transition-all duration-300",
                 isDarkMode
                   ? "bg-gray-800/80 border-gray-700/50 shadow-2xl"
                   : "bg-white/80 border-gray-200/50 shadow-xl"
@@ -310,7 +310,7 @@ export default function VideoViewerPage() {
                   <div className="flex items-center gap-3">
                     <div
                       className={cn(
-                        "p-2 rounded-lg",
+                        "p-2.5 rounded-lg",
                         isDarkMode ? "bg-[#6947A8]/20" : "bg-[#6947A8]/10"
                       )}
                     >
@@ -357,12 +357,12 @@ export default function VideoViewerPage() {
                 </div>
               </div>
 
-              <div className="p-6">
+              <div className="p-6 flex-grow overflow-y-auto">
                 {hasSummary ? (
-                  <div className="space-y-4">
+                  <div className="space-y-4 h-full flex flex-col">
                     <div
                       className={cn(
-                        "prose prose-sm max-w-none",
+                        "prose prose-sm max-w-none flex-grow overflow-y-auto",
                         isDarkMode ? "prose-invert" : "",
                         "prose-headings:text-[#6947A8] prose-headings:font-bold",
                         "prose-strong:text-[#6947A8] prose-strong:font-semibold",
@@ -373,7 +373,7 @@ export default function VideoViewerPage() {
                         {summary}
                       </div>
                     </div>
-                    <div className="flex flex-col gap-2 pt-4 border-t border-gray-200/50 dark:border-gray-700/50">
+                    <div className="flex flex-col gap-2 pt-4 border-t border-gray-200/50 dark:border-gray-700/50 mt-auto">
                       <Button
                         onClick={() => {
                           const blob = new Blob(
@@ -416,7 +416,7 @@ export default function VideoViewerPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-12">
+                  <div className="text-center py-12 h-full flex flex-col items-center justify-center">
                     <div
                       className={cn(
                         "p-4 rounded-full mx-auto mb-4 w-fit",
@@ -446,7 +446,7 @@ export default function VideoViewerPage() {
                     </h3>
                     <p
                       className={cn(
-                        "text-sm leading-relaxed",
+                        "text-sm leading-relaxed max-w-md mx-auto",
                         isDarkMode ? "text-gray-400" : "text-gray-500"
                       )}
                     >
@@ -455,10 +455,10 @@ export default function VideoViewerPage() {
                         : t_videoViewer("generateSummary")}
                     </p>
                     {isGeneratingSummary && (
-                      <div className="mt-4">
+                      <div className="mt-6 w-full max-w-md">
                         <div
                           className={cn(
-                            "h-1 bg-gray-200 rounded-full overflow-hidden",
+                            "h-1.5 bg-gray-200 rounded-full overflow-hidden",
                             isDarkMode ? "bg-gray-700" : "bg-gray-200"
                           )}
                         >

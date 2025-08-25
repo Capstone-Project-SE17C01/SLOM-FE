@@ -37,12 +37,13 @@ export const QuizAPI = baseApi.injectEndpoints({
           method: "POST",
           flashError: false,
           body: {
-            lessonId: request.lessonId,
-            question: request.question,
-            correctAnswer: request.correctAnswer,
-            explanation: request.explanation,
-            maxScore: request.maxScore
-          }
+              lessonId: request.lessonId,
+              question: request.question,
+              correctAnswer: request.correctAnswer,
+              explanation: request.explanation,
+              maxScore: request.maxScore,
+              quizOptions: request.quizOptions
+            }
         }),
       }
     ),
@@ -53,12 +54,13 @@ export const QuizAPI = baseApi.injectEndpoints({
           method: "PUT",
           flashError: false,
           body: {
-            id: request.id,
-            lessonId: request.lessonId,
-            question: request.question,
-            correctAnswer: request.correctAnswer,
-            explanation: request.explanation,
-            maxScore: request.maxScore
+              id: request.id,
+              lessonId: request.lessonId,
+              question: request.question,
+              correctAnswer: request.correctAnswer,
+              explanation: request.explanation,
+              maxScore: request.maxScore,
+              quizOptions: request.quizOptions
           }
         }),
       }

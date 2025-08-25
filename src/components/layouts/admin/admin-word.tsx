@@ -128,15 +128,21 @@ export default function AdminWord() {
         try {
           // Fetch modules for the course
           const courseModules = await getAllModuleByCourseId(word.lesson.module.courseId).unwrap();
-          setModulesSelect(Array.isArray(courseModules.result) ? courseModules.result : []);
+          const fetchedModules = Array.isArray(courseModules.result) ? courseModules.result : [];
+          setModulesSelect(fetchedModules);
           
-          // Update modal fields with course and module data
+          // Update modal fields with course and module data - use fetchedModules directly
           const updatedFields = wordFields.map(field => {
             if (field.name === 'courseId') {
               return { ...field, options: coursesSelect.map((c) => ({ label: c.title, value: c.id })) };
             }
             if (field.name === 'moduleId') {
-              return { ...field, options: modulesSelect.map((m) => ({ label: m.title, value: m.id })) };
+              return { ...field, options: fetchedModules.map((m) => ({ label: m.title, value: m.id })) };
+            }
+            if (field.name === 'lessonId') {
+              // Filter lessons by the current module
+              const filteredLessons = lessons.filter(lesson => lesson.moduleId === word.lesson?.moduleId);
+              return { ...field, options: filteredLessons.map((l) => ({ label: l.title, value: l.id })) };
             }
             return field;
           });
@@ -153,6 +159,8 @@ export default function AdminWord() {
       setEditWord(null);
       setModalTitle("Add Word");
       setDeleteWord(null);
+      // Reset modules for new word
+      setModulesSelect([]);
       setModalFields(wordFields);
     }
     setModalOpen(true);
@@ -406,16 +414,27 @@ export default function AdminWord() {
         open={videoModalOpen}
         onOpenChange={(open) => !open && closeVideoModal()}
       >
-        <DialogContent className="sm:max-w-4xl w-[90vw] h-[80vh] p-0 border-0">
-          <div className="relative w-full h-full">
-            <iframe
-              src={selectedVideo.replace("watch?v=", "embed/")}
-              className="w-full h-full rounded-lg"
-              title="Video Player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+        <DialogContent className="sm:max-w-6xl w-[95vw] h-[90vh] p-0 border-0 bg-black">
+          <DialogHeader className="absolute top-4 right-4 z-10">
+            <DialogTitle className="sr-only">Video Player</DialogTitle>
+          </DialogHeader>
+          <div className="relative w-full h-full bg-black rounded-lg overflow-hidden">
+            {selectedVideo ? (
+              <iframe
+                src={selectedVideo.replace("watch?v=", "embed/")}
+                className="w-full h-full"
+                title="Video Player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-white">
+                <div className="text-center">
+                  <Play className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                  <p className="text-lg">No video available</p>
+                </div>
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>

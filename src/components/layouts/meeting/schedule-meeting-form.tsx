@@ -15,6 +15,7 @@ import {
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
   show,
@@ -32,7 +33,7 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
   const [senderName, setSenderName] = useState("");
   const [customMessage, setCustomMessage] = useState("");
   const [showInvitation, setShowInvitation] = useState(false);
-  const [sendInvitation, { isLoading: isSending, isSuccess: isSent }] =
+  const [sendInvitation, { isLoading: isSending }] =
     useSendMeetingInvitationMutation();
   const [createInvitation] = useCreateInvitationMutation();
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -40,6 +41,9 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const isVip = userInfo?.vipUser === true;
   const t_meetingPage = useTranslations("meetingPage");
+
+  // Remove the useEffect that was causing duplicate toasts
+  
   if (!show) return null;
 
   const daysInMonth = new Date(
@@ -115,22 +119,44 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
   const handleSendInvitation = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!meetingId || !recipientEmails || !senderName) return;
-    await createInvitation({
-      request: {
-        email: recipientEmails.split(",").map((email) => email.trim()),
-        meetingId,
-      },
-    });
-    await sendInvitation({
-      id: meetingId,
-      request: {
-        recipientEmails: recipientEmails
-          .split(",")
-          .map((email) => email.trim()),
-        senderName,
-        customMessage,
-      },
-    });
+    
+    try {
+      await createInvitation({
+        request: {
+          email: recipientEmails.split(",").map((email) => email.trim()),
+          meetingId,
+        },
+      });
+      
+      const result = await sendInvitation({
+        id: meetingId,
+        request: {
+          recipientEmails: recipientEmails
+            .split(",")
+            .map((email) => email.trim()),
+          senderName,
+          customMessage,
+        },
+      }).unwrap();
+      
+      if (result !== undefined) {
+        // Show success toast
+        toast.success(t_meetingPage("invitationSent"));
+        
+        // Reset form fields
+        setRecipientEmails("");
+        setSenderName("");
+        setCustomMessage("");
+        
+        // Close modals
+        setShowInvitation(false);
+        
+        // Don't close the main modal, just the invitation modal
+        // onClose();
+      }
+    } catch (error: unknown) {
+      toast.error(error as string);
+    }
   };
 
   const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
@@ -366,13 +392,8 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                     className="w-full bg-[#6947A8] hover:bg-[#5a3c96] text-white"
                     disabled={isSending}
                   >
-                    {isSending ? "Sending..." : "Send Invitation"}
+                    {isSending ? t_meetingPage("sending") : t_meetingPage("sendInvitation")}
                   </Button>
-                  {isSent && (
-                    <div className="text-green-600 mt-2 text-center">
-                      Invitation sent!
-                    </div>
-                  )}
                 </div>
               </form>
             </CardContent>
