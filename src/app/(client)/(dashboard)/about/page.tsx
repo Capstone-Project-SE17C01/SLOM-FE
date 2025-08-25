@@ -15,19 +15,19 @@ export default function AboutPage() {
     {
       name: "Phung Vu An Quan",
       role: t("ceo"),
-      image: "/images/anquan.jpg",
+      image: "/images/quan.jpg",
       initials: "PVAQ",
     },
     {
       name: "Nguyen Duc",
       role: t("leadDev"),
-      image: "/images/nguyenduc.jpg",
+      image: "/images/duc.jpg",
       initials: "ND",
     },
     {
       name: "Huynh Ngoc Bao Khanh",
       role: t("developer"),
-      image: "/images/hnbkhanh.jpg",
+      image: "/images/khanh.jpg",
       initials: "HNBK",
     },
     {
