@@ -14,11 +14,10 @@ export interface UseRealSignLanguageRecognitionOptions {
 }
 
 const fakeSentencesDictionary: Record<string, string> = {
-  'Hello Me': 'Name N H A N, I am happy today.',
-  'Yes Me': 'Deaf person, I like to meet friends.',
-  'Yes Please': 'Learn together, it makes me smile.',
-  'Tell Me': 'Thankyou sign, it is easy practice',
-  'Bye Me': 'Meet tomorrow, I am excited again'
+  'Hello Me': 'Name K H A N H I am happy today.',
+  'Yes Me': 'Deaf person I like to meet friends.',
+  'Yes Please': 'Learn together it makes me smile.',
+  'Bye Me': 'Meet tomorrow I am excited again'
 }
 
 export const useRealSignLanguageRecognition = (options: UseRealSignLanguageRecognitionOptions = {}) => {
