@@ -173,11 +173,10 @@
     "visionDesc": "Một thế giới không còn rào cản giao tiếp nhờ công nghệ, nơi ngôn ngữ ký hiệu được công nhận và trân trọng như một hình thức biểu đạt và kết nối quan trọng.",
     "meetTeam": "Đội ngũ của chúng tôi",
     "teamDesc": "Đội ngũ đa dạng của chúng tôi kết hợp chuyên môn về ngôn ngữ ký hiệu, giáo dục, công nghệ và khả năng tiếp cận để xây dựng nền tảng hòa nhập cho mọi người.",
-    "ceo": "Giám đốc & Nhà sáng lập",
-    "expert": "Chuyên gia ngôn ngữ ký hiệu",
-    "leadDev": "Lập trình viên trưởng",
-    "accessibility": "Chuyên gia tiếp cận",
-    "developer": "Lập trình viên"
+    "aiLead": "Trưởng nhóm AI",
+    "techLead": "Trưởng nhóm Công nghệ",
+    "pm": "Quản lý sản phẩm",
+    "dev": "Lập trình viên"
   },
   "contactPage": {
     "title": "Liên hệ với chúng tôi",

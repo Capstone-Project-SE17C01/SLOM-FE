@@ -14,31 +14,31 @@ export default function AboutPage() {
   const team = [
     {
       name: "Phung Vu An Quan",
-      role: t("ceo"),
+      role: t("aiLead"),
       image: "/images/quan.jpg",
       initials: "PVAQ",
     },
     {
       name: "Nguyen Duc",
-      role: t("leadDev"),
+      role: t("techLead"),
       image: "/images/duc.jpg",
       initials: "ND",
     },
     {
       name: "Huynh Ngoc Bao Khanh",
-      role: t("developer"),
+      role: t("pm"),
       image: "/images/khanh.jpg",
       initials: "HNBK",
     },
     {
       name: "Nguyen Tien Thanh",
-      role: t("developer"),
+      role: t("dev"),
       image: "/images/ntthanh.jpg",
       initials: "NTT",
     },
     {
       name: "Tran Tien Thanh",
-      role: t("developer"),
+      role: t("dev"),
       image: "/images/ttthanh.jpg",
       initials: "TTT",
     }

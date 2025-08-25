@@ -197,11 +197,10 @@
     "visionDesc": "A world where communication barriers are eliminated through technology, and sign language is recognized and valued as a vital form of human expression and connection.",
     "meetTeam": "Meet Our Team",
     "teamDesc": "Our diverse team combines expertise in sign language, education, technology, and accessibility to create an inclusive platform for all users.",
-    "ceo": "CEO & Founder",
-    "expert": "Sign Language Expert",
-    "leadDev": "Lead Developer",
-    "accessibility": "Accessibility Specialist",
-    "developer": "Developer"
+    "aiLead": "AI Lead",
+    "techLead": "Tech Lead",
+    "pm": "Product Manager",
+    "dev": "Developer"
   },
   "contactPage": {
     "title": "Get In Touch",
