@@ -20,9 +20,9 @@ import {
 } from "../../../api/QaApi";
 import UploadImage from "./upload-image";
 import {
-  OpenRouterService,
+  GeminiService,
   TagGenerationRequest,
-} from "@/services/openrouter/config";
+} from "@/services/gemini/config";
 import { X, Tag, Loader2, Plus } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/utils/cn";
@@ -31,8 +31,8 @@ import { useTranslations } from "next-intl";
 import { Textarea } from "@/components/ui/textarea";
 
 // You should replace this with your actual OpenRouter API key
-const OPENROUTER_API_KEY = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || "";
-const openRouterService = new OpenRouterService(OPENROUTER_API_KEY);
+const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_KEY || "";
+const geminiService = new GeminiService(GEMINI_API_KEY);
 
 export default function NewQuestionPopup({
   userInfo,
@@ -88,7 +88,7 @@ export default function NewQuestionPopup({
         maxTags: 5,
       };
 
-      const generatedTags = await openRouterService.generateTags(request);
+      const generatedTags = await geminiService.generateTags(request);
       setTags(generatedTags);
     } catch (error) {
       console.error("Error generating tags:", error);

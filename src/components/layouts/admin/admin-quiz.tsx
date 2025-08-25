@@ -3,11 +3,17 @@
 import { useEffect, useState, useCallback } from "react";
 import { Plus, Edit, Trash2, Book, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem
+} from "@/components/ui/select";
 import TableWithStatsCard from "@/components/layouts/admin/TableWithStatsCard";
 import { useRouter } from "next/navigation";
-import EntityModal, {
-  FieldConfig,
-} from "@/components/layouts/admin/EntityModal";
 import { useGetAllCourseMutation, useGetAllModuleByCourseIdMutation } from "@/api/CourseApi";
 import {
   useGetAllQuizzesQuery,
@@ -23,8 +29,9 @@ import {
   DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Quiz } from "@/types/IQuiz";
+import { Quiz, QuizOption } from "@/types/IQuiz";
 import { toast } from "sonner";
+import QuizOptionsInput from "@/components/ui/QuizOptionsInput";
 
 export default function AdminQuiz() {
   const router = useRouter();
@@ -32,7 +39,6 @@ export default function AdminQuiz() {
   const itemsPerPage = 10;
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalFields, setModalFields] = useState<FieldConfig[]>([]);
   const [modalTitle, setModalTitle] = useState("");
   const [coursesSelect, setCoursesSelect] = useState<{ id: string; title: string }[]>([]);
   const [modulesSelect, setModulesSelect] = useState<{ id: string; title: string }[]>([]);
@@ -45,40 +51,52 @@ export default function AdminQuiz() {
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<string>("");
   const [getAllModuleByCourseId] = useGetAllModuleByCourseIdMutation();
+  const [quizOptions, setQuizOptions] = useState<QuizOption[]>([
+    { id: "1", text: "", isCorrect: false },
+    { id: "2", text: "", isCorrect: false },
+    { id: "3", text: "", isCorrect: false },
+    { id: "4", text: "", isCorrect: false },
+  ]);
 
-  // Config fields for quiz
-  const quizFields: FieldConfig[] = [
-    { label: "Question", name: "question", type: "text", required: true },
-    {
-      label: "Correct Answer",
-      name: "correctAnswer",
-      type: "text",
-      required: true,
-    },
-    { label: "Explanation", name: "explanation", type: "text" },
-    {
-      label: "Course",
-      name: "courseId",
-      type: "select",
-      required: true,
-      options: coursesSelect.map((c) => ({ label: c.title, value: c.id })),
-    },
-    {
-      label: "Module",
-      name: "moduleId",
-      type: "select",
-      required: true,
-      options: modulesSelect.map((m) => ({ label: m.title, value: m.id })),
-    },
-    {
-      label: "Lesson",
-      name: "lessonId",
-      type: "select",
-      required: true,
-      options: lessonsSelect.map((l) => ({ label: l.title, value: l.id })),
-    },
-    { label: "Max Score", name: "maxScore", type: "number" },
-  ];
+  const [formData, setFormData] = useState<Record<string, string>>({});
+
+  const handleFormChange = async (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+
+    // Handle course change - fetch modules for selected course
+    if (field === 'courseId' && value) {
+      try {
+        const courseModules = await getAllModuleByCourseId(value).unwrap();
+        setModulesSelect(Array.isArray(courseModules.result) ? courseModules.result : []);
+        // Clear module and lesson when course changes
+        setFormData(prev => ({ ...prev, moduleId: '', lessonId: '' }));
+        // Clear lessons as well since module changed
+        setLessonsSelect([]);
+      } catch (error) {
+        console.error("Error fetching modules:", error);
+        setModulesSelect([]);
+        setLessonsSelect([]);
+      }
+    } else if (field === 'courseId' && !value) {
+      // If course is cleared, clear everything
+      setModulesSelect([]);
+      setLessonsSelect([]);
+      setFormData(prev => ({ ...prev, moduleId: '', lessonId: '' }));
+    }
+
+    // Handle module change - filter lessons for selected module
+    if (field === 'moduleId' && value) {
+      // Filter lessons by selected module from all available lessons
+      const filteredLessons = lessons.filter(lesson => lesson.moduleId === value);
+      setLessonsSelect(filteredLessons);
+      // Clear lesson when module changes
+      setFormData(prev => ({ ...prev, lessonId: '' }));
+    } else if (field === 'moduleId' && !value) {
+      // If module is cleared, clear lessons
+      setLessonsSelect([]);
+      setFormData(prev => ({ ...prev, lessonId: '' }));
+    }
+  };
 
   // API hooks
   const { data: lessonsResponse, isLoading: lessonsLoading } =
@@ -127,7 +145,17 @@ export default function AdminQuiz() {
       setEditQuiz(quiz);
       setModalTitle("Update Quiz");
       setDeleteQuiz(null);
-      
+
+      // Populate form data for editing
+      setFormData({
+        question: quiz.question || "",
+        explanation: quiz.explanation || "",
+        maxScore: quiz.maxScore?.toString() || "0",
+        courseId: quiz.lesson?.module?.courseId || "",
+        moduleId: quiz.lesson?.moduleId || "",
+        lessonId: quiz.lessonId || "",
+      });
+
       // Use the nested data from the API response
       if (quiz.lesson?.module?.courseId) {
         try {
@@ -135,34 +163,46 @@ export default function AdminQuiz() {
           const courseModules = await getAllModuleByCourseId(quiz.lesson.module.courseId).unwrap();
           const fetchedModules = Array.isArray(courseModules.result) ? courseModules.result : [];
           setModulesSelect(fetchedModules);
-          
-          // Update modal fields with course and module data using the fetched modules directly
-          const updatedFields = quizFields.map(field => {
-            if (field.name === 'courseId') {
-              return { ...field, options: coursesSelect.map((c) => ({ label: c.title, value: c.id })) };
-            }
-            if (field.name === 'moduleId') {
-              return { ...field, options: fetchedModules.map((m) => ({ label: m.title, value: m.id })) };
-            }
-            if (field.name === 'lessonId') {
-              return { ...field, options: lessonsSelect.map((l) => ({ label: l.title, value: l.id })) };
-            }
-            return field;
-          });
-          
-          setModalFields(updatedFields);
+
+          // Filter lessons by module from all available lessons
+          const filteredLessons = lessons.filter(lesson => lesson.moduleId === quiz.lesson?.moduleId);
+          setLessonsSelect(filteredLessons);
+
+          // Set quiz options from existing quiz
+          if (quiz.quizOptions && quiz.quizOptions.length > 0) {
+            setQuizOptions(quiz.quizOptions);
+          }
+
         } catch (error) {
           console.error("Error fetching modules:", error);
-          setModalFields(quizFields);
         }
-      } else {
-        setModalFields(quizFields);
       }
     } else {
       setEditQuiz(null);
       setModalTitle("Add Quiz");
       setDeleteQuiz(null);
-      setModalFields(quizFields);
+
+      // Reset form data for new quiz
+      setFormData({
+        question: "",
+        explanation: "",
+        maxScore: "0",
+        courseId: "",
+        moduleId: "",
+        lessonId: "",
+      });
+
+      // Reset selections
+      setModulesSelect([]);
+      setLessonsSelect(Array.isArray(lessonsResponse?.result) ? lessonsResponse.result : []);
+
+      // Reset quiz options
+      setQuizOptions([
+        { id: "1", text: "", isCorrect: false },
+        { id: "2", text: "", isCorrect: false },
+        { id: "3", text: "", isCorrect: false },
+        { id: "4", text: "", isCorrect: false },
+      ]);
     }
     setModalOpen(true);
   };
@@ -176,6 +216,18 @@ export default function AdminQuiz() {
     setModalOpen(false);
     setEditQuiz(null);
     setDeleteQuiz(null);
+    // Reset form data
+    setFormData({});
+    // Reset selections
+    setModulesSelect([]);
+    setLessonsSelect(Array.isArray(lessonsResponse?.result) ? lessonsResponse.result : []);
+    // Reset quiz options
+    setQuizOptions([
+      { id: "1", text: "", isCorrect: false },
+      { id: "2", text: "", isCorrect: false },
+      { id: "3", text: "", isCorrect: false },
+      { id: "4", text: "", isCorrect: false },
+    ]);
   };
 
   const openVideoModal = (videoSrc: string) => {
@@ -204,29 +256,46 @@ export default function AdminQuiz() {
 
   const handleModalSubmit = async (values: Record<string, string>) => {
     try {
+      // Backend expects quizOptions as array of strings
+      const quizOptionsStrings = quizOptions
+        .filter(option => option.text && option.text.trim()) // Only include non-empty options
+        .map(option => option.text.trim()); // Just the text strings
+
+      // Get the correct answer from the selected option
+      const correctOption = quizOptions.find(option => option.isCorrect);
+      const correctAnswer = correctOption ? correctOption.text.trim() : "";
+
+      if (!correctAnswer) {
+        toast.error("Please select a correct answer option");
+        return;
+      }
+
       if (editQuiz) {
         await updateQuiz({
           id: editQuiz.id,
           lessonId: values.lessonId,
           question: values.question,
-          correctAnswer: values.correctAnswer,
+          correctAnswer: correctAnswer,
           explanation: values.explanation,
           maxScore: parseInt(values.maxScore) || 0,
+          quizOptions: quizOptionsStrings, // Array of strings
         }).unwrap();
         toast.success("Quiz updated successfully");
       } else {
         await createQuiz({
           lessonId: values.lessonId,
           question: values.question,
-          correctAnswer: values.correctAnswer,
+          correctAnswer: correctAnswer,
           explanation: values.explanation,
           maxScore: parseInt(values.maxScore) || 0,
+          quizOptions: quizOptionsStrings, // Array of strings
         }).unwrap();
         toast.success("Quiz created successfully");
       }
       closeModal();
       refetch();
-    } catch {
+    } catch (error) {
+      console.error("Failed to save quiz:", error);
       toast.error("Failed to save quiz");
     }
   };
@@ -372,29 +441,145 @@ export default function AdminQuiz() {
           onPageChange: setCurrentPage,
         }}
       />
-      {/* Dynamic Modal */}
-      <EntityModal
-        open={modalOpen}
-        onClose={closeModal}
-        onSubmit={handleModalSubmit}
-        fields={modalFields}
-        title={modalTitle}
-        initialValues={
-          editQuiz
-            ? {
-                id: editQuiz.id,
-                question: editQuiz.question,
-                correctAnswer: editQuiz.correctAnswer,
-                explanation: editQuiz.explanation || "",
-                courseId: editQuiz.lesson?.module?.courseId || "",
-                moduleId: editQuiz.lesson?.moduleId || "",
-                lessonId: editQuiz.lessonId,
-                maxScore: editQuiz.maxScore?.toString() || "0",
-                createdAt: editQuiz.createdAt,
-              }
-            : {}
-        }
-      />
+      {/* Custom Quiz Modal */}
+      <Dialog open={modalOpen} onOpenChange={(open) => !open && closeModal()}>
+        <DialogContent className="sm:max-w-4xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl">{modalTitle}</DialogTitle>
+          </DialogHeader>
+
+          <div className="py-4">
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              handleModalSubmit(formData);
+            }} className="space-y-6">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="question" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                      Question
+                    </Label>
+                    <Input
+                      id="question"
+                      value={formData.question || ""}
+                      onChange={(e) => handleFormChange("question", e.target.value)}
+                      placeholder="Enter question"
+                      required
+                      className="w-full border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="explanation" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                      Explanation
+                    </Label>
+                    <Input
+                      id="explanation"
+                      value={formData.explanation || ""}
+                      onChange={(e) => handleFormChange("explanation", e.target.value)}
+                      placeholder="Enter explanation"
+                      className="w-full border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="maxScore" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                      Max Score
+                    </Label>
+                    <Input
+                      id="maxScore"
+                      type="number"
+                      value={formData.maxScore || "0"}
+                      onChange={(e) => handleFormChange("maxScore", e.target.value)}
+                      placeholder="Enter max score"
+                      className="w-full border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="courseId" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                      Course
+                    </Label>
+                    <Select
+                      value={formData.courseId || undefined}
+                      onValueChange={(value) => handleFormChange("courseId", value)}
+                    >
+                      <SelectTrigger className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+                        <SelectValue placeholder="Select Course" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 shadow-lg">
+                        {coursesSelect.map((course) => (
+                          <SelectItem key={course.id} value={course.id}>
+                            {course.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="moduleId" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                      Module
+                    </Label>
+                    <Select
+                      value={formData.moduleId || undefined}
+                      onValueChange={(value) => handleFormChange("moduleId", value)}
+                      disabled={!formData.courseId}
+                    >
+                      <SelectTrigger className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+                        <SelectValue placeholder="Select Module" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 shadow-lg">
+                        {modulesSelect.map((module) => (
+                          <SelectItem key={module.id} value={module.id}>
+                            {module.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="lessonId" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                      Lesson
+                    </Label>
+                    <Select
+                      value={formData.lessonId || undefined}
+                      onValueChange={(value) => handleFormChange("lessonId", value)}
+                      disabled={!formData.moduleId}
+                    >
+                      <SelectTrigger className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+                        <SelectValue placeholder="Select Lesson" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 shadow-lg">
+                        {lessonsSelect.map((lesson) => (
+                          <SelectItem key={lesson.id} value={lesson.id}>
+                            {lesson.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <QuizOptionsInput
+                  quizOptions={quizOptions}
+                  onQuizOptionsChange={setQuizOptions}
+                />
+              </div>
+
+              <DialogFooter className="pt-4">
+                <Button type="button" variant="outline" onClick={closeModal} className="mr-2">
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  {editQuiz ? "Update Quiz" : "Create Quiz"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirmation Modal */}
       <Dialog open={showModal} onOpenChange={(open) => !open && setShowModal(false)}>
@@ -425,16 +610,27 @@ export default function AdminQuiz() {
 
       {/* Video Modal */}
       <Dialog open={videoModalOpen} onOpenChange={(open) => !open && closeVideoModal()}>
-        <DialogContent className="sm:max-w-4xl w-[90vw] h-[80vh] p-0 border-0">
-          <div className="relative w-full h-full">
-            <iframe
-              src={selectedVideo.replace("watch?v=", "embed/")}
-              className="w-full h-full rounded-lg"
-              title="Video Player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+        <DialogContent className="sm:max-w-6xl w-[95vw] h-[90vh] p-0 border-0 bg-black">
+          <DialogHeader className="absolute top-4 right-4 z-10">
+            <DialogTitle className="sr-only">Video Player</DialogTitle>
+          </DialogHeader>
+          <div className="relative w-full h-full bg-black rounded-lg overflow-hidden">
+            {selectedVideo ? (
+              <iframe
+                src={selectedVideo.replace("watch?v=", "embed/")}
+                className="w-full h-full"
+                title="Video Player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-white">
+                <div className="text-center">
+                  <Play className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                  <p className="text-lg">No video available</p>
+                </div>
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
