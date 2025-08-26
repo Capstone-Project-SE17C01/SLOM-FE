@@ -80,7 +80,6 @@ export default function MeetingPage() {
 
   // Track previously sent speech content to avoid duplicates
   const lastSentSpeechRef = React.useRef<string>('')
-  const lastSentSignRef = React.useRef<string>('')
   const lastSentPredictionRef = React.useRef<string>('')
 
   // Auto-send speech transcript to Firebase when it changes (only translated content)
@@ -109,80 +108,37 @@ export default function MeetingPage() {
     }
   }, [transcript, isTranslated, hasJoinedRoom, meetingExpired, userInfo?.vipUser, meetingFirebase])
 
-  // 🔥 Single Firebase push for sign language recognition (real-time + fake mode)
+  // Single Firebase push for sign language recognition (real-time only)
   React.useEffect(() => {
     if (
       signLanguageRecognition.isActive &&
       hasJoinedRoom &&
       !meetingExpired &&
-      userInfo?.vipUser
+      userInfo?.vipUser &&
+      signLanguageRecognition.handDetected
     ) {
-      let contentToSend = ''
-      
-      // 🔥 FIX: Thêm kiểm tra tay có được phát hiện không
-      const handDetected = signLanguageRecognition.handDetected
-      
-      // Chỉ xử lý khi phát hiện tay hoặc đang trong chế độ fake mode
-      if (handDetected || signLanguageRecognition.useFakeMode) {
-        // Check if fake mode is completed first
-        const fakeModeCompleted = !signLanguageRecognition.useFakeMode || 
-          (signLanguageRecognition.fullTranscript && signLanguageRecognition.fullTranscript.trim())
-        
-        // Only allow real ASL if fake mode is completed
-        if (fakeModeCompleted) {
-          // Priority: currentPrediction (real-time) over fullTranscript (batch)
-          if (signLanguageRecognition.currentPrediction && !signLanguageRecognition.useFakeMode) {
-            contentToSend = signLanguageRecognition.currentPrediction.trim()
-          } else if (signLanguageRecognition.fullTranscript && signLanguageRecognition.useFakeMode) {
-            // Only use fullTranscript for fake mode or when no currentPrediction
-            if (signLanguageRecognition.fullTranscript !== lastSentSignRef.current) {
-              if (signLanguageRecognition.fullTranscript.startsWith(lastSentSignRef.current)) {
-                contentToSend = signLanguageRecognition.fullTranscript.slice(lastSentSignRef.current.length).trim()
-              } else {
-                contentToSend = signLanguageRecognition.fullTranscript.trim()
-              }
-            }
+      const contentToSend = signLanguageRecognition.currentPrediction?.trim()
+
+      if (contentToSend && contentToSend !== lastSentPredictionRef.current) {
+        const timeoutId = setTimeout(() => {
+          if (signLanguageRecognition.handDetected) {
+            meetingFirebase.sendSignContent(contentToSend)
+            lastSentPredictionRef.current = contentToSend
           }
-        }
+        }, 50)
 
-        // Send content if different from last sent
-        if (contentToSend && contentToSend !== lastSentPredictionRef.current) {
-          const timeoutId = setTimeout(() => {
-            // 🔥 FIX: Kiểm tra lại tay có còn được phát hiện không trước khi gửi
-            // Tránh trường hợp tay đã biến mất trong khoảng thời gian timeout
-            if (handDetected || signLanguageRecognition.useFakeMode) {
-              meetingFirebase.sendSignContent(contentToSend)
-              lastSentPredictionRef.current = contentToSend
-              if (signLanguageRecognition.useFakeMode) {
-                lastSentSignRef.current = signLanguageRecognition.fullTranscript
-              }
-              console.log(`🤖 Firebase push: ${contentToSend} (fakeMode: ${signLanguageRecognition.useFakeMode}, handDetected: ${handDetected})`)
-            } else {
-              console.log(`⏸️ Skipped Firebase push - hand no longer detected`)
-            }
-          }, 50) // 🔥 Giảm từ 100ms xuống 50ms
-
-          return () => clearTimeout(timeoutId)
-        }
-      } else {
-        // 🔥 FIX: Log khi không phát hiện tay
-        console.log(`⚠️ No hand detected - skipping Firebase push`)
+        return () => clearTimeout(timeoutId)
       }
     }
   }, [
     signLanguageRecognition.currentPrediction,
-    signLanguageRecognition.fullTranscript,
     signLanguageRecognition.isActive,
-    signLanguageRecognition.useFakeMode,
     signLanguageRecognition.handDetected,
     hasJoinedRoom,
     meetingExpired,
     userInfo?.vipUser,
     meetingFirebase,
-    // Thêm các ref để đảm bảo kích thước dependency array không thay đổi
-    // Các ref này không gây re-render khi giá trị thay đổi
-    lastSentPredictionRef,
-    lastSentSignRef
+    lastSentPredictionRef
   ])
 
   const handleRecordingSave = React.useCallback(
@@ -247,7 +203,6 @@ export default function MeetingPage() {
   // Reset tracking refs when sign language recognition stops
   React.useEffect(() => {
     if (!signLanguageRecognition.isActive) {
-      lastSentSignRef.current = ''
       lastSentPredictionRef.current = ''
     }
   }, [signLanguageRecognition.isActive])
@@ -259,7 +214,6 @@ export default function MeetingPage() {
 
       // Reset tracking refs on cleanup
       lastSentSpeechRef.current = ''
-      lastSentSignRef.current = ''
       lastSentPredictionRef.current = ''
 
       if (roomID && userInfo?.id) {
