@@ -14,6 +14,7 @@ export interface CreateReportRequestDTO {
   createdAt?: string;
   status: boolean;
   userId: string;
+  transactionId: string;
 }
 
 export interface ReportType {

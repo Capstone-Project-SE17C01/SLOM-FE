@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const path = url.pathname;
   
-  const publicPaths = ['/login', '/register', '/forgot-password', '/confirm-registeration', '/', '/home', '/about', '/contact', '/features'];
+  const publicPaths = ['/login', '/register', '/forgot-password', '/confirm-registeration', '/', '/home', '/about', '/contact', '/features', '/result-payment'];
   const isPublicPath = publicPaths.some(publicPath => path === publicPath || path.startsWith(publicPath + '/'));
   
   const userInfoCookie = request.cookies.get(constants.USER_INFO)?.value;

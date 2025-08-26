@@ -800,11 +800,11 @@ export default function MeetingRoomPage() {
                     })}
                 </div>
               ) : selectedDate ? (
-                <div className="text-xs p-2 border-t text-center text-gray-500">
+                <div className="text-xs p-2 border-t text-center text-gray-500 mt-4">
                   {t_meetingPage("noMeetingsScheduledForThisDate")}
                 </div>
               ) : (
-                <div className="text-xs p-2 border-t text-center text-gray-500">
+                <div className="text-xs p-2 border-t text-center text-gray-500 mt-4">
                   {t_meetingPage("selectDate")}
                 </div>
               )}

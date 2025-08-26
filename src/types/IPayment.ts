@@ -9,4 +9,19 @@ export interface Payment {
   status: string;
   transactionId: string | null;
   createdAt: string;
+  reports?: PaymentReport[];
+}
+
+export interface PaymentReport {
+  id: string;
+  title: string;
+  content: string;
+  reportTypeId: string;
+  reportType: string | null;
+  createdAt: string;
+  status: boolean;
+  userId: string;
+  transactionId: string;
+  transaction: unknown | null;
+  user: unknown | null;
 } 

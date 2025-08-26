@@ -52,7 +52,6 @@ export default function TableTransaction({
   const handleSubmitReport = async (
     createReportRequestDTO: CreateReportRequestDTO
   ) => {
-    console.log(createReportRequestDTO);
     await reportPayment(createReportRequestDTO)
       .unwrap()
       .then((res) => {

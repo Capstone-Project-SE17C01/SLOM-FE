@@ -35,6 +35,7 @@ const initialFormState = (userId: string): CreateReportRequestDTO => ({
   reportTypeId: "",
   status: false,
   userId,
+  transactionId: "",
 });
 
 export default function ReportForm({
@@ -64,6 +65,7 @@ export default function ReportForm({
       reportTypeId: defaultReportType?.id ?? "",
       status: false,
       userId,
+      transactionId: transactionId
     });
   }, [transactionId, t, reportTypes, userId]);
 

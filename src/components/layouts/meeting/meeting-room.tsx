@@ -155,7 +155,7 @@ export const MeetingRoomActions: React.FC<MeetingRoomActionsProps> = ({
     <div className="space-y-3 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
       <Button
         onClick={onStartMeeting}
-        className="w-full text-left flex items-center py-5 px-4 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg"
+        className="w-full text-left flex items-center py-8 px-4 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg"
         variant="outline"
         disabled={disableStart}
         title={disableStart && disableReason ? disableReason : undefined}
@@ -194,7 +194,7 @@ export const MeetingRoomActions: React.FC<MeetingRoomActionsProps> = ({
 
       <Button
         onClick={onJoinMeeting}
-        className="w-full text-left flex items-center py-5 px-4 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg"
+        className="w-full text-left flex items-center py-8 px-4 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg"
         variant="outline"
         disabled={disableJoin}
         title={disableJoin && disableReason ? disableReason : undefined}
@@ -231,7 +231,7 @@ export const MeetingRoomActions: React.FC<MeetingRoomActionsProps> = ({
 
       <Button
         onClick={onScheduleMeeting}
-        className="w-full text-left flex items-center py-5 px-4 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg"
+        className="w-full text-left flex items-center py-8 px-4 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg"
         variant="outline"
         disabled={disableSchedule}
         title={disableSchedule && disableReason ? disableReason : undefined}
