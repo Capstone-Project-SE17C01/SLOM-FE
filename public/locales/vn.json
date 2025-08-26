@@ -820,7 +820,13 @@
     "postAnswerError": "Đăng câu trả lời thất bại",
     "answer": "Câu trả lời",
     "answers": "Câu trả lời",
-    "areYouSureYouWantToDeleteThisAnswer": "Bạn có chắc chắn muốn xóa câu trả lời này?"
+    "areYouSureYouWantToDeleteThisAnswer": "Bạn có chắc chắn muốn xóa câu trả lời này?",
+    "updatingQuestion": "Đang cập nhật câu hỏi...",
+    "updateQuestionSuccess": "Cập nhật câu hỏi thành công",
+    "updateQuestionError": "Cập nhật câu hỏi thất bại",
+    "postingQuestion": "Đang đăng câu hỏi...",
+    "postQuestionSuccess": "Đăng câu hỏi thành công",
+    "postQuestionError": "Đăng câu hỏi thất bại"
   },
   "meaningCard": {
     "meaning": "Ý nghĩa",
