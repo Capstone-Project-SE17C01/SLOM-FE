@@ -17,6 +17,9 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useCreateFeedbackMutation } from "@/api/FeedbackApi";
+import { RootState } from "@/redux/store";
+import { useSelector } from "react-redux";
+import { redirect } from "next/navigation";
 
 export default function ContactPage() {
   const { isDarkMode } = useTheme();
@@ -30,6 +33,7 @@ export default function ContactPage() {
 
   const [createFeedback] = useCreateFeedbackMutation();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { userInfo } = useSelector((state: RootState) => state.auth);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -46,14 +50,18 @@ export default function ContactPage() {
     setIsSubmitting(true);
 
     try {
-      await createFeedback(formData).unwrap();
-      toast.success(t("success"));
-      setFormData({
-        name: "",
-        email: "",
-        subject: "",
-        message: "",
-      });
+      if (!userInfo) {
+        redirect("/login");
+      } else {
+        await createFeedback(formData).unwrap();
+        toast.success(t("success"));
+        setFormData({
+          name: "",
+          email: "",
+          subject: "",
+          message: "",
+        });
+      }
     } catch {
       toast.error(t("error") || "Gửi phản hồi thất bại");
     } finally {
