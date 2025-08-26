@@ -838,7 +838,13 @@
     "postAnswerError": "Post answer failed",
     "answer": "Answer",
     "answers": "Answers",
-    "areYouSureYouWantToDeleteThisAnswer": "Are you sure you want to delete this answer?"
+    "areYouSureYouWantToDeleteThisAnswer": "Are you sure you want to delete this answer?",
+    "updatingQuestion": "Updating question...",
+    "updateQuestionSuccess": "Question updated successfully",
+    "updateQuestionError": "Update question failed",
+    "postingQuestion": "Posting question...",
+    "postQuestionSuccess": "Question posted successfully",
+    "postQuestionError": "Post question failed"
   },
   "meaningCard": {
     "meaning": "Meaning",

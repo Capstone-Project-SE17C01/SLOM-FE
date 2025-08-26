@@ -19,10 +19,7 @@ import {
   useGetTagsQuery,
 } from "../../../api/QaApi";
 import UploadImage from "./upload-image";
-import {
-  GeminiService,
-  TagGenerationRequest,
-} from "@/services/gemini/config";
+import { GeminiService, TagGenerationRequest } from "@/services/gemini/config";
 import { X, Tag, Loader2, Plus } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/utils/cn";
@@ -267,7 +264,9 @@ export default function NewQuestionPopup({
           )}
         >
           <h2 className="text-xl font-semibold">
-            {isUpdateQuestion ? t_qaPage("editQuestion") : t_qaPage("newQuestion")}
+            {isUpdateQuestion
+              ? t_qaPage("editQuestion")
+              : t_qaPage("newQuestion")}
           </h2>
           <button
             onClick={() => {
@@ -604,15 +603,15 @@ export default function NewQuestionPopup({
             onClick={async () => {
               if (isUpdateQuestion) {
                 toast.promise(updateQuestion(existImages), {
-                  loading: "Đang cập nhật câu hỏi...",
-                  success: "Đã cập nhật câu hỏi thành công",
-                  error: "Cập nhật câu hỏi thất bại",
+                  loading: t_qaPage("updatingQuestion"),
+                  success: t_qaPage("updateQuestionSuccess"),
+                  error: t_qaPage("updateQuestionError"),
                 });
               } else {
                 toast.promise(postQuestion(), {
-                  loading: "Đang đăng câu hỏi...",
-                  success: "Đã đăng câu hỏi thành công",
-                  error: "Đăng câu hỏi thất bại",
+                  loading: t_qaPage("postingQuestion"),
+                  success: t_qaPage("postQuestionSuccess"),
+                  error: t_qaPage("postQuestionError"),
                 });
               }
             }}

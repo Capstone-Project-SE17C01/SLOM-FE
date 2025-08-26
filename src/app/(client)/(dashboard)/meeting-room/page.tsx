@@ -171,7 +171,10 @@ export default function MeetingRoomPage() {
         const folderType = pathParts[uploadIndex + 2];
 
         if (folderType === "custom" && pathParts.length > uploadIndex + 3) {
-          return { folderType, subFolder: pathParts[uploadIndex + 3] };
+          return {
+            folderType,
+            subFolder: decodeURIComponent(pathParts[uploadIndex + 3]),
+          };
         }
 
         return { folderType };
@@ -256,17 +259,19 @@ export default function MeetingRoomPage() {
 
   const handleDateSelection = (date: Date) => {
     setSelectedDate(date);
-    
+
     // Format date theo local timezone để tránh bị tăng thêm 1 ngày
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const dayStr = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const dayStr = String(date.getDate()).padStart(2, "0");
     setSelectedDateString(`${year}-${month}-${dayStr}`);
   };
 
   const handleEditMeeting = async (meetingId: string) => {
     try {
-      const loadingToast = toast.loading(t_meetingPage("loadingMeetingDetails"));
+      const loadingToast = toast.loading(
+        t_meetingPage("loadingMeetingDetails")
+      );
       const result = await store.dispatch(
         meetingApi.endpoints.getMeeting.initiate(meetingId)
       );
@@ -289,7 +294,9 @@ export default function MeetingRoomPage() {
   const handleUpdateMeeting = async (updatedDetails: UpdateMeetingRequest) => {
     if (!selectedMeeting) return;
     try {
-      const loadingToast = toast.loading(t_meetingPage("updatingMeetingInformation"));
+      const loadingToast = toast.loading(
+        t_meetingPage("updatingMeetingInformation")
+      );
       await updateMeeting({
         id: selectedMeeting.id,
         request: updatedDetails,
@@ -429,13 +436,9 @@ export default function MeetingRoomPage() {
     title: string;
     endTime?: string;
   }) => {
-    const meetingEndTime = meeting.endTime
-      ? new Date(meeting.endTime)
-      : null;
+    const meetingEndTime = meeting.endTime ? new Date(meeting.endTime) : null;
 
-    const isPastMeeting = meetingEndTime
-      ? meetingEndTime < new Date()
-      : false;
+    const isPastMeeting = meetingEndTime ? meetingEndTime < new Date() : false;
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -470,9 +473,7 @@ export default function MeetingRoomPage() {
                 onClick={(e) => {
                   e.stopPropagation();
                   const meetingLink = `${window.location.origin}/meeting?roomID=${meeting.id}`;
-                  copyToClipboard(
-                    meetingLink                    
-                  );
+                  copyToClipboard(meetingLink);
                 }}
                 className="flex items-center gap-1"
                 disabled={isCopying || isDeleting || isUpdating}
@@ -481,7 +482,9 @@ export default function MeetingRoomPage() {
                   size={14}
                   className={isCopying ? "animate-pulse" : ""}
                 />
-                {isCopying ? t_meetingPage("copying") : t_meetingPage("copyLink")}
+                {isCopying
+                  ? t_meetingPage("copying")
+                  : t_meetingPage("copyLink")}
               </DropdownMenuItem>
             </>
           )}
@@ -494,7 +497,8 @@ export default function MeetingRoomPage() {
             className="flex items-center gap-1 text-red-500 focus:bg-red-50 dark:focus:bg-red-900/20"
             disabled={isDeleting || isUpdating}
           >
-            <Trash2 size={14} /> {isDeleting ? t_meetingPage("deleting") : t_meetingPage("delete")}
+            <Trash2 size={14} />{" "}
+            {isDeleting ? t_meetingPage("deleting") : t_meetingPage("delete")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -521,7 +525,9 @@ export default function MeetingRoomPage() {
             disabled={isDeletingRecording}
           >
             <Trash2 size={14} />{" "}
-            {isDeletingRecording ? t_meetingPage("deleting") : t_meetingPage("delete")}
+            {isDeletingRecording
+              ? t_meetingPage("deleting")
+              : t_meetingPage("delete")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -545,7 +551,15 @@ export default function MeetingRoomPage() {
     for (let i = 0; i < firstDay; i++) calendarDays.push(null);
     for (let day = 1; day <= daysInMonth; day++) {
       calendarDays.push(
-        new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day, 12, 0, 0, 0)
+        new Date(
+          currentMonth.getFullYear(),
+          currentMonth.getMonth(),
+          day,
+          12,
+          0,
+          0,
+          0
+        )
       );
     }
 
@@ -554,27 +568,25 @@ export default function MeetingRoomPage() {
         {calendarDays.map((day, index) => {
           if (day === null)
             return <div key={`empty-${index}`} className="h-8"></div>;
-          
+
           // Format date theo local timezone
           const year = day.getFullYear();
-          const month = String(day.getMonth() + 1).padStart(2, '0');
-          const dayStr = String(day.getDate()).padStart(2, '0');
+          const month = String(day.getMonth() + 1).padStart(2, "0");
+          const dayStr = String(day.getDate()).padStart(2, "0");
           const formattedDate = `${year}-${month}-${dayStr}`;
-          
-          const hasMeetings = monthMeetings.some(
-            (meeting) => {
-              if (meeting.isDeleted) return false;
-              
-              // Format meeting date theo local timezone
-              const meetingDate = new Date(meeting.startTime);
-              const mYear = meetingDate.getFullYear();
-              const mMonth = String(meetingDate.getMonth() + 1).padStart(2, '0');
-              const mDay = String(meetingDate.getDate()).padStart(2, '0');
-              const meetingFormattedDate = `${mYear}-${mMonth}-${mDay}`;
-              
-              return meetingFormattedDate === formattedDate;
-            }
-          );
+
+          const hasMeetings = monthMeetings.some((meeting) => {
+            if (meeting.isDeleted) return false;
+
+            // Format meeting date theo local timezone
+            const meetingDate = new Date(meeting.startTime);
+            const mYear = meetingDate.getFullYear();
+            const mMonth = String(meetingDate.getMonth() + 1).padStart(2, "0");
+            const mDay = String(meetingDate.getDate()).padStart(2, "0");
+            const meetingFormattedDate = `${mYear}-${mMonth}-${mDay}`;
+
+            return meetingFormattedDate === formattedDate;
+          });
           const isSelected =
             selectedDate?.toDateString() === day.toDateString();
           const isToday = new Date().toDateString() === day.toDateString();
@@ -1122,9 +1134,9 @@ export default function MeetingRoomPage() {
                                 ([subFolderName, subFolderRecordings]) => (
                                   <div
                                     key={subFolderName}
-                                    className="mt-6 first:mt-0"
+                                    className="first:mt-0"
                                   >
-                                    <div className="flex items-center gap-2 mb-3">
+                                    <div className="flex items-center gap-2 my-3">
                                       <Folder className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                                       <h4 className="font-medium text-md capitalize">
                                         {subFolderName}
@@ -1311,7 +1323,9 @@ export default function MeetingRoomPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-red-500">{t_meetingPage("deleteRecording")}</DialogTitle>
+            <DialogTitle className="text-red-500">
+              {t_meetingPage("deleteRecording")}
+            </DialogTitle>
             <DialogDescription>
               {t_meetingPage("areYouSureYouWantToDeleteTheRecording")}
               <span className="font-medium">
