@@ -15,6 +15,22 @@ interface UseMeetingFirebaseReturn {
   error: string | null
 }
 
+function mappingContent(content: string) {
+  try {
+    const contentTrim = content.trim()
+    const dictionary = {
+      J: 'Run'
+    }
+    if (dictionary[contentTrim as keyof typeof dictionary]) {
+      return dictionary[contentTrim as keyof typeof dictionary]
+    }
+    return contentTrim
+  } catch (error) {
+    console.error('❌ Error mapping content:', error)
+    return content.trim()
+  }
+}
+
 /**
  * Hook to automatically sync meeting transcripts to Firebase
  * Handles both speech-to-text and sign language content
@@ -89,12 +105,13 @@ export const useMeetingFirebase = ({
       if (!enabled || !content.trim() || !meetingCode || !userId) return
 
       try {
+        const mappedContent = mappingContent(content)
         console.log('👋 Sending sign language content to Firebase:', content)
 
         const entry: ContentEntry = {
           meetingCode,
           userId,
-          content: content.trim(), // 🔥 NO PREFIX - clean natural subtitle
+          content: mappedContent.trim(), // 🔥 NO PREFIX - clean natural subtitle
           timestamp: Date.now()
         }
 
