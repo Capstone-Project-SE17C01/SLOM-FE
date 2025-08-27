@@ -133,7 +133,7 @@ const Chatbot: React.FC = () => {
               width: 44,
               height: 44,
               borderRadius: "50%",
-              background: "linear-gradient(135deg, #a259ff 0%, #6d28d9 100%)",
+              background: "linear-gradient(135deg, #a259ff 0%, #6947A8 100%)",
               boxShadow: "0 4px 24px rgba(0,0,0,0.18)",
               border: "none",
               display: "flex",
@@ -145,16 +145,16 @@ const Chatbot: React.FC = () => {
           >
             {/* Icon chat bubble tím, nhỏ */}
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="12" fill="#a259ff" opacity="0.15" />
+              <circle cx="12" cy="12" r="12" fill="#6947A8" opacity="0.15" />
               <path
                 d="M7 8h10M7 12h6m-6 4h4"
-                stroke="#a259ff"
+                stroke="#6947A8"
                 strokeWidth="2"
                 strokeLinecap="round"
               />
               <path
                 d="M5 19l2.5-2.5"
-                stroke="#a259ff"
+                stroke="#6947A8"
                 strokeWidth="2"
                 strokeLinecap="round"
               />
@@ -171,12 +171,12 @@ const Chatbot: React.FC = () => {
                 cy="12"
                 rx="5"
                 ry="4"
-                fill="#a259ff"
+                fill="#6947A8"
                 opacity="0.15"
               />
-              <circle cx="9.5" cy="12" r="1" fill="#a259ff" />
-              <circle cx="12" cy="12" r="1" fill="#a259ff" />
-              <circle cx="14.5" cy="12" r="1" fill="#a259ff" />
+              <circle cx="9.5" cy="12" r="1" fill="#6947A8" />
+              <circle cx="12" cy="12" r="1" fill="#6947A8" />
+              <circle cx="14.5" cy="12" r="1" fill="#6947A8" />
             </svg>
           </button>
         )}
@@ -202,7 +202,7 @@ const Chatbot: React.FC = () => {
           >
             <div
               style={{
-                background: "linear-gradient(135deg, #a259ff 0%, #6d28d9 100%)",
+                background: "linear-gradient(135deg, #a259ff 0%, #6947A8 100%)",
                 color: "#fff",
                 padding: "12px 16px",
                 fontWeight: 600,
@@ -294,7 +294,7 @@ const Chatbot: React.FC = () => {
                       padding: "8px 12px",
                       borderRadius: 16,
                       background: msg.role === "user" 
-                        ? (isDarkMode ? "#3b82f6" : "#e6f0ff") 
+                        ? (isDarkMode ? "#6947A8" : "#e9d8ff") 
                         : (isDarkMode ? "#4b5563" : "#e9e9e9"),
                       color: isDarkMode ? "#f9fafb" : "#222",
                       maxWidth: 240,
@@ -339,7 +339,7 @@ const Chatbot: React.FC = () => {
                 style={{
                   marginLeft: 8,
                   background:
-                    "linear-gradient(135deg, #a259ff 0%, #6d28d9 100%)",
+                    "linear-gradient(135deg, #a259ff 0%, #6947A8 100%)",
                   color: "white",
                   border: "none",
                   borderRadius: 8,
