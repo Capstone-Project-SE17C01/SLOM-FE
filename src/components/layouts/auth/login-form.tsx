@@ -200,7 +200,10 @@ export function LoginForm() {
                     id="remember"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary checked:bg-purple-700"
+                    style={{
+                      accentColor: "#9333EA",
+                    }}
                   />
                   <label
                     htmlFor="remember"

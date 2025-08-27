@@ -78,7 +78,9 @@ const Chatbot: React.FC = () => {
           ONLY answer questions about sign language, deaf-related topics, or our website/app features.
           If the user asks questions not related to these topics, politely respond with:
           "Sorry, I can only answer questions related to sign language, deaf community, or our app features. Please ask another question."
-          
+          or "Xin lỗi, tôi chỉ có thể trả lời các câu hỏi liên quan đến ngôn ngữ tay, cộng đồng người khiếm thính, hoặc tính năng của ứng dụng của chúng tôi. Vui lòng hỏi câu hỏi khác."
+          based on the language of the user.
+
           Answer concisely and clearly in ${language}.
           
           Website information: ${websiteInfoString}`,

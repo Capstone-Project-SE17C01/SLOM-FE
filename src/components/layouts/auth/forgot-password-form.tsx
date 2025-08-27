@@ -121,12 +121,12 @@ export function ForgotPasswordForm() {
 
   const handleChange =
     (field: keyof ConfirmRegisterationRequestDTO) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setFormData((prev) => ({
-        ...prev,
-        [field]: e.target.value || "",
-      }));
-    };
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData((prev) => ({
+          ...prev,
+          [field]: e.target.value || "",
+        }));
+      };
 
   return (
     <>
@@ -303,19 +303,19 @@ export function ForgotPasswordForm() {
             </form>
           </CardContent>
         </Card>
-      </div>
-      {(isLoading || isSendingCode) && (
-        <div className="fixed inset-0 bg-black/50 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="flex items-center gap-2 bg-white dark:bg-neutral-900 px-4 py-2 rounded-lg">
-            <Loader2 className="h-5 w-5 animate-spin text-primary" />
-            <span className="dark:text-neutral-100">
-              {isLoading
-                ? t_forgot_password("resetting")
-                : t_forgot_password("sendingCode")}
-            </span>
+        {(isLoading || isSendingCode) && (
+          <div className="fixed inset-0 bg-black/50 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="flex items-center gap-2 bg-white dark:bg-neutral-900 px-4 py-2 rounded-lg">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              <span className="dark:text-neutral-100">
+                {isLoading
+                  ? t_forgot_password("resetting")
+                  : t_forgot_password("sendingCode")}
+              </span>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </>
   );
 }
