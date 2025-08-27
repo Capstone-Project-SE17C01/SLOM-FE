@@ -11,8 +11,6 @@ import {
   Pause,
   RotateCcw,
   History,
-  Volume2,
-  VolumeX,
   FileText,
 } from "lucide-react";
 
@@ -46,7 +44,6 @@ export default function RealTimeTranslator({
     confidence: number;
     timestamp: string;
   }>>([]);
-  const [isSpeechEnabled, setIsSpeechEnabled] = useState(true);
   
   // Khởi tạo speech synthesis
   const speechSynthesis = useSpeechSynthesis({
@@ -121,7 +118,7 @@ export default function RealTimeTranslator({
       );
       
       // Tự động phát âm nếu đã bật chức năng này
-      if (isSpeechEnabled && detectedConfidence >= 70) {
+      if (detectedConfidence >= 70) {
         speechSynthesis.speak(gesture);
       }
     }
@@ -249,14 +246,6 @@ export default function RealTimeTranslator({
       fullTranscript,
       language
     );
-  };
-
-  // Toggle speech synthesis
-  const toggleSpeech = () => {
-    setIsSpeechEnabled(!isSpeechEnabled);
-    if (speechSynthesis.isSpeaking) {
-      speechSynthesis.cancel();
-    }
   };
 
   // Cleanup on unmount
@@ -532,34 +521,6 @@ export default function RealTimeTranslator({
             showConfidence={showConfidence}
             className={isDarkMode ? "border-purple-800" : "border-purple-200"}
           />
-          
-          {/* Speech Indicator */}
-          {currentPrediction && (
-            <div className="flex items-center justify-end mt-1">
-              <div 
-                className={cn(
-                  "flex items-center gap-1 text-xs px-2 py-1 rounded-full cursor-pointer",
-                  isSpeechEnabled 
-                    ? isDarkMode ? "bg-purple-900/30 text-purple-300" : "bg-purple-100 text-purple-700"
-                    : isDarkMode ? "bg-gray-800 text-gray-400" : "bg-gray-100 text-gray-500"
-                )}
-                onClick={toggleSpeech}
-                title={isSpeechEnabled ? t_translatorPage("speechEnabled") : t_translatorPage("speechDisabled")}
-              >
-                {isSpeechEnabled ? (
-                  <>
-                    <Volume2 className="w-3 h-3" />
-                    <span>{t_translatorPage("autoSpeak")}</span>
-                  </>
-                ) : (
-                  <>
-                    <VolumeX className="w-3 h-3" />
-                    <span>{t_translatorPage("speechOff")}</span>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
 
           {/* Full Transcript Subtitle */}
           {isDetectorActive && fullTranscript && (
@@ -587,10 +548,10 @@ export default function RealTimeTranslator({
           <ConnectionStatus
             connectionStatus={
               isDetectorActive 
-                ? "Recognizing..." 
+                ? t_translatorPage("recognizing") 
                 : mediaStream 
-                ? "Connected" 
-                : "Disconnected"
+                ? t_translatorPage("connected") 
+                : t_translatorPage("disconnected")
             }
             isActive={isDetectorActive}
             className={cn(

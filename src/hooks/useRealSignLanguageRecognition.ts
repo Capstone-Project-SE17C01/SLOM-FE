@@ -49,7 +49,6 @@ export const useRealSignLanguageRecognition = (options: UseRealSignLanguageRecog
         if (!detected && fakeIntervalRef.current) {
           clearInterval(fakeIntervalRef.current)
           fakeIntervalRef.current = null
-          console.log('Hand removed - pausing fake display')
         }
 
         if (
@@ -58,7 +57,6 @@ export const useRealSignLanguageRecognition = (options: UseRealSignLanguageRecog
           !fakeIntervalRef.current &&
           fakeWordIndexRef.current < currentFakeSentenceRef.current.length
         ) {
-          console.log('Hand detected - resuming fake display')
           startFakeSentenceDisplay()
         }
       }
@@ -68,7 +66,6 @@ export const useRealSignLanguageRecognition = (options: UseRealSignLanguageRecog
 
   const startFakeSentenceDisplay = useCallback(() => {
     if (!handDetected) {
-      console.log('Cannot start fake display - no hand detected')
       return
     }
 
@@ -77,11 +74,9 @@ export const useRealSignLanguageRecognition = (options: UseRealSignLanguageRecog
       currentFakeSentenceRef.current.length === 0 ||
       fakeWordIndexRef.current >= currentFakeSentenceRef.current.length
     ) {
-      console.log('No fake sentence to display or already completed')
       return
     }
 
-    console.log('Starting fake sentence display')
 
     if (fakeIntervalRef.current) {
       clearInterval(fakeIntervalRef.current)
@@ -138,7 +133,6 @@ export const useRealSignLanguageRecognition = (options: UseRealSignLanguageRecog
 
   // 🔥 FIX: Thêm hàm để reset trạng thái fake mode sau khi hoàn thành
   const resetFakeMode = useCallback(() => {
-    console.log('Resetting fake mode state')
     setUseFakeMode(false)
     lastGestureRef.current = ''
     fakeWordIndexRef.current = 0
@@ -173,7 +167,6 @@ export const useRealSignLanguageRecognition = (options: UseRealSignLanguageRecog
         fakeWordIndexRef.current >= currentFakeSentenceRef.current.length &&
         currentFakeSentenceRef.current.length > 0
       ) {
-        console.log('Fake sentence completed, resetting fake mode')
         resetFakeMode()
 
         // Thêm gesture hiện tại vào transcript thực
@@ -198,7 +191,6 @@ export const useRealSignLanguageRecognition = (options: UseRealSignLanguageRecog
       const isAnyTriggerWord = allTriggerWords.has(gesture)
 
       if (isAnyTriggerWord && !useFakeMode) {
-        console.log(`${gesture} gesture detected - starting fake mode`)
         setUseFakeMode(true)
         setFullTranscript('')
         lastGestureRef.current = gesture
@@ -215,14 +207,12 @@ export const useRealSignLanguageRecognition = (options: UseRealSignLanguageRecog
         }
 
         fakeTimerRef.current = setTimeout(() => {
-          console.log('Trigger phrase timeout - deactivating fake mode')
           resetFakeMode()
         }, 15000) // 🔥 FIX: Tăng thời gian lên 15 giây
       }
 
       // 🔥 FIX: PAUSE real gesture recognition khi fake mode đang chạy VÀ đang hiển thị câu fake
       if (useFakeMode && fakeIntervalRef.current && currentFakeSentenceRef.current.length > 0) {
-        console.log('Fake mode active - pausing real gesture recognition')
         // Chỉ xử lý trigger phrases, không xử lý real gestures
         return
       }
@@ -237,7 +227,6 @@ export const useRealSignLanguageRecognition = (options: UseRealSignLanguageRecog
 
         setRecentPredictions((prev) => {
           const updated = [newResult, ...prev]
-          console.log(`Real gesture detected: ${newResult.prediction} (${newResult.confidence}%)`)
           return updated.slice(0, maxRecentPredictions)
         })
 
@@ -282,7 +271,6 @@ export const useRealSignLanguageRecognition = (options: UseRealSignLanguageRecog
           }
 
           fakeTimerRef.current = setTimeout(() => {
-            console.log('Fake sentence display timeout - deactivating')
             resetFakeMode()
           }, 30000)
         }
@@ -316,7 +304,6 @@ export const useRealSignLanguageRecognition = (options: UseRealSignLanguageRecog
               }
 
               fakeTimerRef.current = setTimeout(() => {
-                console.log('Fake sentence display timeout - deactivating')
                 resetFakeMode()
               }, 60000) // 🔥 FIX: Tăng thời gian lên 60 giây
 
@@ -390,7 +377,6 @@ export const useRealSignLanguageRecognition = (options: UseRealSignLanguageRecog
   useEffect(() => {
     if (useFakeMode) {
       if (!handDetected && fakeIntervalRef.current) {
-        console.log('Effect: Hand removed - pausing fake display')
         clearInterval(fakeIntervalRef.current)
         fakeIntervalRef.current = null
       } else if (
@@ -398,7 +384,6 @@ export const useRealSignLanguageRecognition = (options: UseRealSignLanguageRecog
         !fakeIntervalRef.current &&
         fakeWordIndexRef.current < currentFakeSentenceRef.current.length
       ) {
-        console.log('Effect: Hand detected - resuming fake display')
         startFakeSentenceDisplay()
       }
     }

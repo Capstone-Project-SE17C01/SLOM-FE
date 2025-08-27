@@ -309,7 +309,9 @@ export function ForgotPasswordForm() {
           <div className="flex items-center gap-2 bg-white dark:bg-neutral-900 px-4 py-2 rounded-lg">
             <Loader2 className="h-5 w-5 animate-spin text-primary" />
             <span className="dark:text-neutral-100">
-              {isLoading ? "Resetting password..." : "Sending code..."}
+              {isLoading
+                ? t_forgot_password("resetting")
+                : t_forgot_password("sendingCode")}
             </span>
           </div>
         </div>

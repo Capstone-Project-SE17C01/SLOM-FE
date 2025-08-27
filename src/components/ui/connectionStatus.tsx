@@ -28,7 +28,7 @@ export default function ConnectionStatus({
   
   const getStatusConfig = () => {
     switch (connectionStatus) {
-      case "Connected":
+      case t_translatorPage("connected"):
         return {
           icon: CheckCircle,
           color: isDarkMode ? "text-green-400" : "text-green-600",
@@ -36,7 +36,7 @@ export default function ConnectionStatus({
           dotColor: "bg-green-500",
           message: t_translatorPage("connectedToTranslationServer"),
         };
-      case "Connecting...":
+      case t_translatorPage("connecting"):
         return {
           icon: Loader2,
           color: isDarkMode ? "text-blue-400" : "text-blue-600",
@@ -45,7 +45,7 @@ export default function ConnectionStatus({
           message: t_translatorPage("connectingToServer"),
           animated: true,
         };
-      case "Recognizing...":
+      case t_translatorPage("recognizing"):
         return {
           icon: Wifi,
           color: isDarkMode ? "text-purple-400" : "text-purple-600",
@@ -54,7 +54,7 @@ export default function ConnectionStatus({
           message: t_translatorPage("translatingSignLanguage"),
           pulse: true,
         };
-      case "Error":
+      case t_translatorPage("error"):
         return {
           icon: AlertCircle,
           color: isDarkMode ? "text-red-400" : "text-red-600",
@@ -62,7 +62,7 @@ export default function ConnectionStatus({
           dotColor: "bg-red-500",
           message: t_translatorPage("connectionErrorOccurred"),
         };
-      case "Demo Mode (Server Unavailable)":
+      case t_translatorPage("demoModeServerUnavailable"):
         return {
           icon: Play,
           color: isDarkMode ? "text-orange-400" : "text-orange-600",
@@ -71,7 +71,7 @@ export default function ConnectionStatus({
           message: t_translatorPage("runningInDemoModeServerTemporarilyUnavailable"),
           pulse: true,
         };
-      case "Camera Only Mode (WebSocket Disabled)":
+      case t_translatorPage("cameraOnlyModeWebSocketDisabled"):
         return {
           icon: Camera,
           color: isDarkMode ? "text-blue-400" : "text-blue-600",
@@ -79,7 +79,7 @@ export default function ConnectionStatus({
           dotColor: "bg-blue-500",
           message: t_translatorPage("cameraPreviewOnlyWebSocketTemporarilyDisabled"),
         };
-      default: // Disconnected
+      default:
         return {
           icon: WifiOff,
           color: isDarkMode ? "text-gray-400" : "text-gray-600",
@@ -111,7 +111,7 @@ export default function ConnectionStatus({
             config.pulse && "animate-pulse"
           )}
         />
-        {isActive && connectionStatus === "Recognizing..." && (
+        {isActive && connectionStatus === t_translatorPage("recognizing") && (
           <div
             className={cn(
               "absolute inset-0 w-3 h-3 rounded-full animate-ping",
@@ -145,7 +145,7 @@ export default function ConnectionStatus({
       </div>
 
       {/* Activity indicator for active translation */}
-      {isActive && connectionStatus === "Recognizing..." && (
+      {isActive && connectionStatus === t_translatorPage("recognizing") && (
         <div className="flex items-center gap-1">
           <div className="flex space-x-1">
             <div className="w-1 h-6 bg-purple-500 rounded-full animate-pulse" />
@@ -156,7 +156,7 @@ export default function ConnectionStatus({
       )}
 
       {/* Demo mode indicator */}
-      {isActive && connectionStatus === "Demo Mode (Server Unavailable)" && (
+      {isActive && connectionStatus === t_translatorPage("demoModeServerUnavailable") && (
         <div className="flex items-center gap-1">
           <div className="flex space-x-1">
             <div className="w-1 h-6 bg-orange-500 rounded-full animate-pulse" />

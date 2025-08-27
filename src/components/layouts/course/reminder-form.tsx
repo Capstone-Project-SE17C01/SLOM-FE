@@ -116,7 +116,9 @@ export function ReminderForm({
       </div>
 
       <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? "Setting..." : tCourseDashBoard("setReminder")}
+        {isSubmitting
+          ? tCourseDashBoard("setting")
+          : tCourseDashBoard("setReminder")}
       </Button>
     </form>
   );

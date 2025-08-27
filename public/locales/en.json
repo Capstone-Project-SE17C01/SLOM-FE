@@ -224,7 +224,8 @@
     "schedule": "Schedule Video Call",
     "success": "Your message has been sent successfully!",
     "sendFeedback": "Send us a feedback",
-    "messagePlaceholder": "Describe your issue or feedback in detail..."
+    "messagePlaceholder": "Describe your issue or feedback in detail...",
+    "error": "Please login to send feedback"
   },
   "unAuthenMessage": {
     "loginPrompt": "Please log in to start message"
@@ -356,7 +357,8 @@
     "resetting": "Resetting...",
     "resetPassword": "Reset Password",
     "rememberPassword": "Remember your password?",
-    "backToLogin": "Back to Login"
+    "backToLogin": "Back to Login",
+    "sendingCode": "Sending code..."
   },
   "confirmRegisterPage": {
     "title": "Confirm Registration",
@@ -369,7 +371,8 @@
     "resend": "Resend",
     "confirming": "Confirming...",
     "confirmButton": "Confirm Registration",
-    "backToLogin": "Back to Login"
+    "backToLogin": "Back to Login",
+    "sendingCode": "Sending code..."
   },
   "profile": {
     "title": "My Profile",
@@ -572,7 +575,8 @@
     "reminderTime": "Reminder Time",
     "reminderMessage": "Reminder Message",
     "enterYourReminderMessage": "Enter your reminder message",
-    "thisCourseNotAvailable": "This course is not available, please choose another course"
+    "thisCourseNotAvailable": "This course is not available, please choose another course",
+    "setting": "Setting..."
   },
   "listCoursePage": {
     "noCourseRemain": "No course remain",
@@ -774,7 +778,11 @@
     "speechOff": "Speech Off",
     "speechEnabled": "Automatic speech is enabled",
     "speechDisabled": "Automatic speech is disabled",
-    "exportToWord": "Export to Word"
+    "exportToWord": "Export to Word",
+    "connected": "Connected",
+    "connecting": "Connecting...",
+    "demoModeServerUnavailable": "Demo Mode (Server Unavailable)",
+    "cameraOnlyModeWebSocketDisabled": "Camera Only Mode (WebSocket Disabled)"
   },
   "qaPage": {
     "communityQ&A": "Community Q&A",

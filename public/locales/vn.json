@@ -200,7 +200,8 @@
     "schedule": "Đặt lịch gọi video",
     "success": "Tin nhắn của bạn đã được gửi thành công!",
     "sendFeedback": "Gửi phản hồi cho chúng tôi",
-    "messagePlaceholder": "Mô tả chi tiết vấn đề hoặc ý kiến của bạn..."
+    "messagePlaceholder": "Mô tả chi tiết vấn đề hoặc ý kiến của bạn...",
+    "error": "Vui lòng đăng nhập để gửi phản hồi"
   },
   "unAuthenMessage": {
     "loginPrompt": "Vui lòng đăng nhập để bắt đầu nhắn tin"
@@ -332,7 +333,8 @@
     "resetting": "Đang đặt lại...",
     "resetPassword": "Đặt lại mật khẩu",
     "rememberPassword": "Nhớ mật khẩu?",
-    "backToLogin": "Quay lại đăng nhập"
+    "backToLogin": "Quay lại đăng nhập",
+    "sendingCode": "Đang gửi mã..."
   },
   "confirmRegisterPage": {
     "title": "Xác nhận đăng ký",
@@ -345,7 +347,8 @@
     "resend": "Gửi lại",
     "confirming": "Đang xác nhận...",
     "confirmButton": "Xác nhận đăng ký",
-    "backToLogin": "Quay lại đăng nhập"
+    "backToLogin": "Quay lại đăng nhập",
+    "sendingCode": "Đang gửi mã..."
   },
   "profile": {
     "title": "Hồ sơ của tôi",
@@ -554,7 +557,8 @@
     "reminderTime": "Thời gian nhắc nhở",
     "reminderMessage": "Nội dung nhắc nhở",
     "enterYourReminderMessage": "Nhập nội dung nhắc nhở",
-    "thisCourseNotAvailable": "Khóa học này không khả dụng, vui lòng chọn khóa học khác"
+    "thisCourseNotAvailable": "Khóa học này không khả dụng, vui lòng chọn khóa học khác",
+    "setting": "Đang cài đặt..."
   },
   "listCoursePage": {
     "noCourseRemain": "Không có khóa học còn lại",
@@ -756,7 +760,11 @@
     "speechOff": "Tắt âm thanh",
     "speechEnabled": "Đã bật tự động đọc",
     "speechDisabled": "Đã tắt tự động đọc",
-    "exportToWord": "Xuất ra Word"
+    "exportToWord": "Xuất ra Word",
+    "connected": "Đã kết nối",
+    "connecting": "Đang kết nối...",
+    "demoModeServerUnavailable": "Chế độ demo - Máy chủ tạm thời không khả dụng",
+    "cameraOnlyModeWebSocketDisabled": "Chế độ camera chỉ - WebSocket tạm thời không khả dụng"
   },
   "qaPage": {
     "communityQ&A": "Cộng đồng Q&A",

@@ -218,7 +218,7 @@ export default function PricingPlans() {
           <p className="text-muted-foreground">{t_pricing("note")}</p>
           <p className="mt-2">
             {t_pricing("contact")}{" "}
-            <a href="#" className="underline text-primary">
+            <a href="mailto:contact@slom.com" className="underline text-primary">
               {t_pricing("contactLink")}
             </a>
           </p>
