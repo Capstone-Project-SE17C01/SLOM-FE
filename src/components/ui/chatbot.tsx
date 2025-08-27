@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { GeminiService } from "@/services/gemini/config";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslations } from "next-intl";
+import websiteInfo from "@/utils/websiteInfo";
 
 interface Message {
   role: "user" | "assistant";
@@ -41,10 +42,46 @@ const Chatbot: React.FC = () => {
           ? "Vietnamese"
           : "English";
 
+      // Chuẩn bị thông tin website để cung cấp cho chatbot
+      const websiteInfoString = JSON.stringify({
+        name: websiteInfo.name,
+        description: websiteInfo.description,
+        features: websiteInfo.features,
+        pricing: websiteInfo.pricing,
+        about: websiteInfo.about,
+        signLanguageInfo: websiteInfo.signLanguageInfo,
+        deafCommunity: websiteInfo.deafCommunity
+      });
+
       const systemMessage = {
         role: "system" as const,
         content:
-          "You are a friendly AI assistant for SLOM app (Sign Language Online meeting). Our app have components: online meeting allow user meeting and translate sign language, message for chat, course for course learning deaf language, translator ...., QA for User to ask questions Just answer the questions about the system and deaf related problems. If user ask questions not related, answer just: Sorry, your question is out of my scope, please ask others question.Answer concisely and clearly in" + language,
+          `You are a friendly AI assistant for ${websiteInfo.name} (${websiteInfo.description}). 
+          Our app has the following components: 
+          1. Online meeting that allows users to meet and translate sign language in real-time
+          2. Messaging for chat between users
+          3. Courses for learning sign language
+          4. Translator for sign language translation
+          5. Q&A section for users to ask questions
+
+          We have two pricing plans:
+          - Free plan: ${websiteInfo.pricing.free.description}
+          - Pro plan: ${websiteInfo.pricing.pro.description} at ${websiteInfo.pricing.pro.price}đ per month
+
+          You have extensive knowledge about sign language and deaf communities:
+          - ${websiteInfo.signLanguageInfo.definition}
+          - We support multiple sign languages including ${websiteInfo.signLanguageInfo.types.vsl.name}, ${websiteInfo.signLanguageInfo.types.asl.name}, and others
+          - ${websiteInfo.deafCommunity.culture}
+          - ${websiteInfo.deafCommunity.statistics.global}
+          - ${websiteInfo.deafCommunity.statistics.vietnam}
+
+          ONLY answer questions about sign language, deaf-related topics, or our website/app features.
+          If the user asks questions not related to these topics, politely respond with:
+          "Sorry, I can only answer questions related to sign language, deaf community, or our app features. Please ask another question."
+          
+          Answer concisely and clearly in ${language}.
+          
+          Website information: ${websiteInfoString}`,
       };
 
       const chatMessages = [
