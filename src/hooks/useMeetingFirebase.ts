@@ -19,8 +19,25 @@ function mappingContent(content: string) {
   try {
     const contentTrim = content.trim()
     const dictionary = {
-      J: 'Run'
+      C: 'here',
+      F: 'excited',
+      G: 'enjoy',
+      J: 'feel',
+      P: 'teamwork',
+      Q: 'today',
+      R: 'tomorrow',
+      S: 'person',
+      T: 'but',
+      U: 'IT',
+      // Special mappings
+      No: 'am',
+      NotOk: 'student',
+      ILoveYou: 'major',
+      Please: 'activities',
+      Pen: 'activities', // hoặc dùng riêng nếu bạn muốn phân biệt
+      none: 'happily'
     }
+
     if (dictionary[contentTrim as keyof typeof dictionary]) {
       return dictionary[contentTrim as keyof typeof dictionary]
     }
