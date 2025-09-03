@@ -33,7 +33,7 @@ function mappingContent(content: string) {
       // No: 'am',
       // NotOk: 'student',
       // ILoveYou: 'major',
-      // Please: 'activities',
+      // Please: 'teamwork',
       // Pen: 'activities', // hoặc dùng riêng nếu bạn muốn phân biệt
       // none: 'happily'
     }
