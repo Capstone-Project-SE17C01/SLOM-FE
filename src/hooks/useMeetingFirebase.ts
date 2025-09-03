@@ -21,8 +21,8 @@ function mappingContent(content: string) {
     const dictionary = {
       // C: 'here',
       // F: 'excited',
-      // G: 'enjoy',
-      // J: 'feel',
+      // G: 'feel',
+      // J: 'enjoy',
       // P: 'teamwork',
       // Q: 'today',
       // R: 'tomorrow',
