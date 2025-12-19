@@ -7,6 +7,10 @@ import { Toaster } from "sonner";
 import { NextIntlClientProvider } from "next-intl";
 import { Messages } from "next-intl";
 import { store } from "@/redux/store";
+import {
+  setHardcodedCredentials
+} from "@/utils/hardcodeAuth";
+
 export interface ProvidersProps {
   children: React.ReactNode;
   locale: string;
@@ -23,6 +27,39 @@ export function Providers({ children, locale, messages }: ProvidersProps) {
     updateDarkClass();
     window.addEventListener("storage", updateDarkClass);
     return () => window.removeEventListener("storage", updateDarkClass);
+  }, []);
+
+  // Auto-set hardcoded credentials for testing
+  // Always set to ensure VIP status is correct
+  React.useEffect(() => {
+    // Small delay to ensure Redux store is ready
+    const timer = setTimeout(() => {
+      // Always check and update credentials
+      const currentUserInfo = store.getState().auth.userInfo;
+      const needsUpdate = !currentUserInfo || 
+                          currentUserInfo.email !== "quanpva.dev@gmail.com" ||
+                          currentUserInfo.vipUser !== true;
+      
+      if (needsUpdate) {
+        console.log("🔧 Setting/updating hardcoded credentials for testing...");
+        setHardcodedCredentials();
+        
+        // Double-check after a short delay
+        setTimeout(() => {
+          const updatedUserInfo = store.getState().auth.userInfo;
+          if (!updatedUserInfo || updatedUserInfo.vipUser !== true) {
+            console.log("🔄 Force updating credentials again...");
+            setHardcodedCredentials();
+          } else {
+            console.log("✅ VIP credentials confirmed:", updatedUserInfo.vipUser);
+          }
+        }, 200);
+      } else {
+        console.log("✅ VIP credentials already set correctly");
+      }
+    }, 0);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   return (
